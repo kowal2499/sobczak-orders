@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
+        </div>
+
+        <div class="card-body">
+
+            {{ form_start(form) }}
+
+                {{ form_row(form.name) }}
+
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ form_row(form.street) }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_row(form.street_number) }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form_row(form.apartment_number) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form_row(form.postal_code) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.city) }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form_row(form.country) }}
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col">
+                        {{ form_row(form.first_name) }}
+                    </div>
+                    <div class="col">
+                        {{ form_row(form.last_name) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        {{ form_row(form.phone) }}
+                    </div>
+
+                    <div class="col">
+                        {{ form_row(form.email) }}
+                    </div>
+                </div>
+
+                <a href="{{ path('customers_show') }}" class="btn btn-light mr-3"><i class="fa fa-arrow-left" aria-hidden="true"></i> Wstecz</a>
+                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> Zapisz</button>
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+
+html {
+    position: relative;
+    min-height: 100%;
+
+    body#page-top {
+        font-family: 'Roboto', sans-serif;
+        background-color: $lightgray;
+
+        height: 100%;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: slategray;
+        text-align: left;
+        background-color: white;
+
+        position: relative;
+
+        .blur {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+        }
+    }
+
+    div#wrapper {
+        display: flex;
+    }
+}
+

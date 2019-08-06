@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Karta użytkownika: {{ user.getUserFullName }}{% endblock %}
+
+{% block body %}
+    <user-single
+        :first-name="'{{ user.getFirstName }}'"
+        :last-name="'{{ user.getLastName }}'"
+
+    ></user-single>
+{% endblock %}
+

@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Entity;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\AgreementLineRepository")
+ */
+class AgreementLine
+{
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $confirmedDate;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="agreementLines")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $Product;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="agreementLines")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $Agreement;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Production", mappedBy="agreementLine", orphanRemoval=true)
+     */
+    private $productions;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $archived;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deleted;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
+
+    public function __construct()
+    {
+        $this->productions = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getConfirmedDate(): ?\DateTimeInterface
+    {
+        return $this->confirmedDate;
+    }
+
+    public function setConfirmedDate(\DateTimeInterface $confirmedDate): self
+    {
+        $this->confirmedDate = $confirmedDate;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->Product;
+    }
+
+    public function setProduct(?Product $Product): self
+    {
+        $this->Product = $Product;
+
+        return $this;
+    }
+
+    public function getAgreement(): ?Agreement
+    {
+        return $this->Agreement;
+    }
+
+    public function setAgreement(?Agreement $Agreement): self
+    {
+        $this->Agreement = $Agreement;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Production[]
+     */
+    public function getProductions(): Collection
+    {
+        return $this->productions;
+    }
+
+    public function addProduction(Production $production): self
+    {
+        if (!$this->productions->contains($production)) {
+            $this->productions[] = $production;
+            $production->setAgreementLine($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduction(Production $production): self
+    {
+        if ($this->productions->contains($production)) {
+            $this->productions->removeElement($production);
+            // set the owning side to null (unless already changed)
+            if ($production->getAgreementLine() === $this) {
+                $production->setAgreementLine(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getArchived(): ?bool
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(bool $archived): self
+    {
+        $this->archived = $archived;
+
+        return $this;
+    }
+
+    public function getDeleted(): ?bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+}

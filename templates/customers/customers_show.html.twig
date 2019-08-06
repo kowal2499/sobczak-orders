@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Klienci{% endblock %}
+
+{% block body %}
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Klienci</h6>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row text-right">
+                <div class="col">
+                    <a href="{{ path('customers_new') }}" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowy</a>
+                </div>
+
+            </div>
+
+            <div class="form-group row" mt-4>
+                <div class="col">
+                    <form>
+                        <div class="form-group row">
+                            <div class="col">
+                                <input type="text" placeholder="Nazwa / Adres / Dane kontaktowe" autocomplete="off" name="q"
+                                       class="form-control" value="{{ search }}">
+                            </div>
+
+                            <div class="col">
+                                <button type="submit" class="btn btn-light"><i class="fa fa-search" aria-hidden="true"></i> Szukaj</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col">
+                    <div class="float-right">
+                        {{ knp_pagination_render(customers) }}
+                    </div>
+                </div>
+            </div>
+
+            {% if customers|length > 0 %}
+
+            <div class="table-responsive">
+
+                <table class="table" width="100%" cellspacing="0" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>
+                                Nazwa
+                            </th>
+                            <th>
+                                Adres
+                            </th>
+                            <th>
+                                Kod pocztowy
+                            </th>
+                            <th>
+                                Miasto
+                            </th>
+                            <th>
+                                Kraj
+                            </th>
+                            <th style="width: 150px;"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for customer in customers %}
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div>{{ customer.name }}</div>
+                                            {% if customer.getFirstName() or customer.getLastName() %}
+                                                <small>{{ customer.getFirstName() }} {{ customer.getLastName() }}</small>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col">
+
+                                            <div>
+                                                {% if customer.phone %}
+                                                    <i class="fa fa-phone-square" aria-hidden="true"></i>
+                                                    {{ customer.phone }}
+                                                {% endif %}
+                                            </div>
+
+                                            <div>
+                                                {% if customer.email %}
+                                                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                                    <a href="mailto:{{ customer.email }}" style="word-break: break-all">{{ customer.email }}</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+                                    {{ customer.street }}
+                                    {{ customer.getStreetNumber() }}
+                                    {% if customer.getApartmentNumber() %}
+                                        {{ customer.getApartmentNumber() }}
+                                    {% endif %}
+                                </td>
+
+                                <td style="width: 150px;">
+                                    {{ customer.getPostalCode() }}
+                                </td>
+
+                                <td>
+                                    {{ customer.getCity() }}
+                                </td>
+
+                                <td style="width: 150px;">
+                                    {{ customer.getCountry() }}
+                                </td>
+
+                                <td><a href="{{ path('customers_edit', {'id': customer.id}) }}" class="btn btn-light"><i class="fa fa-pencil" aria-hidden="true"></i> Edytuj</a></td>
+
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    {% if search != '' %}
+                        Brak klientów spełniających podane kryteria.
+                    {% else %}
+                        Brak klientów.
+                    {% endif %}
+                </div>
+            {% endif %}
+
+
+            <div class="col">
+                <div class="float-right mt-4">
+                    {{ knp_pagination_render(customers) }}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

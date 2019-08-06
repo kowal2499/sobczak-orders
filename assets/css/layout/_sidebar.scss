@@ -1,0 +1,106 @@
+div#wrapper nav.sidebar {
+
+    min-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+
+    @media (min-width: 768px) {
+        width: 14rem!important;
+    }
+
+
+    &.bg-gradient-primary {
+        background-color: #4e73df;
+        background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#4e73df),to(#224abe));
+        background-image: linear-gradient(180deg,#4e73df 10%,#224abe 100%);
+        background-size: cover;
+    }
+
+    ul {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        padding-left: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        list-style: none;
+
+
+        li.nav-item {
+            a.nav-link {
+
+                outline: none;
+
+                color: rgba(white, .6);
+                font-size: .95rem;
+                position: relative;
+                text-decoration: none;
+                background-color: transparent;
+
+                @media (min-width: 768px) {
+                    display: block;
+                    width: 100%;
+                    text-align: left;
+                    padding: 1rem;
+                    width: 14rem;
+                }
+
+                i {
+                    margin-right: .35rem;
+                }
+
+                span {
+                    display: inline;
+                }
+
+                &:hover, &:hover i {
+                    color: white;
+                }
+            }
+
+            &.expanded .submenu {
+                display: block;
+            }
+
+            .submenu {
+                display: none;
+                background-color: rgba(255, 255, 255, 0.85);
+                padding: 0.2rem;
+                border-radius: .2rem;
+
+                a {
+                    display: block;
+                    padding: .3rem;
+                    margin-bottom: 0.13rem;
+                    font-size: 0.85rem;
+                    color: #3a3b45;
+                    text-decoration: none;
+                    border-radius: .2rem;
+                    white-space: nowrap;
+                }
+
+                a:hover, a.active {
+                    background-color: #fff;
+                }
+
+            }
+
+            &.active {
+                a.nav-link, i {
+                    font-weight: 700;
+                    color: white;
+                }
+            }
+        }
+
+        .sidebar-divider {
+            width: 60%;
+        }
+    }
+}
+
+
