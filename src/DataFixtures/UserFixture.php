@@ -27,7 +27,7 @@ class UserFixture extends BaseFixture
                 ->setEmail(sprintf('user%d@sobczak.com.pl', $count+1))
                 ->setPassword($this->userPasswordEncoder->encodePassword(
                     $user,
-                    'letmeinplease'
+                    'letmein'
                 ))
             ;
         }, 'main_users');
