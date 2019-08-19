@@ -78,4 +78,31 @@ class SecurityController extends AbstractController
             'user' => $user
         ]);
     }
+
+    /**
+     * @Route("/add_user", name="security_user_add", options={"expose"=true})
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     * @return JsonResponse
+     */
+    public function addUser(Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder)
+    {
+        $user = new User();
+
+        $user
+            ->setFirstName($request->request->get('first_name'))
+            ->setLastName($request->request->get('last_name'))
+            ->setEmail($request->request->get('email'))
+            ->setPassword($userPasswordEncoder->encodePassword($user, $request->request->get('password')));
+        ;
+
+        $response = new JsonResponse();
+
+
+        $em->persist($user);
+        $em->flush();
+
+        return $response;
+    }
 }

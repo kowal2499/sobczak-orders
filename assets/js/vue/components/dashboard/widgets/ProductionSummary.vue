@@ -94,9 +94,20 @@
                 }
 
                 let daysNum = moment().daysInMonth();
-                let factorPerDay = 30 / daysNum;
+                // let factorPerDay = 30 / daysNum;
+                let factorPerDay = 1.4;
                 let daysToComplete = Math.ceil(this.summary.factorsInProduction * factorPerDay);
-                return  moment().add(daysToComplete, 'days').format('YYYY-MM-DD');
+                let endDate = moment();
+                let index = 0;
+
+                while (index < daysToComplete) {
+                    endDate = endDate.add(1, 'day');
+                    if ([6, 7].indexOf(endDate.isoWeekday()) === -1) {
+                        index++;
+                    }
+                }
+
+                return endDate.format('YYYY-MM-DD');
 
             }
         },

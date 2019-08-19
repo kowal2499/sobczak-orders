@@ -149,6 +149,20 @@ class ProductionController extends AbstractController
     }
 
     /**
+     * @Route("/production/delete/{agreementLine}", name="production_delete", methods={"POST"}, options={"expose"=true})
+     * @param AgreementLine $agreementLine
+     * @return JsonResponse
+     */
+    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em)
+    {
+        foreach ($agreementLine->getProductions() as $production) {
+            $em->remove($production);
+        }
+        $em->flush();
+        return new JsonResponse();
+    }
+
+    /**
      * @Route("/production/summary", name="production_summary", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @return JsonResponse
@@ -184,12 +198,12 @@ class ProductionController extends AbstractController
 
         foreach ($linesFinished as $line) {
             $summary['ordersFinished'] += 1;
-            $summary['factorsFinished'] += (float) $line->getAgreementLine()->getProduct()->getFactor();
+            $summary['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         foreach ($linesInProduction as $line) {
             $summary['ordersInProduction'] += 1;
-            $summary['factorsInProduction'] += (float) $line->getAgreementLine()->getProduct()->getFactor();
+            $summary['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         return new JsonResponse($summary);

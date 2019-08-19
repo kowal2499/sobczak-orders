@@ -50,6 +50,10 @@ class AgreementLineRepository extends ServiceEntityRepository
                         $qb->andWhere("l.archived = :{$key}");
                         $qb->setParameter($key, $value);
                         break;
+                    case 'deleted':
+                        $qb->andWhere("l.deleted = :{$key}");
+                        $qb->setParameter($key, $value);
+                        break;
                     case 'agreementLineId':
                         $qb->andWhere("l.id = :{$key}");
                         $qb->setParameter($key, $value);

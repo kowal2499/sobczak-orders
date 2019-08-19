@@ -31,17 +31,15 @@ class ProductType extends AbstractType
                 'required' => true,
                 'symbol' => false,
                 'type' => 'fractional',
-                'help' => 'Współczynnik dla premii. Podaj wartość w przedziale od 0 do 100.',
-                'invalid_message' => 'Wartość musi liczbą w przedziale 0-100',
+                'help' => 'Współczynnik dla premii. Wartość \'100\' oznacza współczynnik w wysokości \'1\'. Można podawać wartości wyższe niż 100.',
+                'invalid_message' => 'Wartość musi liczbą większą od 0',
                 'constraints' => [
                     new Range([
                         'min' => 0,
-                        'max' => 1,
                         'minMessage' => 'Wartość nie może być niższa od 0',
-                        'maxMessage' => 'Wartość nie może być wyższa od 100',
                     ]),
                     new NotBlank([
-                        'message' => 'Wartość musi liczbą w przedziale 0-100'
+                        'message' => 'Wartość musi liczbą większą od 0'
                     ])
                 ],
                 'attr' => [

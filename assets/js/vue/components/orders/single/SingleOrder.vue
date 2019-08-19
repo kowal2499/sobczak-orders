@@ -27,7 +27,7 @@
                 </collapsible-card>
 
                 <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked">
-                    Jak mnie widać?
+                    W realizacji
                 </collapsible-card>
             </div>
 

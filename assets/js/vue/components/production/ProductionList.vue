@@ -4,8 +4,7 @@
             <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
         </div>
 
-        <div class="table-responsive" v-if="loading === false">
-            <table class="table mb-5">
+            <table class="table mb-5" v-if="loading === false">
 
                 <thead>
                     <tr>
@@ -43,7 +42,7 @@
 
 
                             </td>
-                            <td v-text="order.product.factor" class="text-center"></td>
+                            <td v-text="order.line.factor" class="text-center"></td>
 
                             <td v-for="(production, prodKey) in order.production.data">
                                 <select class="form-control"
@@ -69,15 +68,15 @@
                                         </a>
 
                                         <a class="dropdown-item" href="#"
-                                           @click="handleDelete(order)"
-                                        >
-                                            <i class="fa fa-trash" aria-hidden="true"></i> Wycofaj z produkcji
-                                        </a>
-
-                                        <a class="dropdown-item" href="#"
                                             @click="confirmArchiveModal(order)"
                                         >
                                             <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj
+                                        </a>
+
+                                        <a class="dropdown-item" href="#"
+                                           @click="confirmDeleteModal(order)"
+                                        >
+                                            <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Wycofaj z produkcji</span>
                                         </a>
 
                                     </template>
@@ -101,7 +100,7 @@
                 <div>
                     <p><strong>Czy archiwizować zlecenie:</strong></p>
                     <ul class="list-unstyled">
-                        <li>id: {{ confirmations.archive.context.line.id}}</li>
+                        <li>id: {{ confirmations.archive.context.header.orderNumber}}</li>
                         <li>produkt: {{ confirmations.archive.context.product.name }}</li>
                         <li>klient: {{ customerName(confirmations.archive.context.customer) }}</li>
                     </ul>
@@ -109,7 +108,23 @@
 
             </confirmation-modal>
 
-        </div>
+            <confirmation-modal
+                :show="confirmations.delete.show"
+                @answerYes="handleDelete(confirmations.delete.context)"
+                @closeModal="confirmations.delete.show = false"
+                v-if="confirmations.delete.show"
+            >
+                <div>
+                    <p><strong>Czy usunąć zlecenie produkcyjne:</strong></p>
+                    <ul class="list-unstyled">
+                        <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
+                        <li>produkt: {{ confirmations.delete.context.product.name }}</li>
+                        <li>klient: {{ customerName(confirmations.delete.context.customer) }}</li>
+                    </ul>
+                </div>
+
+            </confirmation-modal>
+
 
     </div>
 </template>
@@ -119,6 +134,7 @@
     import qs from 'qs';
     import moment from 'moment';
     import api from '../../api/neworder';
+    import apiProd from '../../api/production';
     import routing from "../../api/routing";
     import productionApi from '../../api/production';
     import Helpers from '../../helpers';
@@ -136,6 +152,7 @@
                     dateStart: '',
                     dateEnd: '',
                     archived: false,
+                    deleted: false,
                     page: 1
                 },
 
@@ -151,7 +168,14 @@
                 confirmations: {
                     archive: {
                         show: false,
+                        busy: false,
                         context: false,
+                    },
+
+                    delete: {
+                        show: false,
+                        busy: false,
+                        context: false
                     }
                 }
             }
@@ -184,10 +208,19 @@
 
         methods: {
             handleDelete(order) {
-                console.log('delete');
+                this.confirmations.delete.busy = true;
+                apiProd.delete(order.line.id)
+                    .then(() => {
+                        this.orders = this.orders.filter(record => { return record.line.id !== order.line.id; })
+                    })
+                    .finally(() => {
+                        this.confirmations.delete.busy = false;
+                        this.confirmations.delete.show = false;
+                    });
             },
 
             handleArchive(order) {
+                this.confirmations.archive.busy = true;
                 api.archiveAgreement(order.line.id)
                     .then(({data}) => {
 
@@ -198,7 +231,13 @@
                         if (idx !== -1) {
                             this.orders.splice(idx, 1);
                         }
-                    });
+
+
+                    })
+                    .finally(() => {
+                        this.confirmations.archive.busy = false;
+                        this.confirmations.archive.show = false;
+                    })
                 ;
             },
 
@@ -258,6 +297,11 @@
             confirmArchiveModal(item) {
                 this.confirmations.archive.context = item;
                 this.confirmations.archive.show = true;
+            },
+
+            confirmDeleteModal(item) {
+                this.confirmations.delete.context = item;
+                this.confirmations.delete.show = true;
             },
 
             getRouting() {

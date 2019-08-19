@@ -26,52 +26,80 @@
             <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
         </div>
 
-        <div class="table-responsive" v-if="loading === false">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Data otrzymania</th>
-                        <th>Data dostawy</th>
-                        <th>Klient</th>
-                        <th>Handlowiec</th>
-                        <th>Produkt</th>
-                        <th>Produkcja</th>
-                        <th>Akcje</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(agreement, key) in agreements" :key="key">
-                        <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
-                        <td>{{ agreement.header.createDate }}</td>
-                        <td>{{ agreement.line.confirmedDate }}</td>
-                        <td>{{ customerName(agreement.customer) }}</td>
-                        <td></td>
-                        <td>{{ agreement.product.name }}</td>
-                        <td>
-                            <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Data otrzymania</th>
+                    <th>Data dostawy</th>
+                    <th>Klient</th>
+                    <th>Handlowiec</th>
+                    <th>Produkt</th>
+                    <th>Produkcja</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(agreement, key) in agreements" :key="key">
+                    <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
+                    <td>{{ agreement.header.createDate }}</td>
+                    <td>{{ agreement.line.confirmedDate }}</td>
+                    <td>{{ customerName(agreement.customer) }}</td>
+                    <td></td>
+                    <td>{{ agreement.product.name }}</td>
+                    <td>
+                        <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
 
-                            <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
-                            <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
-                        </td>
-                        <td>
-                            <dropdown>
-                                <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + agreement.line.id">
-                                    <i class="fa fa-tasks" aria-hidden="true"></i> Panel
-                                </a>
+                        <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
+                        <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
+                    </td>
+                    <td>
+                        <dropdown>
+                            <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + agreement.line.id">
+                                <i class="fa fa-tasks" aria-hidden="true"></i> Panel
+                            </a>
 
-                                <a class="dropdown-item" href="#"
-                                   v-if="agreement.production && agreement.production.data.length === 0"
-                                   @click="handleRunProduction(agreement)"
-                                >
-                                    <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
-                                </a>
-                            </dropdown>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            <a class="dropdown-item" :href="getRouting().get('orders_edit') + '/' + agreement.header.id">
+                                <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
+                            </a>
+
+                            <a class="dropdown-item" href="#"
+                               v-if="agreement.production && agreement.production.data.length === 0"
+                               @click="handleRunProduction(agreement)"
+                            >
+                                <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
+                            </a>
+
+                            <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)">
+                                <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń
+                            </a>
+
+                        </dropdown>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <confirmation-modal
+            :show="confirmations.delete.show"
+            :busy="confirmations.delete.busy"
+            @answerYes="handleDelete(confirmations.delete.context)"
+            @closeModal="confirmations.delete.show = false"
+            v-if="confirmations.delete.show"
+        >
+            <div>
+                <p><strong>Czy na pewno usunąć zlecenie numer '{{ confirmations.delete.context.header.orderNumber }}'?</strong></p>
+
+                <ul class="list-unstyled">
+                    <li v-for="product in getOrderedProducts(confirmations.delete.context)">{{ product.name }}</li>
+                </ul>
+                <div class="alert alert-danger" v-if="hasProduction(confirmations.delete.context)">
+                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                    Usunięcie zamówienia usunie również wszystkie związane z nim działania na produkcji.
+                </div>
+            </div>
+
+        </confirmation-modal>
 
     </div>
 </template>
@@ -84,11 +112,12 @@
     import ProductionPlan from './production-plan';
     import api from '../../../api/neworder';
     import routing from  '../../../api/routing';
+    import ConfirmationModal from "../../base/ConfirmationModal";
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, ProductionPlan, Dropdown },
+        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal },
 
         data() {
             return {
@@ -108,6 +137,14 @@
                 showProductionPlan: false,
                 selectedOrder: null,
                 selectedProduction: [],
+
+                confirmations: {
+                    delete: {
+                        show: false,
+                        context: false,
+                        busy: false
+                    }
+                },
 
                 loading: false
             }
@@ -142,6 +179,27 @@
         },
 
         methods: {
+
+            handleDelete(order) {
+                this.confirmations.delete.busy = true;
+
+                api.deleteOrder(order.header.id)
+                    .then(() => {
+                        this.agreements = this.agreements.filter(agreement => {
+                            return agreement.header.id !== order.header.id;
+                        });
+                    })
+                    .finally(() => {
+                        this.confirmations.delete.busy = false;
+                        this.confirmations.delete.show = false;
+                    });
+            },
+
+            confirmDeleteModal(item) {
+                this.confirmations.delete.context = item;
+                this.confirmations.delete.show = true;
+            },
+
             setFilters() {
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 this.filters.dateStart = query.dateStart;
@@ -253,6 +311,29 @@
                     .finally(() => {
 
                     })
+            },
+
+            hasProduction(agreement) {
+                for (let testing of this.agreements) {
+                    if (testing.header.id === agreement.header.id) {
+                        if (testing.production.data.length) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
+
+            getOrderedProducts(agreement) {
+                let result = [];
+
+                for (let testing of this.agreements) {
+                    if (testing.header.id === agreement.header.id) {
+                        result.push(testing.product);
+                    }
+                }
+
+                return result;
             },
 
             getRouting() {

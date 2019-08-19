@@ -55,6 +55,11 @@ class AgreementLine
      */
     private $description;
 
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $factor;
+
     public function __construct()
     {
         $this->productions = new ArrayCollection();
@@ -164,6 +169,18 @@ class AgreementLine
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getFactor(): ?float
+    {
+        return $this->factor;
+    }
+
+    public function setFactor(?float $factor): self
+    {
+        $this->factor = $factor;
 
         return $this;
     }

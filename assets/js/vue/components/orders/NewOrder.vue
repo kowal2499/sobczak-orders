@@ -1,8 +1,7 @@
 <template>
-    <div>
+    <div v-if="waiting === false">
 
         <div class="row mt-3">
-
             <div class="col">
                 <customer v-model="customerId"></customer>
             </div>
@@ -10,7 +9,7 @@
 
         <div class="row mt-3">
             <div class="col">
-                <products v-model="products"></products>
+                <products :products="products"></products>
             </div>
         </div>
 
@@ -36,7 +35,8 @@
 
 
         <div class="row mt-3">
-            <button class="btn btn-primary ml-3 mr-3 w-100" :disabled="isNotReadyToSave()" @click="save()"><i class="fa fa-check-square-o" aria-hidden="true"></i> Złóż zamówienie</button>
+            <button class="btn btn-primary ml-3 mr-3 w-100" :disabled="isNotReadyToSave()" @click="save()">
+                <i class="fa fa-check-square-o" aria-hidden="true"></i> <span v-if="!this.agreementId">Złóż zamówienie</span><span v-else>Zapisz zmiany w zamówieniu</span></button>
         </div>
 
     </div>
@@ -50,15 +50,49 @@
     import routing from  '../../api/routing';
 
     export default {
-        name: 'neworder',
+        name: 'NewOrder',
         components: { Customer, Products },
+
+        props: {
+            agreementId: {
+                type: Number,
+                default: 0
+            }
+        },
 
         data() {
             return {
                 customerId: null,
                 products: [],
                 orderNumber: '',
-                isNumberValid: false
+                initialOrderNumber: '',
+                isNumberValid: false,
+                waiting: false
+            }
+        },
+
+        created() {
+            // gdy edytujemy istniejące zamówienie to zacznij od wczytania danych istniejącego zamówienia
+            if (this.agreementId > 0) {
+                this.waiting = true;
+
+                api.fetchSingleOrder(this.agreementId)
+                    .then(({data}) => {
+                        if (data) {
+                            this.customerId = data.customerId;
+                            this.orderNumber = this.initialOrderNumber = data.orderNumber;
+
+                            for (let product of data.products) {
+                                this.products.push({ ... product })
+                            }
+                        }
+                    })
+                    .catch(() => {})
+                    .finally(() => {
+                        this.waiting = false;
+                    })
+
+
             }
         },
 
@@ -72,11 +106,21 @@
                     return
                 }
 
-                api.storeOrder(this.customerId, this.products, this.orderNumber)
-                    .then(data => {
-                        window.location.replace(routing.get('agreements_show').concat('?add=ok'));
-                    })
-                    .catch(() => {});
+                if (!this.agreementId) {
+                    api.storeOrder(this.customerId, this.products, this.orderNumber)
+                        .then((data) => {
+                            window.location.replace(routing.get('agreements_show').concat('?add=ok'));
+                        })
+                        .catch(() => {
+                        });
+                } else {
+                    api.patchOrder(this.agreementId, this.customerId, this.products, this.orderNumber)
+                        .then(() => {
+                            window.location.replace(routing.get('agreements_show').concat('?edit=ok'));
+                        })
+                        .catch(() => {
+                        });
+                }
             },
 
             getOrderNumber() {
@@ -92,7 +136,12 @@
                 api.validateNumber(this.orderNumber)
                     .then(({data}) => {
 
-                        this.isNumberValid = data.isValid;
+                        if (this.agreementId > 0) {
+                            this.isNumberValid = (this.orderNumber === this.initialOrderNumber) || data.isValid;
+                        } else {
+                            this.isNumberValid = data.isValid;
+                        }
+
                     })
                     .catch(() => {
                         this.isNumberValid = false;
@@ -103,7 +152,9 @@
         watch: {
             customerId: {
                 handler(val) {
-                    this.getOrderNumber()
+                    if (!this.agreementId) {
+                        this.getOrderNumber()
+                    }
                 },
             },
 

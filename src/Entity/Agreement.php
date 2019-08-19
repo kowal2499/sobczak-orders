@@ -35,7 +35,7 @@ class Agreement
     private $Customer;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AgreementLine", mappedBy="Agreement")
+     * @ORM\OneToMany(targetEntity="App\Entity\AgreementLine", mappedBy="Agreement", cascade={"remove"})
      */
     private $agreementLines;
 

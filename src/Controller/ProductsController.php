@@ -96,6 +96,7 @@ class ProductsController extends AbstractController
     /**
      * @Route("/products/fetch", name="products_fetch", options={"expose"=true})
      * @param Request $request
+     * @return JsonResponse
      */
     public function fetch(Request $request, ProductRepository $repository)
     {

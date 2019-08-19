@@ -11,12 +11,18 @@
                 </div>
 
                 <div class="modal-body">
+
                     <slot></slot>
+
+                    <div class="text-center" v-if="busy">
+                        Przetwarzanie ... <i class="fa fa-spinner fa-spin"></i>
+                    </div>
+
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" @click.prevent="$emit('answerYes'); closeModal();">Tak</button>
-                    <button type="button" class="btn btn-danger" @click.prevent="closeModal()">Nie</button>
+                    <button type="button" :disabled="busy" class="btn btn-success" @click.prevent="$emit('answerYes')">Tak</button>
+                    <button type="button" :disabled="busy" class="btn btn-danger" @click.prevent="closeModal()">Nie</button>
                 </div>
 
             </div>
@@ -28,7 +34,20 @@
     export default {
         name: "ConfirmationModal",
 
-        props: [ 'question', 'show' ],
+        props: {
+            question: {
+                type: String,
+                default: ''
+            },
+            show: {
+                type: Boolean,
+                default: false
+            },
+            busy: {
+                type: Boolean,
+                default: false
+            }
+        },
 
         data() {
             return {

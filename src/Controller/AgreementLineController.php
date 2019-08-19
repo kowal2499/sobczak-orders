@@ -68,6 +68,7 @@ class AgreementLineController extends AbstractController
                         ],
                         'line' => [
                             'id' => $record['id'],
+                            'factor' => $record['factor'],
                             'confirmedDate' => $record['confirmedDate']->format('Y-m-d'),
                             'description' => $record['description']
                         ]    
@@ -156,6 +157,20 @@ class AgreementLineController extends AbstractController
     public function archive(Request $request, AgreementLine $agreementLine, EntityManagerInterface $em)
     {
         $agreementLine->setArchived(true);
+        $em->flush();
+
+        return new JsonResponse();
+    }
+
+    /**
+     * @Route("/agreement_line/delete/{agreementLine}", name="agreement_line_delete", methods={"POST"}, options={"expose"=true})
+     * @param AgreementLine $agreementLine
+     * @param EntityManagerInterface $em
+     * @return JsonResponse
+     */
+    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em)
+    {
+        $agreementLine->setDeleted(true);
         $em->flush();
 
         return new JsonResponse();

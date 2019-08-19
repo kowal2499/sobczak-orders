@@ -54,7 +54,29 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @Route("/customers/new", name="customers_new")
+     * @Route("/customers/single_fetch/{id}", name="customers_single_fetch", methods={"POST"}, options={"expose"=true})
+     * @param Customer $customer
+     * @return JsonResponse
+     */
+    public function fetchSingle(Customer $customer) {
+        return new JsonResponse([
+            'apartment_number' => $customer->getApartmentNumber(),
+            'city' => $customer->getCity(),
+            'country' => $customer->getCountry(),
+            'email' => $customer->getEmail(),
+            'first_name' => $customer->getFirstName(),
+            'id' => $customer->getId(),
+            'last_name' => $customer->getLastName(),
+            'name' => $customer->getName(),
+            'phone' => $customer->getPhone(),
+            'postal_code' => $customer->getPostalCode(),
+            'street' => $customer->getStreet(),
+            'street_number' => $customer->getStreetNumber()
+        ]);
+    }
+
+    /**
+     * @Route("/customers/new", name="customers_new", options={"expose"=true})
      * @param EntityManagerInterface $em
      * @return Response
      * @throws \Exception

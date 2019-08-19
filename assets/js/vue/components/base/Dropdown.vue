@@ -1,5 +1,6 @@
 <template>
 
+
     <div class="dropdown"
          v-click-outside="onClickOutside"
     >
@@ -9,14 +10,17 @@
             <span v-if="btnText">&nbsp;{{ btnText }}</span>
         </button>
 
+<!--        <div style="position: fixed">-->
         <div class="dropdown-menu dropdown-menu-right"
              :class="{show: expanded}"
              @click="expanded = false"
         >
             <slot></slot>
         </div>
+<!--        </div>-->
 
     </div>
+
 
 </template>
 

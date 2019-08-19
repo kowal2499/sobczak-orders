@@ -8,5 +8,9 @@ export default {
 
     updateStatus(productionId, newStatus) {
         return axios.post(Routing.get('production_status_update'), {productionId, newStatus});
+    },
+
+    delete(agreementLineId) {
+        return axios.post(Routing.get('production_delete') + '/' + agreementLineId);
     }
 }

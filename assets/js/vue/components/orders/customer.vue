@@ -52,7 +52,7 @@
                                     </div>
 
                                     <div class="col text-right">
-                                        <a href="/public/customers/new" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Dodaj nowego klienta</a>
+                                        <a :href="getLink('customers_new')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Dodaj nowego klienta</a>
                                     </div>
                                 </div>
 
@@ -109,6 +109,7 @@
 <script>
 
     import customerApi from '../../api/neworder';
+    import routing from '../../api/routing';
     import _ from 'lodash';
 
     export default {
@@ -129,6 +130,29 @@
         watch: {
             customerSearch() {
                 this.getCandidates();
+            },
+
+            value: {
+                handler() {
+                    if (!this.value) {
+                        return;
+                    }
+
+                    this.fetchingCustomers = true;
+
+                    customerApi.fetchCustomer(this.value)
+                        .then(({data}) => {
+                            if (data) {
+                                this.selectedCustomer = { ...data }
+                            }
+                        })
+                        .catch()
+                        .finally(() => {
+                            this.fetchingCustomers = false;
+                        })
+
+                },
+                immediate: true
             },
 
             selectedCustomer: {
@@ -182,6 +206,10 @@
                 ];
 
                 return contents.join(' ');
+            },
+
+            getLink(name) {
+                return routing.get(name);
             }
         }
     }
