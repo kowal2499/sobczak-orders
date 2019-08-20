@@ -2,34 +2,34 @@
 
     <div class="card-menu d-flex">
 
-            <div class="form-group">
-                <label>Data otrzymania (od)</label><br>
-                <date-picker v-model="innerFilters.dateStart"/>
-            </div>
+        <div class="form-group">
+            <label>Szukaj</label><br>
+            <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
+        </div>
 
-            <div class="form-group">
-                <label>Data otrzymania (do)</label><br>
-                <date-picker v-model="innerFilters.dateEnd"/>
-            </div>
+        <div class="form-group">
+            <label>Data otrzymania</label><br>
+            <date-picker v-model="filtersCollection.dateStart"></date-picker>
+        </div>
 
-            <div class="form-group">
-                <label>Status</label><br>
+        <div class="form-group">
+            <label>Status</label><br>
 
-                <div class="outline">
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="false" v-model="innerFilters.archived">
-                            W realizacji
-                        </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="true" v-model="innerFilters.archived">
-                            W archiwum
-                        </label>
-                    </div>
+            <div class="outline">
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="false" v-model="filtersCollection.archived">
+                        W realizacji
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="true" v-model="filtersCollection.archived">
+                        W archiwum
+                    </label>
                 </div>
             </div>
+        </div>
 
 
         <slot></slot>
@@ -49,36 +49,8 @@
         components: { DatePicker },
 
         data() {
-            return {
-
-                innerFilters: {
-                    dateStart: '',
-                    dateEnd: '',
-                    archived: false
-                }
-            }
+            return {}
         },
-
-        watch: {
-            filtersCollection: {
-                handler(val) {
-                    this.innerFilters.dateStart = val.dateStart;
-                    this.innerFilters.dateEnd = val.dateEnd;
-                    this.innerFilters.archived = val.archived;
-                },
-                deep: true
-            },
-
-            innerFilters: {
-                handler(val) {
-                    this.$emit('filtersChange', this.innerFilters);
-                },
-                deep: true
-            },
-
-        },
-
-
     }
 </script>
 
