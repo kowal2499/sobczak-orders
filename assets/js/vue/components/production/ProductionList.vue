@@ -3,10 +3,6 @@
 
         <filters :model="filters"></filters>
 
-<!--        <div class="loading text-center" v-if="loading">-->
-<!--            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>-->
-<!--        </div>-->
-
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
 
             <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">

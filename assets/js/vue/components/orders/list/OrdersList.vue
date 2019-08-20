@@ -5,11 +5,9 @@
             :filters-collection="filters"
             @filtersChange="handleFiltersChange"
         >
-
             <div class="col float-right text-right">
                 <a :href="newOrderLink" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
             </div>
-
         </filters>
 
         <production-plan 
@@ -22,63 +20,44 @@
 
         <br>
 
-        <div class="loading text-center" v-if="loading">
-            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
-        </div>
+        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
+            <tr v-for="(agreement, key) in agreements" :key="key">
+                <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
+                <td>{{ agreement.header.createDate }}</td>
+                <td>{{ agreement.line.confirmedDate }}</td>
+                <td>{{ customerName(agreement.customer) }}</td>
+                <td>{{ agreement.product.name }}</td>
+                <td>
+                    <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Data otrzymania</th>
-                    <th>Data dostawy</th>
-                    <th>Klient</th>
-                    <th>Handlowiec</th>
-                    <th>Produkt</th>
-                    <th>Produkcja</th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(agreement, key) in agreements" :key="key">
-                    <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
-                    <td>{{ agreement.header.createDate }}</td>
-                    <td>{{ agreement.line.confirmedDate }}</td>
-                    <td>{{ customerName(agreement.customer) }}</td>
-                    <td></td>
-                    <td>{{ agreement.product.name }}</td>
-                    <td>
-                        <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
+                    <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
+                    <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
+                </td>
+                <td>
+                    <dropdown>
+                        <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + agreement.line.id">
+                            <i class="fa fa-tasks" aria-hidden="true"></i> Panel
+                        </a>
 
-                        <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
-                        <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
-                    </td>
-                    <td>
-                        <dropdown>
-                            <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + agreement.line.id">
-                                <i class="fa fa-tasks" aria-hidden="true"></i> Panel
-                            </a>
+                        <a class="dropdown-item" :href="getRouting().get('orders_edit') + '/' + agreement.header.id">
+                            <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
+                        </a>
 
-                            <a class="dropdown-item" :href="getRouting().get('orders_edit') + '/' + agreement.header.id">
-                                <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
-                            </a>
+                        <a class="dropdown-item" href="#"
+                           v-if="agreement.production && agreement.production.data.length === 0"
+                           @click="handleRunProduction(agreement)"
+                        >
+                            <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
+                        </a>
 
-                            <a class="dropdown-item" href="#"
-                               v-if="agreement.production && agreement.production.data.length === 0"
-                               @click="handleRunProduction(agreement)"
-                            >
-                                <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
-                            </a>
+                        <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)">
+                            <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń
+                        </a>
 
-                            <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)">
-                                <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń
-                            </a>
-
-                        </dropdown>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </dropdown>
+                </td>
+            </tr>
+        </table-plus>
 
         <confirmation-modal
             :show="confirmations.delete.show"
@@ -113,19 +92,28 @@
     import api from '../../../api/neworder';
     import routing from  '../../../api/routing';
     import ConfirmationModal from "../../base/ConfirmationModal";
+    import TablePlus from '../../base/TablePlus';
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal },
+        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus },
 
         data() {
             return {
                 filters: {
-                    dateStart: '',
-                    dateEnd: '',
+                    dateStart: {
+                        start: '',
+                        end: ''
+                    },
+                    q: '',
                     page: 1,
-                    archived: false
+                    archived: false,
+
+                    meta: {
+                        sort: 'l.confirmedDate:ASC',
+                        page: 1
+                    }
                 },
 
                 agreements: [],
@@ -159,12 +147,19 @@
 
             filters: {
                 handler(value) {
-                    let queryString = qs.stringify({
-                        dateStart: this.filters.dateStart,
-                        dateEnd: this.filters.dateEnd,
+
+                    let query = {
+                        dateStart: this.filters.dateStart.start,
+                        dateEnd: this.filters.dateStart.end,
                         archived: this.filters.archived,
                         page: this.filters.page
-                    });
+                    };
+
+                    if (this.filters.q && this.filters.q.length > 0) {
+                        query.q = this.filters.q;
+                    }
+
+                    let queryString = qs.stringify(query);
 
                     if (queryString.length > 0) {
                         queryString = '?'.concat(queryString);  
@@ -202,17 +197,18 @@
 
             setFilters() {
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-                this.filters.dateStart = query.dateStart;
-                this.filters.dateEnd = query.dateEnd;
+                this.filters.dateStart.start = query.dateStart || '';
+                this.filters.dateStart.end = query.dateEnd || '';
                 this.filters.archived = query.archived === 'true';
                 this.filters.page = query.page || 1;
+                this.filters.q = query.q || '';
 
-                if ((!this.filters.dateStart || !moment(this.filters.dateStart).isValid())) {
-                    this.filters.dateStart = moment().startOf('month').format('YYYY-MM-DD');
+                if ((!this.filters.dateStart.start || !moment(this.filters.dateStart.start).isValid())) {
+                    this.filters.dateStart.start = moment().startOf('month').format('YYYY-MM-DD');
                 }
 
-                if ((!this.filters.dateEnd || !moment(this.filters.dateEnd).isValid())) {
-                    this.filters.dateEnd = moment().endOf('month').format('YYYY-MM-DD');
+                if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
+                    this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
                 }
                     
             },
@@ -336,10 +332,29 @@
                 return result;
             },
 
+            updateSort(event) {
+                this.filters.meta.sort = event
+            },
+
             getRouting() {
                 return routing;
             }
 
+        },
+        computed: {
+            tableHeaders() {
+                let headers = [
+                    { name: 'ID', sortKey: 'a.orderNumber' },
+                    { name: 'Data otrzymania', sortKey: 'a.createDate'},
+                    { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
+                    { name: 'Klient', sortKey: 'c.name'},
+                    { name: 'Produkt', sortKey: 'p.name' },
+                    { name: 'Produkcja' },
+                    { name: 'Akcje' },
+                ];
+
+                return headers;
+            },
         }
     }
 </script>
