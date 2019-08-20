@@ -1,129 +1,105 @@
 <template>
     <div>
-        <div class="loading text-center" v-if="loading">
-            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
-        </div>
 
-            <table class="table mb-5" v-if="loading === false">
+        <filters :model="filters"></filters>
 
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Klient</th>
-                        <th>Produkt</th>
-                        <th>Współczynnik</th>
+<!--        <div class="loading text-center" v-if="loading">-->
+<!--            <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>-->
+<!--        </div>-->
 
-                        <th
-                            v-for="dpt in departments"
-                            v-text="dpt.name"
-                        ></th>
-                        <th>Akcje</th>
+        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
 
-                    </tr>
-                </thead>
+            <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
+                <td v-text="order.header.orderNumber || order.line.id"></td>
+                <td v-text="order.line.confirmedDate"></td>
+                <td v-text="customerName(order.customer)"></td>
+                <td>
+                    {{ order.product.name }}
+                    <i class="fa fa-info-circle hasTooltip"
+                       v-if="order.line.description"
+                       @mouseenter="tooltipOwner = order.line.id"
+                       @mouseleave="tooltipOwner = null"
+                    >
+                        <div class="mytooltip" v-if="tooltipOwner === order.line.id" v-html="order.line.description.replace(/(?:\r\n|\r|\n)/g, '<br />')">
+                        </div>
+                    </i>
+                </td>
+                <td v-text="order.line.factor" class="text-center"></td>
 
-                <tbody>
+                <td v-for="(production, prodKey) in order.production.data">
+                    <select class="form-control"
+                            v-model="production.status"
+                            @change="updateStatus(production.id, production.status)"
+                            :style="getStatusStyle(production)"
+                    >
+                        <option
+                                v-for="status in statuses"
+                                :value="status.value"
+                                v-text="status.name"
+                                style="background-color: white"
+                        ></option>
+                    </select>
+                </td>
 
-                        <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
-                            <td v-text="order.header.orderNumber || order.line.id"></td>
-                            <td v-text="order.line.confirmedDate"></td>
-                            <td v-text="customerName(order.customer)"></td>
-                            <td>
-                                {{ order.product.name }}
-                                <i class="fa fa-info-circle hasTooltip"
-                                   v-if="order.line.description"
-                                   @mouseenter="tolltipOwner = order.line.id"
-                                   @mouseleave="tolltipOwner = null"
-                                >
-                                    <div class="mytooltip" v-if="tolltipOwner === order.line.id" v-html="order.line.description.replace(/(?:\r\n|\r|\n)/g, '<br />')">
-                                    </div>
-                                </i>
+                <td>
+                    <dropdown>
+                        <template>
+                            <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + order.line.id">
+                                <i class="fa fa-tasks" aria-hidden="true"></i> Panel
+                            </a>
 
+                            <a class="dropdown-item" href="#"
+                               @click="confirmArchiveModal(order)"
+                            >
+                                <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj
+                            </a>
 
-                            </td>
-                            <td v-text="order.line.factor" class="text-center"></td>
+                            <a class="dropdown-item" href="#"
+                               @click="confirmDeleteModal(order)"
+                            >
+                                <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Wycofaj z produkcji</span>
+                            </a>
 
-                            <td v-for="(production, prodKey) in order.production.data">
-                                <select class="form-control"
-                                    v-model="production.status"
-                                    @change="updateStatus(production.id, production.status)"
-                                    :style="getStatusStyle(production)"
-                                >
-                                    <option
-                                        v-for="status in statuses"
-                                        :value="status.value"
-                                        v-text="status.name"
-                                        style="background-color: white"
-                                    ></option>
-                                </select>
-                            </td>
+                        </template>
+                    </dropdown>
+                </td>
+            </tr>
 
-                            <td>
+        </table-plus>
 
-                                <dropdown>
-                                    <template>
-                                        <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + order.line.id">
-                                            <i class="fa fa-tasks" aria-hidden="true"></i> Panel
-                                        </a>
+        <confirmation-modal
+            :show="confirmations.archive.show"
+            @answerYes="handleArchive(confirmations.archive.context)"
+            @closeModal="confirmations.archive.show = false"
+            v-if="confirmations.archive.show"
+        >
+            <div>
+                <p><strong>Czy archiwizować zlecenie:</strong></p>
+                <ul class="list-unstyled">
+                    <li>id: {{ confirmations.archive.context.header.orderNumber}}</li>
+                    <li>produkt: {{ confirmations.archive.context.product.name }}</li>
+                    <li>klient: {{ customerName(confirmations.archive.context.customer) }}</li>
+                </ul>
+            </div>
 
-                                        <a class="dropdown-item" href="#"
-                                            @click="confirmArchiveModal(order)"
-                                        >
-                                            <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj
-                                        </a>
+        </confirmation-modal>
 
-                                        <a class="dropdown-item" href="#"
-                                           @click="confirmDeleteModal(order)"
-                                        >
-                                            <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Wycofaj z produkcji</span>
-                                        </a>
+        <confirmation-modal
+            :show="confirmations.delete.show"
+            @answerYes="handleDelete(confirmations.delete.context)"
+            @closeModal="confirmations.delete.show = false"
+            v-if="confirmations.delete.show"
+        >
+            <div>
+                <p><strong>Czy usunąć zlecenie produkcyjne:</strong></p>
+                <ul class="list-unstyled">
+                    <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
+                    <li>produkt: {{ confirmations.delete.context.product.name }}</li>
+                    <li>klient: {{ customerName(confirmations.delete.context.customer) }}</li>
+                </ul>
+            </div>
 
-                                    </template>
-                                </dropdown>
-
-                            </td>
-
-                        </tr>
-
-
-                </tbody>
-
-            </table>
-
-            <confirmation-modal
-                :show="confirmations.archive.show"
-                @answerYes="handleArchive(confirmations.archive.context)"
-                @closeModal="confirmations.archive.show = false"
-                v-if="confirmations.archive.show"
-            >
-                <div>
-                    <p><strong>Czy archiwizować zlecenie:</strong></p>
-                    <ul class="list-unstyled">
-                        <li>id: {{ confirmations.archive.context.header.orderNumber}}</li>
-                        <li>produkt: {{ confirmations.archive.context.product.name }}</li>
-                        <li>klient: {{ customerName(confirmations.archive.context.customer) }}</li>
-                    </ul>
-                </div>
-
-            </confirmation-modal>
-
-            <confirmation-modal
-                :show="confirmations.delete.show"
-                @answerYes="handleDelete(confirmations.delete.context)"
-                @closeModal="confirmations.delete.show = false"
-                v-if="confirmations.delete.show"
-            >
-                <div>
-                    <p><strong>Czy usunąć zlecenie produkcyjne:</strong></p>
-                    <ul class="list-unstyled">
-                        <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
-                        <li>produkt: {{ confirmations.delete.context.product.name }}</li>
-                        <li>klient: {{ customerName(confirmations.delete.context.customer) }}</li>
-                    </ul>
-                </div>
-
-            </confirmation-modal>
+        </confirmation-modal>
 
 
     </div>
@@ -135,25 +111,42 @@
     import moment from 'moment';
     import api from '../../api/neworder';
     import apiProd from '../../api/production';
-    import routing from "../../api/routing";
+    import routing from '../../api/routing';
     import productionApi from '../../api/production';
     import Helpers from '../../helpers';
     import Dropdown from '../base/Dropdown';
-    import ConfirmationModal from "../base/ConfirmationModal";
+    import ConfirmationModal from '../base/ConfirmationModal';
+    import Filters from './Filters';
+    import TablePlus from '../base/TablePlus';
 
     export default {
         name: "ProductionList",
 
-        components: { Dropdown, ConfirmationModal },
+        components: { Dropdown, ConfirmationModal, Filters, TablePlus },
 
         data() {
             return {
                 filters: {
-                    dateStart: '',
-                    dateEnd: '',
+
+                    dateStart: {
+                        start: '',
+                        end: ''
+                    },
+
+                    dateDelivery: {
+                        start: '',
+                        end: ''
+                    },
+
+                    q: '',
+
                     archived: false,
                     deleted: false,
-                    page: 1
+
+                    meta: {
+                        sort: 'l.confirmedDate:ASC',
+                        page: 1,
+                    }
                 },
 
                 statuses: Helpers.statuses,
@@ -161,7 +154,7 @@
                 orders: [],
                 departments: [],
 
-                tolltipOwner: null,
+                tooltipOwner: null,
 
                 loading: false,
 
@@ -188,11 +181,25 @@
         watch: {
             filters: {
                 handler(value) {
-                    let queryString = qs.stringify({
-                        dateStart: this.filters.dateStart,
-                        dateEnd: this.filters.dateEnd,
-                        page: this.filters.page
-                    });
+                    let query = {
+                        dateStart: this.filters.dateStart.start,
+                        dateEnd: this.filters.dateStart.end,
+                        page: this.filters.meta.page
+                    };
+
+                    if (this.filters.dateDelivery.start && String(this.filters.dateDelivery.start).length > 0) {
+                        query.dateDeliveryStart = this.filters.dateDelivery.start
+                    }
+
+                    if (this.filters.dateDelivery.end && String(this.filters.dateDelivery.end).length > 0) {
+                        query.dateDeliveryEnd = this.filters.dateDelivery.end
+                    }
+
+                    if (this.filters.q !== '') {
+                        query.q = this.filters.q;
+                    }
+
+                    let queryString = qs.stringify(query);
 
                     if (queryString.length > 0) {
                         queryString = '?'.concat(queryString);
@@ -243,22 +250,41 @@
 
             setFilters() {
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-                this.filters.dateStart = query.dateStart;
-                this.filters.dateEnd = query.dateEnd;
+                this.filters.dateStart.start = query.dateStart;
+                this.filters.dateStart.end = query.dateEnd;
+                this.filters.dateDelivery.start = query.dateDeliveryStart;
+                this.filters.dateDelivery.end = query.dateDeliveryEnd;
+                this.filters.q = query.q;
                 this.filters.page = query.page || 1;
 
-                if ((!this.filters.dateStart || !moment(this.filters.dateStart).isValid())) {
-                    this.filters.dateStart = moment().startOf('month').format('YYYY-MM-DD');
+                if ((!this.filters.dateStart.start || !moment(this.filters.dateStart.start).isValid())) {
+                    this.filters.dateStart.start = moment().startOf('month').format('YYYY-MM-DD');
                 }
 
-                if ((!this.filters.dateEnd || !moment(this.filters.dateEnd).isValid())) {
-                    this.filters.dateEnd = moment().endOf('month').format('YYYY-MM-DD');
+                if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
+                    this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
+                }
+
+                if (moment(this.filters.dateDelivery.start).isValid() === false) {
+                    this.filters.dateDelivery.start = '';
+                }
+
+                if (moment(this.filters.dateDelivery.end).isValid() === false) {
+                    this.filters.dateDelivery.end = '';
                 }
             },
 
             fetchData() {
                 this.loading = true;
-                api.fetchAgreements(this.filters)
+
+                let filters = {};
+                for(let i of Object.keys(this.filters)) {
+                    if (this.filters[i] !== '' && this.filters[i] !== null) {
+                        filters[i] = this.filters[i];
+                    }
+                }
+
+                api.fetchAgreements(filters)
                     .then(({data}) => {
 
                         if (data && data.orders) {
@@ -304,9 +330,30 @@
                 this.confirmations.delete.show = true;
             },
 
+            updateSort(event) {
+                this.filters.meta.sort = event
+            },
+
             getRouting() {
                 return routing;
             }
+        },
+
+        computed: {
+            tableHeaders() {
+                let headers = [
+                    { name: 'ID', sortKey: 'a.orderNumber' },
+                    { name: 'Data', sortKey: 'l.confirmedDate' },
+                    { name: 'Klient', sortKey: 'c.name'},
+                    { name: 'Produkt', sortKey: 'p.name' },
+                    { name: 'Współczynnik', sortKey: 'l.factor' },
+                ];
+
+                this.departments.forEach(dpt => { headers.push({ name: dpt.name }); })
+
+                headers.push({ name: 'Akcje' });
+                return headers;
+            },
         }
     }
 

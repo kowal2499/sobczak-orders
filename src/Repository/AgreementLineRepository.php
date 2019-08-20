@@ -39,13 +39,29 @@ class AgreementLineRepository extends ServiceEntityRepository
             foreach ($term['search'] as $key => $value) {
                 switch ($key) {
                     case 'dateStart':
-                        $qb->andWhere("a.createDate >= :{$key}");
-                        $qb->setParameter($key, (new \DateTime($value)));
+
+                        if (isset($value['start']) && !empty($value['start'])) {
+                            $qb->andWhere("a.createDate >= :dateStart0");
+                            $qb->setParameter('dateStart0', (new \DateTime($value['start'])));
+                        }
+                        if (isset($value['end']) && !empty($value['end'])) {
+                            $qb->andWhere("a.createDate <= :dateStart1");
+                            $qb->setParameter('dateStart1', (new \DateTime($value['end'] . ' 23:59:59')));
+                        }
                         break;
-                    case 'dateEnd':
-                        $qb->andWhere("a.createDate <= :{$key}");
-                        $qb->setParameter($key, (new \DateTime($value . ' 23:59:59')));
+
+                    case 'dateDelivery':
+
+                        if (isset($value['start']) && !empty($value['start'])) {
+                            $qb->andWhere("l.confirmedDate >= :dateConfirmed0");
+                            $qb->setParameter('dateConfirmed0', (new \DateTime($value['start'])));
+                        }
+                        if (isset($value['end']) && !empty($value['end'])) {
+                            $qb->andWhere("l.confirmedDate <= :dateConfirmed1");
+                            $qb->setParameter('dateConfirmed1', (new \DateTime($value['end'] . ' 23:59:59')));
+                        }
                         break;
+
                     case 'archived':
                         $qb->andWhere("l.archived = :{$key}");
                         $qb->setParameter($key, $value);
@@ -58,9 +74,21 @@ class AgreementLineRepository extends ServiceEntityRepository
                         $qb->andWhere("l.id = :{$key}");
                         $qb->setParameter($key, $value);
                         break;
+                    case 'q':
+                        $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");
+                        $qb->setParameter('q', '%'.$value.'%');
                 }
             }
         
+        }
+
+        if (isset($term['search']['meta']['sort']) && !empty($term['search']['meta']['sort'])) {
+            list($sort, $order) = explode(':', $term['search']['meta']['sort']);
+
+            if ($sort && $order) {
+                $qb->orderBy($sort, $order);
+            }
+
         }
 
         return $qb->getQuery();

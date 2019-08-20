@@ -1,5 +1,14 @@
 <template>
-    <vueDP v-model="date" :lang="lang" type="date" format="YYYY-MM-DD" use-utc="true" :first-day-of-week="Number(1)"></vueDP>
+    <vueDP
+        v-model="innerRange"
+        :lang="lang"
+        :range="true"
+        :width="'230px'"
+        type="date"
+        format="YYYY-MM-DD"
+        use-utc="true"
+        :first-day-of-week="Number(1)">
+    </vueDP>
 </template>
 
 <script>
@@ -14,7 +23,7 @@
 
         data() {
             return {
-                date: this.value,
+                innerRange: [],
 
                 lang: {
                     days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
@@ -28,22 +37,19 @@
         },
 
         watch: {
-            date(val) {
-                
-                if (val) {
-                    let formatted = new moment(val);
-
-                    if (formatted.isValid()) {
-                        val = formatted.format('YYYY-MM-DD');
-                    }
+            innerRange(val) {
+                if (val[0] || val[1]) {
+                    this.value.start = moment(val[0]).format('YYYY-MM-DD');
+                    this.value.end = moment(val[1]).format('YYYY-MM-DD');
                 }
-                
-                this.$emit('input', val);
             },
 
             value: {
                 handler(val) {
-                    this.date = val;
+                    this.innerRange = [
+                        val.start,
+                        val.end
+                    ]
                 },
                 deep: true
             }
