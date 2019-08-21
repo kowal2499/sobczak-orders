@@ -22,14 +22,14 @@
                 </td>
                 <td v-text="order.line.factor" class="text-center"></td>
 
-                <td v-for="(production, prodKey) in order.production.data">
+                <td v-for="(production, prodKey) in order.production.data" v-if="productionSlugs.indexOf(production.departmentSlug) !== -1">
                     <select class="form-control"
                             v-model="production.status"
                             @change="updateStatus(production.id, production.status)"
                             :style="getStatusStyle(production)"
                     >
                         <option
-                                v-for="status in statuses"
+                                v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
                                 :value="status.value"
                                 v-text="status.name"
                                 style="background-color: white"
@@ -145,7 +145,7 @@
                     }
                 },
 
-                statuses: Helpers.statuses,
+                helpers: Helpers,
 
                 orders: [],
                 departments: [],
@@ -308,7 +308,7 @@
 
             getStatusStyle(production) {
 
-                let status = this.statuses.find(item => item.value === production.status);
+                let status = this.helpers.statuses.find(item => item.value === production.status);
                 if (status) {
                     return 'background-color: '.concat(status.color);
                 }
@@ -350,6 +350,10 @@
                 headers.push({ name: 'Akcje' });
                 return headers;
             },
+
+            productionSlugs() {
+                return this.departments.map(d => { return d.slug; })
+            }
         }
     }
 

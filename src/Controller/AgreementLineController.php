@@ -57,6 +57,8 @@ class AgreementLineController extends AbstractController
                                     'departmentSlug' => $prod['departmentSlug'],
                                     'dateStart' => is_object($prod['dateStart']) ? ($prod['dateStart'])->format('Y-m-d') : null,
                                     'dateEnd' => is_object($prod['dateEnd']) ? ($prod['dateEnd']->format('Y-m-d')) : null,
+                                    'description' => $prod['description'],
+                                    'title' => $prod['title'],
                                     'statusLog' => array_map(function($status) {
                                         return [
                                             'createdAt' => is_object($status['createdAt']) ? ($status['createdAt'])->format('Y-m-d H:m:s') : null,
@@ -97,7 +99,18 @@ class AgreementLineController extends AbstractController
 
         foreach ($request->request->get('productionData') as $prod) {
 
-            $production = $em->getRepository(Production::class)->find($prod['id']);
+            if (!$prod['id']) {
+                $production = new Production();
+                $production
+                    ->setCreatedAt(new \DateTime())
+                    ->setAgreementLine($agreementLine)
+                    ->setDescription($prod['description'])
+                    ->setDepartmentSlug($prod['departmentSlug'])
+                    ->setTitle($prod['title'])
+                ;
+            } else {
+                $production = $em->getRepository(Production::class)->find($prod['id']);
+            }
             $oldStatus = $production->getStatus();
             $production
                 ->setStatus((int)$prod['status'])

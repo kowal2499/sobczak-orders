@@ -7,8 +7,8 @@
             :disabled="locked"
             href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
         >
-            <i class="btn-i" :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"></i>
-            Zapisz zmiany
+            <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"></i>
+            <span class="pl-1">Zapisz zmiany</span>
         </button>
 
         <div class="row">
@@ -16,7 +16,15 @@
                 <collapsible-card :title="'Produkcja'" :locked="locked" v-if="orderData.production.data.length !== 0">
                     <production-widget
                         v-model="orderData.production.data"
-                        :departments="departments"
+                        :task-types="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05']"
+                    ></production-widget>
+                </collapsible-card>
+
+                <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked" v-if="orderData.production.data.length !== 0">
+                    <production-widget
+                        v-model="orderData.production.data"
+                        :task-types="['custom_task']"
+                        :can-add="true"
                     ></production-widget>
                 </collapsible-card>
 
@@ -26,9 +34,6 @@
                     ></requirements-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked">
-                    W realizacji
-                </collapsible-card>
             </div>
 
             <div class="col-md-4">
@@ -68,7 +73,6 @@
                     },
                     customer: {}
                 },
-                departments: []
             }
         },
 
@@ -102,7 +106,6 @@
                 .then(({data}) => {
                     if (data && Array.isArray(data.orders) && data.orders.length === 1) {
                         this.orderData = data.orders[0];
-                        this.departments = data.departments;
                     }
                 })
                 .catch(() => {})
@@ -113,6 +116,11 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+    button {
+        i {
+            padding: 0;
+        }
+    }
 
 </style>
