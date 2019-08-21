@@ -4,7 +4,7 @@
             <div class="col-md-10">
                 <div class="form-group">
                     <label>Data realizacji</label><br>
-                    <date-picker v-model="innerData.confirmedDate" />
+                    <date-picker v-model="innerData.confirmedDate" :is-range="false"/>
                 </div>
 
             </div>
