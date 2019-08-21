@@ -1,8 +1,8 @@
 <template>
     <vueDP
-        v-model="innerRange"
+        v-model="innerDate"
         :lang="lang"
-        :range="true"
+        :range="isRange"
         :width="'230px'"
         type="date"
         format="YYYY-MM-DD"
@@ -18,12 +18,21 @@
 
     export default {
         name: "datepicker",
-        props: ['value'],
+
+        props: {
+            value: {},
+
+            isRange: {
+                type: Boolean,
+                default: true
+            }
+        },
+
         components: { vueDP },
 
         data() {
             return {
-                innerRange: [],
+                innerDate: this.value,
 
                 lang: {
                     days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
@@ -37,19 +46,29 @@
         },
 
         watch: {
-            innerRange(val) {
-                if (val[0] || val[1]) {
-                    this.value.start = moment(val[0]).format('YYYY-MM-DD');
-                    this.value.end = moment(val[1]).format('YYYY-MM-DD');
+            innerDate(val) {
+
+                if (this.isRange) {
+                    if (val[0] || val[1]) {
+                        this.value.start = moment(val[0]).format('YYYY-MM-DD');
+                        this.value.end = moment(val[1]).format('YYYY-MM-DD');
+                    }
+                } else {
+                    this.$emit('input', moment(val).format('YYYY-MM-DD'));
                 }
             },
 
             value: {
                 handler(val) {
-                    this.innerRange = [
-                        val.start,
-                        val.end
-                    ]
+
+                    if (this.isRange) {
+                        this.innerDate = [
+                            val.start,
+                            val.end
+                        ]
+                    } else {
+                        this.innerDate = val;
+                    }
                 },
                 deep: true
             }

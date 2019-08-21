@@ -36,7 +36,7 @@
             <div class="row mt-3">
                 <label class="col-2 col-form-label">Oczekiwany termin realizacji</label>
                 <div class="col">
-                    <date-picker v-model="orderDate"></date-picker>
+                    <date-picker v-model="orderDate" :is-range="false"></date-picker>
                 </div>
             </div>
 
@@ -85,7 +85,7 @@
                         <div class="row mt-3">
                             <label class="col-2 col-form-label">Oczekiwany termin realizacji</label>
                             <div class="col">
-                                <date-picker v-model="product.requiredDate"></date-picker>
+                                <date-picker v-model="product.requiredDate" :isRange="false"></date-picker>
                             </div>
                         </div>
 

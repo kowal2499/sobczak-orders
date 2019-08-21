@@ -36,12 +36,12 @@
 
                         <div class="form-group">
                             <label>Realizacja od</label><br>
-                            <date-picker v-model="dpt.dateStart" />
+                            <date-picker v-model="dpt.dateStart" :is-range="false" />
                         </div>
 
                         <div class="form-group">
                             <label>Realizacja do</label><br>
-                            <date-picker v-model="dpt.dateEnd" />
+                            <date-picker v-model="dpt.dateEnd" :is-range="false"/>
                         </div>
 
                         <div class="mb-2">
