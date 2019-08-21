@@ -78,7 +78,6 @@ class ProductionRepository extends ServiceEntityRepository
             ->setParameter('dateFrom', (new \DateTime($year . '-' . $month))->modify('first day of')->setTime(0, 0, 0))
             ->setParameter('dateTo', (new \DateTime($year . '-' . $month))->modify('last day of')->setTime(23, 59, 59))
             ->join('p.agreementLine', 'l')
-            ->andWhere('l.archived = 0')
             ->andWhere('l.deleted = 0')
             ->join('l.Product', 'pr')
 
