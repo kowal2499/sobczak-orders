@@ -57,6 +57,7 @@ class ProductionController extends AbstractController
                     ->setAgreementLine($agreementLine)
                     ->setDepartmentSlug($plan['slug'])
                     ->setStatus((int) $plan['status'])
+                    ->setTitle($plan['name'])
                     ->setCreatedAt(new \DateTime())
                 ;
             }

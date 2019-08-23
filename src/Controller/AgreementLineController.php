@@ -97,6 +97,10 @@ class AgreementLineController extends AbstractController
         // zapis produkcji
         $retStatus = [];
 
+        // elementy produkcji przed zapisem
+        $productionOld = array_map(function($i) { return $i->getId(); }, $em->getRepository(Production::class)->findBy(['agreementLine' => $agreementLine]));
+        $productionIncoming = array_map(function($i) { return $i['id']; }, $request->request->get('productionData'));
+
         foreach ($request->request->get('productionData') as $prod) {
 
             if (!$prod['id']) {
@@ -104,18 +108,29 @@ class AgreementLineController extends AbstractController
                 $production
                     ->setCreatedAt(new \DateTime())
                     ->setAgreementLine($agreementLine)
-                    ->setDescription($prod['description'])
+//                    ->setDescription($prod['description'])
                     ->setDepartmentSlug($prod['departmentSlug'])
-                    ->setTitle($prod['title'])
+//                    ->setTitle($prod['title'])
                 ;
             } else {
                 $production = $em->getRepository(Production::class)->find($prod['id']);
+//                if (($idx = array_search($prod['id'], $productionOld) !== false)) {
+//                    unset($productionOld[])
+//                }
             }
             $oldStatus = $production->getStatus();
             $production
                 ->setStatus((int)$prod['status'])
                 ->setUpdatedAt(new \DateTime())
             ;
+
+            if ($prod['title']) {
+                $production->setTitle($prod['title']);
+            }
+
+            if ($prod['description']) {
+                $production->setDescription($prod['description']);
+            }
 
             if ($prod['dateStart']) {
                 $production->setDateStart(new \DateTime($prod['dateStart']));
@@ -151,6 +166,11 @@ class AgreementLineController extends AbstractController
             }
             $agreementLine->setDescription($line['description']);
             $em->persist($agreementLine);
+        }
+
+        // usunięcie
+        foreach (array_diff($productionOld, $productionIncoming) as $toDelete) {
+            $em->remove($em->getRepository(Production::class)->find($toDelete));
         }
 
         $em->flush();

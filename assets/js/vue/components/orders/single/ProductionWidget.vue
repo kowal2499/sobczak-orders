@@ -22,29 +22,61 @@
                 <div class="row" v-for="(task, index) in tasks">
 
                     <template v-if="index === selectedIndex">
-                        <div class="col-md-7">
+                        <div class="col-sm-10">
 
-                            <div class="form-group">
-                                <label>Status</label>
-                                <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)">
-                                    <option
-                                        v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
-                                        :value="status.value"
-                                        v-text="status.name"
-                                        style="background-color: white"
-                                    ></option>
-                                </select>
+                            <div class="form-row" v-if="canAdd">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label>Tytuł</label>
+                                        <input type="text" class="form-control" v-model="task.title">
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Realizacja od</label><br>
-                                <date-picker v-model="task.dateStart" :is-range="false" />
+                            <div class="form-row">
+                                <div class="col-sm-10">
+                                    <div class="form-group">
+                                        <label>Opis</label>
+                                        <textarea class="form-control" v-model="task.description"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)">
+                                            <option
+                                                    v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
+                                                    :value="status.value"
+                                                    v-text="status.name"
+                                                    style="background-color: white"
+                                            ></option>
+                                        </select>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            <div class="form-group">
-                                <label>Realizacja do</label><br>
-                                <date-picker v-model="task.dateEnd" :is-range="false"/>
+
+                            <div class="form-row">
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        <label>Realizacja od</label><br>
+                                        <date-picker v-model="task.dateStart" :is-range="false" :width="'100%'" />
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+                                        <label>Realizacja do</label><br>
+                                        <date-picker v-model="task.dateEnd" :is-range="false" :width="'100%'"/>
+                                    </div>
+                                </div>
                             </div>
+
 
                             <div class="mb-2">
                                 <a href="#" @click.prevent="toggleHistory(task)">
@@ -69,6 +101,13 @@
                                 </tr>
                             </table>
                         </div>
+
+                        <div class="col-sm-2" v-if="canAdd">
+                            <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-light shadow-sm float-right" @click.prevent="confirmDeleteModal(task, index)">
+                                <i class="fa fa-trash text-danger"></i>
+                            </button>
+                        </div>
+
                     </template>
 
                 </div>
@@ -93,12 +132,23 @@
             </div>
         </div>
 
+        <confirmation-modal
+            :show="confirmations.delete.show"
+            @closeModal="confirmations.delete.show = false"
+            @answerYes="handleDelete()"
+        >
+            <div v-if="confirmations.delete.show">
+                <p><strong>Czy usunąć zadanie '{{ confirmations.delete.context.title }}'?</strong></p>
+            </div>
+        </confirmation-modal>
+
     </div>
 </template>
 
 <script>
     import DatePicker from "../../base/datepicker";
     import Helpers from "../../../helpers";
+    import ConfirmationModal from "../../base/ConfirmationModal";
 
     export default {
         name: "ProductionWidget",
@@ -117,26 +167,32 @@
             }
         },
 
-        components: { DatePicker },
+        components: { DatePicker, ConfirmationModal },
 
         data() {
             return {
                 helpers: Helpers,
                 tasks: this.value,
                 showHistoryForSlugs: [],
-                selectedIndex: this.getFirstItemIndex()
+                selectedIndex: this.getFirstItemIndex(),
+
+                confirmations: {
+                    delete : {
+                        show: false
+                    }
+                }
             }
         },
 
         watch: {
-            // tasks: {
-                // handler(val) {
-                //     // this.selectedIndex = this.getFirstItemIndex();
-                //     // console.log(this.selectedIndex)
-                //     console.log('tasks ####')
-                // },
-                // deep: true
-            // }
+            tasks: {
+                handler(val) {
+                    // this.selectedIndex = this.getFirstItemIndex();
+                    // console.log(this.selectedIndex)
+                    this.$emit('input', val)
+                },
+                deep: true
+            }
         },
 
         methods: {
@@ -200,12 +256,37 @@
                 });
 
                 this.selectedIndex = this.getFirstItemIndex();
+            },
+
+            confirmDeleteModal(task, index) {
+                this.confirmations.delete.context = task;
+                this.confirmations.delete.show = true;
+                this.confirmations.delete.index = index;
+            },
+
+            handleDelete() {
+                let idx = 0;
+                let reduced = [];
+                for (let item of this.tasks) {
+                    if (idx++ !== this.confirmations.delete.index) {
+                        reduced.push(item)
+                    }
+                }
+                this.tasks = reduced;
+                this.confirmations.delete.show = false;
+
+                if (this.tasks.length === 5) {
+                    this.selectedIndex = -1;
+                } else {
+                    this.selectedIndex = this.getFirstItemIndex();
+                }
             }
+
         }
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .statusNotify {
         display: inline-block; width: 12px; height: 12px; margin-right: 5px; border: 1px solid #666; background-color: white;
     }
