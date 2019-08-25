@@ -2,18 +2,22 @@
     <table class="table">
 
         <thead>
-            <tr>
-                <th v-for="header in headers" class="text-center">
-                    <a href="#" v-if="header.sortKey" @click.prevent="sortBy(header)" :class="{ selected: header.sortKey === headerSort.sortKey }">
-                        {{ header.name }}
-                    </a>
-                    <span v-else>{{ header.name }}</span>
+            <tr v-for="header in headers">
 
-                    <span v-if="header.sortKey === headerSort.sortKey" class="iconWrap">
-                        <i class="fa fa-arrow-down" aria-hidden="true" v-if="headerSort.order === 'DESC'"></i>
-                        <i class="fa fa-arrow-up" aria-hidden="true" v-if="headerSort.order === 'ASC'"></i>
-                    </span>
+                <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''">
+                    <div class="wrapper">
+                        <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
+                            {{ cell.name }}
+                        </a>
+                        <span v-else>{{ cell.name }}</span>
+
+                        <span v-if="cell.sortKey === headerSort.sortKey" class="iconWrap">
+                            <i class="fa fa-arrow-down" aria-hidden="true" v-if="headerSort.order === 'DESC'"></i>
+                            <i class="fa fa-arrow-up" aria-hidden="true" v-if="headerSort.order === 'ASC'"></i>
+                        </span>
+                    </div>
                 </th>
+
             </tr>
         </thead>
 
@@ -72,27 +76,35 @@
 
 <style scoped lang="scss">
     table.table {
+        font-size: 0.8rem;
+
         th {
-            position: relative;
+            vertical-align: middle;
+            text-align: center;
+            .wrapper {
+                font-size: 0.85rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
 
-            a {
-                color: #666;
-            }
-            a:hover {
-                text-decoration: none !important;
-                color: #4E73DF;
-            }
+                a {
+                    color: #666;
+                }
 
-            .selected {
-                color: #4E73DF;
-            }
-
-            .iconWrap {
-                position: absolute;
-                top: 12px;
-                right: -3px;
-                i {
+                a:hover {
+                    text-decoration: none !important;
                     color: #4E73DF;
+                }
+
+                .selected {
+                    color: #4E73DF;
+                }
+
+                .iconWrap {
+                    i {
+                        padding-left: 3px;
+                        color: #4E73DF;
+                    }
                 }
             }
         }

@@ -344,13 +344,15 @@
         computed: {
             tableHeaders() {
                 let headers = [
-                    { name: 'ID', sortKey: 'a.orderNumber' },
-                    { name: 'Data otrzymania', sortKey: 'a.createDate'},
-                    { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
-                    { name: 'Klient', sortKey: 'c.name'},
-                    { name: 'Produkt', sortKey: 'p.name' },
-                    { name: 'Produkcja' },
-                    { name: 'Akcje' },
+                    [
+                        { name: 'ID', sortKey: 'a.orderNumber' },
+                        { name: 'Data otrzymania', sortKey: 'a.createDate'},
+                        { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
+                        { name: 'Klient', sortKey: 'c.name'},
+                        { name: 'Produkt', sortKey: 'p.name' },
+                        { name: 'Produkcja' },
+                        { name: 'Akcje' },
+                    ]
                 ];
 
                 return headers;
