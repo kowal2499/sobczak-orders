@@ -3,7 +3,7 @@
         v-model="innerDate"
         :lang="lang"
         :range="isRange"
-        :width="'230px'"
+        :width="width"
         type="date"
         format="YYYY-MM-DD"
         use-utc="true"
@@ -25,6 +25,11 @@
             isRange: {
                 type: Boolean,
                 default: true
+            },
+
+            width: {
+                type: String,
+                default: '230px'
             }
         },
 

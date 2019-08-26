@@ -22,19 +22,58 @@
                 </td>
                 <td v-text="order.line.factor" class="text-center"></td>
 
-                <td v-for="(production, prodKey) in order.production.data">
-                    <select class="form-control"
-                            v-model="production.status"
-                            @change="updateStatus(production.id, production.status)"
-                            :style="getStatusStyle(production)"
-                    >
-                        <option
-                                v-for="status in statuses"
-                                :value="status.value"
-                                v-text="status.name"
-                                style="background-color: white"
-                        ></option>
-                    </select>
+                <td class="production" v-for="(production, prodKey) in order.production.data" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
+                    <div class="task">
+                        <select class="form-control"
+                                v-model="production.status"
+                                @change="updateStatus(production.id, production.status)"
+                                :style="getStatusStyle(production)"
+                        >
+                            <option
+                                    v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
+                                    :value="status.value"
+                                    v-text="status.name"
+                                    style="background-color: white"
+                            ></option>
+                        </select>
+                    </div>
+                </td>
+
+                <td class="production">
+
+                    <div v-if="getCustomTasks(order.production.data).length">
+                        <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3" @click.prevent="order.showCustomTasks = !order.showCustomTasks">
+                            <span v-if="order.showCustomTasks === false"><i class="fa fa-eye"></i> <span class="pl-1" >Pokaż</span></span>
+                            <span v-if="order.showCustomTasks === true"><i class="fa fa-eye-slash"></i> <span class="pl-1" >Ukryj</span></span>
+                        </button>
+
+                        <template v-if="order.showCustomTasks">
+                            <div v-for="task in getCustomTasks(order.production.data)">
+
+                                <div class="task">
+                                    <label>{{ task.title }}</label>
+                                    <select class="form-control"
+                                            v-model="task.status"
+                                            @change="updateStatus(task.id, task.status)"
+                                            style="width: 120px;"
+                                            :style="getStatusStyle(task)"
+                                    >
+                                        <option
+                                                v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
+                                                :value="status.value"
+                                                v-text="status.name"
+                                                style="background-color: white"
+                                        ></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div v-else>
+                        brak
+                    </div>
+
                 </td>
 
                 <td>
@@ -145,7 +184,7 @@
                     }
                 },
 
-                statuses: Helpers.statuses,
+                helpers: Helpers,
 
                 orders: [],
                 departments: [],
@@ -288,6 +327,7 @@
                             data.orders.forEach(order => {
                                 order.buttonExpanded = false;
                                 order.confirmRemove = false;
+                                order.showCustomTasks = false;
                             });
 
                             this.orders = data.orders;
@@ -308,7 +348,7 @@
 
             getStatusStyle(production) {
 
-                let status = this.statuses.find(item => item.value === production.status);
+                let status = this.helpers.statuses.find(item => item.value === production.status);
                 if (status) {
                     return 'background-color: '.concat(status.color);
                 }
@@ -330,6 +370,10 @@
                 this.filters.meta.sort = event
             },
 
+            getCustomTasks(production) {
+                return production.filter(p => { return p.departmentSlug === 'custom_task' ? p : false; })
+            },
+
             getRouting() {
                 return routing;
             }
@@ -338,18 +382,35 @@
         computed: {
             tableHeaders() {
                 let headers = [
-                    { name: 'ID', sortKey: 'a.orderNumber' },
-                    { name: 'Data', sortKey: 'l.confirmedDate' },
-                    { name: 'Klient', sortKey: 'c.name'},
-                    { name: 'Produkt', sortKey: 'p.name' },
-                    { name: 'Współczynnik', sortKey: 'l.factor' },
+                    [
+                        { name: 'ID', sortKey: 'a.orderNumber', rowspan: 2 },
+                        { name: 'Data', sortKey: 'l.confirmedDate', rowspan: 2 },
+                        { name: 'Klient', sortKey: 'c.name', rowspan: 2},
+                        { name: 'Produkt', sortKey: 'p.name', rowspan: 2 },
+                        { name: 'Wsp.', sortKey: 'l.factor', rowspan: 2 },
+
+                        { name: 'Produkcja', colspan: 5},
+                        { name: 'Dodatkowe zadania', rowspan: 2},
+                    ],
+                    [
+                        { name: 'Klejenie'},
+                        { name: 'CNC'},
+                        { name: 'Szlifowanie'},
+                        { name: 'Lakierowanie'},
+                        { name: 'Pakowanie'},
+                    ]
+
                 ];
 
-                this.departments.forEach(dpt => { headers.push({ name: dpt.name }); })
+                // this.departments.forEach(dpt => { headers.push({ name: dpt.name }); })
 
-                headers.push({ name: 'Akcje' });
+                headers[0].push({ name: 'Akcje', rowspan: 2 });
                 return headers;
             },
+
+            productionSlugs() {
+                return this.departments.map(d => { return d.slug; })
+            }
         }
     }
 
@@ -378,6 +439,27 @@
 
             z-index: 20;
         }
+    }
+
+    .table tbody td {
+        /*vertical-align: middle !important;*/
+    }
+
+    .production {
+
+        .task {
+            width: 80px;
+            label {
+                font-size: 0.75rem;
+                margin-bottom: 2px;
+                color: #aaa;
+            }
+            select {
+                font-size: 0.65rem;
+                padding: 5px;
+            }
+        }
+
     }
 
 

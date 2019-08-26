@@ -57,6 +57,8 @@ class AgreementLineController extends AbstractController
                                     'departmentSlug' => $prod['departmentSlug'],
                                     'dateStart' => is_object($prod['dateStart']) ? ($prod['dateStart'])->format('Y-m-d') : null,
                                     'dateEnd' => is_object($prod['dateEnd']) ? ($prod['dateEnd']->format('Y-m-d')) : null,
+                                    'description' => $prod['description'],
+                                    'title' => $prod['title'],
                                     'statusLog' => array_map(function($status) {
                                         return [
                                             'createdAt' => is_object($status['createdAt']) ? ($status['createdAt'])->format('Y-m-d H:m:s') : null,
@@ -95,14 +97,40 @@ class AgreementLineController extends AbstractController
         // zapis produkcji
         $retStatus = [];
 
+        // elementy produkcji przed zapisem
+        $productionOld = array_map(function($i) { return $i->getId(); }, $em->getRepository(Production::class)->findBy(['agreementLine' => $agreementLine]));
+        $productionIncoming = array_map(function($i) { return $i['id']; }, $request->request->get('productionData'));
+
         foreach ($request->request->get('productionData') as $prod) {
 
-            $production = $em->getRepository(Production::class)->find($prod['id']);
+            if (!$prod['id']) {
+                $production = new Production();
+                $production
+                    ->setCreatedAt(new \DateTime())
+                    ->setAgreementLine($agreementLine)
+//                    ->setDescription($prod['description'])
+                    ->setDepartmentSlug($prod['departmentSlug'])
+//                    ->setTitle($prod['title'])
+                ;
+            } else {
+                $production = $em->getRepository(Production::class)->find($prod['id']);
+//                if (($idx = array_search($prod['id'], $productionOld) !== false)) {
+//                    unset($productionOld[])
+//                }
+            }
             $oldStatus = $production->getStatus();
             $production
                 ->setStatus((int)$prod['status'])
                 ->setUpdatedAt(new \DateTime())
             ;
+
+            if ($prod['title']) {
+                $production->setTitle($prod['title']);
+            }
+
+            if ($prod['description']) {
+                $production->setDescription($prod['description']);
+            }
 
             if ($prod['dateStart']) {
                 $production->setDateStart(new \DateTime($prod['dateStart']));
@@ -138,6 +166,11 @@ class AgreementLineController extends AbstractController
             }
             $agreementLine->setDescription($line['description']);
             $em->persist($agreementLine);
+        }
+
+        // usunięcie
+        foreach (array_diff($productionOld, $productionIncoming) as $toDelete) {
+            $em->remove($em->getRepository(Production::class)->find($toDelete));
         }
 
         $em->flush();
