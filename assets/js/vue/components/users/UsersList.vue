@@ -6,7 +6,7 @@
                 :title="'Użytkownicy systemu'"
                 :locked="locked"
             >
-                <div class="table-responsive" v-if="!locked">
+                <div class="table-responsive has-dropdown" v-if="!locked">
                     <table class="table">
                         <thead>
                             <tr>
