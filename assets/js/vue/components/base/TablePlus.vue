@@ -1,31 +1,33 @@
 <template>
-    <table class="table">
+    <div class="table-responsive has-dropdown">
+        <table class="table">
 
-        <thead>
-            <tr v-for="header in headers">
+            <thead>
+                <tr v-for="header in headers">
 
-                <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''">
-                    <div class="wrapper">
-                        <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
-                            {{ cell.name }}
-                        </a>
-                        <span v-else>{{ cell.name }}</span>
+                    <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''">
+                        <div class="wrapper">
+                            <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
+                                {{ cell.name }}
+                            </a>
+                            <span v-else>{{ cell.name }}</span>
 
-                        <span v-if="cell.sortKey === headerSort.sortKey" class="iconWrap">
-                            <i class="fa fa-arrow-down" aria-hidden="true" v-if="headerSort.order === 'DESC'"></i>
-                            <i class="fa fa-arrow-up" aria-hidden="true" v-if="headerSort.order === 'ASC'"></i>
-                        </span>
-                    </div>
-                </th>
+                            <span v-if="cell.sortKey === headerSort.sortKey" class="iconWrap">
+                                <i class="fa fa-arrow-down" aria-hidden="true" v-if="headerSort.order === 'DESC'"></i>
+                                <i class="fa fa-arrow-up" aria-hidden="true" v-if="headerSort.order === 'ASC'"></i>
+                            </span>
+                        </div>
+                    </th>
 
-            </tr>
-        </thead>
+                </tr>
+            </thead>
 
-        <tbody>
-            <slot></slot>
-        </tbody>
+            <tbody>
+                <slot></slot>
+            </tbody>
 
-    </table>
+        </table>
+    </div>
 </template>
 
 <script>

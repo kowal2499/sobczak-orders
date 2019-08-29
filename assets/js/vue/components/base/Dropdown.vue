@@ -11,7 +11,7 @@
         </button>
 
 <!--        <div style="position: fixed">-->
-        <div class="dropdown-menu dropdown-menu-right"
+        <div class="dropdown-menu"
              :class="{show: expanded}"
              @click="expanded = false"
         >
@@ -83,6 +83,22 @@
 
 <style lang="scss" scoped>
     .dropdown {
+        width: 40px;
+
+        .dropdown-menu {
+            left: auto;
+            /*right: 18px;*/
+            right: 0;
+            top: 110%;
+
+            padding: 0;
+
+            a {
+                padding: 7px 15px;
+            }
+
+        }
+
         button.dropdown-toggle:after {
             display: none;
         }
