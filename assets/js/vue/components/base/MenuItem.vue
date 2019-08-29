@@ -1,6 +1,6 @@
 <template>
 
-        <li class="nav-item" :class="{'expanded': expanded, 'active': active}">
+        <li class="nav-item expandable" :class="{'expanded': expanded, 'active': active}">
 
             <div class="d-flex justify-content-between align-items-center">
                 <a :href="path" class="nav-link" @click.prevent="expanded = !expanded">

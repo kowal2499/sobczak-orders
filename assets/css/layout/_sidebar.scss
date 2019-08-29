@@ -40,6 +40,7 @@ div#wrapper nav.sidebar {
                 position: relative;
                 text-decoration: none;
                 background-color: transparent;
+                transition: all 0.4s;
 
                 @media (min-width: 768px) {
                     display: block;
@@ -68,31 +69,45 @@ div#wrapper nav.sidebar {
 
             .submenu {
                 display: none;
-                background-color: rgba(255, 255, 255, 0.85);
-                padding: 0.2rem;
-                border-radius: .2rem;
+                background-color: rgba(0, 0, 0, 0.05);
 
                 a {
                     display: block;
-                    padding: .3rem;
-                    margin-bottom: 0.13rem;
+                    padding: .4rem .7rem;
                     font-size: 0.85rem;
-                    color: #3a3b45;
+                    color: rgba(255, 255, 255, 0.6);
                     text-decoration: none;
-                    border-radius: .2rem;
                     white-space: nowrap;
+                    transition: all 0.4s;
                 }
 
-                a:hover, a.active {
-                    background-color: #fff;
+                a:hover {
+                    font-weight: bold;
+                    color: white;
+                }
+
+                a.active {
+                    font-weight: 700;
+                    color: white;
+                    background-color: rgba(0, 0, 0, 0.12);
                 }
 
             }
 
             &.active {
                 a.nav-link, i {
-                    font-weight: 700;
                     color: white;
+                }
+
+                a.nav-link {
+                    font-weight: 700;
+                }
+
+            }
+
+            &.active:not(.expandable) {
+                a.nav-link {
+                    background-color: rgba(0, 0, 0, 0.12);
                 }
             }
         }

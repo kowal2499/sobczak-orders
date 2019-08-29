@@ -78,9 +78,10 @@
                              :title-icon="'fa fa-wrench'"
                              :title="'Konfiguracja'"
                         >
-                            <div class="submenu p-2 mx-3 collapse-inner rounded">
+                            <div class="submenu mx-2 collapse-inner">
                                 <a href="{{ path('security_users') }}" class="{% if active in ['security_users', 'security_user_edit'] %}active{% endif %}">Użytkownicy</a>
-{#                                <a href="#">Handlowcy</a>#}
+                                <a href="#">Handlowcy</a>
+                                <a href="#">Coś jeszcze</a>
                             </div>
                         </menu-item>
 
