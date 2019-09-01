@@ -94,7 +94,8 @@
             padding: 0;
 
             a {
-                padding: 7px 15px;
+                padding: 3px 15px;
+                font-size: 0.8rem;
             }
 
         }
