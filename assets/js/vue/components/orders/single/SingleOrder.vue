@@ -86,15 +86,26 @@
 
                             data.newStatuses.forEach(newStatus => {
                                 let production = this.orderData.production.data.find(prod => { return prod.id === newStatus.productionId; });
-                                if (production) {
+                                if (production && production.statusLog) {
+                                    console.log(production)
                                     production.statusLog.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
                                 }
                             })
                         }
 
-                        alert('Zmiany zapisane')
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Zapisano zmiany.'
+                        });
                     })
-                    .catch(() => {})
+                    .catch((data) => {
+                        for (let msg of data.response.data) {
+                            Event.$emit('message', {
+                                type: 'error',
+                                content: msg
+                            });
+                        }
+                    })
                     .finally(() => { this.locked = false;})
             }
         },

@@ -6,6 +6,13 @@
                 :title="'Użytkownicy systemu'"
                 :locked="locked"
             >
+
+                <div class="row">
+                    <div class="col">
+                        <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm mb-3 float-right"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
+                    </div>
+                </div>
+
                 <div class="table-responsive has-dropdown" v-if="!locked">
                     <table class="table">
                         <thead>
@@ -31,13 +38,13 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <Dropdown>
+                                    <dropdown class="icon-only">
                                         <template>
                                             <a class="dropdown-item" :href="getRouting().get('security_user_edit') + '/' + user.id">
                                                 <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
                                             </a>
                                         </template>
-                                    </Dropdown>
+                                    </dropdown>
                                 </td>
                             </tr>
 
