@@ -7,6 +7,7 @@ use App\Entity\Production;
 use App\Entity\StatusLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
@@ -92,7 +93,7 @@ class AgreementLineController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function update(Request $request, AgreementLine $agreementLine, EntityManagerInterface $em)
+    public function update(Request $request, AgreementLine $agreementLine, EntityManagerInterface $em): JsonResponse
     {
         // zapis produkcji
         $retStatus = [];
@@ -101,83 +102,83 @@ class AgreementLineController extends AbstractController
         $productionOld = array_map(function($i) { return $i->getId(); }, $em->getRepository(Production::class)->findBy(['agreementLine' => $agreementLine]));
         $productionIncoming = array_map(function($i) { return $i['id']; }, $request->request->get('productionData'));
 
-        foreach ($request->request->get('productionData') as $prod) {
+        try {
+            foreach ($request->request->get('productionData') as $prod) {
 
-            if (!$prod['id']) {
-                $production = new Production();
-                $production
-                    ->setCreatedAt(new \DateTime())
-                    ->setAgreementLine($agreementLine)
+                if (!$prod['id']) {
+                    $production = new Production();
+                    $production
+                        ->setCreatedAt(new \DateTime())
+                        ->setAgreementLine($agreementLine)
 //                    ->setDescription($prod['description'])
-                    ->setDepartmentSlug($prod['departmentSlug'])
-//                    ->setTitle($prod['title'])
-                ;
-            } else {
-                $production = $em->getRepository(Production::class)->find($prod['id']);
+                        ->setDepartmentSlug($prod['departmentSlug'])//                    ->setTitle($prod['title'])
+                    ;
+                } else {
+                    $production = $em->getRepository(Production::class)->find($prod['id']);
 //                if (($idx = array_search($prod['id'], $productionOld) !== false)) {
 //                    unset($productionOld[])
 //                }
+                }
+                $oldStatus = $production->getStatus();
+                $production
+                    ->setStatus((int)$prod['status'])
+                    ->setUpdatedAt(new \DateTime());
+
+                if ($prod['title']) {
+                    $production->setTitle($prod['title']);
+                }
+
+                if ($prod['description']) {
+                    $production->setDescription($prod['description']);
+                }
+
+                if ($prod['dateStart']) {
+                    $production->setDateStart(new \DateTime($prod['dateStart']));
+                }
+
+                if ($prod['dateEnd']) {
+                    $production->setDateEnd(new \DateTime($prod['dateEnd']));
+                }
+
+                $em->persist($production);
+
+                if ($oldStatus != (int)$prod['status']) {
+                    $newStatus = new StatusLog();
+                    $newStatus
+                        ->setCurrentStatus((int)$prod['status'])
+                        ->setProduction($production);
+                    $em->persist($newStatus);
+
+                    $retStatus[] = [
+                        'currentStatus' => (int)$newStatus->getCurrentStatus(),
+                        'createdAt' => $newStatus->getCreatedAt()->format('Y-m-d H:i:s'),
+                        'productionId' => $production->getId()
+                    ];
+                }
             }
-            $oldStatus = $production->getStatus();
-            $production
-                ->setStatus((int)$prod['status'])
-                ->setUpdatedAt(new \DateTime())
-            ;
 
-            if ($prod['title']) {
-                $production->setTitle($prod['title']);
+            // zapis agreement line
+            $line = $request->request->get('agreementLineData');
+
+            if ($line) {
+                if ($line['confirmedDate']) {
+                    $agreementLine->setConfirmedDate(new \DateTime($line['confirmedDate']));
+                }
+                $agreementLine->setDescription($line['description']);
+                $em->persist($agreementLine);
             }
 
-            if ($prod['description']) {
-                $production->setDescription($prod['description']);
+            // usunięcie
+            foreach (array_diff($productionOld, $productionIncoming) as $toDelete) {
+                $em->remove($em->getRepository(Production::class)->find($toDelete));
             }
 
-            if ($prod['dateStart']) {
-                $production->setDateStart(new \DateTime($prod['dateStart']));
-            }
-
-            if ($prod['dateEnd']) {
-                $production->setDateEnd(new \DateTime($prod['dateEnd']));
-            }
-
-            $em->persist($production);
-
-            if ($oldStatus != (int)$prod['status']) {
-                $newStatus = new StatusLog();
-                $newStatus
-                    ->setCurrentStatus((int)$prod['status'])
-                    ->setProduction($production);
-                $em->persist($newStatus);
-
-                $retStatus[] = [
-                    'currentStatus' => (int) $newStatus->getCurrentStatus(),
-                    'createdAt' => $newStatus->getCreatedAt()->format('Y-m-d H:i:s'),
-                    'productionId' => $production->getId()
-                ];
-            }
+            $em->flush();
+        } catch (\Exception $e) {
+            return $this->json([$e->getMessage()], RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        // zapis agreement line
-        $line = $request->request->get('agreementLineData');
-
-        if ($line) {
-            if ($line['confirmedDate']) {
-                $agreementLine->setConfirmedDate(new \DateTime($line['confirmedDate']));
-            }
-            $agreementLine->setDescription($line['description']);
-            $em->persist($agreementLine);
-        }
-
-        // usunięcie
-        foreach (array_diff($productionOld, $productionIncoming) as $toDelete) {
-            $em->remove($em->getRepository(Production::class)->find($toDelete));
-        }
-
-        $em->flush();
-
-        return new JsonResponse(
-            [ 'newStatuses' => $retStatus ]
-        );
+        return $this->json([ 'newStatuses' => $retStatus ]);
     }
 
     /**
