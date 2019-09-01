@@ -1,12 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Karta użytkownika: {{ user.getUserFullName }}{% endblock %}
+{% block title %}
+
+    {% if user is not null %}
+        Panel użytkownika: {{ user.getUserFullName }}
+    {% else %}
+        Nowy użytkownik
+    {% endif %}
+
+{% endblock %}
 
 {% block body %}
     <user-single
-        :first-name="'{{ user.getFirstName }}'"
-        :last-name="'{{ user.getLastName }}'"
-
+        {% if user is not null %}
+            :user-id="{{ user.getId }}"
+        {% endif %}
     ></user-single>
 {% endblock %}
 

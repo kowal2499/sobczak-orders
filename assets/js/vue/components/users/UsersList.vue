@@ -6,6 +6,13 @@
                 :title="'Użytkownicy systemu'"
                 :locked="locked"
             >
+
+                <div class="row">
+                    <div class="col">
+                        <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm mb-3 float-right"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
+                    </div>
+                </div>
+
                 <div class="table-responsive has-dropdown" v-if="!locked">
                     <table class="table">
                         <thead>

@@ -27,6 +27,13 @@ export default {
         return result;
     },
 
+    userName(user) {
+        if (!user) {
+            return '';
+        }
+        return user.firstName.concat(' ', user.lastName)
+    },
+
     statusesPerTaskType(taskType) {
 
         let result = [];
