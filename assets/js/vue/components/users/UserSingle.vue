@@ -201,6 +201,7 @@
                                 type: 'success',
                                 content: 'Zapisano zmiany.'
                             });
+                            this.locked = false;
                         }
                     })
                     .catch((data) => {
