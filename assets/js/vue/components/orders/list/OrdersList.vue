@@ -34,7 +34,7 @@
                     <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
                 </td>
                 <td>
-                    <dropdown>
+                    <dropdown class="icon-only">
                         <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + agreement.line.id">
                             <i class="fa fa-tasks" aria-hidden="true"></i> Panel
                         </a>

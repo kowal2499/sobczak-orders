@@ -104,13 +104,26 @@
 
                     <!-- Main Content -->
                     <div id="content">
-                        <div class="container-fluid">
+
+                        <notifications :bag="[
 
                             {% for message in app.flashes('success') %}
-                                <div class="alert alert-success">
-                                    {{ message }}
-                                </div>
+                                {
+                                    type: 'success',
+                                    content: '{{ message }}'
+                                },
                             {% endfor %}
+
+                        ]"></notifications>
+
+
+                        <div class="container-fluid">
+
+{#                            {% for message in app.flashes('success') %}#}
+{#                                <div class="alert alert-success">#}
+{#                                    {{ message }}#}
+{#                                </div>#}
+{#                            {% endfor %}#}
 
                             {% block body %}{% endblock %}
                         </div>

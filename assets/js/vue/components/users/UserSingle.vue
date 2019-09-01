@@ -97,10 +97,17 @@
 
                 <div class="row">
                     <div class="col">
-                        <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3 float-right" :disabled="!passwords.passwordsMatch" @click="save"><i class="fa fa-floppy-o"></i>
-                            <span class="pl-1" v-if="!isNew">Zapisz zmiany</span>
-                            <span class="pl-1" v-if="isNew">Dodaj użytkownika</span>
-                        </button>
+
+                        <button-plus
+                            :button-class="'btn-primary float-right'"
+                            :icon-class="'fa fa-floppy-o'"
+                            :inner-text="isNew() ? 'Dodaj użytkownika' : 'Zapisz zmiany'"
+                            :is-disabled="!passwords.passwordsMatch"
+                            :is-busy="locked"
+                            @clicked="save"
+                        >
+                        </button-plus>
+
                     </div>
                 </div>
 
@@ -116,11 +123,13 @@
     import users from "../../api/users";
     import helpers from "../../helpers";
     import Waiting from "../base/Waiting";
+    import Routing from "../../api/routing";
+    import ButtonPlus from "../base/ButtonPlus";
 
     export default {
         name: "UserSingle",
 
-        components: { CollapsibleCard, Waiting },
+        components: { CollapsibleCard, Waiting, ButtonPlus },
 
         props: {
             userId: {
@@ -183,10 +192,24 @@
                 }
 
                 users.storeUser(userData)
-                    .catch((data) => {
-                        console.log(data.response)
+                    .then(() => {
+                        // gdy dodano nowego użytkownika to przekieruj do listy
+                        if (this.isNew()) {
+                            window.location.replace(Routing.get('security_users'));
+                        } else {
+                            Event.$emit('message', {
+                                type: 'success',
+                                content: 'Zapisano zmiany.'
+                            });
+                        }
                     })
-                    .finally(() => {
+                    .catch((data) => {
+                        for (let msg of data.response.data) {
+                            Event.$emit('message', {
+                                type: 'error',
+                                content: msg
+                            });
+                        }
                         this.locked = false;
                     })
                 ;

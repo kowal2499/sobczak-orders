@@ -82,9 +82,12 @@
 </script>
 
 <style lang="scss" scoped>
-    .dropdown {
-        width: 40px;
 
+    .dropdown.icon-only {
+        width: 40px;
+    }
+
+    .dropdown {
         .dropdown-menu {
             left: auto;
             /*right: 18px;*/

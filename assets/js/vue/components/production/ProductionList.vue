@@ -77,7 +77,7 @@
                 </td>
 
                 <td>
-                    <dropdown>
+                    <dropdown class="icon-only">
                         <template>
                             <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + order.line.id">
                                 <i class="fa fa-tasks" aria-hidden="true"></i> Panel

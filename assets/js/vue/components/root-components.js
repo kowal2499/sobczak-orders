@@ -5,6 +5,7 @@ import SingleOrder from './orders/single/SingleOrder';
 import Dashboard from './dashboard/Dashboard';
 import UsersList from './users/UsersList';
 import UserSingle from './users/UserSingle';
+import Notifications from './base/Notifications';
 
 import Dropdown from './base/Dropdown';
 import MenuItem from './base/MenuItem';
@@ -18,5 +19,6 @@ export default {
     UsersList,
     UserSingle,
     Dropdown,
-    MenuItem
+    MenuItem,
+    Notifications
 }

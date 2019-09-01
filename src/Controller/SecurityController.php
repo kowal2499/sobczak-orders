@@ -37,11 +37,10 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/users", name="security_users")
-     * @param Request $request
+     * @Route("/users", name="security_users", options={"expose"=true})
      * @return Response
      */
-    public function users(Request $request)
+    public function users()
     {
         return $this->render('security/users.html.twig', []);
     }
@@ -103,7 +102,7 @@ class SecurityController extends AbstractController
             $passwordOld = $request->request->get('passwordOld');
 
             if (count(array_filter([$newFirstName, $newLastName, $newEmail])) !== 3) {
-                throw new \Exception('Brak wymaganych danych.');
+                throw new \Exception('Należy podać imię, nazwisko i email.');
             }
 
             if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
@@ -137,6 +136,10 @@ class SecurityController extends AbstractController
 
             $em->persist($user);
             $em->flush();
+
+            if (!$userId) {
+                $this->addFlash('success', 'Dodano użytkownika.');
+            }
 
         } catch (\Exception $e) {
             return $this->json([$e->getMessage()], RESPONSE::HTTP_UNPROCESSABLE_ENTITY);

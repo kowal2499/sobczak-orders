@@ -38,13 +38,13 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <Dropdown>
+                                    <dropdown class="icon-only">
                                         <template>
                                             <a class="dropdown-item" :href="getRouting().get('security_user_edit') + '/' + user.id">
                                                 <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
                                             </a>
                                         </template>
-                                    </Dropdown>
+                                    </dropdown>
                                 </td>
                             </tr>
 
