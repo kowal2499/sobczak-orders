@@ -15,7 +15,7 @@ class ProductFixtures extends BaseFixture
 
     protected function loadData(ObjectManager $manager)
     {
-        foreach (self::$productNames as $item) {
+        foreach (self::$productNames as $key => $item) {
             $product = new Product();
             $product
                 ->setName($item)
@@ -24,6 +24,7 @@ class ProductFixtures extends BaseFixture
                 ->setCreateDate($this->faker->dateTimeBetween('-123 days', '-1 days'))
             ;
             $manager->persist($product);
+            $this->addReference(Product::class . '_' . $key, $product);
 
         }
 
