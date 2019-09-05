@@ -14,8 +14,6 @@ class CustomerFixtures extends BaseFixture
             $customer
                 ->setFirstName($this->faker->firstName())
                 ->setLastName($this->faker->lastName())
-
-
                 ->setName($this->faker->company())
                 ->setCity($this->faker->city())
                 ->setCountry('PL')

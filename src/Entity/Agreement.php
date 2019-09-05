@@ -59,7 +59,7 @@ class Agreement
         return $this->id;
     }
 
-    public function getCreateDate(): ?String
+    public function getCreateDate(): ?\DateTimeInterface
     {
         return $this->createDate;
     }
