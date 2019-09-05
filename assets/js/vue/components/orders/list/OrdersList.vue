@@ -204,7 +204,7 @@
                 this.filters.q = query.q || '';
 
                 if ((!this.filters.dateStart.start || !moment(this.filters.dateStart.start).isValid())) {
-                    this.filters.dateStart.start = moment().startOf('month').format('YYYY-MM-DD');
+                    this.filters.dateStart.start = moment().subtract(2, 'M').startOf('month').format('YYYY-MM-DD');
                 }
 
                 if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
