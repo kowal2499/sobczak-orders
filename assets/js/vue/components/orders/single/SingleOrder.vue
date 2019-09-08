@@ -6,6 +6,7 @@
             @click.prevent="save"
             :disabled="locked"
             href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
+            v-if="canEditLine()"
         >
             <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"></i>
             <span class="pl-1">Zapisz zmiany</span>
@@ -20,7 +21,7 @@
                     ></production-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked" v-if="orderData.production.data.length !== 0">
+                <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked" v-if="orderData.production.data.length !== 0 && canEditLine()">
                     <production-widget
                         v-model="orderData.production.data"
                         :task-types="['custom_task']"
@@ -87,7 +88,6 @@
                             data.newStatuses.forEach(newStatus => {
                                 let production = this.orderData.production.data.find(prod => { return prod.id === newStatus.productionId; });
                                 if (production && production.statusLog) {
-                                    console.log(production)
                                     production.statusLog.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
                                 }
                             })
@@ -107,6 +107,10 @@
                         }
                     })
                     .finally(() => { this.locked = false;})
+            },
+
+            canEditLine() {
+                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
             }
         },
 
@@ -115,6 +119,7 @@
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
+                    this.$access.privileges.init(data.roles);
                     if (data && Array.isArray(data.orders) && data.orders.length === 1) {
                         this.orderData = data.orders[0];
                     }

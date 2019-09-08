@@ -32,11 +32,19 @@ class AgreementLineController extends AbstractController
     /**
      * @Route("/agreement/fetch", name="agreements_fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
+     * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
     public function fetch(Request $request, AgreementLineRepository $repository)
     {
-        $agreements = $repository->getFiltered($request->request->all());
+
+        $search = $request->request->all();
+
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $search['search']['ownedBy'] = $this->getUser();
+        }
+
+        $agreements = $repository->getFiltered($search);
 
         return new JsonResponse(
             [
@@ -78,7 +86,9 @@ class AgreementLineController extends AbstractController
                     ];
                 }, $agreements->getArrayResult()),
                 
-                'departments' => \App\Entity\Department::names()
+                'departments' => \App\Entity\Department::names(),
+
+                'roles' => $this->getUser()->getRoles()
             ]    
         );
 

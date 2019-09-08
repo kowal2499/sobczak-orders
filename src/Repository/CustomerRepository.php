@@ -19,15 +19,29 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
 
-    public function getWithSearch(?string $term)
+    public function getWithSearch(?array $term)
     {
         $qb = $this->createQueryBuilder('c');
 
-        if ($term) {
-            $qb->andWhere('c.name LIKE :term OR c.first_name LIKE :term OR c.last_name LIKE :term OR c.street LIKE :term OR c.city LIKE :term OR c.country LIKE :term OR c.phone LIKE :term OR c.email LIKE :term')
-                ->setParameter('term', '%' . $term . '%')
-            ;
+
+
+        foreach ((array)$term as $key => $value) {
+            switch ($key) {
+                case 'q':
+                    $qb->andWhere('c.name LIKE :term OR c.first_name LIKE :term OR c.last_name LIKE :term OR c.street LIKE :term OR c.city LIKE :term OR c.country LIKE :term OR c.phone LIKE :term OR c.email LIKE :term')
+                        ->setParameter('term', '%' . $value . '%');
+                    break;
+                case 'ownedBy':
+                    $customers = $value->getCustomers();
+                    if (!empty($customers)) {
+                        $qb->andWhere("c.id IN (:{$key})");
+                        $qb->setParameter($key, $customers);
+                    }
+                    break;
+
+            }
         }
+
 
         return $qb
             ->orderBy('c.name, c.first_name, c.last_name', 'DESC')

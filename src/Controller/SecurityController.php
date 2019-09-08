@@ -89,9 +89,24 @@ class SecurityController extends AbstractController
      */
     public function fetchSingleUser(User $user): JsonResponse
     {
-        return $this->json($user, Response::HTTP_OK, [], [
-            ObjectNormalizer::GROUPS => ['public_attr']
-        ]);
+
+        $connectedCustomers = $user->getCustomers();
+        $c2u = [];
+        if (!empty($connectedCustomers)) {
+            foreach ($connectedCustomers as $connection) {
+                $c2u[] = $connection->getId();
+            }
+        }
+
+        $response = [
+            'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'id' => $user->getId(),
+            'roles' => $user->getRoles(),
+            'customers' => $c2u
+        ];
+        return $this->json($response);
     }
 
     /**

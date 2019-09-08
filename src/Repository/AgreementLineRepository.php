@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\AgreementLine;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * @method AgreementLine|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,9 +15,15 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class AgreementLineRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var \Symfony\Component\Security\Core\User\UserInterface|null
+     */
+    private $user;
+
+    public function __construct(RegistryInterface $registry, Security $security)
     {
         parent::__construct($registry, AgreementLine::class);
+        $this->user = $security->getUser();
     }
 
     public function getFiltered(?array $term)
@@ -73,6 +80,15 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'agreementLineId':
                         $qb->andWhere("l.id = :{$key}");
                         $qb->setParameter($key, $value);
+                        break;
+                    case 'ownedBy':
+
+                        $customers = $value->getCustomers();
+                        if (!empty($customers)) {
+                            $qb->andWhere("c.id IN (:{$key})");
+                            $qb->setParameter($key, $customers);
+                        }
+
                         break;
                     case 'q':
                         $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");

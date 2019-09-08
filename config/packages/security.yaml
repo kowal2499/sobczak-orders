@@ -38,6 +38,13 @@ security:
     access_control:
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/touch_user$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+
+#        - { path: ^/customers, roles: [ROLE_ADMIN, ROLE_USER] }
+#        - { path: ^/customers/api, roles: [ROLE_ADMIN, ROLE_USER] }
+
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+
+
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }

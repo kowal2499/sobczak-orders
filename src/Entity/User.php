@@ -58,6 +58,7 @@ class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="owner")
      * @Groups("public_attr")
+     *
      * @MaxDepth(2)
      */
     private $customers;
@@ -184,7 +185,7 @@ class User implements UserInterface
     {
         $ret = [];
         foreach ($this->customers as $customer) {
-            $ret[] = $customer->getCustomer()->getId();
+            $ret[] = $customer->getCustomer();
         }
         return $ret;
     }

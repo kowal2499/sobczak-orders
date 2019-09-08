@@ -42,19 +42,23 @@
                             </a>
                         </li>
 
+                        {% if (is_granted('ROLE_ADMIN')) or (is_granted('ROLE_USER')) %}
                         <li class="nav-item {% if active in ['products_show', 'products_new', 'products_edit'] %}active{% endif %}">
                             <a href="{{ path('products_show') }}" class="nav-link">
                                 <i class="fa fa-star" aria-hidden="true"></i>
                                 <span>Produkty</span>
                             </a>
                         </li>
+                        {% endif %}
 
+                        {% if (is_granted('ROLE_ADMIN')) or (is_granted('ROLE_USER')) %}
                         <li class="nav-item {% if active in ['customers_show', 'customers_new', 'customers_edit'] %}active{% endif %}">
                             <a href="{{ path('customers_show') }}" class="nav-link">
                                 <i class="fa fa-users" aria-hidden="true"></i>
                                 <span>Klienci</span>
                             </a>
                         </li>
+                        {% endif %}
 
                         <li class="nav-item {% if active in ['agreements_show', 'orders_view_new', 'agreement_line_details', 'orders_edit'] %}active{% endif %}">
                             <a href="{{ path('agreements_show') }}" class="nav-link">
@@ -63,12 +67,14 @@
                             </a>
                         </li>
 
-                        <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
-                            <a href="{{ path('production_show') }}" class="nav-link">
-                                <i class="fa fa-cogs" aria-hidden="true"></i>
-                                <span>Produkcja</span>
-                            </a>
-                        </li>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
+                                <a href="{{ path('production_show') }}" class="nav-link">
+                                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                                    <span>Produkcja</span>
+                                </a>
+                            </li>
+                        {% endif %}
 
                         {% if is_granted('ROLE_ADMIN') %}
                             <hr class="sidebar-divider">
