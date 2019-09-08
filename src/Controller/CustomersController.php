@@ -41,7 +41,7 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
+     * @Route("/api/customers/search", name="api_customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $repository
      * @return JsonResponse

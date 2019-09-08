@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 
 window.Event = new Vue();

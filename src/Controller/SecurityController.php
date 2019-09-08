@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Customers2Users;
 use App\Entity\User;
+use App\Repository\CustomerRepository;
+use App\Repository\Customers2UsersRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,7 +18,12 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/**
+ * Class SecurityController
+ * @package App\Controller
+ */
 class SecurityController extends AbstractController
 {
     /**
@@ -37,6 +45,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/users", name="security_users", options={"expose"=true})
      * @return Response
      */
@@ -53,6 +62,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/fetch_users", name="security_fetch", options={"expose"=true})
      * @param UserRepository $repository
      * @return JsonResponse
@@ -72,6 +82,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/fetch_user/{id}", name="security_fetch_user", options={"expose"=true})
      * @param User $user
      * @return JsonResponse
@@ -84,13 +95,14 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/store_user", name="security_store_user", options={"expose"=true})
      * @param Request $request
      * @param UserRepository $repository
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function storeUser(Request $request, UserRepository $repository, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder): JsonResponse
+    public function storeUser(Request $request, UserRepository $repository, CustomerRepository $customerRepository, Customers2UsersRepository $c2uRepository, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder): JsonResponse
     {
 
         try {
@@ -100,6 +112,9 @@ class SecurityController extends AbstractController
             $newEmail = $request->request->get('email');
             $password = $request->request->get('password');
             $passwordOld = $request->request->get('passwordOld');
+
+            $roles = $request->request->get('roles');
+            $connectedCustomers = $request->request->get('customers');
 
             if (count(array_filter([$newFirstName, $newLastName, $newEmail])) !== 3) {
                 throw new \Exception('Należy podać imię, nazwisko i email.');
@@ -129,12 +144,36 @@ class SecurityController extends AbstractController
             $user->setFirstName($newFirstName);
             $user->setLastName($newLastName);
             $user->setEmail($newEmail);
+            $user->setRoles((array)$roles);
 
             if ($password) {
                 $user->setPassword($userPasswordEncoder->encodePassword($user, $password));
             }
 
+            // usunięcie bieżących dowiązań
+            foreach ((array)$c2uRepository->findBy(['owner' => $user]) as $connection) {
+                $em->remove($connection);
+            }
             $em->persist($user);
+
+            // aktualizacja dowiązań klientów
+            if (in_array('ROLE_CUSTOMER', $roles)) {
+                if (empty($connectedCustomers)) {
+                    throw new \Exception('Użytkownik z rolą \'Klient\' musi mieć przypisanego przynajmniej jednego klienta.');
+                }
+
+                foreach ($connectedCustomers as $customerId) {
+                    $customer = $customerRepository->find($customerId);
+                    $c2u = new Customers2Users();
+                    $c2u->setCustomer($customer)
+                        ->setOwner($user);
+                    $em->persist($c2u);
+                }
+            } elseif ($connectedCustomers) {
+
+            }
+
+
             $em->flush();
 
             if (!$userId) {
@@ -151,6 +190,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/edit_user/{id}", name="security_user_edit", options={"expose"=true})
      * @param User $user
      * @return Response
@@ -163,6 +203,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/new_user/", name="view_security_user_new", options={"expose"=true})
      * @return Response
      */
@@ -174,6 +215,7 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_ADMIN")
      * @Route("/add_user", name="security_user_add", options={"expose"=true})
      * @param Request $request
      * @param EntityManagerInterface $em

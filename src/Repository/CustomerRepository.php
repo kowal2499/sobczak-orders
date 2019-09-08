@@ -30,7 +30,7 @@ class CustomerRepository extends ServiceEntityRepository
         }
 
         return $qb
-            ->orderBy('c.update_date', 'DESC')
+            ->orderBy('c.name, c.first_name, c.last_name', 'DESC')
             ->getQuery()
         ;
     }

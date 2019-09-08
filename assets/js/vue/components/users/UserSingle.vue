@@ -94,6 +94,15 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <label class="col-2 col-form-label">
+                        Rola w systemie
+                    </label>
+                    <div class="col">
+                        <role-picker v-model="user"></role-picker>
+                    </div>
+                </div>
+
 
                 <div class="row">
                     <div class="col">
@@ -125,11 +134,12 @@
     import Waiting from "../base/Waiting";
     import Routing from "../../api/routing";
     import ButtonPlus from "../base/ButtonPlus";
+    import RolePicker from "./RolePicker";
 
     export default {
         name: "UserSingle",
 
-        components: { CollapsibleCard, Waiting, ButtonPlus },
+        components: { CollapsibleCard, Waiting, ButtonPlus, RolePicker },
 
         props: {
             userId: {
@@ -152,6 +162,11 @@
                     passwordsMatch: true
                 },
 
+                // roles: {
+                //     roles: [],
+                //     customers: []
+                // },
+
                 canSave: true,
             }
         },
@@ -166,8 +181,15 @@
                 users.fetchUser(this.userId)
                     .then(({data}) => {
                         this.user = data;
+                        // this.roles.customers = data.customers;
                         this.title = helpers.userName(this.user);
                         this.repeatedPassword = this.user.password;
+
+                        // this.roles.roles = data.roles;
+                        // if (data.roles && Array.isArray((data.roles)) && data.roles.length > 0) {
+                        //     this.roles.role = data.roles[0];
+                        // }
+
                         this.dataFetched = true;
                     })
                     .catch(() => {})
@@ -186,6 +208,7 @@
                 this.locked = true;
 
                 let userData = this.user;
+
                 if (this.passwords.new) {
                     userData.password = this.passwords.new;
                     userData.passwordOld = this.passwords.old;
