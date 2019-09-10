@@ -14,7 +14,7 @@
                 <td>{{ value.description }}</td>
             </tr>
         </table>
-        <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3" v-if="canEditLine()">
+        <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
             Edytuj
         </a>
@@ -36,8 +36,8 @@
         },
 
         methods: {
-            canEditLine() {
-                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
+            userCan() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTS);
             }
         }
 

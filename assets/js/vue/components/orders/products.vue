@@ -15,7 +15,7 @@
                     </select>
                 </div>
             </div>
-            <div class="row mt-3" v-if="canProduction()">
+            <div class="row mt-3" v-if="userCanProduction()">
                 <label class="col-2 col-form-label">
                     Współczynnik
                 </label>
@@ -65,7 +65,7 @@
                         </div>
 
 
-                        <div class="row mt-3" v-if="canProduction()">
+                        <div class="row mt-3" v-if="userCanProduction()">
                             <label class="col-2 col-form-label">
                                 Współczynnik
                             </label>
@@ -179,8 +179,8 @@
                 product.factor = val / 100;
             },
 
-            canProduction() {
-                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
+            userCanProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         },
 
@@ -190,7 +190,10 @@
                 .then(({data}) => {
                     if (data) {
                         this.productDefinitions = data.products;
-                        this.$access.privileges.init(data.roles);
+                        this.$user.init(data.roles);
+                        /**
+                         * TODO: trzeba jakoś inaczej przekazywać te role
+                         */
                     }
                 })
         },

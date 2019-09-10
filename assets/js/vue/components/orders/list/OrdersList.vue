@@ -44,13 +44,13 @@
                         </a>
 
                         <a class="dropdown-item" href="#"
-                           v-if="agreement.production && agreement.production.data.length === 0 && canStartProduction()"
+                           v-if="agreement.production && agreement.production.data.length === 0 && canUserStartProduction()"
                            @click="handleRunProduction(agreement)"
                         >
                             <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
                         </a>
 
-                        <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)" v-if="canDeleteOrder()">
+                        <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)" v-if="canUserDeleteOrder()">
                             <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń
                         </a>
 
@@ -238,7 +238,7 @@
                 this.loading = true;
                 api.fetchAgreements(this.filters)
                     .then(({data}) => {
-                        this.$access.privileges.init(data.roles);
+                        this.$user.init(data.roles);
                         this.agreements = data.orders || [];
                         this.departments = data.departments || [];
                         this.production = data.production.data || [];
@@ -341,12 +341,12 @@
                 return routing;
             },
 
-            canStartProduction() {
-                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
+            canUserStartProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
 
-            canDeleteOrder() {
-                return this.$access.privileges.can(this.$access.Tasks.ORDER_DELETE);
+            canUserDeleteOrder() {
+                return this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
             }
 
         },

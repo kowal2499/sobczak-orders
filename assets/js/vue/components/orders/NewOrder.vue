@@ -86,7 +86,7 @@
                                 this.products.push({ ... product })
                             }
 
-                            this.$access.privileges.init(data.roles);
+                            this.$user.init(data.roles);
                         }
                     })
                     .catch(() => {})

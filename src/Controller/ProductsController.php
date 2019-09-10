@@ -13,10 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ProductRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class ProductsController extends AbstractController
 {
     /**
+     * @isGranted("ROLE_PRODUCTS")
+     *
      * @Route("/products", name="products_show")
      * @param Request $request
      * @param ProductRepository $repository
@@ -40,6 +43,8 @@ class ProductsController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTS")
+     *
      * @Route("/products/new", name="products_new")
      * @param EntityManagerInterface $em
      * @return Response
@@ -70,6 +75,8 @@ class ProductsController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTS")
+     *
      * @Route("/products/edit/{id}", name="products_edit", options={"expose"=true})
      * @param Product $product
      * @param Request $request
@@ -96,6 +103,7 @@ class ProductsController extends AbstractController
     /**
      * @Route("/products/fetch", name="products_fetch", options={"expose"=true})
      * @param Request $request
+     * @param ProductRepository $repository
      * @return JsonResponse
      */
     public function fetch(Request $request, ProductRepository $repository)

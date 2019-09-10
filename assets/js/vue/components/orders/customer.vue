@@ -51,7 +51,7 @@
                                         Nie znaleziono wyników w bazie ...
                                     </div>
 
-                                    <div class="col text-right" v-if="canAddCustomer()">
+                                    <div class="col text-right" v-if="userCanAddCustomer()">
                                         <a :href="getLink('customers_new')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Dodaj nowego klienta</a>
                                     </div>
                                 </div>
@@ -211,8 +211,8 @@
             getLink(name) {
                 return routing.get(name);
             },
-            canAddCustomer() {
-                return this.$access.privileges.can(this.$access.Tasks.CUSTOMER_ADD);
+            userCanAddCustomer() {
+                return this.$user.can(this.$privilages.CAN_CUSTOMERS);
             }
         }
     }
