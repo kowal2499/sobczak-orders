@@ -110,7 +110,7 @@
             },
 
             canEditLine() {
-                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         },
 
@@ -119,7 +119,8 @@
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
-                    this.$access.privileges.init(data.roles);
+                    this.$user.init(data.roles);
+
                     if (data && Array.isArray(data.orders) && data.orders.length === 1) {
                         this.orderData = data.orders[0];
                     }

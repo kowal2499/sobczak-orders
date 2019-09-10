@@ -3,9 +3,12 @@ import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
 
+
 window.Event = new Vue();
 
 Vue.prototype.$access = access;
+Vue.prototype.$user = new access.User([]);
+Vue.prototype.$privilages = access.Roles;
 
 new Vue({
     el: '#app',

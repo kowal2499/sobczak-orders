@@ -18,7 +18,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class CustomersController extends AbstractController
 {
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted({"ROLE_CUSTOMERS"})
+     *
      * @Route("/customers", name="customers_show")
      * @param Request $request
      * @param CustomerRepository $repository
@@ -27,13 +28,12 @@ class CustomersController extends AbstractController
      */
     public function customers(Request $request, CustomerRepository $repository, PaginatorInterface $paginator)
     {
-
-        $customers = $repository->getWithSearch($request->query->get('q'));
+        $customers = $repository->getWithSearch(['q' => $request->query->get('q')]);
 
         $pagination = $paginator->paginate(
             $customers,
             $request->query->getInt('page', 1),
-            12
+            20
         );
 
         return $this->render('customers/customers_show.html.twig', [
@@ -43,6 +43,8 @@ class CustomersController extends AbstractController
     }
 
     /**
+     * @isGranted({"ROLE_CUSTOMERS", "ROLE_CUSTOMERS_LIMITED"})
+     *
      * @Route("/api/customers/search", name="api_customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $repository
@@ -52,7 +54,7 @@ class CustomersController extends AbstractController
     {
         $search = $request->query->all();
 
-        if ($this->isGranted('ROLE_CUSTOMER')) {
+        if ($this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
             $search['ownedBy'] = $this->getUser();
         }
 
@@ -62,11 +64,16 @@ class CustomersController extends AbstractController
     }
 
     /**
+     * @isGranted("ASSIGNED_CUSTOMER", subject="customer")
+     *
      * @Route("/customers/single_fetch/{id}", name="customers_single_fetch", methods={"POST"}, options={"expose"=true})
      * @param Customer $customer
      * @return JsonResponse
      */
     public function fetchSingle(Customer $customer) {
+
+//        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $customer);
+
         return new JsonResponse([
             'apartment_number' => $customer->getApartmentNumber(),
             'city' => $customer->getCity(),
@@ -84,8 +91,10 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted({"ROLE_CUSTOMERS"})
+     *
      * @Route("/customers/new", name="customers_new", options={"expose"=true})
+     * @param Request $request
      * @param EntityManagerInterface $em
      * @return Response
      * @throws \Exception
@@ -114,6 +123,8 @@ class CustomersController extends AbstractController
     }
 
     /**
+     * @isGranted("ASSIGNED_CUSTOMER", subject="customer")
+     *
      * @Route("/customers/edit/{id}", name="customers_edit", options={"expose"=true})
      * @param Customer $customer
      * @param Request $request
@@ -128,9 +139,13 @@ class CustomersController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
             $this->addFlash('success', 'Zmiany zostały zapisane.');
-            if (!in_array('ROLE_CUSTOMER', $this->getUser()->getRoles())) {
+
+            if ($this->isGranted('ROLE_CUSTOMERS')) {
                 return $this->redirectToRoute('customers_show');
+            } else {
+                return $this->redirectToRoute('agreements_show');
             }
+
         }
 
         return $this->render('customers/customer_single.html.twig', [

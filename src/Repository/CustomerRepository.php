@@ -23,8 +23,6 @@ class CustomerRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c');
 
-
-
         foreach ((array)$term as $key => $value) {
             switch ($key) {
                 case 'q':

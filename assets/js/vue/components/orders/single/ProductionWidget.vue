@@ -283,7 +283,7 @@
             },
 
             canEditLine() {
-                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
 
         }

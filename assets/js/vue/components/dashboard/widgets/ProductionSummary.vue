@@ -85,7 +85,7 @@
                 Api.productionSummary(this.month, this.year)
                     .then(({data}) => {
                         this.summary = data.production;
-                        this.$access.privileges.init(data.roles);
+                        this.$user.init(data.roles);
                     })
                     .finally(() => { this.busy = false; })
                 ;
@@ -115,7 +115,7 @@
             },
 
             canSeeProduction() {
-                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         },
 
