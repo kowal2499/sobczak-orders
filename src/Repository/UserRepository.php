@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\Customers2Users;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -17,6 +19,18 @@ class UserRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, User::class);
+    }
+
+    public function withCustomers()
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin(Customers2Users::class, 'c2u', Expr\Join::WITH, 'u.id = c2u.owner')
+            ->addSelect('c2u')
+
+            ->getQuery()
+//            ->getResult()
+        ;
+//            ->leftJoin('u.Customers2Users', 'c2u', Expr\Join::ON, 'u.id')
     }
 
     // /**

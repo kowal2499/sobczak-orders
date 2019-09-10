@@ -100,6 +100,10 @@ class ProductsController extends AbstractController
      */
     public function fetch(Request $request, ProductRepository $repository)
     {
-        return new JsonResponse($repository->getByName()->getArrayResult());
+        $response = [
+            'products' => $repository->getByName()->getArrayResult(),
+            'roles' => $this->getUser()->getRoles()
+        ];
+        return new JsonResponse($response);
     }
 }

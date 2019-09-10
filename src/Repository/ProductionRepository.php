@@ -5,7 +5,9 @@ namespace App\Repository;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * @method Production|null find($id, $lockMode = null, $lockVersion = null)
@@ -15,9 +17,15 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ProductionRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var Security
+     */
+    private $security;
+
+    public function __construct(RegistryInterface $registry, Security $security)
     {
         parent::__construct($registry, Production::class);
+        $this->security = $security;
     }
 
     /**
@@ -47,9 +55,24 @@ class ProductionRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
 
+    private function withConnectedCustomers(QueryBuilder $qb) {
+
+        if ($this->security->isGranted('ROLE_CUSTOMER')) {
+            $customers = $this->security->getUser()->getCustomers();
+            if (!empty($customers)) {
+                $qb
+                    ->andWhere('c.id IN (:ownedCustomers)')
+                    ->setParameter('ownedCustomers', $customers);
+            }
+
+        }
+
+        return $qb;
+    }
+
     public function getNotCompletedAgreementLines(int $month, int $year)
     {
-        return $this
+        $query =  $this
             ->createQueryBuilder('p')
             ->andWhere('p.createdAt <= :val')
             ->andWhere('p.departmentSlug = \'dpt05\'')
@@ -59,15 +82,18 @@ class ProductionRepository extends ServiceEntityRepository
             ->setParameter('val', (new \DateTime($year . '-' . $month))->modify('last day of')->setTime(23, 59, 59))
             ->join('p.agreementLine', 'l')
             ->join('l.Product', 'pr')
+            ->join('l.Agreement', 'a')
+            ->join('a.Customer', 'c')
             ->select('p, l, pr')
-            ->getQuery()
-            ->getResult()
         ;
+        $query = $this->withConnectedCustomers($query);
+
+        return $query->getQuery()->getResult();
     }
 
     public function getCompletedAgreementLines(int $month, int $year)
     {
-        return $this
+        $query = $this
             ->createQueryBuilder('p')
             ->join('p.statusLogs', 'log')
             ->andWhere('p.status = \'3\'')
@@ -80,11 +106,14 @@ class ProductionRepository extends ServiceEntityRepository
             ->join('p.agreementLine', 'l')
             ->andWhere('l.deleted = 0')
             ->join('l.Product', 'pr')
+            ->join('l.Agreement', 'a')
+            ->join('a.Customer', 'c')
 
             ->select('p, l, pr')
-            ->getQuery()
-            ->getResult()
         ;
+        $query = $this->withConnectedCustomers($query);
+
+        return $query->getQuery()->getResult();
     }
 
     public function getAllWithLogs(AgreementLine $agreementLine)

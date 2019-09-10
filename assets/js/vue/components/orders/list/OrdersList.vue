@@ -44,13 +44,13 @@
                         </a>
 
                         <a class="dropdown-item" href="#"
-                           v-if="agreement.production && agreement.production.data.length === 0"
+                           v-if="agreement.production && agreement.production.data.length === 0 && canStartProduction()"
                            @click="handleRunProduction(agreement)"
                         >
                             <i class="fa fa-cogs" aria-hidden="true"></i> Przekaż na produkcję
                         </a>
 
-                        <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)">
+                        <a class="dropdown-item text-danger" href="#" @click.prevent="confirmDeleteModal(agreement)" v-if="canDeleteOrder()">
                             <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń
                         </a>
 
@@ -236,14 +236,15 @@
 
             fetchData() {
                 this.loading = true;
-                
                 api.fetchAgreements(this.filters)
-                    .then(data => { 
-                        this.agreements = data.data.orders || [];
-                        this.departments = data.data.departments || [];
-                        this.production = data.data.production.data || [];
+                    .then(({data}) => {
+                        this.$access.privileges.init(data.roles);
+                        this.agreements = data.orders || [];
+                        this.departments = data.departments || [];
+                        this.production = data.production.data || [];
                     })
-                    .catch(data => {})
+                    .catch(data => {
+                    })
                     .finally(() => { this.loading = false; });
             },
 
@@ -338,6 +339,14 @@
 
             getRouting() {
                 return routing;
+            },
+
+            canStartProduction() {
+                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
+            },
+
+            canDeleteOrder() {
+                return this.$access.privileges.can(this.$access.Tasks.ORDER_DELETE);
             }
 
         },

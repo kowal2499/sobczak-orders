@@ -14,10 +14,12 @@ use App\Repository\AgreementLineRepository;
 use App\Entity\Production;
 use App\Entity\AgreementLine;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class ProductionController extends AbstractController
 {
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route("/production", name="production_show")
      */
     public function index()
@@ -28,6 +30,7 @@ class ProductionController extends AbstractController
     }
 
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route ("/production/save", name="production_save", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @return JsonResponse
@@ -126,6 +129,7 @@ class ProductionController extends AbstractController
     }
 
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route("/production/update_status", name="production_status_update", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param ProductionRepository $repository
@@ -150,6 +154,7 @@ class ProductionController extends AbstractController
     }
 
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route("/production/delete/{agreementLine}", name="production_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
      * @return JsonResponse
@@ -191,20 +196,23 @@ class ProductionController extends AbstractController
         $linesFinished = $repository->getCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
 
         $summary = [
-            'ordersInProduction' => 0,
-            'ordersFinished' => 0,
-            'factorsInProduction' => 0,
-            'factorsFinished' => 0,
+            'production' => [
+                'ordersInProduction' => 0,
+                'ordersFinished' => 0,
+                'factorsInProduction' => 0,
+                'factorsFinished' => 0,
+            ],
+            'roles' => $this->getUser()->getRoles()
         ];
 
         foreach ($linesFinished as $line) {
-            $summary['ordersFinished'] += 1;
-            $summary['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
+            $summary['production']['ordersFinished'] += 1;
+            $summary['production']['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         foreach ($linesInProduction as $line) {
-            $summary['ordersInProduction'] += 1;
-            $summary['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
+            $summary['production']['ordersInProduction'] += 1;
+            $summary['production']['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         return new JsonResponse($summary);

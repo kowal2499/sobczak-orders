@@ -74,7 +74,8 @@ class AgreementsController extends AbstractController
     {
         $returnData = [
             'customerId' => $agreement->getCustomer()->getId(),
-            'orderNumber' => $agreement->getOrderNumber()
+            'orderNumber' => $agreement->getOrderNumber(),
+            'roles' => $this->getUser()->getRoles()
         ];
         foreach ($agreement->getAgreementLines() as $line) {
             if ($line->getArchived() || $line->getDeleted()) {

@@ -37,7 +37,7 @@
                                 <div class="col-sm-10">
                                     <div class="form-group">
                                         <label>Opis</label>
-                                        <textarea class="form-control" v-model="task.description"></textarea>
+                                        <textarea class="form-control" v-model="task.description" :disabled="!canEditLine()"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -47,7 +47,7 @@
                                 <div class="col-sm-8">
                                     <div class="form-group">
                                         <label>Status</label>
-                                        <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)">
+                                        <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)" :disabled="!canEditLine()">
                                             <option
                                                     v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
                                                     :value="status.value"
@@ -61,7 +61,7 @@
                             </div>
 
 
-                            <div class="form-row">
+                            <div class="form-row" v-if="canEditLine()">
                                 <div class="col-sm-5">
                                     <div class="form-group">
                                         <label>Realizacja od</label><br>
@@ -69,7 +69,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-5">
+                                <div class="col-sm-5" v-if="canEditLine()">
                                     <div class="form-group">
                                         <label>Realizacja do</label><br>
                                         <date-picker v-model="task.dateEnd" :is-range="false" :width="'100%'"/>
@@ -280,6 +280,10 @@
                 } else {
                     this.selectedIndex = this.getFirstItemIndex();
                 }
+            },
+
+            canEditLine() {
+                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
             }
 
         }

@@ -5,7 +5,7 @@
                 <th>Nazwa</th>
                 <td>{{ value.name }}</td>
             </tr>
-            <tr v-if="value.factor">
+            <tr v-if="value.factor" >
                 <th>Współczynnik</th>
                 <td>{{ value.factor }}</td>
             </tr>
@@ -14,7 +14,7 @@
                 <td>{{ value.description }}</td>
             </tr>
         </table>
-        <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3">
+        <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3" v-if="canEditLine()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
             Edytuj
         </a>
@@ -32,6 +32,12 @@
         computed: {
             getEditLink() {
                 return routing.get('products_edit').concat('/' + String(this.value.id));
+            }
+        },
+
+        methods: {
+            canEditLine() {
+                return this.$access.privileges.can(this.$access.Tasks.AGREEMENT_LINE_EDIT);
             }
         }
 

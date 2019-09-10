@@ -2,15 +2,22 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface
 {
+
+    public function __construct()
+    {
+        $this->customers = new ArrayCollection();
+    }
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -47,6 +54,14 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      */
     private $password;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="owner")
+     * @Groups("public_attr")
+     *
+     * @MaxDepth(2)
+     */
+    private $customers;
 
     public function getId(): ?int
     {
@@ -92,7 +107,9 @@ class User implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        if (empty($roles)) {
+            $roles[] = 'ROLE_USER';
+        }
 
         return array_unique($roles);
     }
@@ -158,5 +175,18 @@ class User implements UserInterface
         $this->password = $password;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Customers2Users[]
+     * @Groups("public_attr")
+     */
+    public function getCustomers()
+    {
+        $ret = [];
+        foreach ($this->customers as $customer) {
+            $ret[] = $customer->getCustomer();
+        }
+        return $ret;
     }
 }

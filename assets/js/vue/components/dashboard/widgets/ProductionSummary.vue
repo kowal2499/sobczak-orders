@@ -16,19 +16,19 @@
                 <Badge border-class="border-left-success" title="Zamówienia zrealizowane" text-class="text-success" :value="summary.ordersFinished"></Badge>
             </div>
 
-            <div class="col">
+            <div class="col" v-if="canSeeProduction()">
                 <Badge border-class="border-left-info" title="Suma współczynników dla zamówień w realizacji" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
             </div>
 
-            <div class="col">
+            <div class="col" v-if="canSeeProduction()">
                 <Badge border-class="border-left-warning" title="Suma współczynników dla zamówień zrealizowanych" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
             </div>
 
-            <div class="col">
+            <div class="col" v-if="canSeeProduction()">
                 <Badge border-class="border-left-primary" title="Suma współczynników dla wszystkich zamówień" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
             </div>
 
-            <div class="col">
+            <div class="col" v-if="canSeeProduction()">
                 <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" title="Planowany dzień zrealizowania wszystkich zamówień" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
             </div>
 
@@ -83,7 +83,10 @@
                 this.busy = true;
 
                 Api.productionSummary(this.month, this.year)
-                    .then(({data}) => { this.summary = data; })
+                    .then(({data}) => {
+                        this.summary = data.production;
+                        this.$access.privileges.init(data.roles);
+                    })
                     .finally(() => { this.busy = false; })
                 ;
             },
@@ -109,6 +112,10 @@
 
                 return endDate.format('YYYY-MM-DD');
 
+            },
+
+            canSeeProduction() {
+                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
             }
         },
 

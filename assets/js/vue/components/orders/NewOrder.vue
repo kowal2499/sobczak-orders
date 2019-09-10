@@ -85,6 +85,8 @@
                             for (let product of data.products) {
                                 this.products.push({ ... product })
                             }
+
+                            this.$access.privileges.init(data.roles);
                         }
                     })
                     .catch(() => {})

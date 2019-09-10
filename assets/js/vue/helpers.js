@@ -10,6 +10,12 @@ const statuses = [
     { value: 12, name: 'zrealizowane na stanie', color: '#8FBC8F' }
 ];
 
+const roles = [
+    { value: 'ROLE_ADMIN', name: 'Administrator' },
+    { value: 'ROLE_USER', name: 'Handlowiec' },
+    { value: 'ROLE_CUSTOMER', name: 'Klient' },
+];
+
 
 export default {
 
@@ -55,6 +61,13 @@ export default {
         return result;
     },
 
-    statuses
+    getRoleName(role) {
+        let foundRole = this.roles.find(r => { return r.value === role})
+        return foundRole ? foundRole.name : '';
+    },
+
+    statuses,
+
+    roles
 
 }

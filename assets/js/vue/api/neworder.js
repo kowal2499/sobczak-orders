@@ -6,7 +6,7 @@ export default {
 
     findCustomers(q) {
 
-        return axios.get(Routing.get('customers_search'), {
+        return axios.get(Routing.get('api_customers_search'), {
                 params: {
                     q: q
                 }

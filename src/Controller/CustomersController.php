@@ -13,10 +13,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class CustomersController extends AbstractController
 {
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route("/customers", name="customers_show")
      * @param Request $request
      * @param CustomerRepository $repository
@@ -41,14 +43,20 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
+     * @Route("/api/customers/search", name="api_customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $repository
      * @return JsonResponse
      */
     public function search(Request $request, CustomerRepository $repository)
     {
-        $customers = $repository->getWithSearch($request->query->get('q'));
+        $search = $request->query->all();
+
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $search['ownedBy'] = $this->getUser();
+        }
+
+        $customers = $repository->getWithSearch($search);
 
         return new JsonResponse($customers->getArrayResult());
     }
@@ -76,6 +84,7 @@ class CustomersController extends AbstractController
     }
 
     /**
+     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
      * @Route("/customers/new", name="customers_new", options={"expose"=true})
      * @param EntityManagerInterface $em
      * @return Response
@@ -119,7 +128,9 @@ class CustomersController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
             $this->addFlash('success', 'Zmiany zostały zapisane.');
-            return $this->redirectToRoute('customers_show');
+            if (!in_array('ROLE_CUSTOMER', $this->getUser()->getRoles())) {
+                return $this->redirectToRoute('customers_show');
+            }
         }
 
         return $this->render('customers/customer_single.html.twig', [

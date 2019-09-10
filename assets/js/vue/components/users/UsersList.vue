@@ -34,7 +34,7 @@
                                 <td>{{ user.email }}</td>
                                 <td>
                                     <span v-for="role in user.roles">
-                                        <span class="badge badge-info mr-1">{{ role }}</span>
+                                        <span class="badge badge-info mr-1">{{ getRoleName(role) }}</span>
                                     </span>
                                 </td>
                                 <td>
@@ -65,6 +65,7 @@
     import Dropdown from "../base/Dropdown";
     import UsersApi from "../../api/users";
     import routing from "../../api/routing";
+    import helpers from "../../helpers";
 
     export default {
         components: { CollapsibleCard, Dropdown },
@@ -93,6 +94,10 @@
         methods: {
             getRouting() {
                 return routing;
+            },
+
+            getRoleName(role) {
+                return helpers.getRoleName(role)
             }
         }
     }
