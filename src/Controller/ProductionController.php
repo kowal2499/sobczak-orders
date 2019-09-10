@@ -196,20 +196,23 @@ class ProductionController extends AbstractController
         $linesFinished = $repository->getCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
 
         $summary = [
-            'ordersInProduction' => 0,
-            'ordersFinished' => 0,
-            'factorsInProduction' => 0,
-            'factorsFinished' => 0,
+            'production' => [
+                'ordersInProduction' => 0,
+                'ordersFinished' => 0,
+                'factorsInProduction' => 0,
+                'factorsFinished' => 0,
+            ],
+            'roles' => $this->getUser()->getRoles()
         ];
 
         foreach ($linesFinished as $line) {
-            $summary['ordersFinished'] += 1;
-            $summary['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
+            $summary['production']['ordersFinished'] += 1;
+            $summary['production']['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         foreach ($linesInProduction as $line) {
-            $summary['ordersInProduction'] += 1;
-            $summary['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
+            $summary['production']['ordersInProduction'] += 1;
+            $summary['production']['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
         }
 
         return new JsonResponse($summary);

@@ -15,8 +15,7 @@
                     </select>
                 </div>
             </div>
-
-            <div class="row mt-3">
+            <div class="row mt-3" v-if="canProduction()">
                 <label class="col-2 col-form-label">
                     Współczynnik
                 </label>
@@ -65,7 +64,8 @@
                             </div>
                         </div>
 
-                        <div class="row mt-3">
+
+                        <div class="row mt-3" v-if="canProduction()">
                             <label class="col-2 col-form-label">
                                 Współczynnik
                             </label>
@@ -177,6 +177,10 @@
 
             factorUpdated(product, val) {
                 product.factor = val / 100;
+            },
+
+            canProduction() {
+                return this.$access.privileges.can(this.$access.Tasks.PRODUCTION_CREATE);
             }
         },
 
@@ -184,8 +188,9 @@
 
             api.fetchProducts()
                 .then(({data}) => {
-                    if (Array.isArray(data)) {
-                        this.productDefinitions = data;
+                    if (data) {
+                        this.productDefinitions = data.products;
+                        this.$access.privileges.init(data.roles);
                     }
                 })
         },

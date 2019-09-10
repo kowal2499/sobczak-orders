@@ -5,7 +5,7 @@
                 <th>Nazwa</th>
                 <td>{{ value.name }}</td>
             </tr>
-            <tr v-if="value.factor">
+            <tr v-if="value.factor" >
                 <th>Współczynnik</th>
                 <td>{{ value.factor }}</td>
             </tr>

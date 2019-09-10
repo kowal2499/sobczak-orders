@@ -18,6 +18,7 @@ class Privilages {
 
     can(task) {
 
+        console.log(this.roles)
         if (this.roles.length === 0) {
             return false;
         }
@@ -29,6 +30,8 @@ class Privilages {
                 return this.roles.indexOf('ROLE_CUSTOMER') === -1;
 
         }
+
+        return true;
     }
 }
 
