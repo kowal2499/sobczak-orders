@@ -238,7 +238,6 @@
                 this.loading = true;
                 api.fetchAgreements(this.filters)
                     .then(({data}) => {
-                        this.$user.init(data.roles);
                         this.agreements = data.orders || [];
                         this.departments = data.departments || [];
                         this.production = data.production.data || [];

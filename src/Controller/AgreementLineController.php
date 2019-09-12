@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+
 
 class AgreementLineController extends AbstractController
 {
@@ -19,7 +21,7 @@ class AgreementLineController extends AbstractController
      * @Route("/agreement/line/{id}", name="agreement_line_details", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function details(Request $request, AgreementLine $agreementLine)
     {
@@ -30,6 +32,8 @@ class AgreementLineController extends AbstractController
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTION_VIEW")
+     *
      * @Route("/agreement/fetch", name="agreements_fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLineRepository $repository
@@ -37,7 +41,6 @@ class AgreementLineController extends AbstractController
      */
     public function fetch(Request $request, AgreementLineRepository $repository)
     {
-
         $search = $request->request->all();
 
         if ($this->isGranted('ROLE_CUSTOMER')) {
@@ -46,7 +49,7 @@ class AgreementLineController extends AbstractController
 
         $agreements = $repository->getFiltered($search);
 
-        return new JsonResponse(
+        return $this->json(
             [
                 'orders' => array_map(function ($record) {
                     return [
@@ -87,15 +90,15 @@ class AgreementLineController extends AbstractController
                 }, $agreements->getArrayResult()),
                 
                 'departments' => \App\Entity\Department::names(),
-
-                'roles' => $this->getUser()->getRoles()
-            ]    
+            ]
         );
 
 
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTION")
+     *
      * @Route("/agreement_line/update/{id}", name="agreement_line_update", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
@@ -188,10 +191,12 @@ class AgreementLineController extends AbstractController
             return $this->json([$e->getMessage()], RESPONSE::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return $this->json([ 'newStatuses' => $retStatus ]);
+        return $this->json(['newStatuses' => $retStatus]);
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTION")
+     *
      * @Route("/agreement_line/archive/{id}", name="agreement_line_archive", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
@@ -203,10 +208,12 @@ class AgreementLineController extends AbstractController
         $agreementLine->setArchived(true);
         $em->flush();
 
-        return new JsonResponse();
+        return $this->json();
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTION")
+     *
      * @Route("/agreement_line/delete/{agreementLine}", name="agreement_line_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em

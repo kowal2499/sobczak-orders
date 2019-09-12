@@ -85,8 +85,6 @@
                             for (let product of data.products) {
                                 this.products.push({ ... product })
                             }
-
-                            this.$user.init(data.roles);
                         }
                     })
                     .catch(() => {})

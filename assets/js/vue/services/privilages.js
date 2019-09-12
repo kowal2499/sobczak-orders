@@ -37,33 +37,33 @@ class Privilages {
 
 class User {
 
-    constructor(roles) {
+    constructor(user) {
 
-        this.init(roles);
+        if (user) {
+            this.user = user;
+        } else {
+            this.user = {};
+        }
+
+        if (!this.user.roles) {
+            this.user.roles = [];
+        }
 
         this.hierarchy = {
-            ROLE_ADMIN: [Roles.CAN_PRODUCTION, Roles.CAN_CUSTOMERS, Roles.CAN_PRODUCTS, Roles.CAN_ORDERS_DELETE],
-            ROLE_USER: [Roles.CAN_CUSTOMERS, Roles.CAN_PRODUCTS],
-            ROLE_CUSTOMER: [Roles.CAN_CUSTOMERS_OWNED_ONLY]
+            ROLE_ADMIN: [Roles.CAN_PRODUCTION, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_CUSTOMERS, Roles.CAN_PRODUCTS, Roles.CAN_ORDERS_DELETE],
+            ROLE_USER: [Roles.CAN_CUSTOMERS, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_PRODUCTS],
+            ROLE_CUSTOMER: [Roles.CAN_CUSTOMERS_OWNED_ONLY, Roles.CAN_PRODUCTION_VIEW]
         }
 
-    }
-
-    init(roles) {
-        if (Array.isArray(roles)) {
-            this.roles = roles;
-        } else {
-            this.roles = [];
-        }
     }
 
     can(name) {
-        if (this.roles.length === 0) {
+        if (this.user.roles.length === 0) {
             return false;
         }
 
 
-        for (let role of this.roles) {
+        for (let role of this.user.roles) {
 
             let possibilities = this.hierarchy[role];
 

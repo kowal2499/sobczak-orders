@@ -18,7 +18,9 @@
 
     </head>
     <body id="page-top">
-{#        <div class="blur"></div>#}
+
+
+
         <div id="app">
             <div id="wrapper">
 
@@ -65,7 +67,7 @@
                             </a>
                         </li>
 
-                        {% if is_granted('ROLE_PRODUCTION') %}
+                        {% if is_granted('ROLE_PRODUCTION_VIEW') %}
 
                             <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
                                 <a href="{{ path('production_show') }}" class="nav-link">
@@ -73,6 +75,10 @@
                                     <span>Produkcja</span>
                                 </a>
                             </li>
+
+                        {% endif %}
+
+                        {% if is_granted('ROLE_CONFIG') %}
 
                             <hr class="sidebar-divider">
 
@@ -139,5 +145,15 @@
             {{ encore_entry_script_tags('app') }}
             {{ encore_entry_script_tags('app-vue') }}
         {% endblock %}
+
+        {% set userInfo = {
+            id: app.user.id,
+            firstName: app.user.firstName,
+            lastName: app.user.lastName,
+            roles: app.user.roles
+        } %}
+
+        <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>
+
     </body>
 </html>

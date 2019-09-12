@@ -28,7 +28,7 @@
                 <Badge border-class="border-left-primary" title="Suma współczynników dla wszystkich zamówień" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
             </div>
 
-            <div class="col" v-if="canSeeProduction()">
+            <div class="col">
                 <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" title="Planowany dzień zrealizowania wszystkich zamówień" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
             </div>
 
@@ -85,7 +85,6 @@
                 Api.productionSummary(this.month, this.year)
                     .then(({data}) => {
                         this.summary = data.production;
-                        this.$user.init(data.roles);
                     })
                     .finally(() => { this.busy = false; })
                 ;
