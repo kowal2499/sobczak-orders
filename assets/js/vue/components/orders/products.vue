@@ -190,10 +190,6 @@
                 .then(({data}) => {
                     if (data) {
                         this.productDefinitions = data.products;
-                        this.$user.init(data.roles);
-                        /**
-                         * TODO: trzeba jakoś inaczej przekazywać te role
-                         */
                     }
                 })
         },

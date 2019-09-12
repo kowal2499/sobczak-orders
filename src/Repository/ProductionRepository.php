@@ -55,7 +55,7 @@ class ProductionRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
 
-    private function withConnectedCustomers(QueryBuilder $qb) {
+    public function withConnectedCustomers(QueryBuilder $qb) {
 
         if ($this->security->isGranted('ROLE_CUSTOMER')) {
             $customers = $this->security->getUser()->getCustomers();
@@ -86,9 +86,10 @@ class ProductionRepository extends ServiceEntityRepository
             ->join('a.Customer', 'c')
             ->select('p, l, pr')
         ;
-        $query = $this->withConnectedCustomers($query);
+//        $query = $this->withConnectedCustomers($query);
 
-        return $query->getQuery()->getResult();
+        return $query;
+//        return $query->getQuery()->getResult();
     }
 
     public function getCompletedAgreementLines(int $month, int $year)

@@ -110,7 +110,6 @@ class ProductsController extends AbstractController
     {
         $response = [
             'products' => $repository->getByName()->getArrayResult(),
-            'roles' => $this->getUser()->getRoles()
         ];
         return new JsonResponse($response);
     }

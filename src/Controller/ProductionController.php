@@ -19,7 +19,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class ProductionController extends AbstractController
 {
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted("ROLE_PRODUCTION_VIEW")
      * @Route("/production", name="production_show")
      */
     public function index()
@@ -129,7 +129,7 @@ class ProductionController extends AbstractController
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted("ROLE_PRODUCTION")
      * @Route("/production/update_status", name="production_status_update", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param ProductionRepository $repository
@@ -150,11 +150,11 @@ class ProductionController extends AbstractController
 
         $em->flush();
 
-        return new JsonResponse(['ok']);
+        return $this->json([]);
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted("ROLE_PRODUCTION")
      * @Route("/production/delete/{agreementLine}", name="production_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
      * @return JsonResponse
@@ -201,8 +201,7 @@ class ProductionController extends AbstractController
                 'ordersFinished' => 0,
                 'factorsInProduction' => 0,
                 'factorsFinished' => 0,
-            ],
-            'roles' => $this->getUser()->getRoles()
+            ]
         ];
 
         foreach ($linesFinished as $line) {
@@ -210,11 +209,24 @@ class ProductionController extends AbstractController
             $summary['production']['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
         }
 
-        foreach ($linesInProduction as $line) {
+        $query = $repository->getNotCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
+
+        foreach ($repository
+            ->withConnectedCustomers($query)
+            ->getQuery()
+            ->getResult() as $line) {
             $summary['production']['ordersInProduction'] += 1;
+        }
+
+        $query = $repository->getNotCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
+
+        // bez połączonych klientów
+        foreach ($query
+             ->getQuery()
+             ->getResult() as $line) {
             $summary['production']['factorsInProduction'] += (float) $line->getAgreementLine()->getFactor();
         }
 
-        return new JsonResponse($summary);
+        return $this->json($summary);
     }
 }

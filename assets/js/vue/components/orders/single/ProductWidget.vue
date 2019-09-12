@@ -5,7 +5,7 @@
                 <th>Nazwa</th>
                 <td>{{ value.name }}</td>
             </tr>
-            <tr v-if="value.factor" >
+            <tr v-if="value.factor && userCanProduction()" >
                 <th>Współczynnik</th>
                 <td>{{ value.factor }}</td>
             </tr>
@@ -38,6 +38,10 @@
         methods: {
             userCan() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTS);
+            },
+
+            userCanProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         }
 

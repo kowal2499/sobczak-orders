@@ -20,7 +20,7 @@
                         </div>
                     </i>
                 </td>
-                <td v-text="order.line.factor" class="text-center"></td>
+                <td v-text="order.line.factor" class="text-center" v-if="userCanProduction"></td>
 
                 <td class="production" v-for="(production, prodKey) in order.production.data" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
                     <div class="task">
@@ -34,12 +34,13 @@
                                     :value="status.value"
                                     v-text="status.name"
                                     style="background-color: white"
+                                    :disabled="!userCanProduction"
                             ></option>
                         </select>
                     </div>
                 </td>
 
-                <td class="production">
+                <td class="production" v-if="userCanProduction">
 
                     <div v-if="getCustomTasks(order.production.data).length">
                         <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3" @click.prevent="order.showCustomTasks = !order.showCustomTasks">
@@ -57,6 +58,7 @@
                                             @change="updateStatus(task.id, task.status)"
                                             style="width: 120px;"
                                             :style="getStatusStyle(task)"
+                                            :disabled="!userCanProduction"
                                     >
                                         <option
                                                 v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
@@ -84,12 +86,14 @@
                             </a>
 
                             <a class="dropdown-item" href="#"
+                               v-if="userCanProduction"
                                @click="confirmArchiveModal(order)"
                             >
                                 <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj
                             </a>
 
                             <a class="dropdown-item" href="#"
+                               v-if="userCanProduction"
                                @click="confirmDeleteModal(order)"
                             >
                                 <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Wycofaj z produkcji</span>
@@ -343,7 +347,21 @@
             },
 
             updateStatus(productionId, newStatus) {
-                productionApi.updateStatus(productionId, newStatus);
+                productionApi.updateStatus(productionId, newStatus)
+                    .then(() => {
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Zapisano zamianę statusu.'
+                        });
+                    })
+                    .catch((error) => {
+                        // TODO: gdy 403 to data zawiera htmla i nie można loopować po błędach
+                        Event.$emit('Błąd zapisu.', {
+                            type: 'error',
+                            content: msg
+                        });
+                    })
+                ;
             },
 
             getStatusStyle(production) {
@@ -387,10 +405,7 @@
                         { name: 'Data', sortKey: 'l.confirmedDate', rowspan: 2 },
                         { name: 'Klient', sortKey: 'c.name', rowspan: 2},
                         { name: 'Produkt', sortKey: 'p.name', rowspan: 2 },
-                        { name: 'Wsp.', sortKey: 'l.factor', rowspan: 2 },
-
                         { name: 'Produkcja', colspan: 5},
-                        { name: 'Dodatkowe zadania', rowspan: 2},
                     ],
                     [
                         { name: 'Klejenie'},
@@ -404,13 +419,26 @@
 
                 // this.departments.forEach(dpt => { headers.push({ name: dpt.name }); })
 
+
+                if (this.userCanProduction) {
+                    headers[0].splice(4, 0, { name: 'Wsp.', sortKey: 'l.factor', rowspan: 2 });
+                    headers[0].push({ name: 'Dodatkowe zadania', rowspan: 2});
+                }
+
                 headers[0].push({ name: 'Akcje', rowspan: 2 });
+
                 return headers;
             },
 
             productionSlugs() {
                 return this.departments.map(d => { return d.slug; })
+            },
+
+            userCanProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
+
+
         }
     }
 

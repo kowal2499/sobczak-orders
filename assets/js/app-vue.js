@@ -6,13 +6,27 @@ import access from "./vue/services/privilages";
 
 window.Event = new Vue();
 
-Vue.prototype.$access = access;
-Vue.prototype.$user = new access.User([]);
-Vue.prototype.$privilages = access.Roles;
+document.addEventListener('DOMContentLoaded', () => {
 
-new Vue({
-    el: '#app',
-    components,
+    // inicjalizacja użytkownika
+    const userData = document.querySelector('[data-user-info]');
+    let user;
+
+    if (userData) {
+        user = JSON.parse(decodeURIComponent(userData.dataset.userInfo));
+    }
+
+    // inicjalizacja vue
+    Vue.prototype.$access = access;
+    Vue.prototype.$user = new access.User(user);
+    Vue.prototype.$privilages = access.Roles;
+
+    new Vue({
+        el: '#app',
+        components,
+    });
+
+
 });
 
 window.addEventListener("load", function(event) {

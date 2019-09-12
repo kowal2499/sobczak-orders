@@ -119,7 +119,6 @@
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
-                    this.$user.init(data.roles);
 
                     if (data && Array.isArray(data.orders) && data.orders.length === 1) {
                         this.orderData = data.orders[0];
