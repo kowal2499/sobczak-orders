@@ -5,7 +5,7 @@ div#wrapper nav.sidebar {
     justify-content: flex-start;
 
     @media (min-width: 768px) {
-        width: 14rem!important;
+        width: 17rem!important;
     }
 
 
@@ -14,6 +14,10 @@ div#wrapper nav.sidebar {
         background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#4e73df),to(#224abe));
         background-image: linear-gradient(180deg,#4e73df 10%,#224abe 100%);
         background-size: cover;
+    }
+
+    [v-cloak] {
+        display: none;
     }
 
     ul {

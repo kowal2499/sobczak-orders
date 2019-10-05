@@ -11,11 +11,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AgreementLine
 {
-    const STATUS_WAITING = 0;
-    const STATUS_MANUFACTURING = 5;
-    const STATUS_WAREHOUSE = 10;
-    const STATUS_ARCHIVED = 15;
-    const STATUS_DELETED = 20;
+    const STATUS_WAITING = 5;
+    const STATUS_MANUFACTURING = 10;
+    const STATUS_WAREHOUSE = 15;
+    const STATUS_ARCHIVED = 20;
+    const STATUS_DELETED = 25;
 
     /**
      * @ORM\Id()
@@ -199,8 +199,8 @@ class AgreementLine
     public static function getStatuses(): array
     {
         return [
-            self::STATUS_WAITING => 'Oczekuje',
-            self::STATUS_MANUFACTURING => 'Realizacja',
+            self::STATUS_WAITING => 'Oczekujące',
+            self::STATUS_MANUFACTURING => 'W realizacji',
             self::STATUS_WAREHOUSE => 'Magazyn',
             self::STATUS_ARCHIVED => 'Archiwum'
         ];

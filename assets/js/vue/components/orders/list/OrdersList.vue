@@ -3,7 +3,6 @@
 
         <filters
             :filters-collection="filters"
-            :statuses="statuses"
             @filtersChange="handleFiltersChange"
         >
             <div class="col float-right text-right">
@@ -102,12 +101,11 @@
 
         props: {
             statuses: {
-                type: Array,
-                default: () => []
+                type: Object,
+                default: () => {}
             },
-            initialStatus: {
-                type: Array,
-                default: () => []
+            status: {
+                default: 0
             }
         },
 
@@ -120,7 +118,6 @@
                     },
                     q: '',
                     page: 1,
-                    status: [],
 
                     meta: {
                         sort: 'l.confirmedDate:ASC',
@@ -162,7 +159,6 @@
                     let query = {
                         dateStart: this.filters.dateStart.start,
                         dateEnd: this.filters.dateStart.end,
-                        status: this.filters.status,
                         page: this.filters.page
                     };
 
@@ -210,7 +206,6 @@
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 this.filters.dateStart.start = query.dateStart || '';
                 this.filters.dateStart.end = query.dateEnd || '';
-                this.filters.status = query.status || this.initialStatus;
                 this.filters.page = query.page || 1;
                 this.filters.q = query.q || '';
 
@@ -246,14 +241,20 @@
 
             fetchData() {
                 this.loading = true;
-                api.fetchAgreements(this.filters)
+
+                let bag = this.filters;
+
+                if (parseInt(this.status) > 0) {
+                    bag.status = this.status;
+                }
+
+                api.fetchAgreements(bag)
                     .then(({data}) => {
                         this.agreements = data.orders || [];
                         this.departments = data.departments || [];
                         this.production = data.production.data || [];
                     })
-                    .catch(data => {
-                    })
+                    .catch(data => {})
                     .finally(() => { this.loading = false; });
             },
 
@@ -358,16 +359,16 @@
             getAgreementStatusClass(statusId) {
                 let className = '';
                 switch (statusId) {
-                    case 0:
+                    case 5:
                         className = 'badge-danger';
                         break;
-                    case 5:
+                    case 10:
                         className = 'badge-primary';
                         break;
-                    case 10:
+                    case 15:
                         className = 'badge-warning';
                         break;
-                    case 15:
+                    case 20:
                         className = 'badge-success';
                         break;
 

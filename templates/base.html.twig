@@ -31,7 +31,7 @@
                         <img class="img-fluid" src="/imgs/logo-sobczak.png" alt="">
                     </div>
 
-                    <ul>
+                    <ul v-cloak>
 
                         <hr class="sidebar-divider">
 
@@ -60,12 +60,67 @@
                         </li>
                         {% endif %}
 
-                        <li class="nav-item {% if active in ['agreements_show', 'orders_view_new', 'agreement_line_details', 'orders_edit'] %}active{% endif %}">
-                            <a href="{{ path('agreements_show') }}" class="nav-link">
-                                <i class="fa fa-address-book-o" aria-hidden="true"></i>
-                                <span>Zamówienia</span>
-                            </a>
-                        </li>
+                        <!-- ### -->
+
+
+                        <menu-item
+                            :active="{% if active in ['agreements_show', 'orders_view_new', 'agreement_line_details', 'orders_edit'] %}true{% else %}false{% endif %}"
+                            :title-icon="'fa fa-address-book-o'"
+                            :title="'Zamówienia'"
+                        >
+
+                            {% set statusWaiting = constant('\\App\\Entity\\AgreementLine::STATUS_WAITING') %}
+                            {% set statusManufacturing = constant('\\App\\Entity\\AgreementLine::STATUS_MANUFACTURING') %}
+                            {% set statusWarehouse = constant('\\App\\Entity\\AgreementLine::STATUS_WAREHOUSE') %}
+                            {% set statusArchived = constant('\\App\\Entity\\AgreementLine::STATUS_ARCHIVED') %}
+
+                            {% set array = [
+
+                                {
+                                    'title': 'Wszystkie',
+                                    'statusId': 0,
+                                    'path': path('agreements_show'),
+                                    'active': (active == 'agreements_show' and app.request.attributes.get('status') == 0) ? true : false
+                                },
+                                {
+                                    'title': 'Oczekujące',
+                                    'statusId': statusWaiting,
+                                    'path': path('agreements_show', {'status': statusWaiting}),
+                                    'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWaiting) ? true : false
+                                },
+                                {
+                                    'title': 'W realizacji',
+                                    'statusId': statusManufacturing,
+                                    'path': path('agreements_show', {'status': statusManufacturing}),
+                                    'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusManufacturing) ? true : false
+                                },
+                                {
+                                    'title': 'Magazyn',
+                                    'statusId': statusWarehouse,
+                                    'path': path('agreements_show', {'status': statusWarehouse}),
+                                    'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWarehouse) ? true : false
+                                },
+                                {
+                                    'title': 'Archiwum',
+                                    'statusId': statusArchived,
+                                    'path': path('agreements_show', {'status': statusArchived}),
+                                    'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusArchived) ? true : false
+                                }
+
+                            ] %}
+
+
+
+                            <nav-orders :elements="{{ array|json_encode }}"></nav-orders>
+
+
+
+
+                        </menu-item>
+
+
+
+                        <!-- ### -->
 
                         {% if is_granted('ROLE_PRODUCTION_VIEW') %}
 
@@ -92,7 +147,6 @@
                                     <a href="{{ path('security_users') }}" class="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}active{% endif %}">Użytkownicy</a>
                                 </div>
                             </menu-item>
-
                         {% endif %}
 
                     </ul>

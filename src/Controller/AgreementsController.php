@@ -22,29 +22,27 @@ use Symfony\Component\Validator\Constraints\Date;
 class AgreementsController extends AbstractController
 {
     /**
-     * @Route("/orders", name="agreements_show", methods={"GET"}, options={"expose"=true})
-     * @param Request $request
-     * @return Response
-     */
-    public function index(Request $request)
-    {
-        return $this->render('orders/orders_show.html.twig', [
-            'title' => 'Lista zamówień',
-            'statuses' => AgreementLine::getStatuses(),
-            'initialStatus' => [
-                AgreementLine::STATUS_WAITING,
-                AgreementLine::STATUS_MANUFACTURING
-            ]
-        ]);
-    }
-
-    /**
      * @Route("/orders/add", name="orders_view_new", options={"expose"=true})
      */
     public function viewNewAgreement()
     {
         return $this->render('orders/order_single.html.twig', [
             'title' => 'Nowe zamówienie',
+        ]);
+    }
+
+    /**
+     * @Route("/orders/{status}", name="agreements_show", methods={"GET"}, options={"expose"=true}, defaults={"status" = 0})
+     * @param Request $request
+     * @param $status
+     * @return Response
+     */
+    public function index(Request $request, $status)
+    {
+        return $this->render('orders/orders_show.html.twig', [
+            'title' => 'Lista zamówień',
+            'statuses' => AgreementLine::getStatuses(),
+            'status' => $status
         ]);
     }
 

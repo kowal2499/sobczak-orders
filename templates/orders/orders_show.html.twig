@@ -13,7 +13,7 @@
         <div class="card-body">
             <orders-list
                 :statuses="{{ statuses|json_encode() }}"
-                :initial-status="{{ initialStatus|json_encode() }}"
+                :status="{{ status }}"
             ></orders-list>
         </div>
 

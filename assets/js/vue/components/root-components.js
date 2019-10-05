@@ -9,6 +9,7 @@ import Notifications from './base/Notifications';
 
 import Dropdown from './base/Dropdown';
 import MenuItem from './base/MenuItem';
+import NavOrders from './navigation/NavOrders';
 
 export default {
     NewOrder,
@@ -20,5 +21,6 @@ export default {
     UserSingle,
     Dropdown,
     MenuItem,
-    Notifications
+    Notifications,
+    NavOrders
 }
