@@ -27,7 +27,8 @@ class AgreementLineController extends AbstractController
     {
         return $this->render('agreement_line/order_details.html.twig', [
             'title' => 'Panel zamówienia',
-            'agreementLineId' => $request->attributes->getInt('id')
+            'agreementLineId' => $request->attributes->getInt('id'),
+            'statuses' => AgreementLine::getStatuses()
         ]);
     }
 
@@ -84,6 +85,7 @@ class AgreementLineController extends AbstractController
                             'id' => $record['id'],
                             'factor' => $record['factor'],
                             'confirmedDate' => $record['confirmedDate']->format('Y-m-d'),
+                            'status' => $record['status'],
                             'description' => $record['description']
                         ]    
                     ];
@@ -176,6 +178,7 @@ class AgreementLineController extends AbstractController
                     $agreementLine->setConfirmedDate(new \DateTime($line['confirmedDate']));
                 }
                 $agreementLine->setDescription($line['description']);
+                $agreementLine->setStatus((int)$line['status']);
                 $em->persist($agreementLine);
             }
 

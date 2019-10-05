@@ -258,6 +258,10 @@
                 apiProd.delete(order.line.id)
                     .then(() => {
                         this.orders = this.orders.filter(record => { return record.line.id !== order.line.id; })
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Wycofano zlecenie z harmonogramu produkcji.'
+                        });
                     })
                     .finally(() => {
                         this.confirmations.delete.busy = false;
@@ -448,7 +452,6 @@
 
     .hasTooltip {
         position: relative;
-        z-index: 10;
 
         .mytooltip {
             font-family: 'Roboto', sans-serif;
@@ -469,8 +472,8 @@
         }
     }
 
-    .table tbody td {
-        /*vertical-align: middle !important;*/
+    .table tbody tr {
+        text-align: center;
     }
 
     .production {

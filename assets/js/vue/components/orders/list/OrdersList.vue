@@ -7,7 +7,7 @@
             @filtersChange="handleFiltersChange"
         >
             <div class="col float-right text-right">
-                <a :href="newOrderLink" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
+                <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
             </div>
         </filters>
 
@@ -28,11 +28,11 @@
                 <td>{{ agreement.line.confirmedDate }}</td>
                 <td>{{ customerName(agreement.customer) }}</td>
                 <td>{{ agreement.product.name }}</td>
+                <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ getAgreementStatusName(agreement.line.status) }}</span></td>
                 <td>
-                    <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
-
-                    <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
-                    <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
+                    <span class="badge badge-pill" :class="getProductionStatusData(agreement.production)['className']">
+                        {{ getProductionStatusData(agreement.production)['title'] }}
+                    </span>
                 </td>
                 <td>
                     <dropdown class="icon-only">
@@ -120,7 +120,6 @@
                     },
                     q: '',
                     page: 1,
-                    archived: false,
                     status: [],
 
                     meta: {
@@ -163,7 +162,6 @@
                     let query = {
                         dateStart: this.filters.dateStart.start,
                         dateEnd: this.filters.dateStart.end,
-                        archived: this.filters.archived,
                         status: this.filters.status,
                         page: this.filters.page
                     };
@@ -212,7 +210,6 @@
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 this.filters.dateStart.start = query.dateStart || '';
                 this.filters.dateStart.end = query.dateEnd || '';
-                this.filters.archived = query.archived === 'true';
                 this.filters.status = query.status || this.initialStatus;
                 this.filters.page = query.page || 1;
                 this.filters.q = query.q || '';
@@ -316,6 +313,11 @@
                 api.storeProductionPlan(production, agreement.line.id)
                     .then(({data}) => {
                         agreement.production.data = Array.isArray(data) ? data[0] : [];
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Dodano do harmonogramu produkcji.'
+                        });
+                        this.fetchData();
                     })
                     .finally(() => {
 
@@ -349,6 +351,69 @@
                 this.filters.meta.sort = event
             },
 
+            getAgreementStatusName(statusId) {
+                return this.statuses[statusId];
+            },
+
+            getAgreementStatusClass(statusId) {
+                let className = '';
+                switch (statusId) {
+                    case 0:
+                        className = 'badge-danger';
+                        break;
+                    case 5:
+                        className = 'badge-primary';
+                        break;
+                    case 10:
+                        className = 'badge-warning';
+                        break;
+                    case 15:
+                        className = 'badge-success';
+                        break;
+
+                    default:
+                        className = 'badge-primary'
+                }
+                return className;
+            },
+
+            getProductionStatusData(production) {
+
+                if (production && production.data.length === 0) {
+                    return {
+                        className: 'badge-danger',
+                        title: 'Nie zlecone'
+                    };
+                }
+                if (production && production.data[4] && production.data[4].status === 3) {
+                    return {
+                        className: 'badge-success',
+                        title: 'Zakończona'
+                    }
+                }
+                if (production && production.data.length > 0) {
+                    return {
+                        className: 'badge-primary',
+                        title: 'W trakcie'
+                    }
+                }
+
+                return {
+                    className: '',
+                    title: ''
+                };
+
+            },
+
+            getProductionStatusClass(production) {
+                if (!production) {
+                    return '';
+                }
+                if (production.data.length === 0) {
+                    return 'badge-danger';
+                }
+            },
+
             getRouting() {
                 return routing;
             },
@@ -371,7 +436,8 @@
                         { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
                         { name: 'Klient', sortKey: 'c.name'},
                         { name: 'Produkt', sortKey: 'p.name' },
-                        { name: 'Produkcja' },
+                        { name: 'Status zamówienia' },
+                        { name: 'Status produkcji' },
                         { name: 'Akcje' },
                     ]
                 ];
@@ -384,6 +450,10 @@
 
 <style scoped>
     .table thead th {
+        text-align: center;
+    }
+
+    .table tbody tr {
         text-align: center;
     }
 </style>

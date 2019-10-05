@@ -199,7 +199,7 @@ class AgreementLine
     public static function getStatuses(): array
     {
         return [
-            self::STATUS_WAITING => 'Oczekuje (bez produkcji)',
+            self::STATUS_WAITING => 'Oczekuje',
             self::STATUS_MANUFACTURING => 'Realizacja',
             self::STATUS_WAREHOUSE => 'Magazyn',
             self::STATUS_ARCHIVED => 'Archiwum'

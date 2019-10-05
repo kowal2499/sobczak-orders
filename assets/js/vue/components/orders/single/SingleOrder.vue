@@ -21,18 +21,19 @@
                     ></production-widget>
                 </collapsible-card>
 
+                <collapsible-card :title="'Szczegóły zamówienia'" :locked="locked" v-if="orderData.line">
+                    <details-widget
+                        v-model="orderData.line"
+                        :statuses="statuses"
+                    ></details-widget>
+                </collapsible-card>
+
                 <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked" v-if="orderData.production.data.length !== 0 && canEditLine()">
                     <production-widget
                         v-model="orderData.production.data"
                         :task-types="['custom_task']"
                         :can-add="true"
                     ></production-widget>
-                </collapsible-card>
-
-                <collapsible-card :title="'Wymagania'" :locked="locked" v-if="orderData.line">
-                    <requirements-widget
-                        v-model="orderData.line"
-                    ></requirements-widget>
                 </collapsible-card>
 
             </div>
@@ -56,14 +57,14 @@
     import CollapsibleCard from "../../base/CollapsibleCard";
     import ordersApi from "../../../api/neworder";
     import ProductionWidget from "./ProductionWidget";
-    import RequirementsWidget from "./RequirementsWidget";
+    import DetailsWidget from "./DetailsWidget";
     import ProductWidget from "./ProductWidget";
     import CustomerWidget from "./CustomerWidget";
 
     export default {
         name: "SingleOrder",
-        components: { CollapsibleCard, ProductionWidget, RequirementsWidget, ProductWidget, CustomerWidget },
-        props: ['lineId'],
+        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, CustomerWidget },
+        props: ['lineId', 'statuses'],
 
         data() {
             return {

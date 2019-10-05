@@ -28,15 +28,6 @@ class AgreementsController extends AbstractController
      */
     public function index(Request $request)
     {
-
-        if ($request->query->get('add')) {
-            $this->addFlash('success', 'Dodano zamówienie.');
-        }
-
-        if ($request->query->get('edit')) {
-            $this->addFlash('success', 'Zapisano zamówienie.');
-        }
-
         return $this->render('orders/orders_show.html.twig', [
             'title' => 'Lista zamówień',
             'statuses' => AgreementLine::getStatuses(),
@@ -64,7 +55,7 @@ class AgreementsController extends AbstractController
      */
     public function viewEditAgreement(Agreement $agreement)
     {
-        return $this->render('orders/order_single_edit.html.twig', [
+            return $this->render('orders/order_single_edit.html.twig', [
             'title' => 'Edycja zamówienia',
             'agreement' => $agreement
         ]);
@@ -137,29 +128,32 @@ class AgreementsController extends AbstractController
         ;
 
         $em->persist($agreement);
+
+        foreach($request->request->get('products') as $productData) {
+            $product = $productRepository->find($productData['productId']);
+
+            $agreementLine = new AgreementLine();
+            $agreementLine
+                ->setProduct($product)
+                ->setConfirmedDate(new \DateTime($productData['requiredDate']))
+                ->setDescription($productData['description'])
+                ->setAgreement($agreement)
+                ->setFactor($productData['factor'])
+                ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
+                ->setDeleted(false)
+                ->setArchived(false)
+            ;
+            $em->persist($agreementLine);
+        }
+
+
         $em->flush();
 
-        if ($agreement->getId()) {
-
-            foreach($request->request->get('products') as $productData) {
-                $product = $productRepository->find($productData['productId']);
-
-                $agreementLine = new AgreementLine();
-                $agreementLine
-                    ->setProduct($product)
-                    ->setConfirmedDate(new \DateTime($productData['requiredDate']))
-                    ->setDescription($productData['description'])
-                    ->setAgreement($agreement)
-                    ->setFactor($productData['factor'])
-                    ->setDeleted(false)
-                    ->setArchived(false)
-                ;
-
-                $em->persist($agreementLine);
-            }
-
-            $em->flush();
-
+        if ($em->contains($agreement)) {
+            $this->addFlash('success', 'Dodano nowe zamówienie.');
+        }
+        else {
+            $this->addFlash('error', 'Błąd dodawania zamówiena.');
         }
 
         return new JsonResponse([$agreement->getId()]);
@@ -258,6 +252,10 @@ class AgreementsController extends AbstractController
                 $em->remove($line);
             }
             $em->flush();
+        }
+
+        if ($em->contains($agreement)) {
+            $this->addFlash('success', 'Zapisano zmiany.');
         }
 
         return new JsonResponse();
