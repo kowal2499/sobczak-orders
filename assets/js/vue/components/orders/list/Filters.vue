@@ -31,6 +31,21 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label>Status 2</label>
+
+            <div class="outline">
+
+                <div class="form-check form-check-inline" v-for="(status, key) in statuses">
+                    <label class="form-check-label">
+                        <input type="checkbox" :value="parseInt(key)" v-model="filtersCollection.status">
+                        {{ status }}
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
 
         <slot></slot>
 
@@ -44,7 +59,7 @@
 
     export default {
         name: "filters",
-        props: ['filtersCollection'],
+        props: ['filtersCollection', 'statuses'],
 
         components: { DatePicker },
 

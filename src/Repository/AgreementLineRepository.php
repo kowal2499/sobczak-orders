@@ -82,13 +82,17 @@ class AgreementLineRepository extends ServiceEntityRepository
                         $qb->setParameter($key, $value);
                         break;
                     case 'ownedBy':
-
                         $customers = $value->getCustomers();
                         if (!empty($customers)) {
                             $qb->andWhere("c.id IN (:{$key})");
                             $qb->setParameter($key, $customers);
                         }
-
+                        break;
+                    case 'status':
+                        if (!empty($value)) {
+                            $qb->andWhere("l.status IN (:{$key})");
+                            $qb->setParameter($key, $value);
+                        }
                         break;
                     case 'q':
                         $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");

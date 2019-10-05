@@ -3,6 +3,7 @@
 
         <filters
             :filters-collection="filters"
+            :statuses="statuses"
             @filtersChange="handleFiltersChange"
         >
             <div class="col float-right text-right">
@@ -99,6 +100,17 @@
 
         components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus },
 
+        props: {
+            statuses: {
+                type: Array,
+                default: () => []
+            },
+            initialStatus: {
+                type: Array,
+                default: () => []
+            }
+        },
+
         data() {
             return {
                 filters: {
@@ -109,6 +121,7 @@
                     q: '',
                     page: 1,
                     archived: false,
+                    status: [],
 
                     meta: {
                         sort: 'l.confirmedDate:ASC',
@@ -140,7 +153,6 @@
 
         mounted() {
             this.setFilters();
-
         },
 
         watch: {
@@ -152,6 +164,7 @@
                         dateStart: this.filters.dateStart.start,
                         dateEnd: this.filters.dateStart.end,
                         archived: this.filters.archived,
+                        status: this.filters.status,
                         page: this.filters.page
                     };
 
@@ -200,6 +213,7 @@
                 this.filters.dateStart.start = query.dateStart || '';
                 this.filters.dateStart.end = query.dateEnd || '';
                 this.filters.archived = query.archived === 'true';
+                this.filters.status = query.status || this.initialStatus;
                 this.filters.page = query.page || 1;
                 this.filters.q = query.q || '';
 
@@ -210,7 +224,6 @@
                 if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
                     this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
                 }
-                    
             },
 
             beforeShowPlan(key) {

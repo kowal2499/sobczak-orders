@@ -38,7 +38,12 @@ class AgreementsController extends AbstractController
         }
 
         return $this->render('orders/orders_show.html.twig', [
-            'title' => 'Lista zamówień'
+            'title' => 'Lista zamówień',
+            'statuses' => AgreementLine::getStatuses(),
+            'initialStatus' => [
+                AgreementLine::STATUS_WAITING,
+                AgreementLine::STATUS_MANUFACTURING
+            ]
         ]);
     }
 

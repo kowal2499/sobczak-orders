@@ -92,8 +92,6 @@ class AgreementLineController extends AbstractController
                 'departments' => \App\Entity\Department::names(),
             ]
         );
-
-
     }
 
     /**
