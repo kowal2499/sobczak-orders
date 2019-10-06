@@ -114,6 +114,22 @@ class AgreementLineRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
 
+    /**
+     * Licznik zamówień wg statusu
+     *
+     * @return mixed
+     */
+    public function getSummary()
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('l.status as statusId, COUNT(l.id) as ordersCount')
+            ->groupBy('l.status')
+            ->getQuery()
+        ;
+
+        return $qb->getResult();
+    }
+
     // /**
     //  * @return AgreementLine[] Returns an array of AgreementLine objects
     //  */

@@ -319,6 +319,7 @@
                             content: 'Dodano do harmonogramu produkcji.'
                         });
                         this.fetchData();
+                        Event.$emit('statusUpdated');
                     })
                     .finally(() => {
 

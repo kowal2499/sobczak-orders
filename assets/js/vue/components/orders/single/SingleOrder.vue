@@ -98,6 +98,8 @@
                             type: 'success',
                             content: 'Zapisano zmiany.'
                         });
+
+                        Event.$emit('statusUpdated');
                     })
                     .catch((data) => {
                         for (let msg of data.response.data) {
