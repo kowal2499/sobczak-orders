@@ -16,14 +16,14 @@ use Symfony\Component\Security\Core\Security;
 class AgreementLineRepository extends ServiceEntityRepository
 {
     /**
-     * @var \Symfony\Component\Security\Core\User\UserInterface|null
+     * @var Security
      */
-    private $user;
+    private $security;
 
     public function __construct(RegistryInterface $registry, Security $security)
     {
         parent::__construct($registry, AgreementLine::class);
-        $this->user = $security->getUser();
+        $this->security = $security;
     }
 
     public function getFiltered(?array $term)
@@ -121,13 +121,26 @@ class AgreementLineRepository extends ServiceEntityRepository
      */
     public function getSummary()
     {
+
         $qb = $this->createQueryBuilder('l')
+            ->andWhere('l.deleted = 0')
             ->select('l.status as statusId, COUNT(l.id) as ordersCount')
             ->groupBy('l.status')
-            ->getQuery()
         ;
 
-        return $qb->getResult();
+        // gdy użytkownik ma rolę 'klient' to zawężamy wyniki do podpiętych klientów
+        if ($this->security->isGranted('ROLE_CUSTOMER')) {
+            $customers = $this->security->getUser()->getCustomers();
+            $qb
+                ->innerJoin('l.Agreement', 'a')
+                ->innerJoin('a.Customer', 'c')
+
+                ->andWhere('c.id IN (:ownedCustomers)')
+                ->setParameter('ownedCustomers', $customers)
+            ;
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

@@ -8,7 +8,7 @@
 
                         <div v-for="(singleStatus, key) in statuses">
                             <label>
-                                <input type="radio" :value="key" v-model="inner.status">
+                                <input type="radio" :value="key" v-model="inner.status" :disabled="!canEditStatus()">
                                 {{ singleStatus }}
                             </label>
                         </div>
@@ -85,6 +85,10 @@
                 this.inner.status = src.status;
                 this.inner.description = src.description;
                 this.inner.confirmedDate = src.confirmedDate;
+            },
+
+            canEditStatus() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         }
 
