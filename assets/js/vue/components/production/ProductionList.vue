@@ -85,12 +85,13 @@
                                 <i class="fa fa-tasks" aria-hidden="true"></i> Panel
                             </a>
 
-                            <a class="dropdown-item" href="#"
-                               v-if="userCanProduction"
-                               @click="confirmArchiveModal(order)"
-                            >
-                                <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj
-                            </a>
+<!--                            todo: do późniejszego usunięcia -->
+<!--                            <a class="dropdown-item" href="#"-->
+<!--                               v-if="userCanProduction"-->
+<!--                               @click="confirmArchiveModal(order)"-->
+<!--                            >-->
+<!--                                <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj-->
+<!--                            </a>-->
 
                             <a class="dropdown-item" href="#"
                                v-if="userCanProduction"
@@ -130,7 +131,14 @@
             v-if="confirmations.delete.show"
         >
             <div>
-                <p><strong>Czy usunąć zlecenie produkcyjne:</strong></p>
+                <p>
+                    <strong>Czy usunąć zlecenie produkcyjne?</strong>
+                    <br>
+                    <small class="text-muted">Wszystkie dane dotyczące produkcji zostaną usunięte, a zamówienie otrzyma status 'oczekujące'.</small>
+                </p>
+
+
+
                 <ul class="list-unstyled">
                     <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
                     <li>produkt: {{ confirmations.delete.context.product.name }}</li>
@@ -258,6 +266,11 @@
                 apiProd.delete(order.line.id)
                     .then(() => {
                         this.orders = this.orders.filter(record => { return record.line.id !== order.line.id; })
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Wycofano zlecenie z harmonogramu produkcji.'
+                        });
+                        Event.$emit('statusUpdated');
                     })
                     .finally(() => {
                         this.confirmations.delete.busy = false;
@@ -374,6 +387,7 @@
                 return '';
             },
 
+            // todo: do późniejszego usunięcia
             confirmArchiveModal(item) {
                 this.confirmations.archive.context = item;
                 this.confirmations.archive.show = true;
@@ -448,7 +462,6 @@
 
     .hasTooltip {
         position: relative;
-        z-index: 10;
 
         .mytooltip {
             font-family: 'Roboto', sans-serif;
@@ -469,8 +482,8 @@
         }
     }
 
-    .table tbody td {
-        /*vertical-align: middle !important;*/
+    .table tbody tr {
+        text-align: center;
     }
 
     .production {

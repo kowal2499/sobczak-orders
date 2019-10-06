@@ -3,5 +3,5 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    <single-order :line-id="{{ agreementLineId }}"></single-order>
+    <single-order :line-id="{{ agreementLineId }}" :statuses="{{ statuses|json_encode }}"></single-order>
 {% endblock %}

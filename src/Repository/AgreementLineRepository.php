@@ -16,14 +16,14 @@ use Symfony\Component\Security\Core\Security;
 class AgreementLineRepository extends ServiceEntityRepository
 {
     /**
-     * @var \Symfony\Component\Security\Core\User\UserInterface|null
+     * @var Security
      */
-    private $user;
+    private $security;
 
     public function __construct(RegistryInterface $registry, Security $security)
     {
         parent::__construct($registry, AgreementLine::class);
-        $this->user = $security->getUser();
+        $this->security = $security;
     }
 
     public function getFiltered(?array $term)
@@ -82,13 +82,17 @@ class AgreementLineRepository extends ServiceEntityRepository
                         $qb->setParameter($key, $value);
                         break;
                     case 'ownedBy':
-
                         $customers = $value->getCustomers();
                         if (!empty($customers)) {
                             $qb->andWhere("c.id IN (:{$key})");
                             $qb->setParameter($key, $customers);
                         }
-
+                        break;
+                    case 'status':
+                        if (!empty($value)) {
+                            $qb->andWhere("l.status IN (:{$key})");
+                            $qb->setParameter($key, $value);
+                        }
                         break;
                     case 'q':
                         $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");
@@ -108,6 +112,35 @@ class AgreementLineRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery();
+    }
+
+    /**
+     * Licznik zamówień wg statusu
+     *
+     * @return mixed
+     */
+    public function getSummary()
+    {
+
+        $qb = $this->createQueryBuilder('l')
+            ->andWhere('l.deleted = 0')
+            ->select('l.status as statusId, COUNT(l.id) as ordersCount')
+            ->groupBy('l.status')
+        ;
+
+        // gdy użytkownik ma rolę 'klient' to zawężamy wyniki do podpiętych klientów
+        if ($this->security->isGranted('ROLE_CUSTOMER')) {
+            $customers = $this->security->getUser()->getCustomers();
+            $qb
+                ->innerJoin('l.Agreement', 'a')
+                ->innerJoin('a.Customer', 'c')
+
+                ->andWhere('c.id IN (:ownedCustomers)')
+                ->setParameter('ownedCustomers', $customers)
+            ;
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

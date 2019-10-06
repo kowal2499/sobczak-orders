@@ -11,6 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AgreementLine
 {
+    const STATUS_WAITING = 5;
+    const STATUS_MANUFACTURING = 10;
+    const STATUS_WAREHOUSE = 15;
+    const STATUS_ARCHIVED = 20;
+    const STATUS_DELETED = 25;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -44,6 +50,11 @@ class AgreementLine
      * @ORM\Column(type="boolean")
      */
     private $archived;
+
+    /**
+     * @ORM\Column(type="smallint", nullable=true)
+     */
+    private $status;
 
     /**
      * @ORM\Column(type="boolean")
@@ -181,6 +192,28 @@ class AgreementLine
     public function setFactor(?float $factor): self
     {
         $this->factor = $factor;
+
+        return $this;
+    }
+
+    public static function getStatuses(): array
+    {
+        return [
+            self::STATUS_WAITING => 'Oczekujące',
+            self::STATUS_MANUFACTURING => 'W realizacji',
+            self::STATUS_WAREHOUSE => 'Magazyn',
+            self::STATUS_ARCHIVED => 'Archiwum'
+        ];
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

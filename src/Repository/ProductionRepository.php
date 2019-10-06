@@ -77,19 +77,18 @@ class ProductionRepository extends ServiceEntityRepository
             ->andWhere('p.createdAt <= :val')
             ->andWhere('p.departmentSlug = \'dpt05\'')
             ->andWhere('p.status != \'3\'')
-            ->andWhere('l.archived = 0')
+            ->andWhere('l.status IN (:statusKey)')
             ->andWhere('l.deleted = 0')
             ->setParameter('val', (new \DateTime($year . '-' . $month))->modify('last day of')->setTime(23, 59, 59))
+            ->setParameter('statusKey', [AgreementLine::STATUS_WAITING, AgreementLine::STATUS_MANUFACTURING])
             ->join('p.agreementLine', 'l')
             ->join('l.Product', 'pr')
             ->join('l.Agreement', 'a')
             ->join('a.Customer', 'c')
             ->select('p, l, pr')
         ;
-//        $query = $this->withConnectedCustomers($query);
 
         return $query;
-//        return $query->getQuery()->getResult();
     }
 
     public function getCompletedAgreementLines(int $month, int $year)

@@ -19,86 +19,10 @@
     </head>
     <body id="page-top">
 
-
-
         <div id="app">
             <div id="wrapper">
 
-                <!-- Sidebar -->
-                <nav class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
-
-                    <div class="text-center mt-4 mb-3">
-                        <img class="img-fluid" src="/imgs/logo-sobczak.png" alt="">
-                    </div>
-
-                    <ul>
-
-                        <hr class="sidebar-divider">
-
-                        <li class="nav-item {% if active == 'dashboard_show' %}active{% endif %}">
-                            <a href="{{ path('dashboard_show') }}" class="nav-link">
-                                <i class="fa fa-tachometer" aria-hidden="true"></i>
-                                <span>Pulpit</span>
-                            </a>
-                        </li>
-
-                        {% if (is_granted('ROLE_PRODUCTS')) %}
-                        <li class="nav-item {% if active in ['products_show', 'products_new', 'products_edit'] %}active{% endif %}">
-                            <a href="{{ path('products_show') }}" class="nav-link">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <span>Produkty</span>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        {% if (is_granted('ROLE_CUSTOMERS')) %}
-                        <li class="nav-item {% if active in ['customers_show', 'customers_new', 'customers_edit'] %}active{% endif %}">
-                            <a href="{{ path('customers_show') }}" class="nav-link">
-                                <i class="fa fa-users" aria-hidden="true"></i>
-                                <span>Klienci</span>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        <li class="nav-item {% if active in ['agreements_show', 'orders_view_new', 'agreement_line_details', 'orders_edit'] %}active{% endif %}">
-                            <a href="{{ path('agreements_show') }}" class="nav-link">
-                                <i class="fa fa-address-book-o" aria-hidden="true"></i>
-                                <span>Zamówienia</span>
-                            </a>
-                        </li>
-
-                        {% if is_granted('ROLE_PRODUCTION_VIEW') %}
-
-                            <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
-                                <a href="{{ path('production_show') }}" class="nav-link">
-                                    <i class="fa fa-cogs" aria-hidden="true"></i>
-                                    <span>Produkcja</span>
-                                </a>
-                            </li>
-
-                        {% endif %}
-
-                        {% if is_granted('ROLE_CONFIG') %}
-
-                            <hr class="sidebar-divider">
-
-                            <menu-item
-                                 :active="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}true{% else %}false{% endif %}"
-                                 :path="'{{ path('production_show') }}'"
-                                 :title-icon="'fa fa-wrench'"
-                                 :title="'Konfiguracja'"
-                            >
-                                <div class="submenu mx-2 collapse-inner">
-                                    <a href="{{ path('security_users') }}" class="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}active{% endif %}">Użytkownicy</a>
-                                </div>
-                            </menu-item>
-
-                        {% endif %}
-
-                    </ul>
-
-
-                </nav>
+                {% include('_sidebar.html.twig') %}
 
                 <div id="content-wrapper" class="d-flex flex-column">
 

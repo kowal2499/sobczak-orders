@@ -109,14 +109,14 @@
                 if (!this.agreementId) {
                     api.storeOrder(this.customerId, this.products, this.orderNumber)
                         .then((data) => {
-                            window.location.replace(routing.get('agreements_show').concat('?add=ok'));
+                            window.location.replace(routing.get('agreements_show'));
                         })
                         .catch(() => {
                         });
                 } else {
                     api.patchOrder(this.agreementId, this.customerId, this.products, this.orderNumber)
                         .then(() => {
-                            window.location.replace(routing.get('agreements_show').concat('?edit=ok'));
+                            window.location.replace(routing.get('agreements_show'));
                         })
                         .catch(() => {
                         });

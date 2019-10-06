@@ -53,6 +53,7 @@ class ProductionController extends AbstractController
                 'departmentSlug' => $plan['slug']]
             );
 
+            // jeżeli produkcja jeszcze nie istnieje
             if (!($production)) {
                 $production = new Production();
 
@@ -63,6 +64,10 @@ class ProductionController extends AbstractController
                     ->setTitle($plan['name'])
                     ->setCreatedAt(new \DateTime())
                 ;
+
+                // zmiana statusu na "w produkcji"
+                $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
+                $em->persist($agreementLine);
             }
 
             $production
@@ -161,11 +166,14 @@ class ProductionController extends AbstractController
      */
     public function delete(AgreementLine $agreementLine, EntityManagerInterface $em)
     {
+        // zaktualizuj status
+        $agreementLine->setStatus(AgreementLine::STATUS_WAITING);
+
         foreach ($agreementLine->getProductions() as $production) {
             $em->remove($production);
         }
         $em->flush();
-        return new JsonResponse();
+        return $this->json([]);
     }
 
     /**

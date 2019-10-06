@@ -12,26 +12,6 @@
             <date-picker v-model="filtersCollection.dateStart"></date-picker>
         </div>
 
-        <div class="form-group">
-            <label>Status</label><br>
-
-            <div class="outline">
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="false" v-model="filtersCollection.archived">
-                        W realizacji
-                    </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" :value="true" v-model="filtersCollection.archived">
-                        W archiwum
-                    </label>
-                </div>
-            </div>
-        </div>
-
-
         <slot></slot>
 
     </div>

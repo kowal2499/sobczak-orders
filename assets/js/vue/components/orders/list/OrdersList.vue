@@ -6,7 +6,7 @@
             @filtersChange="handleFiltersChange"
         >
             <div class="col float-right text-right">
-                <a :href="newOrderLink" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
+                <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
             </div>
         </filters>
 
@@ -27,11 +27,11 @@
                 <td>{{ agreement.line.confirmedDate }}</td>
                 <td>{{ customerName(agreement.customer) }}</td>
                 <td>{{ agreement.product.name }}</td>
+                <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ getAgreementStatusName(agreement.line.status) }}</span></td>
                 <td>
-                    <span v-if="agreement.production && agreement.production.data.length === 0" class="badge badge-pill badge-danger">Nie zlecone</span>
-
-                    <span v-if="agreement.production && agreement.production.data[4] && agreement.production.data[4].status === 3" class="badge badge-pill badge-success">Zakończona</span>
-                    <span v-else-if="agreement.production && agreement.production.data.length > 0" class="badge badge-pill badge-primary">W trakcie</span>
+                    <span class="badge badge-pill" :class="getProductionStatusData(agreement.production)['className']">
+                        {{ getProductionStatusData(agreement.production)['title'] }}
+                    </span>
                 </td>
                 <td>
                     <dropdown class="icon-only">
@@ -99,6 +99,16 @@
 
         components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus },
 
+        props: {
+            statuses: {
+                type: Object,
+                default: () => {}
+            },
+            status: {
+                default: 0
+            }
+        },
+
         data() {
             return {
                 filters: {
@@ -108,7 +118,6 @@
                     },
                     q: '',
                     page: 1,
-                    archived: false,
 
                     meta: {
                         sort: 'l.confirmedDate:ASC',
@@ -140,7 +149,6 @@
 
         mounted() {
             this.setFilters();
-
         },
 
         watch: {
@@ -151,7 +159,6 @@
                     let query = {
                         dateStart: this.filters.dateStart.start,
                         dateEnd: this.filters.dateStart.end,
-                        archived: this.filters.archived,
                         page: this.filters.page
                     };
 
@@ -199,7 +206,6 @@
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
                 this.filters.dateStart.start = query.dateStart || '';
                 this.filters.dateStart.end = query.dateEnd || '';
-                this.filters.archived = query.archived === 'true';
                 this.filters.page = query.page || 1;
                 this.filters.q = query.q || '';
 
@@ -210,7 +216,6 @@
                 if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
                     this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
                 }
-                    
             },
 
             beforeShowPlan(key) {
@@ -236,14 +241,20 @@
 
             fetchData() {
                 this.loading = true;
-                api.fetchAgreements(this.filters)
+
+                let bag = this.filters;
+
+                if (parseInt(this.status) > 0) {
+                    bag.status = this.status;
+                }
+
+                api.fetchAgreements(bag)
                     .then(({data}) => {
                         this.agreements = data.orders || [];
                         this.departments = data.departments || [];
                         this.production = data.production.data || [];
                     })
-                    .catch(data => {
-                    })
+                    .catch(data => {})
                     .finally(() => { this.loading = false; });
             },
 
@@ -303,6 +314,12 @@
                 api.storeProductionPlan(production, agreement.line.id)
                     .then(({data}) => {
                         agreement.production.data = Array.isArray(data) ? data[0] : [];
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Dodano do harmonogramu produkcji.'
+                        });
+                        this.fetchData();
+                        Event.$emit('statusUpdated');
                     })
                     .finally(() => {
 
@@ -336,6 +353,69 @@
                 this.filters.meta.sort = event
             },
 
+            getAgreementStatusName(statusId) {
+                return this.statuses[statusId];
+            },
+
+            getAgreementStatusClass(statusId) {
+                let className = '';
+                switch (statusId) {
+                    case 5:
+                        className = 'badge-danger';
+                        break;
+                    case 10:
+                        className = 'badge-primary';
+                        break;
+                    case 15:
+                        className = 'badge-warning';
+                        break;
+                    case 20:
+                        className = 'badge-success';
+                        break;
+
+                    default:
+                        className = 'badge-primary'
+                }
+                return className;
+            },
+
+            getProductionStatusData(production) {
+
+                if (production && production.data.length === 0) {
+                    return {
+                        className: 'badge-danger',
+                        title: 'Nie zlecone'
+                    };
+                }
+                if (production && production.data[4] && production.data[4].status === 3) {
+                    return {
+                        className: 'badge-success',
+                        title: 'Zakończona'
+                    }
+                }
+                if (production && production.data.length > 0) {
+                    return {
+                        className: 'badge-primary',
+                        title: 'W trakcie'
+                    }
+                }
+
+                return {
+                    className: '',
+                    title: ''
+                };
+
+            },
+
+            getProductionStatusClass(production) {
+                if (!production) {
+                    return '';
+                }
+                if (production.data.length === 0) {
+                    return 'badge-danger';
+                }
+            },
+
             getRouting() {
                 return routing;
             },
@@ -358,7 +438,8 @@
                         { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
                         { name: 'Klient', sortKey: 'c.name'},
                         { name: 'Produkt', sortKey: 'p.name' },
-                        { name: 'Produkcja' },
+                        { name: 'Status zamówienia' },
+                        { name: 'Status produkcji' },
                         { name: 'Akcje' },
                     ]
                 ];
@@ -371,6 +452,10 @@
 
 <style scoped>
     .table thead th {
+        text-align: center;
+    }
+
+    .table tbody tr {
         text-align: center;
     }
 </style>

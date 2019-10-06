@@ -22,27 +22,6 @@ use Symfony\Component\Validator\Constraints\Date;
 class AgreementsController extends AbstractController
 {
     /**
-     * @Route("/orders", name="agreements_show", methods={"GET"}, options={"expose"=true})
-     * @param Request $request
-     * @return Response
-     */
-    public function index(Request $request)
-    {
-
-        if ($request->query->get('add')) {
-            $this->addFlash('success', 'Dodano zamówienie.');
-        }
-
-        if ($request->query->get('edit')) {
-            $this->addFlash('success', 'Zapisano zamówienie.');
-        }
-
-        return $this->render('orders/orders_show.html.twig', [
-            'title' => 'Lista zamówień'
-        ]);
-    }
-
-    /**
      * @Route("/orders/add", name="orders_view_new", options={"expose"=true})
      */
     public function viewNewAgreement()
@@ -53,13 +32,28 @@ class AgreementsController extends AbstractController
     }
 
     /**
+     * @Route("/orders/{status}", name="agreements_show", methods={"GET"}, options={"expose"=true}, defaults={"status" = 0})
+     * @param Request $request
+     * @param $status
+     * @return Response
+     */
+    public function index(Request $request, $status)
+    {
+        return $this->render('orders/orders_show.html.twig', [
+            'title' => 'Lista zamówień',
+            'statuses' => AgreementLine::getStatuses(),
+            'status' => $status
+        ]);
+    }
+
+    /**
      * @Route("/orders/edit/{id}", name="orders_edit", options={"expose"=true})
      * @param Agreement $agreement
      * @return Response
      */
     public function viewEditAgreement(Agreement $agreement)
     {
-        return $this->render('orders/order_single_edit.html.twig', [
+            return $this->render('orders/order_single_edit.html.twig', [
             'title' => 'Edycja zamówienia',
             'agreement' => $agreement
         ]);
@@ -132,29 +126,32 @@ class AgreementsController extends AbstractController
         ;
 
         $em->persist($agreement);
+
+        foreach($request->request->get('products') as $productData) {
+            $product = $productRepository->find($productData['productId']);
+
+            $agreementLine = new AgreementLine();
+            $agreementLine
+                ->setProduct($product)
+                ->setConfirmedDate(new \DateTime($productData['requiredDate']))
+                ->setDescription($productData['description'])
+                ->setAgreement($agreement)
+                ->setFactor($productData['factor'])
+                ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
+                ->setDeleted(false)
+                ->setArchived(false)
+            ;
+            $em->persist($agreementLine);
+        }
+
+
         $em->flush();
 
-        if ($agreement->getId()) {
-
-            foreach($request->request->get('products') as $productData) {
-                $product = $productRepository->find($productData['productId']);
-
-                $agreementLine = new AgreementLine();
-                $agreementLine
-                    ->setProduct($product)
-                    ->setConfirmedDate(new \DateTime($productData['requiredDate']))
-                    ->setDescription($productData['description'])
-                    ->setAgreement($agreement)
-                    ->setFactor($productData['factor'])
-                    ->setDeleted(false)
-                    ->setArchived(false)
-                ;
-
-                $em->persist($agreementLine);
-            }
-
-            $em->flush();
-
+        if ($em->contains($agreement)) {
+            $this->addFlash('success', 'Dodano nowe zamówienie.');
+        }
+        else {
+            $this->addFlash('error', 'Błąd dodawania zamówiena.');
         }
 
         return new JsonResponse([$agreement->getId()]);
@@ -253,6 +250,10 @@ class AgreementsController extends AbstractController
                 $em->remove($line);
             }
             $em->flush();
+        }
+
+        if ($em->contains($agreement)) {
+            $this->addFlash('success', 'Zapisano zmiany.');
         }
 
         return new JsonResponse();

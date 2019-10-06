@@ -11,7 +11,10 @@
         </div>
 
         <div class="card-body">
-            <orders-list></orders-list>
+            <orders-list
+                :statuses="{{ statuses|json_encode() }}"
+                :status="{{ status }}"
+            ></orders-list>
         </div>
 
     </div>
