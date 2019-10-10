@@ -6,7 +6,10 @@
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
 
             <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
-                <td v-text="order.header.orderNumber || order.line.id"></td>
+                <td>
+                    {{ order.header.orderNumber || order.line.id }}
+                    <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ getAgreementStatusName(order.line.status) }}</div>
+                </td>
                 <td v-text="order.line.confirmedDate"></td>
                 <td v-text="customerName(order.customer)"></td>
                 <td>
@@ -85,13 +88,22 @@
                                 <i class="fa fa-tasks" aria-hidden="true"></i> Panel
                             </a>
 
-<!--                            todo: do późniejszego usunięcia -->
-<!--                            <a class="dropdown-item" href="#"-->
-<!--                               v-if="userCanProduction"-->
-<!--                               @click="confirmArchiveModal(order)"-->
-<!--                            >-->
-<!--                                <i class="fa fa-archive" aria-hidden="true"></i> Archiwizuj-->
-<!--                            </a>-->
+                            <hr style="margin: 5px auto">
+
+
+                            <a class="dropdown-item" href="#"
+                               v-if="userCanProduction && canWarehouse(order)"
+                               @click="confirmWarehouseModal(order)"
+                            >
+                                <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Magazyn
+                            </a>
+
+                            <a class="dropdown-item" href="#"
+                               v-if="userCanProduction && canArchive(order)"
+                               @click="confirmArchiveModal(order)"
+                            >
+                                <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Archiwum
+                            </a>
 
                             <a class="dropdown-item" href="#"
                                v-if="userCanProduction"
@@ -108,13 +120,30 @@
         </table-plus>
 
         <confirmation-modal
+            :show="confirmations.warehouse.show"
+            @answerYes="updateAgreementStatus(confirmations.warehouse.context, 15)"
+            @closeModal="confirmations.warehouse.show = false"
+            v-if="confirmations.warehouse.show"
+        >
+            <div>
+                <p><strong>Czy przekazać zamówienie do magazynu:</strong></p>
+                <ul class="list-unstyled">
+                    <li>id: {{ confirmations.warehouse.context.header.orderNumber}}</li>
+                    <li>produkt: {{ confirmations.warehouse.context.product.name }}</li>
+                    <li>klient: {{ customerName(confirmations.warehouse.context.customer) }}</li>
+                </ul>
+            </div>
+
+        </confirmation-modal>
+
+        <confirmation-modal
             :show="confirmations.archive.show"
-            @answerYes="handleArchive(confirmations.archive.context)"
+            @answerYes="updateAgreementStatus(confirmations.archive.context, 20)"
             @closeModal="confirmations.archive.show = false"
             v-if="confirmations.archive.show"
         >
             <div>
-                <p><strong>Czy archiwizować zlecenie:</strong></p>
+                <p><strong>Czy archiwizować zamówienie:</strong></p>
                 <ul class="list-unstyled">
                     <li>id: {{ confirmations.archive.context.header.orderNumber}}</li>
                     <li>produkt: {{ confirmations.archive.context.product.name }}</li>
@@ -136,8 +165,6 @@
                     <br>
                     <small class="text-muted">Wszystkie dane dotyczące produkcji zostaną usunięte, a zamówienie otrzyma status 'oczekujące'.</small>
                 </p>
-
-
 
                 <ul class="list-unstyled">
                     <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
@@ -171,6 +198,13 @@
 
         components: { Dropdown, ConfirmationModal, Filters, TablePlus },
 
+        props: {
+            statuses: {
+                type: Object,
+                default: () => {}
+            },
+        },
+
         data() {
             return {
                 filters: {
@@ -190,6 +224,8 @@
                     archived: false,
                     deleted: false,
 
+                    hideArchive: true,
+
                     meta: {
                         sort: 'l.confirmedDate:ASC',
                         page: 1,
@@ -206,6 +242,12 @@
                 loading: false,
 
                 confirmations: {
+                    warehouse: {
+                        show: false,
+                        busy: false,
+                        context: false,
+                    },
+
                     archive: {
                         show: false,
                         busy: false,
@@ -215,7 +257,7 @@
                     delete: {
                         show: false,
                         busy: false,
-                        context: false
+                        context: false,
                     }
                 }
             }
@@ -231,6 +273,7 @@
                     let query = {
                         dateStart: this.filters.dateStart.start,
                         dateEnd: this.filters.dateStart.end,
+                        all: this.filters.showAll,
                         page: this.filters.meta.page
                     };
 
@@ -241,6 +284,8 @@
                     if (this.filters.dateDelivery.end && String(this.filters.dateDelivery.end).length > 0) {
                         query.dateDeliveryEnd = this.filters.dateDelivery.end
                     }
+
+                    query.hideArchive = this.filters.hideArchive
 
                     if (this.filters.q !== '') {
                         query.q = this.filters.q;
@@ -278,9 +323,9 @@
                     });
             },
 
-            handleArchive(order) {
+            updateAgreementStatus(order, newStatus) {
                 this.confirmations.archive.busy = true;
-                api.archiveAgreement(order.line.id)
+                api.setAgreementStatus(order.line.id, newStatus)
                     .then(({data}) => {
 
                         let idx = this.orders.findIndex((record) => {
@@ -291,11 +336,17 @@
                             this.orders.splice(idx, 1);
                         }
 
+                        Event.$emit('message', {
+                            type: 'success',
+                            content: 'Zapisano zmianę statusu.'
+                        });
 
                     })
                     .finally(() => {
                         this.confirmations.archive.busy = false;
                         this.confirmations.archive.show = false;
+                        this.confirmations.warehouse.busy = false;
+                        this.confirmations.warehouse.show = false;
                     })
                 ;
             },
@@ -387,7 +438,11 @@
                 return '';
             },
 
-            // todo: do późniejszego usunięcia
+            confirmWarehouseModal(item) {
+                this.confirmations.warehouse.context = item;
+                this.confirmations.warehouse.show = true;
+            },
+
             confirmArchiveModal(item) {
                 this.confirmations.archive.context = item;
                 this.confirmations.archive.show = true;
@@ -408,6 +463,45 @@
 
             getRouting() {
                 return routing;
+            },
+
+            canArchiveOrWarehouse(order) {
+                let lastProductionStage = order.production.data.find(stage => { return stage.departmentSlug === 'dpt05'; });
+                return lastProductionStage.status === 3;
+            },
+
+            canArchive(order) {
+                return order.line.status !== 20 && this.canArchiveOrWarehouse(order);
+            },
+
+            canWarehouse(order) {
+                return order.line.status !== 15 && this.canArchiveOrWarehouse(order);
+            },
+
+            getAgreementStatusName(statusId) {
+                return this.statuses[statusId];
+            },
+
+            getAgreementStatusClass(statusId) {
+                let className = '';
+                switch (statusId) {
+                    case 5:
+                        className = 'badge-danger';
+                        break;
+                    case 10:
+                        className = 'badge-primary';
+                        break;
+                    case 15:
+                        className = 'badge-warning';
+                        break;
+                    case 20:
+                        className = 'badge-success';
+                        break;
+
+                    default:
+                        className = 'badge-primary'
+                }
+                return className;
             }
         },
 
@@ -450,7 +544,9 @@
 
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
-            }
+            },
+
+
 
 
         }

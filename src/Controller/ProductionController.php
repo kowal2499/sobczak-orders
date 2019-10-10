@@ -25,7 +25,8 @@ class ProductionController extends AbstractController
     public function index()
     {
         return $this->render('production/production_show.html.twig', [
-            'title' => 'Harmonogram produkcji'
+            'title' => 'Harmonogram produkcji',
+            'statuses' => AgreementLine::getStatuses()
         ]);
     }
 

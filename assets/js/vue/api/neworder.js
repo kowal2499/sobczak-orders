@@ -31,8 +31,8 @@ export default {
         return axios.post(Routing.get('agreements_fetch'), { search });
     },
 
-    archiveAgreement(agreementId) {
-        return axios.post(Routing.get('agreement_line_archive') + '/' + agreementId);
+    setAgreementStatus(agreementId, statusId) {
+        return axios.post(Routing.get('agreement_line_archive') + '/' + agreementId + '/' + statusId);
     },
 
     deleteAgreementLine(agreementLineId) {
