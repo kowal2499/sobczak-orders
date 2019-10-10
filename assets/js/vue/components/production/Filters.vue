@@ -16,6 +16,11 @@
             <date-picker v-model="model.dateDelivery"/>
         </div>
 
+        <div class="form-group">
+            <label>Ukrywaj archiwalne i w magazynie</label><br>
+            <input type="checkbox" v-model="model.hideArchive">
+        </div>
+
     </div>
 </template>
 

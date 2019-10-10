@@ -94,6 +94,12 @@ class AgreementLineRepository extends ServiceEntityRepository
                             $qb->setParameter($key, $value);
                         }
                         break;
+                    case 'hideArchive':
+                        if ($value) {
+                            $qb->andWhere("l.status NOT IN (:{$key})");
+                            $qb->setParameter($key, [AgreementLine::STATUS_DELETED, AgreementLine::STATUS_ARCHIVED, AgreementLine::STATUS_WAREHOUSE]);
+                        }
+                        break;
                     case 'q':
                         $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");
                         $qb->setParameter('q', '%'.$value.'%');

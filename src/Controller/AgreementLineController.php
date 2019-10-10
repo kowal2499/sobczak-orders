@@ -198,18 +198,19 @@ class AgreementLineController extends AbstractController
     /**
      * @isGranted("ROLE_PRODUCTION")
      *
-     * @Route("/agreement_line/archive/{id}", name="agreement_line_archive", methods={"POST"}, options={"expose"=true})
+     * @Route("/agreement_line/archive/{id}/{statusId}", name="agreement_line_archive", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
+     * @param $statusId
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function archive(Request $request, AgreementLine $agreementLine, EntityManagerInterface $em)
+    public function setStatus(Request $request, AgreementLine $agreementLine, $statusId, EntityManagerInterface $em)
     {
-        $agreementLine->setArchived(true);
+        $agreementLine->setStatus((int)$statusId);
         $em->flush();
 
-        return $this->json();
+        return $this->json([]);
     }
 
     /**
