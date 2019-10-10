@@ -221,7 +221,6 @@
 
                     q: '',
 
-                    archived: false,
                     deleted: false,
 
                     hideArchive: true,
