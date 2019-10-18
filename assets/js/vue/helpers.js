@@ -62,8 +62,12 @@ export default {
     },
 
     getRoleName(role) {
-        let foundRole = this.roles.find(r => { return r.value === role})
+        let foundRole = this.roles.find(r => { return r.value === role});
         return foundRole ? foundRole.name : '';
+    },
+
+    convertNewlinesToHtml(txt) {
+        return txt.replace(/(?:\r\n|\r|\n)/g, '<br />');
     },
 
     statuses,
