@@ -61,6 +61,11 @@
 
                     </dropdown>
                 </td>
+
+                <td>
+                    <line-actions :line="agreement" @lineChanged="fetchData()"></line-actions>
+                </td>
+
             </tr>
         </table-plus>
 
@@ -99,11 +104,12 @@
     import ConfirmationModal from "../../base/ConfirmationModal";
     import TablePlus from '../../base/TablePlus';
     import Tooltip from "../../base/Tooltip";
+    import LineActions from "../../common/LineActions";
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus, Tooltip },
+        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions },
 
         props: {
             statuses: {
@@ -449,6 +455,7 @@
                         { name: 'Status zamówienia' },
                         { name: 'Status produkcji' },
                         { name: 'Akcje' },
+                        { name: 'Akcje New' },
                     ]
                 ];
 

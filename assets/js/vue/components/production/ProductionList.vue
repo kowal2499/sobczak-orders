@@ -111,6 +111,10 @@
                         </template>
                     </dropdown>
                 </td>
+
+                <td>
+                    <line-actions :line="order" @lineChanged="fetchData()"></line-actions>
+                </td>
             </tr>
 
         </table-plus>
@@ -189,11 +193,12 @@
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
     import Tooltip from "../base/Tooltip";
+    import LineActions from "../common/LineActions";
 
     export default {
         name: "ProductionList",
 
-        components: { Dropdown, ConfirmationModal, Filters, TablePlus, Tooltip },
+        components: { Dropdown, ConfirmationModal, Filters, TablePlus, Tooltip, LineActions },
 
         props: {
             statuses: {
@@ -279,7 +284,7 @@
                         query.dateDeliveryEnd = this.filters.dateDelivery.end
                     }
 
-                    query.hideArchive = this.filters.hideArchive
+                    query.hideArchive = this.filters.hideArchive;
 
                     if (this.filters.q !== '') {
                         query.q = this.filters.q;
@@ -528,6 +533,7 @@
                 }
 
                 headers[0].push({ name: 'Akcje', rowspan: 2 });
+                headers[0].push({ name: 'Akcje2', rowspan: 2 });
 
                 return headers;
             },
@@ -539,9 +545,6 @@
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
-
-
-
 
         }
     }
