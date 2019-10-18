@@ -1,19 +1,17 @@
 <template>
 
     <span
-            @mouseenter="mouseover = true"
-            @mouseleave="mouseover = false"
-            class="hasTooltip"
+        @mouseenter="mouseover = true"
+        @mouseleave="mouseover = false"
+        class="tooltip-wrapper"
     >
+        <slot
+            name="visible-content"
+        ></slot>
 
-            <slot
-                name="visible-content"
-            ></slot>
-
-            <div class="mytooltip" v-if="true === mouseover">
-                <slot name="tooltip-content"></slot>
-            </div>
-
+        <div class="tooltip-body" v-if="true === mouseover">
+            <slot name="tooltip-content"></slot>
+        </div>
     </span>
 
 </template>
@@ -32,10 +30,10 @@
 
 <style scoped lang="scss">
 
-    .hasTooltip {
+    .tooltip-wrapper {
         position: relative;
 
-        .mytooltip {
+        .tooltip-body {
             font-family: 'Roboto', sans-serif;
             position: absolute;
             top: calc(10% + 15px);

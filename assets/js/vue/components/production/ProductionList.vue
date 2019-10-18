@@ -11,14 +11,10 @@
                 <td v-text="customerName(order.customer)"></td>
                 <td>
                     {{ order.product.name }}
-                    <i class="fa fa-info-circle hasTooltip"
-                       v-if="order.line.description"
-                       @mouseenter="tooltipOwner = order.line.id"
-                       @mouseleave="tooltipOwner = null"
-                    >
-                        <div class="mytooltip" v-if="tooltipOwner === order.line.id" v-html="order.line.description.replace(/(?:\r\n|\r|\n)/g, '<br />')">
-                        </div>
-                    </i>
+                    <tooltip v-if="order.line.description.length > 0">
+                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
+                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.line.description)"></div>
+                    </tooltip>
                 </td>
                 <td v-text="order.line.factor" class="text-center" v-if="userCanProduction"></td>
 
@@ -165,11 +161,12 @@
     import ConfirmationModal from '../base/ConfirmationModal';
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
+    import Tooltip from "../base/Tooltip";
 
     export default {
         name: "ProductionList",
 
-        components: { Dropdown, ConfirmationModal, Filters, TablePlus },
+        components: { Dropdown, ConfirmationModal, Filters, TablePlus, Tooltip },
 
         data() {
             return {
@@ -200,8 +197,6 @@
 
                 orders: [],
                 departments: [],
-
-                tooltipOwner: null,
 
                 loading: false,
 
@@ -459,28 +454,6 @@
 </script>
 
 <style scoped lang="scss">
-
-    .hasTooltip {
-        position: relative;
-
-        .mytooltip {
-            font-family: 'Roboto', sans-serif;
-            position: absolute;
-            top: calc(10% + 15px);
-            left: calc(100% + 15px);
-            width: 200px;
-            background-color: lightyellow;
-            border: 1px solid #ccc;
-            border-radius: 2px;
-
-            font-size: 0.875rem;
-            line-height: 1.175rem;
-            padding: 10px;
-            opacity: 0.9;
-
-            z-index: 20;
-        }
-    }
 
     .table tbody tr {
         text-align: center;

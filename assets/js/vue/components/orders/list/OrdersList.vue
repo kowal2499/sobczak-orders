@@ -27,22 +27,10 @@
                 <td>{{ agreement.line.confirmedDate }}</td>
                 <td>{{ customerName(agreement.customer) }}</td>
                 <td>{{ agreement.product.name }}
-
-
                     <tooltip v-if="agreement.line.description.length > 0">
-
                         <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
-                        <div slot="tooltip-content">
-                            {{ __mixin_convertNewlinesToHtml(agreement.line.description) }}
-                        </div>
-
-
+                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(agreement.line.description)"></div>
                     </tooltip>
-
-
-
-
-
                 </td>
                 <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ getAgreementStatusName(agreement.line.status) }}</span></td>
                 <td>
