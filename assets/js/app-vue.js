@@ -2,6 +2,7 @@ import Vue from 'vue';
 import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
+import helpers from "./vue/helpers";
 
 
 window.Event = new Vue();
@@ -20,6 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.prototype.$access = access;
     Vue.prototype.$user = new access.User(user);
     Vue.prototype.$privilages = access.Roles;
+
+    Vue.mixin({
+        methods: {
+            __mixin_convertNewlinesToHtml: helpers.convertNewlinesToHtml
+        }
+    });
 
     new Vue({
         el: '#app',

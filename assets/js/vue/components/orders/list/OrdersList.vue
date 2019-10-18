@@ -26,7 +26,24 @@
                 <td>{{ agreement.header.createDate }}</td>
                 <td>{{ agreement.line.confirmedDate }}</td>
                 <td>{{ customerName(agreement.customer) }}</td>
-                <td>{{ agreement.product.name }}</td>
+                <td>{{ agreement.product.name }}
+
+
+                    <tooltip v-if="agreement.line.description.length > 0">
+
+                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
+                        <div slot="tooltip-content">
+                            {{ __mixin_convertNewlinesToHtml(agreement.line.description) }}
+                        </div>
+
+
+                    </tooltip>
+
+
+
+
+
+                </td>
                 <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ getAgreementStatusName(agreement.line.status) }}</span></td>
                 <td>
                     <span class="badge badge-pill" :class="getProductionStatusData(agreement.production)['className']">
@@ -93,11 +110,12 @@
     import routing from  '../../../api/routing';
     import ConfirmationModal from "../../base/ConfirmationModal";
     import TablePlus from '../../base/TablePlus';
+    import Tooltip from "../../base/Tooltip";
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus },
+        components: { Filters, ProductionPlan, Dropdown, ConfirmationModal, TablePlus, Tooltip },
 
         props: {
             statuses: {
@@ -426,7 +444,9 @@
 
             canUserDeleteOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
-            }
+            },
+
+
 
         },
         computed: {
