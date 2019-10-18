@@ -16,6 +16,14 @@ const roles = [
     { value: 'ROLE_CUSTOMER', name: 'Klient' },
 ];
 
+const departments = [
+    {name: 'Klejenie', slug: 'dpt01'},
+    {name: 'CNC', slug: 'dpt02'},
+    {name: 'Szlifowanie', slug: 'dpt03'},
+    {name: 'Lakierowanie', slug: 'dpt04'},
+    {name: 'Pakowanie', slug: 'dpt05'},
+];
+
 
 export default {
 
@@ -68,6 +76,10 @@ export default {
 
     convertNewlinesToHtml(txt) {
         return txt.replace(/(?:\r\n|\r|\n)/g, '<br />');
+    },
+
+    getDepartments() {
+        return departments;
     },
 
     statuses,

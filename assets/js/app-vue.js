@@ -3,6 +3,7 @@ import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
 import helpers from "./vue/helpers";
+import routing from "./vue/api/routing";
 
 
 window.Event = new Vue();
@@ -21,11 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.prototype.$access = access;
     Vue.prototype.$user = new access.User(user);
     Vue.prototype.$privilages = access.Roles;
+    Vue.prototype.$helpers = helpers;
 
     Vue.mixin({
         methods: {
-            __mixin_convertNewlinesToHtml: helpers.convertNewlinesToHtml
-        }
+            __mixin_convertNewlinesToHtml: helpers.convertNewlinesToHtml,
+            __mixin_customerName: helpers.customerName,
+            __mixin_getRouting: routing.get,
+        },
     });
 
     new Vue({

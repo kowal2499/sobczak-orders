@@ -68,5 +68,8 @@
 </script>
 
 <style scoped>
-
+    .modal-body {
+        text-align: left;
+        font-size: 1.2em;
+    }
 </style>

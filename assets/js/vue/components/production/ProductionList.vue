@@ -11,7 +11,7 @@
                     <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ getAgreementStatusName(order.line.status) }}</div>
                 </td>
                 <td v-text="order.line.confirmedDate"></td>
-                <td v-text="customerName(order.customer)"></td>
+                <td v-text="__mixin_customerName(order.customer)"></td>
                 <td>
                     {{ order.product.name }}
                     <tooltip v-if="order.line.description.length > 0">
@@ -78,99 +78,11 @@
                 </td>
 
                 <td>
-                    <dropdown class="icon-only">
-                        <template>
-                            <a class="dropdown-item" :href="getRouting().get('agreement_line_details') + '/' + order.line.id">
-                                <i class="fa fa-tasks" aria-hidden="true"></i> Panel
-                            </a>
-
-                            <hr style="margin: 5px auto">
-
-
-                            <a class="dropdown-item" href="#"
-                               v-if="userCanProduction && canWarehouse(order)"
-                               @click="confirmWarehouseModal(order)"
-                            >
-                                <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Magazyn
-                            </a>
-
-                            <a class="dropdown-item" href="#"
-                               v-if="userCanProduction && canArchive(order)"
-                               @click="confirmArchiveModal(order)"
-                            >
-                                <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Archiwum
-                            </a>
-
-                            <a class="dropdown-item" href="#"
-                               v-if="userCanProduction"
-                               @click="confirmDeleteModal(order)"
-                            >
-                                <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Wycofaj z produkcji</span>
-                            </a>
-
-                        </template>
-                    </dropdown>
+                    <line-actions :line="order" @lineChanged="fetchData()"></line-actions>
                 </td>
             </tr>
 
         </table-plus>
-
-        <confirmation-modal
-            :show="confirmations.warehouse.show"
-            @answerYes="updateAgreementStatus(confirmations.warehouse.context, 15)"
-            @closeModal="confirmations.warehouse.show = false"
-            v-if="confirmations.warehouse.show"
-        >
-            <div>
-                <p><strong>Czy przekazać zamówienie do magazynu:</strong></p>
-                <ul class="list-unstyled">
-                    <li>id: {{ confirmations.warehouse.context.header.orderNumber}}</li>
-                    <li>produkt: {{ confirmations.warehouse.context.product.name }}</li>
-                    <li>klient: {{ customerName(confirmations.warehouse.context.customer) }}</li>
-                </ul>
-            </div>
-
-        </confirmation-modal>
-
-        <confirmation-modal
-            :show="confirmations.archive.show"
-            @answerYes="updateAgreementStatus(confirmations.archive.context, 20)"
-            @closeModal="confirmations.archive.show = false"
-            v-if="confirmations.archive.show"
-        >
-            <div>
-                <p><strong>Czy archiwizować zamówienie:</strong></p>
-                <ul class="list-unstyled">
-                    <li>id: {{ confirmations.archive.context.header.orderNumber}}</li>
-                    <li>produkt: {{ confirmations.archive.context.product.name }}</li>
-                    <li>klient: {{ customerName(confirmations.archive.context.customer) }}</li>
-                </ul>
-            </div>
-
-        </confirmation-modal>
-
-        <confirmation-modal
-            :show="confirmations.delete.show"
-            @answerYes="handleDelete(confirmations.delete.context)"
-            @closeModal="confirmations.delete.show = false"
-            v-if="confirmations.delete.show"
-        >
-            <div>
-                <p>
-                    <strong>Czy usunąć zlecenie produkcyjne?</strong>
-                    <br>
-                    <small class="text-muted">Wszystkie dane dotyczące produkcji zostaną usunięte, a zamówienie otrzyma status 'oczekujące'.</small>
-                </p>
-
-                <ul class="list-unstyled">
-                    <li>id: {{ confirmations.delete.context.header.orderNumber}}</li>
-                    <li>produkt: {{ confirmations.delete.context.product.name }}</li>
-                    <li>klient: {{ customerName(confirmations.delete.context.customer) }}</li>
-                </ul>
-            </div>
-
-        </confirmation-modal>
-
 
     </div>
 </template>
@@ -180,20 +92,18 @@
     import qs from 'qs';
     import moment from 'moment';
     import api from '../../api/neworder';
-    import apiProd from '../../api/production';
     import routing from '../../api/routing';
     import productionApi from '../../api/production';
     import Helpers from '../../helpers';
-    import Dropdown from '../base/Dropdown';
-    import ConfirmationModal from '../base/ConfirmationModal';
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
     import Tooltip from "../base/Tooltip";
+    import LineActions from "../common/LineActions";
 
     export default {
         name: "ProductionList",
 
-        components: { Dropdown, ConfirmationModal, Filters, TablePlus, Tooltip },
+        components: { Filters, TablePlus, Tooltip, LineActions },
 
         props: {
             statuses: {
@@ -279,7 +189,7 @@
                         query.dateDeliveryEnd = this.filters.dateDelivery.end
                     }
 
-                    query.hideArchive = this.filters.hideArchive
+                    query.hideArchive = this.filters.hideArchive;
 
                     if (this.filters.q !== '') {
                         query.q = this.filters.q;
@@ -300,50 +210,6 @@
         },
 
         methods: {
-            handleDelete(order) {
-                this.confirmations.delete.busy = true;
-                apiProd.delete(order.line.id)
-                    .then(() => {
-                        this.orders = this.orders.filter(record => { return record.line.id !== order.line.id; })
-                        Event.$emit('message', {
-                            type: 'success',
-                            content: 'Wycofano zlecenie z harmonogramu produkcji.'
-                        });
-                        Event.$emit('statusUpdated');
-                    })
-                    .finally(() => {
-                        this.confirmations.delete.busy = false;
-                        this.confirmations.delete.show = false;
-                    });
-            },
-
-            updateAgreementStatus(order, newStatus) {
-                this.confirmations.archive.busy = true;
-                api.setAgreementStatus(order.line.id, newStatus)
-                    .then(({data}) => {
-
-                        let idx = this.orders.findIndex((record) => {
-                            return record.line.id === order.line.id;
-                        });
-
-                        if (idx !== -1) {
-                            this.orders.splice(idx, 1);
-                        }
-
-                        Event.$emit('message', {
-                            type: 'success',
-                            content: 'Zapisano zmianę statusu.'
-                        });
-
-                    })
-                    .finally(() => {
-                        this.confirmations.archive.busy = false;
-                        this.confirmations.archive.show = false;
-                        this.confirmations.warehouse.busy = false;
-                        this.confirmations.warehouse.show = false;
-                    })
-                ;
-            },
 
             setFilters() {
                 let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
@@ -400,10 +266,6 @@
                     .finally(() => { this.loading = false; })
             },
 
-            customerName(customer) {
-                return Helpers.customerName(customer);
-            },
-
             updateStatus(productionId, newStatus) {
                 productionApi.updateStatus(productionId, newStatus)
                     .then(() => {
@@ -432,20 +294,6 @@
                 return '';
             },
 
-            confirmWarehouseModal(item) {
-                this.confirmations.warehouse.context = item;
-                this.confirmations.warehouse.show = true;
-            },
-
-            confirmArchiveModal(item) {
-                this.confirmations.archive.context = item;
-                this.confirmations.archive.show = true;
-            },
-
-            confirmDeleteModal(item) {
-                this.confirmations.delete.context = item;
-                this.confirmations.delete.show = true;
-            },
 
             updateSort(event) {
                 this.filters.meta.sort = event
@@ -462,14 +310,6 @@
             canArchiveOrWarehouse(order) {
                 let lastProductionStage = order.production.data.find(stage => { return stage.departmentSlug === 'dpt05'; });
                 return lastProductionStage.status === 3;
-            },
-
-            canArchive(order) {
-                return order.line.status !== 20 && this.canArchiveOrWarehouse(order);
-            },
-
-            canWarehouse(order) {
-                return order.line.status !== 15 && this.canArchiveOrWarehouse(order);
             },
 
             getAgreementStatusName(statusId) {
@@ -519,9 +359,6 @@
 
                 ];
 
-                // this.departments.forEach(dpt => { headers.push({ name: dpt.name }); })
-
-
                 if (this.userCanProduction) {
                     headers[0].splice(4, 0, { name: 'Wsp.', sortKey: 'l.factor', rowspan: 2 });
                     headers[0].push({ name: 'Dodatkowe zadania', rowspan: 2});
@@ -539,9 +376,6 @@
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
-
-
-
 
         }
     }
