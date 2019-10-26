@@ -1,6 +1,7 @@
 {% extends 'full_width.html.twig' %}
+{% trans_default_domain 'security' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{% trans %}Login{% endtrans %}{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -11,23 +12,25 @@
                     <div class="card-body p-0">
 
                         <div class="row">
-                            <div class="col-lg-3 leftpanel d-flex justify-content-center align-items-center">
+                            <div class="col-lg-3 leftpanel d-flex justify-content-center align-items-center flex-column">
                                 <img class="img-fluid" src="/imgs/logo-sobczak.png" alt="">
+                                <div>
+                                    <a href="{{ path('security_login', {'locale': 'pl'}) }}">Polski</a>
+                                    <a href="{{ path('security_login', {'locale': 'en'}) }}">English</a>
+                                </div>
                             </div>
 
                             <div class="col-lg-9">
                                 <div class="p-4">
                                     <div class="text-center">
-                                        <h1 class="h2 text-gray-900 mt-4">Logowanie do panelu</h1>
+                                        <h1 class="h2 text-gray-900 mt-4">{{ 'Logowanie do panelu'|trans }}</h1>
 
                                         <div class="text-center mt-5 mb-5">
                                             <div class="alert alert-light">
-                                                <p><strong class="">Strona przeznaczona jest wyłącznie do użytku wewnętrznego firmy Sobczak&nbsp;Sp.&nbsp;z&nbsp;o.&nbsp;o.</strong></p>
-                                                <p>Pozostałe osoby zapraszamy na stronę <a href="http://www.sobczak.com.pl/">www.sobczak.com.pl</a></p>
+                                                <p><strong>{{ 'Strona przeznaczona jest wyłącznie do użytku wewnętrznego firmy %companyName%'|trans({'%companyName%': 'Sobczak Sp. z o.o.'}) }}</strong></p>
+                                                <p>{{ 'Pozostałe osoby zapraszamy na stronę'|trans }} <a href="http://www.sobczak.com.pl/">www.sobczak.com.pl</a></p>
                                             </div>
                                         </div>
-
-
 
                                     </div>
 
@@ -37,53 +40,43 @@
                                         {% endif %}
 
                                         <div class="form-group">
-                                            <label for="inputEmail" class="sr-only">Email</label>
-                                            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Email" required autofocus>
+                                            <label for="inputEmail" class="sr-only">{{ 'Email'|trans }}</label>
+                                            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="{% trans %}Email{% endtrans %}" required autofocus>
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="inputPassword" class="sr-only">Hasło</label>
-                                            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Hasło" required>
+                                            <label for="inputPassword" class="sr-only">{% trans %}Hasło{% endtrans %}</label>
+                                            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="{% trans %}Hasło{% endtrans %}" required>
                                         </div>
 
                                         <input type="hidden" name="_csrf_token"
                                                value="{{ csrf_token('authenticate') }}"
                                         >
 
-
                                         <div class="checkbox mb-3">
                                             <label>
-                                                <input type="checkbox" name="_remember_me"> Pamiętaj mnie
+                                                <input type="checkbox" name="_remember_me"> {% trans %}Pamiętaj mnie{% endtrans %}
                                             </label>
                                         </div>
 
 
                                         <div class="form-group text-right">
                                             <button class="btn btn-primary text-center" type="submit">
-                                                Zaloguj się
+                                                {% trans %}Zaloguj się{% endtrans %}
                                             </button>
                                         </div>
 
                                     </form>
 
-
-
-
                                 </div>
                             </div>
                         </div>
-
-
-
-
 
                     </div>
 
                 </div>
             </div>
         </div>
-
-
 
     </div>
 {% endblock %}
