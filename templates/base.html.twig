@@ -26,7 +26,11 @@
 
                 <div id="content-wrapper" class="d-flex flex-column">
 
-                    <div class="topbar d-flex justify-content-end">
+                    <div class="topbar d-flex justify-content-between">
+
+                        <div class="p-1">
+                            {% include('_language_switcher.html.twig') %}
+                        </div>
 
                         <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
                             <template>
@@ -35,6 +39,8 @@
                                 </a>
                             </template>
                         </dropdown>
+
+
 
                     </div>
 

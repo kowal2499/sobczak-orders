@@ -1,0 +1,13 @@
+<div class="dropdown language-switcher">
+    <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% if app.request.locale == 'pl' %}
+            <img src="/imgs/pl.png"> Polski
+        {% else %}
+            <img src="/imgs/en.png"> English
+        {% endif %}
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="{{ path(app.request.attributes.get('_route'), {'locale': 'pl'}) }}"><img src="/imgs/pl.png"> Polski</a>
+        <a class="dropdown-item" href="{{ path(app.request.attributes.get('_route'), {'locale': 'en'}) }}"><img src="/imgs/en.png"> English</a>
+    </div>
+</div>
