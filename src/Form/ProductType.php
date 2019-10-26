@@ -24,7 +24,8 @@ class ProductType extends AbstractType
                 ],
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
+                'translation_domain' => 'products'
             ])
             ->add('factor', PercentType::class, [
                 'label' => 'Współczynnik',
@@ -44,11 +45,13 @@ class ProductType extends AbstractType
                 ],
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
+                'translation_domain' => 'products'
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Opis',
-                'required' => false
+                'required' => false,
+                'translation_domain' => 'products'
             ])
         ;
     }
