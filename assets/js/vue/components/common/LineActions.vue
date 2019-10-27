@@ -6,7 +6,7 @@
                 <!-- sekcja wspólna -->
 
                 <a class="dropdown-item" :href="__mixin_getRouting('agreement_line_details') + '/' + line.line.id">
-                    <i class="fa fa-tasks" aria-hidden="true"></i> Panel
+                    <i class="fa fa-tasks" aria-hidden="true"></i> {{ $t('Panel') }}
                 </a>
 
                 <hr style="margin: 5px auto">
@@ -14,30 +14,28 @@
                 <!-- sekcja zamówienie -->
 
                 <a class="dropdown-item" :href="__mixin_getRouting('orders_edit') + '/' + line.header.id">
-                    <i class="fa fa-pencil" aria-hidden="true"></i> Edytuj zamówienie
+                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('editOrder') }}
                 </a>
 
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmWarehouseVisible = true"
                    v-if="canWarehouse()"
                 >
-                    <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Magazyn
+                    <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setWarehouseStatus') }}
                 </a>
 
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmArchiveVisible = true"
                    v-if="canArchive()"
                 >
-                    <i class="fa fa-archive" aria-hidden="true"></i> Ustaw status: Archiwum
+                    <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setArchivedStatus') }}
                 </a>
-
-
 
                 <a class="dropdown-item text-danger" href="#"
                    @click.prevent="isModalConfirmDeleteOrderVisible = true"
                    v-if="canDeleteOrder(line)"
                 >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> Usuń zamówienie
+                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}
                 </a>
 
 
@@ -49,14 +47,14 @@
                    v-if="canStartProduction(line)"
                    @click="startProduction(line)"
                 >
-                    <i class="fa fa-play" aria-hidden="true"></i> Rozpocznij produkcję
+                    <i class="fa fa-play" aria-hidden="true"></i> {{ $t('startProduction') }}
                 </a>
 
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmDeleteProductionVisible = true"
                    v-if="canDeleteProduction()"
                 >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">Usuń produkcję</span>
+                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">{{ $t('deleteProduction') }}</span>
                 </a>
 
             </template>
@@ -73,7 +71,7 @@
                 v-if="isModalConfirmDeleteOrderVisible"
         >
             <div>
-                <p><strong>Czy na pewno usunąć zlecenie numer '{{ line.header.orderNumber }}'?</strong></p>
+                <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.header.orderNumber }}'?</strong></p>
 
                 <ul class="list-unstyled">
                     <li>{{ line.product.name }}</li>
@@ -81,7 +79,7 @@
 
                 <div class="alert alert-danger" v-if="hasProduction(line)">
                     <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                    Usunięcie zamówienia usunie również wszystkie związane z nim działania na produkcji.
+                    {{ $t('willAlsoDeleteProduction') }}
                 </div>
 
             </div>
@@ -97,22 +95,21 @@
                 v-if="isModalConfirmDeleteProductionVisible"
         >
             <div>
-                <p><strong>Czy usunąć zlecenie produkcyjne?</strong></p>
+                <p><strong>{{ $t('areYouSureToDeleteProduction') }}</strong></p>
 
                 <ul class="list-unstyled">
-                    <li>id: {{ line.header.orderNumber}}</li>
-                    <li>produkt: {{ line.product.name }}</li>
-                    <li>klient: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
+                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
+                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                 </ul>
 
                 <div class="alert alert-danger">
                     <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                    Wszystkie dane dotyczące produkcji zostaną usunięte.
+                    {{ $t('willRemoveProductionData') }}
                 </div>
 
                 <div class="alert alert-info">
-                    Jeżeli chcesz tylko usunąć zlecenie produkcyjne z listy to nie używaj tej opcji.
-                    Wystarczy, że zmienisz status na 'archiwum' lub 'magazyn'.
+                    {{ $t('deleteNotification') }}
                 </div>
             </div>
 
@@ -126,11 +123,11 @@
                 v-if="isModalConfirmWarehouseVisible"
         >
             <div>
-                <p><strong>Czy przekazać zamówienie do magazynu:</strong></p>
+                <p><strong>{{ $t('setAsWarehoused') }}</strong></p>
                 <ul class="list-unstyled">
-                    <li>id: {{ line.header.orderNumber}}</li>
-                    <li>produkt: {{ line.product.name }}</li>
-                    <li>klient: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
+                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
+                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                 </ul>
             </div>
 
@@ -144,11 +141,11 @@
                 v-if="isModalConfirmArchiveVisible"
         >
             <div>
-                <p><strong>Czy przekazać zamówienie do archiwum:</strong></p>
+                <p><strong>{{ $t('setAsArchived') }}</strong></p>
                 <ul class="list-unstyled">
-                    <li>id: {{ line.header.orderNumber}}</li>
-                    <li>produkt: {{ line.product.name }}</li>
-                    <li>klient: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
+                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
+                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                 </ul>
             </div>
 
@@ -228,7 +225,7 @@
                         line.production.data = Array.isArray(data) ? data[0] : [];
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Dodano do harmonogramu produkcji.'
+                            content: this.$t('addedToSchedule')
                         });
                         Event.$emit('statusUpdated');
                         this.$emit('lineChanged');
@@ -247,7 +244,7 @@
                     .then(() => {
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Usunięto zamówienie.'
+                            content: this.$t('orderDeleted')
                         });
                         Event.$emit('statusUpdated');
                         this.$emit('lineChanged');
@@ -268,7 +265,7 @@
                     .then(() => {
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Wycofano zlecenie z harmonogramu produkcji.'
+                            content: this.$t('removedFromSchedule')
                         });
                         Event.$emit('statusUpdated');
                         this.$emit('lineChanged');
@@ -299,7 +296,7 @@
                     .then(({data}) => {
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Zapisano zmianę statusu.'
+                            content: this.$t('statusChangeSaved')
                         });
                         Event.$emit('statusUpdated');
                         this.$emit('lineChanged');

@@ -6,7 +6,7 @@
             @filtersChange="handleFiltersChange"
         >
             <div class="col float-right text-right">
-                <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowe zamówienie</a>
+                <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('newOrder') }} </a>
             </div>
         </filters>
 
@@ -24,10 +24,10 @@
                         <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(agreement.line.description)"></div>
                     </tooltip>
                 </td>
-                <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ getAgreementStatusName(agreement.line.status) }}</span></td>
+                <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ $t(getAgreementStatusName(agreement.line.status)) }}</span></td>
                 <td>
                     <span class="badge badge-pill" :class="getProductionStatusData(agreement.production)['className']">
-                        {{ getProductionStatusData(agreement.production)['title'] }}
+                        {{ $t(getProductionStatusData(agreement.production)['title']) }}
                     </span>
                 </td>
 

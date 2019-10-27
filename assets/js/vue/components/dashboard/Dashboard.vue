@@ -9,7 +9,7 @@
 
                         <div>
                             <select class="form-control" v-model="filters.month">
-                                <option v-for="month in months" :value="month.number" v-text="month.name"></option>
+                                <option v-for="month in months" :value="month.number" v-text="$t(month.name)"></option>
                             </select>
                         </div>
 

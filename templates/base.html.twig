@@ -81,7 +81,8 @@
             id: app.user.id,
             firstName: app.user.firstName,
             lastName: app.user.lastName,
-            roles: app.user.roles
+            roles: app.user.roles,
+            locale: app.request.locale
         } %}
 
         <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>

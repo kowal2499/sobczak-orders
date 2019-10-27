@@ -4,7 +4,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLiveLabel">Wymagane potwierdzenie</h5>
+                    <h5 class="modal-title" id="exampleModalLiveLabel">{{ $t('confirmationIsNeeded') }}</h5>
                     <button type="button" class="close" @click.prevent="closeModal()">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -15,14 +15,14 @@
                     <slot></slot>
 
                     <div class="text-center" v-if="busy">
-                        Przetwarzanie ... <i class="fa fa-spinner fa-spin"></i>
+                        {{ $t('processing') }} <i class="fa fa-spinner fa-spin"></i>
                     </div>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" :disabled="busy" class="btn btn-success" @click.prevent="$emit('answerYes')">Tak</button>
-                    <button type="button" :disabled="busy" class="btn btn-danger" @click.prevent="closeModal()">Nie</button>
+                    <button type="button" :disabled="busy" class="btn btn-success" @click.prevent="$emit('answerYes')">{{ $t('yes') }}</button>
+                    <button type="button" :disabled="busy" class="btn btn-danger" @click.prevent="closeModal()">{{ $t('no') }}</button>
                 </div>
 
             </div>
