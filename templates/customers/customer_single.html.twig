@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'customers' %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -60,8 +61,7 @@
                     </div>
                 </div>
 
-{#                <a href="{{ path('customers_show') }}" class="btn btn-light mr-3"><i class="fa fa-arrow-left" aria-hidden="true"></i> Wstecz</a>#}
-                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> Zapisz</button>
+                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}</button>
 
             {{ form_end(form) }}
 

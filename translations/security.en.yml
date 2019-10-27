@@ -20,4 +20,14 @@ Login: Login
 Email: Email
 Hasło: Password
 'Pamiętaj mnie': 'Remember me'
-'Zaloguj się': 'Login'
+'Zaloguj się': Login
+'Należy podać imię, nazwisko i email.': 'Please specify first name, last name and an email.'
+'Niepoprawny adres email.': 'Wrong email address.'
+'Nieprawidłowy identyfikator użytkownika.': 'Wrong user id.'
+'Stare hasło jest nieprawidłowe.': 'Wrong old password.'
+'Brak hasła.': 'No password.'
+'Użytkownik z rolą ''Klient'' musi mieć przypisanego przynajmniej jednego klienta.': 'User with role ''Client'' must have at least on customer assigned.'
+'Dodano użytkownika.': 'User has been added.'
+'Panel użytkownika:': 'User settings:'
+'Nowy użytkownik': 'New user'
+Użytkownicy: Users

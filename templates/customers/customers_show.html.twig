@@ -1,20 +1,21 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'customers' %}
 
-{% block title %}Klienci{% endblock %}
+{% block title %}{{ 'Klienci'|trans }}{% endblock %}
 
 {% block body %}
 
     <div class="card shadow mb-4">
 
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Klienci</h6>
+            <h6 class="m-0 font-weight-bold text-primary">{{ 'Klienci'|trans }}</h6>
         </div>
 
         <div class="card-body">
 
             <div class="row text-right">
                 <div class="col">
-                    <a href="{{ path('customers_new') }}" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowy</a>
+                    <a href="{{ path('customers_new') }}" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ 'Nowy'|trans }}</a>
                 </div>
 
             </div>
@@ -24,12 +25,12 @@
                     <form>
                         <div class="form-group row">
                             <div class="col">
-                                <input type="text" placeholder="Nazwa / Adres / Dane kontaktowe" autocomplete="off" name="q"
+                                <input type="text" placeholder="{{ 'Nazwa / Adres / Dane kontaktowe'|trans }}" autocomplete="off" name="q"
                                        class="form-control" value="{{ search }}">
                             </div>
 
                             <div class="col">
-                                <button type="submit" class="btn btn-light"><i class="fa fa-search" aria-hidden="true"></i> Szukaj</button>
+                                <button type="submit" class="btn btn-light"><i class="fa fa-search" aria-hidden="true"></i> {{ 'Szukaj'|trans }}</button>
                             </div>
                         </div>
                     </form>
@@ -50,19 +51,19 @@
                     <thead>
                         <tr>
                             <th>
-                                Nazwa
+                                {{ 'Nazwa'|trans }}
                             </th>
                             <th>
-                                Adres
+                                {{ 'Adres'|trans }}
                             </th>
                             <th>
-                                Kod pocztowy
+                                {{ 'Kod pocztowy'|trans }}
                             </th>
                             <th>
-                                Miasto
+                                {{ 'Miasto'|trans }}
                             </th>
                             <th>
-                                Kraj
+                                {{ 'Kraj'|trans }}
                             </th>
                             <th style="width: 150px;"></th>
                         </tr>
@@ -121,7 +122,7 @@
                                     {{ customer.getCountry() }}
                                 </td>
 
-                                <td><a href="{{ path('customers_edit', {'id': customer.id}) }}" class="btn btn-light"><i class="fa fa-pencil" aria-hidden="true"></i> Edytuj</a></td>
+                                <td><a href="{{ path('customers_edit', {'id': customer.id}) }}" class="btn btn-light"><i class="fa fa-pencil" aria-hidden="true"></i> {{ 'Edytuj'|trans }}</a></td>
 
                             </tr>
 
@@ -134,9 +135,9 @@
             {% else %}
                 <div class="alert alert-warning" role="alert">
                     {% if search != '' %}
-                        Brak klientów spełniających podane kryteria.
+                        {{ 'Brak klientów spełniających podane kryteria.'|trans }}
                     {% else %}
-                        Brak klientów.
+                        {{ 'Brak klientów.'|trans }}
                     {% endif %}
                 </div>
             {% endif %}

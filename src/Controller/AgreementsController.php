@@ -18,16 +18,17 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
 {
     /**
      * @Route("/orders/add", name="orders_view_new", options={"expose"=true})
      */
-    public function viewNewAgreement()
+    public function viewNewAgreement(TranslatorInterface $t)
     {
         return $this->render('orders/order_single.html.twig', [
-            'title' => 'Nowe zamówienie',
+            'title' => $t->trans('Nowe zamówienie', [], 'agreements'),
         ]);
     }
 
@@ -37,10 +38,10 @@ class AgreementsController extends AbstractController
      * @param $status
      * @return Response
      */
-    public function index(Request $request, $status)
+    public function index(Request $request, $status, TranslatorInterface $t)
     {
         return $this->render('orders/orders_show.html.twig', [
-            'title' => 'Lista zamówień',
+            'title' => $t->trans('Lista zamówień', [], 'agreements'),
             'statuses' => AgreementLine::getStatuses(),
             'status' => $status
         ]);
@@ -51,10 +52,10 @@ class AgreementsController extends AbstractController
      * @param Agreement $agreement
      * @return Response
      */
-    public function viewEditAgreement(Agreement $agreement)
+    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t)
     {
             return $this->render('orders/order_single_edit.html.twig', [
-            'title' => 'Edycja zamówienia',
+            'title' => $t->trans('Edycja zamówienia', [], 'agreements'),
             'agreement' => $agreement
         ]);
     }
@@ -113,7 +114,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em)
+    public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, TranslatorInterface $t)
     {
         $customer = $customerRepository->find($request->request->getInt('customerId'));
 
@@ -148,10 +149,10 @@ class AgreementsController extends AbstractController
         $em->flush();
 
         if ($em->contains($agreement)) {
-            $this->addFlash('success', 'Dodano nowe zamówienie.');
+            $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
         }
         else {
-            $this->addFlash('error', 'Błąd dodawania zamówiena.');
+            $this->addFlash('error', $t->trans('Błąd dodawania zamówiena.', [], 'agreements'));
         }
 
         return new JsonResponse([$agreement->getId()]);

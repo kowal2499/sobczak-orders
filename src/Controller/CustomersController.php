@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomersController extends AbstractController
 {
@@ -36,7 +37,7 @@ class CustomersController extends AbstractController
             20
         );
 
-        return $this->render('customers/customers_show.html.twig', [
+            return $this->render('customers/customers_show.html.twig', [
             'customers' => $pagination,
             'search' => $request->query->get('q')
         ]);
@@ -99,7 +100,7 @@ class CustomersController extends AbstractController
      * @return Response
      * @throws \Exception
      */
-    public function add(Request $request, EntityManagerInterface $em)
+    public function add(Request $request, EntityManagerInterface $em, TranslatorInterface $t)
     {
         $customer = new Customer();
         $form = $this->createForm(CustomerType::class, $customer);
@@ -112,13 +113,13 @@ class CustomersController extends AbstractController
             $em->persist($customer);
             $em->flush();
 
-            $this->addFlash('success', 'Dodano nowego klienta.');
+            $this->addFlash('success', $t->trans('Dodano nowego klienta.', [], 'customers'));
             return $this->redirectToRoute('customers_show');
         }
 
         return $this->render('customers/customer_single.html.twig', [
             'form' => $form->createView(),
-            'title' => 'Nowy klient',
+            'title' => $t->trans('Nowy klient', [], 'customers'),
         ]);
     }
 
@@ -131,14 +132,14 @@ class CustomersController extends AbstractController
      * @param EntityManagerInterface $em
      * @return Response
      */
-    public function edit(Customer $customer, Request $request, EntityManagerInterface $em)
+    public function edit(Customer $customer, Request $request, EntityManagerInterface $em, TranslatorInterface $t)
     {
         $form = $this->createForm(CustomerType::class, $customer);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Zmiany zostały zapisane.');
+            $this->addFlash('success', $t->trans('Zmiany zostały zapisane.', [], 'customers'));
 
             if ($this->isGranted('ROLE_CUSTOMERS')) {
                 return $this->redirectToRoute('customers_show');
@@ -150,7 +151,7 @@ class CustomersController extends AbstractController
 
         return $this->render('customers/customer_single.html.twig', [
             'form' => $form->createView(),
-            'title' => 'Edytuj dane klienta',
+            'title' => $t->trans('Edytuj dane klienta', [], 'customers'),
         ]);
     }
 }

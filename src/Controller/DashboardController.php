@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 
 class DashboardController extends AbstractController
@@ -15,10 +16,10 @@ class DashboardController extends AbstractController
     /**
      * @Route("/", name="dashboard_show")
      */
-    public function index()
+    public function index(TranslatorInterface $t)
     {
         return $this->render('dashboard/show.html.twig', [
-            'title' => 'Pulpit'
+            'title' => $t->trans('Pulpit', [], 'dashboard')
         ]);
     }
 

@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'security' %}
 
-{% block title %}Użytkownicy{% endblock %}
+{% block title %}{{ 'Użytkownicy'|trans }}{% endblock %}
 
 {% block body %}
     <users-list></users-list>

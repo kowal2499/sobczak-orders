@@ -15,6 +15,7 @@ use App\Entity\Production;
 use App\Entity\AgreementLine;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductionController extends AbstractController
 {
@@ -22,10 +23,10 @@ class ProductionController extends AbstractController
      * @isGranted("ROLE_PRODUCTION_VIEW")
      * @Route("/production", name="production_show")
      */
-    public function index()
+    public function index(TranslatorInterface $t)
     {
         return $this->render('production/production_show.html.twig', [
-            'title' => 'Harmonogram produkcji',
+            'title' => $t->trans('Harmonogram produkcji', [], 'production'),
             'statuses' => AgreementLine::getStatuses()
         ]);
     }
