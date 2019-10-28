@@ -14,6 +14,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ProductRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductsController extends AbstractController
 {
@@ -46,11 +47,13 @@ class ProductsController extends AbstractController
      * @isGranted("ROLE_PRODUCTS")
      *
      * @Route("/products/new", name="products_new")
+     * @param Request $request
      * @param EntityManagerInterface $em
+     * @param TranslatorInterface $translator
      * @return Response
      * @throws \Exception
      */
-    public function addNew(Request $request, EntityManagerInterface $em)
+    public function addNew(Request $request, EntityManagerInterface $em, TranslatorInterface $translator)
     {
 
         $product = new Product();
@@ -64,13 +67,13 @@ class ProductsController extends AbstractController
             $em->persist($product);
             $em->flush();
 
-            $this->addFlash('success', 'Dodano nowy produkt.');
+            $this->addFlash('success', $translator->trans('Dodano nowy produkt.', [], 'products'));
             return $this->redirectToRoute('products_show');
         }
 
         return $this->render('products/product_single.html.twig', [
             'form' => $form->createView(),
-            'title' => 'Nowy produkt',
+            'title' => $translator->trans('Nowy produkt', [], 'products'),
         ]);
     }
 
@@ -81,22 +84,23 @@ class ProductsController extends AbstractController
      * @param Product $product
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param TranslatorInterface $translator
      * @return Response
      */
-    public function edit(Product $product, Request $request, EntityManagerInterface $em)
+    public function edit(Product $product, Request $request, EntityManagerInterface $em, TranslatorInterface $translator)
     {
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request, $product);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Zmiany zostały zapisane.');
+            $this->addFlash('success', $translator->trans('Zmiany zostały zapisane.', [], 'products'));
             return $this->redirectToRoute('products_show');
         }
 
         return $this->render('products/product_single.html.twig', [
             'form' => $form->createView(),
-            'title' => 'Edytuj produkt'
+            'title' => $translator->trans('Edytuj produkt', [], 'products')
         ]);
     }
 

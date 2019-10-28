@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 
 class AgreementLineController extends AbstractController
@@ -23,12 +24,17 @@ class AgreementLineController extends AbstractController
      * @param AgreementLine $agreementLine
      * @return Response
      */
-    public function details(Request $request, AgreementLine $agreementLine)
+    public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t)
     {
+        $statuses = [];
+        foreach (AgreementLine::getStatuses() as $key => $value) {
+            $statuses[$key] = $t->trans($value, [], 'agreements');
+        }
+
         return $this->render('agreement_line/order_details.html.twig', [
-            'title' => 'Panel zamówienia',
+            'title' => $t->trans('Panel zamówienia', [], 'agreements'),
             'agreementLineId' => $request->attributes->getInt('id'),
-            'statuses' => AgreementLine::getStatuses()
+            'statuses' => $statuses
         ]);
     }
 
@@ -40,7 +46,7 @@ class AgreementLineController extends AbstractController
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository)
+    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t)
     {
         $search = $request->request->all();
 
@@ -91,7 +97,9 @@ class AgreementLineController extends AbstractController
                     ];
                 }, $agreements->getArrayResult()),
                 
-                'departments' => \App\Entity\Department::names(),
+                'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
+                    \App\Entity\Department::names()
+                ),
             ]
         );
     }

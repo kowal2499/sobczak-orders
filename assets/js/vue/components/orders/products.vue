@@ -2,38 +2,38 @@
 
     <div class="card">
         <div class="card-header">
-            <strong>Produkty</strong>
+            <strong>{{ $t('products') }}</strong>
         </div>
         <div class="card-body">
 
             <div class="row">
-                <label class="col-2 col-form-label">Produkt</label>
+                <label class="col-2 col-form-label">{{ $t('product') }}</label>
                 <div class="col">
                     <select class="form-control" v-model="orderProduct" @change="orderFactor = getProductFactorById(orderProduct) * 100">
-                        <option value="">- Wybierz -</option>
+                        <option value="">- {{ $t('choose') }} -</option>
                         <option :value="product.id"  v-for="product in productDefinitions.map((i) => { return { id: i.id, name: i.name };})">{{ product.name }}</option>
                     </select>
                 </div>
             </div>
             <div class="row mt-3" v-if="userCanProduction()">
                 <label class="col-2 col-form-label">
-                    Współczynnik
+                    {{ $t('orders.factor') }}
                 </label>
                 <div class="col">
                     <input type="number" min="0" class="form-control" v-model="orderFactor">
-                    <small class="form-text text-muted">Współczynnik dla premii. Wartość '100' oznacza współczynnik w wysokości '1'. Można podawać wartości wyższe niż 100.</small>
+                    <small class="form-text text-muted">{{ $t('orders.factorDesc') }}</small>
                 </div>
             </div>
 
             <div class="row mt-3">
-                <label class="col-2 col-form-label">Opis wymagań</label>
+                <label class="col-2 col-form-label">{{ $t('orders.requirements') }}</label>
                 <div class="col">
                     <textarea class="form-control" cols="30" rows="3" v-model="orderDescription"></textarea>
                 </div>
             </div>
 
             <div class="row mt-3">
-                <label class="col-2 col-form-label">Oczekiwany termin realizacji</label>
+                <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                 <div class="col">
                     <date-picker v-model="orderDate" :is-range="false"></date-picker>
                 </div>
@@ -42,7 +42,7 @@
 
             <div class="row mt-3">
                 <div class="col text-right">
-                    <button class="btn btn-success" :disabled="orderDate === '' || orderProduct === ''" @click="add"><i class="fa fa-plus" aria-hidden="true"></i> Dodaj produkt</button>
+                    <button class="btn btn-success" :disabled="orderDate === '' || orderProduct === ''" @click="add"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('orders.addProduct') }}</button>
                 </div>
             </div>
 
@@ -55,10 +55,10 @@
                         <span style="font-size: 16px; font-weight: bold"># {{ key+1 }}</span>
 
                         <div class="row">
-                            <label class="col-2 col-form-label">Produkt</label>
+                            <label class="col-2 col-form-label">{{ $t('product') }}</label>
                             <div class="col">
                                 <select class="form-control" v-model="product.productId" @change="product.factor = getProductFactorById(product.productId)">
-                                    <option value="">- Wybierz -</option>
+                                    <option value="">- {{ $t('choose') }} -</option>
                                     <option :value="item.id"  v-for="item in productDefinitions.map((i) => { return { id: i.id, name: i.name };})">{{ item.name }}</option>
                                 </select>
                             </div>
@@ -67,23 +67,23 @@
 
                         <div class="row mt-3" v-if="userCanProduction()">
                             <label class="col-2 col-form-label">
-                                Współczynnik
+                                {{ $t('orders.factor') }}
                             </label>
                             <div class="col">
                                 <input type="number" min="0" class="form-control" :value="parseInt(product.factor * 100)" @input="factorUpdated(product, $event.target.value)">
-                                <small class="form-text text-muted">Współczynnik dla premii. Wartość '100' oznacza współczynnik w wysokości '1'. Można podawać wartości wyższe niż 100.</small>
+                                <small class="form-text text-muted">{{ $t('orders.factorDesc') }}</small>
                             </div>
                         </div>
 
                         <div class="row mt-3">
-                            <label class="col-2 col-form-label">Opis wymagań</label>
+                            <label class="col-2 col-form-label">{{ $t('orders.requirements') }}</label>
                             <div class="col">
                                 <textarea class="form-control" cols="30" rows="3" v-model="product.description"></textarea>
                             </div>
                         </div>
 
                         <div class="row mt-3">
-                            <label class="col-2 col-form-label">Oczekiwany termin realizacji</label>
+                            <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                             <div class="col">
                                 <date-picker v-model="product.requiredDate" :isRange="false"></date-picker>
                             </div>
@@ -91,7 +91,7 @@
 
                         <div class="row mt-3">
                             <div class="col text-right">
-                                <button class="btn btn-danger" @click="remove(key)"><i class="fa fa-trash" aria-hidden="true"></i> Usuń produkt</button>
+                                <button class="btn btn-danger" @click="remove(key)"><i class="fa fa-trash" aria-hidden="true"></i> {{ $t('orders.removeProduct') }}</button>
                             </div>
                         </div>
 
@@ -104,7 +104,7 @@
             <div class="row mt-3" v-else>
                 <div class="col">
                     <div class="alert alert-info">
-                        Lista produktów jest pusta. Należy dodać przynajmniej jeden produkt.
+                        {{ $t('orders.emptyProductList') }}
                     </div>
                 </div>
             </div>

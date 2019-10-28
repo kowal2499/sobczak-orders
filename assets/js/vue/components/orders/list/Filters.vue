@@ -3,12 +3,12 @@
     <div class="card-menu d-flex">
 
         <div class="form-group">
-            <label>Szukaj</label><br>
+            <label>{{ $t('search') }}</label><br>
             <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
         </div>
 
         <div class="form-group">
-            <label>Data otrzymania</label><br>
+            <label>{{ $t('receiveDate') }}</label><br>
             <date-picker v-model="filtersCollection.dateStart"></date-picker>
         </div>
 

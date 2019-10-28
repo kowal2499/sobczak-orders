@@ -1,11 +1,12 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'security' %}
 
 {% block title %}
 
     {% if user is not null %}
-        Panel użytkownika: {{ user.getUserFullName }}
+        {{ 'Panel użytkownika:'|trans }} {{ user.getUserFullName }}
     {% else %}
-        Nowy użytkownik
+        {{ 'Nowy użytkownik'|trans }}
     {% endif %}
 
 {% endblock %}

@@ -5,6 +5,12 @@ import access from "./vue/services/privilages";
 import helpers from "./vue/helpers";
 import routing from "./vue/api/routing";
 
+import VueI18n from 'vue-i18n'
+
+import translationsGeneral from './translations/general';
+import translationsDashboard from './translations/dashboard';
+import translationsOrders from './translations/orders';
+import translationsProduction from './translations/production';
 
 window.Event = new Vue();
 
@@ -32,9 +38,29 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     });
 
+    Vue.use(VueI18n);
+
+    const i18n = new VueI18n({locale: user.locale, fallbackLocale: 'pl',
+        messages: {
+            pl: {
+                ...translationsDashboard.pl,
+                ...translationsGeneral.pl,
+                ...translationsOrders.pl,
+                ...translationsProduction.pl,
+            },
+            en: {
+                ...translationsDashboard.en,
+                ...translationsGeneral.en,
+                ...translationsOrders.en,
+                ...translationsProduction.en,
+            }
+        }
+    });
+
     new Vue({
         el: '#app',
         components,
+        i18n
     });
 
 

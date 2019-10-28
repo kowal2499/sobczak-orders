@@ -1,3 +1,5 @@
+{% trans_default_domain 'dashboard' %}
+
 <nav class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
 
     <div class="text-center mt-4 mb-3">
@@ -11,7 +13,7 @@
         <li class="nav-item {% if active == 'dashboard_show' %}active{% endif %}">
             <a href="{{ path('dashboard_show') }}" class="nav-link">
                 <i class="fa fa-tachometer" aria-hidden="true"></i>
-                <span>Pulpit</span>
+                <span>{{ 'Pulpit'|trans }}</span>
             </a>
         </li>
 
@@ -19,7 +21,7 @@
             <li class="nav-item {% if active in ['products_show', 'products_new', 'products_edit'] %}active{% endif %}">
                 <a href="{{ path('products_show') }}" class="nav-link">
                     <i class="fa fa-star" aria-hidden="true"></i>
-                    <span>Produkty</span>
+                    <span>{{ 'Produkty'|trans }}</span>
                 </a>
             </li>
         {% endif %}
@@ -28,7 +30,7 @@
             <li class="nav-item {% if active in ['customers_show', 'customers_new', 'customers_edit'] %}active{% endif %}">
                 <a href="{{ path('customers_show') }}" class="nav-link">
                     <i class="fa fa-users" aria-hidden="true"></i>
-                    <span>Klienci</span>
+                    <span>{{ 'Klienci'|trans }}</span>
                 </a>
             </li>
         {% endif %}
@@ -36,7 +38,7 @@
         <menu-item
                 :active="{% if active in ['agreements_show', 'orders_view_new', 'agreement_line_details', 'orders_edit'] %}true{% else %}false{% endif %}"
                 :title-icon="'fa fa-address-book-o'"
-                :title="'Zamówienia'"
+                :title="'{{ 'Zamówienia'|trans }}'"
         >
 
             {% set statusWaiting = constant('\\App\\Entity\\AgreementLine::STATUS_WAITING') %}
@@ -47,31 +49,31 @@
             {% set array = [
 
                 {
-                    'title': 'Wszystkie',
+                    'title': 'Wszystkie'|trans,
                     'statusId': 0,
                     'path': path('agreements_show'),
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == 0) ? true : false
                 },
                 {
-                    'title': 'Oczekujące',
+                    'title': 'Oczekujące'|trans,
                     'statusId': statusWaiting,
                     'path': path('agreements_show', {'status': statusWaiting}),
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWaiting) ? true : false
                 },
                 {
-                    'title': 'W realizacji',
+                    'title': 'W realizacji'|trans,
                     'statusId': statusManufacturing,
                     'path': path('agreements_show', {'status': statusManufacturing}),
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusManufacturing) ? true : false
                 },
                 {
-                    'title': 'Magazyn',
+                    'title': 'Magazyn'|trans,
                     'statusId': statusWarehouse,
                     'path': path('agreements_show', {'status': statusWarehouse}),
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWarehouse) ? true : false
                 },
                 {
-                    'title': 'Archiwum',
+                    'title': 'Archiwum'|trans,
                     'statusId': statusArchived,
                     'path': path('agreements_show', {'status': statusArchived}),
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusArchived) ? true : false
@@ -88,7 +90,7 @@
             <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
                 <a href="{{ path('production_show') }}" class="nav-link">
                     <i class="fa fa-cogs" aria-hidden="true"></i>
-                    <span>Produkcja</span>
+                    <span>{{ 'Produkcja'|trans }}</span>
                 </a>
             </li>
 
@@ -102,10 +104,10 @@
                     :active="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}true{% else %}false{% endif %}"
                     :path="'{{ path('production_show') }}'"
                     :title-icon="'fa fa-wrench'"
-                    :title="'Konfiguracja'"
+                    :title="'{{ 'Konfiguracja'|trans }}'"
             >
                 <div class="submenu mx-2 collapse-inner">
-                    <a href="{{ path('security_users') }}" class="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}active{% endif %}">Użytkownicy</a>
+                    <a href="{{ path('security_users') }}" class="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}active{% endif %}">{{ 'Użytkownicy'|trans }}</a>
                 </div>
             </menu-item>
         {% endif %}

@@ -9,27 +9,27 @@
         <div class="row" v-else>
 
             <div class="col">
-                <Badge border-class="border-left-primary" title="Zamówienia w realizacji" text-class="text-primary" :value="summary.ordersInProduction"></Badge>
+                <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" text-class="text-primary" :value="summary.ordersInProduction"></Badge>
             </div>
 
             <div class="col">
-                <Badge border-class="border-left-success" title="Zamówienia zrealizowane" text-class="text-success" :value="summary.ordersFinished"></Badge>
+                <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="summary.ordersFinished"></Badge>
             </div>
 
             <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-info" title="Suma współczynników dla zamówień w realizacji" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
+                <Badge border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
             </div>
 
             <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-warning" title="Suma współczynników dla zamówień zrealizowanych" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
+                <Badge border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
             </div>
 
             <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-primary" title="Suma współczynników dla wszystkich zamówień" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
+                <Badge border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
             </div>
 
             <div class="col">
-                <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" title="Planowany dzień zrealizowania wszystkich zamówień" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
+                <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
             </div>
 
         </div>

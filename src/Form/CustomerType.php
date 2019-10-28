@@ -10,10 +10,18 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CustomerType extends AbstractType
 {
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'translation_domain' => 'customers',
+        ]);
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -25,21 +33,21 @@ class CustomerType extends AbstractType
 //                ],
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('first_name', TextType::class, [
                 'label' => 'Imię',
                 'required' => false,
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('last_name', TextType::class, [
                 'label' => 'Nazwisko',
                 'required' => false,
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('street', TextType::class, [
                 'label' => 'Ulica',
@@ -53,14 +61,14 @@ class CustomerType extends AbstractType
                 'required' => false,
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('apartment_number', TextType::class, [
                 'label' => 'Nr mieszkania',
                 'required' => false,
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('city', TextType::class, [
                 'label' => 'Miasto',

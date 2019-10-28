@@ -9,26 +9,26 @@
             v-if="canEditLine()"
         >
             <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"></i>
-            <span class="pl-1">Zapisz zmiany</span>
+            <span class="pl-1">{{ $t('orders.saveChanges') }}</span>
         </button>
 
         <div class="row">
             <div class="col-md-8">
-                <collapsible-card :title="'Produkcja'" :locked="locked" v-if="orderData.production.data.length !== 0">
+                <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.production.data.length !== 0">
                     <production-widget
                         v-model="orderData.production.data"
                         :task-types="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05']"
                     ></production-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="'Szczegóły zamówienia'" :locked="locked" v-if="orderData.line">
+                <collapsible-card :title="$t('orders.orderDetails')" :locked="locked" v-if="orderData.line">
                     <details-widget
                         v-model="orderData.line"
                         :statuses="statuses"
                     ></details-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="'Dodatkowe zamówienia'" :locked="locked" v-if="orderData.production.data.length !== 0 && canEditLine()">
+                <collapsible-card :title="$t('orders.additionalOrders')" :locked="locked" v-if="orderData.production.data.length !== 0 && canEditLine()">
                     <production-widget
                         v-model="orderData.production.data"
                         :task-types="['custom_task']"
@@ -39,11 +39,11 @@
             </div>
 
             <div class="col-md-4">
-                <collapsible-card :title="'Produkt'" :locked="locked" v-if="orderData.product">
+                <collapsible-card :title="$t('product')" :locked="locked" v-if="orderData.product">
                     <product-widget v-model="orderData.product"></product-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="'Klient'" :locked="locked" v-if="orderData.customer">
+                <collapsible-card :title="$t('customer')" :locked="locked" v-if="orderData.customer">
                     <customer-widget v-model="orderData.customer"></customer-widget>
                 </collapsible-card>
             </div>
@@ -96,7 +96,7 @@
 
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Zapisano zmiany.'
+                            content: this.$t('orders.changesWereSaved')
                         });
 
                         Event.$emit('statusUpdated');

@@ -1,4 +1,5 @@
 {% set active = app.request.attributes.get('_route') %}
+{% trans_default_domain 'base' %}
 
 <!DOCTYPE html>
 <html lang="pl">
@@ -9,7 +10,7 @@
 
         <link rel="icon" href="/imgs/sobczak.ico">
 
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}{% endblock %}</title>
 
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
@@ -26,15 +27,21 @@
 
                 <div id="content-wrapper" class="d-flex flex-column">
 
-                    <div class="topbar d-flex justify-content-end">
+                    <div class="topbar d-flex justify-content-between">
+
+                        <div class="p-1">
+                            {% include('_language_switcher.html.twig') %}
+                        </div>
 
                         <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
                             <template>
                                 <a class="dropdown-item" href="{{ path('security_logout') }}">
-                                    <i class="fa fa-sign-out" aria-hidden="true"></i> Wyloguj
+                                    <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
                                 </a>
                             </template>
                         </dropdown>
+
+
 
                     </div>
 
@@ -74,7 +81,8 @@
             id: app.user.id,
             firstName: app.user.firstName,
             lastName: app.user.lastName,
-            roles: app.user.roles
+            roles: app.user.roles,
+            locale: app.request.locale
         } %}
 
         <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>

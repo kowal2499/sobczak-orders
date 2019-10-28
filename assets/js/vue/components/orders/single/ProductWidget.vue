@@ -2,21 +2,21 @@
     <div>
         <table class="table table-bordered">
             <tr v-if="value.name">
-                <th>Nazwa</th>
+                <th>{{ $t('name') }}</th>
                 <td>{{ value.name }}</td>
             </tr>
             <tr v-if="value.factor && userCanProduction()" >
-                <th>Współczynnik</th>
+                <th>{{ $t('orders.factor') }}</th>
                 <td>{{ value.factor }}</td>
             </tr>
             <tr v-if="value.description">
-                <th>Opis</th>
+                <th>{{ $t('orders.description') }}</th>
                 <td>{{ value.description }}</td>
             </tr>
         </table>
         <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-            Edytuj
+            {{ $t('orders.edit') }}
         </a>
     </div>
 </template>

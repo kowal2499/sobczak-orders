@@ -1,0 +1,33 @@
+'An authentication exception occurred.': 'An authentication exception occurred.'
+'Authentication credentials could not be found.': 'Authentication credentials could not be found.'
+'Authentication request could not be processed due to a system problem.': 'Authentication request could not be processed due to a system problem.'
+'Invalid credentials.': 'Invalid credentials.'
+'Cookie has already been used by someone else.': 'Cookie has already been used by someone else.'
+'Not privileged to request the resource.': 'Not privileged to request the resource.'
+'Invalid CSRF token.': 'Invalid CSRF token.'
+'No authentication provider found to support the authentication token.': 'No authentication provider found to support the authentication token.'
+'No session available, it either timed out or cookies are not enabled.': 'No session available, it either timed out or cookies are not enabled.'
+'No token could be found.': 'No token could be found.'
+'Username could not be found.': 'Username could not be found.'
+'Account has expired.': 'Account has expired.'
+'Credentials have expired.': 'Credentials have expired.'
+'Account is disabled.': 'Account is disabled.'
+'Account is locked.': 'Account is locked.'
+Login: Login
+'Logowanie do panelu': 'Login to dashboard'
+'Strona przeznaczona jest wyłącznie do użytku wewnętrznego firmy %companyName%': 'This site is dedicated only for internal use of the company %companyName%'
+'Pozostałe osoby zapraszamy na stronę': 'Other persons are invited to visit'
+Email: Email
+Hasło: Password
+'Pamiętaj mnie': 'Remember me'
+'Zaloguj się': Login
+'Należy podać imię, nazwisko i email.': 'Please specify first name, last name and an email.'
+'Niepoprawny adres email.': 'Wrong email address.'
+'Nieprawidłowy identyfikator użytkownika.': 'Wrong user id.'
+'Stare hasło jest nieprawidłowe.': 'Wrong old password.'
+'Brak hasła.': 'No password.'
+'Użytkownik z rolą ''Klient'' musi mieć przypisanego przynajmniej jednego klienta.': 'User with role ''Client'' must have at least on customer assigned.'
+'Dodano użytkownika.': 'User has been added.'
+'Panel użytkownika:': 'User settings:'
+'Nowy użytkownik': 'New user'
+Użytkownicy: Users

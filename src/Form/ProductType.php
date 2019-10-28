@@ -8,12 +8,20 @@ use Symfony\Component\Form\Extension\Core\Type\PercentType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 
 
 class ProductType extends AbstractType
 {
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'translation_domain' => 'products',
+        ]);
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -24,7 +32,7 @@ class ProductType extends AbstractType
                 ],
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('factor', PercentType::class, [
                 'label' => 'Współczynnik',
@@ -39,16 +47,16 @@ class ProductType extends AbstractType
                         'minMessage' => 'Wartość nie może być niższa od 0',
                     ]),
                     new NotBlank([
-                        'message' => 'Wartość musi liczbą większą od 0'
+                        'message' => 'Wartość musi być liczbą większą od 0'
                     ])
                 ],
                 'attr' => [
                     'autocomplete' => 'off'
-                ]
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Opis',
-                'required' => false
+                'required' => false,
             ])
         ;
     }

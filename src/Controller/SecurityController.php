@@ -19,6 +19,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class SecurityController
@@ -114,10 +115,14 @@ class SecurityController extends AbstractController
      * @Route("/store_user", name="security_store_user", options={"expose"=true})
      * @param Request $request
      * @param UserRepository $repository
+     * @param CustomerRepository $customerRepository
+     * @param Customers2UsersRepository $c2uRepository
      * @param EntityManagerInterface $em
+     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     * @param TranslatorInterface $t
      * @return JsonResponse
      */
-    public function storeUser(Request $request, UserRepository $repository, CustomerRepository $customerRepository, Customers2UsersRepository $c2uRepository, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder): JsonResponse
+    public function storeUser(Request $request, UserRepository $repository, CustomerRepository $customerRepository, Customers2UsersRepository $c2uRepository, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder, TranslatorInterface $t): JsonResponse
     {
 
         try {
@@ -132,27 +137,27 @@ class SecurityController extends AbstractController
             $connectedCustomers = $request->request->get('customers');
 
             if (count(array_filter([$newFirstName, $newLastName, $newEmail])) !== 3) {
-                throw new \Exception('Należy podać imię, nazwisko i email.');
+                throw new \Exception($t->trans('Należy podać imię, nazwisko i email.', [], 'security'));
             }
 
             if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-                throw new \Exception('Niepoprawny adres email.');
+                throw new \Exception($t->trans('Niepoprawny adres email.', [], 'security'));
             }
 
             if ($userId) {
                 $user = $repository->find($userId);
                 if (!$user) {
-                    throw new \Exception('Nieprawidłowy identyfikator użytkownika.');
+                    throw new \Exception($t->trans('Nieprawidłowy identyfikator użytkownika.', [], 'security'));
                 }
 
                 if ($password && !$userPasswordEncoder->isPasswordValid($user, $passwordOld)) {
-                    throw new \Exception('Stare hasło jest nieprawidłowe.');
+                    throw new \Exception($t->trans('Stare hasło jest nieprawidłowe.', [], 'security'));
                 };
 
             } else {
                 $user = new User();
                 if (!$password) {
-                    throw new \Exception('Brak hasła.');
+                    throw new \Exception($t->trans('Brak hasła.', [], 'security'));
                 }
             }
 
@@ -174,7 +179,7 @@ class SecurityController extends AbstractController
             // aktualizacja dowiązań klientów
             if (in_array('ROLE_CUSTOMER', $roles)) {
                 if (empty($connectedCustomers)) {
-                    throw new \Exception('Użytkownik z rolą \'Klient\' musi mieć przypisanego przynajmniej jednego klienta.');
+                    throw new \Exception($t->trans('Użytkownik z rolą \'Klient\' musi mieć przypisanego przynajmniej jednego klienta.', [], 'security'));
                 }
 
                 foreach ($connectedCustomers as $customerId) {
@@ -192,7 +197,7 @@ class SecurityController extends AbstractController
             $em->flush();
 
             if (!$userId) {
-                $this->addFlash('success', 'Dodano użytkownika.');
+                $this->addFlash('success', $t->trans('Dodano użytkownika.', [], 'security'));
             }
 
         } catch (\Exception $e) {

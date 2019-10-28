@@ -1,20 +1,21 @@
 {% extends 'base.html.twig' %}
+{% trans_default_domain 'products' %}
 
-{% block title %}Produkty{% endblock %}
+{% block title %}{{ 'Produkty'|trans }}{% endblock %}
 
 {% block body %}
 
     <div class="card shadow mb-4">
 
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Produkty</h6>
+            <h6 class="m-0 font-weight-bold text-primary">{{ 'Produkty'|trans }}</h6>
         </div>
 
         <div class="card-body">
 
             <div class="row text-right">
                 <div class="col">
-                    <a href="{{ path('products_new') }}" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> Nowy</a>
+                    <a href="{{ path('products_new') }}" class="btn btn-success text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ 'Nowy'|trans }}</a>
                 </div>
                 
             </div>
@@ -24,12 +25,12 @@
                     <form>
                         <div class="form-group row">
                             <div class="col">
-                                <input type="text" placeholder="Nazwa lub opis" autocomplete="off" name="q"  
+                                <input type="text" placeholder="{{ 'Nazwa lub opis'|trans }}" autocomplete="off" name="q"
                                 class="form-control" value="{{ search }}">
                             </div>
 
                             <div class="col">
-                                <button type="submit" class="btn btn-light"><i class="fa fa-search" aria-hidden="true"></i> Szukaj</button>
+                                <button type="submit" class="btn btn-light"><i class="fa fa-search" aria-hidden="true"></i> {{ 'Szukaj'|trans }}</button>
                             </div>
                         </div>
                     </form>
@@ -50,15 +51,15 @@
                     <thead>
                         <tr>
                             <th class="sorting" aria-controls="dataTable" style="width: 30%">
-                                Nazwa
+                                {{ 'Nazwa'|trans }}
                             </th>
 
                             <th>
-                                Opis
+                                {{ 'Opis'|trans }}
                             </th>
 
                             <th>
-                                Współczynnik
+                                {{ 'Współczynnik'|trans }}
                             </th>
 
                             <th style="width: 150px;"></th>
@@ -71,7 +72,7 @@
                                 <td>{{ product.name }}</td>
                                 <td>{{ product.description }}</td>
                                 <td>{{ product.factor }}</td>
-                                <td><a href="{{ path('products_edit', {'id': product.id}) }}" class="btn btn-light"><i class="fa fa-pencil" aria-hidden="true"></i> Edytuj</a></td>
+                                <td><a href="{{ path('products_edit', {'id': product.id}) }}" class="btn btn-light"><i class="fa fa-pencil" aria-hidden="true"></i> {{ 'Edytuj'|trans }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -82,9 +83,9 @@
              
             <div class="alert alert-warning" role="alert">
                 {% if search != '' %}
-                    Brak produktów spełniających podane kryteria.
+                    {{ 'Brak produktów spełniających podane kryteria.'|trans }}
                 {% else %}
-                    Brak produktów.
+                    {{ 'Brak produktów.'|trans }}
                 {% endif %}
             </div>
             {% endif %}

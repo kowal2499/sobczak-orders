@@ -3,15 +3,15 @@
         <table class="table table-bordered">
 
             <tr v-if="value.name">
-                <th>Nazwa</th>
+                <th>{{ $t('name') }}</th>
                 <td>{{ value.name }}</td>
             </tr>
             <tr v-if="value.first_name || value.last_name">
-                <th>Imię i nazwisko</th>
+                <th>{{ $t('orders.firstLastName') }}</th>
                 <td>{{ value.first_name }} {{ value.last_name }}</td>
             </tr>
             <tr v-if="value.street || value.city">
-                <th>Adres</th>
+                <th>{{ $t('address') }}</th>
                 <td>
                     <div>{{ value.street }} {{ value.street_number }} {{ value.apartment_number }}</div>
                     <div>{{ value.postal_code}} {{ value.city }}</div>
@@ -20,19 +20,19 @@
             </tr>
 
             <tr v-if="value.email">
-                <th>E-mail</th>
+                <th>{{ $t('orders.email') }}</th>
                 <td><a :href="'mailto:'.concat(value.email)">{{ value.email }}</a></td>
             </tr>
 
             <tr v-if="value.phone">
-                <th>Telefon</th>
+                <th>{{ $t('orders.phone') }}</th>
                 <td>{{ value.phone }}</td>
             </tr>
 
         </table>
         <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mb-3" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-            Edytuj
+            {{ $t('orders.edit') }}
         </a>
     </div>
 </template>

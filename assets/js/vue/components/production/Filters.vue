@@ -2,22 +2,22 @@
     <div class="card-menu d-flex">
 
         <div class="form-group">
-            <label>Szukaj</label><br>
+            <label>{{ $t('search') }}</label><br>
             <input type="text" class="form-control" v-model="model.q" style="height: 34px;">
         </div>
 
         <div class="form-group">
-            <label>Data otrzymania</label><br>
+            <label>{{ $t('receiveDate') }}</label><br>
             <date-picker v-model="model.dateStart"/>
         </div>
 
         <div class="form-group">
-            <label>Data dostawy</label><br>
+            <label>{{ $t('deliveryDate') }}</label><br>
             <date-picker v-model="model.dateDelivery"/>
         </div>
 
         <div class="form-group">
-            <label>Ukrywaj archiwalne i w magazynie</label><br>
+            <label>{{ $t('orders.hideArchivedOrder') }}</label><br>
             <input type="checkbox" v-model="model.hideArchive">
         </div>
 
