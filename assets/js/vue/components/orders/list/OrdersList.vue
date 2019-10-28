@@ -243,14 +243,14 @@
             tableHeaders() {
                 let headers = [
                     [
-                        { name: 'ID', sortKey: 'a.orderNumber' },
-                        { name: 'Data otrzymania', sortKey: 'a.createDate'},
-                        { name: 'Data dostawy', sortKey: 'l.confirmedDate'},
-                        { name: 'Klient', sortKey: 'c.name'},
-                        { name: 'Produkt', sortKey: 'p.name' },
-                        { name: 'Status zamówienia' },
-                        { name: 'Status produkcji' },
-                        { name: 'Akcje' },
+                        { name: this.$t('id'), sortKey: 'a.orderNumber' },
+                        { name: this.$t('receiveDate'), sortKey: 'a.createDate'},
+                        { name: this.$t('deliveryDate'), sortKey: 'l.confirmedDate'},
+                        { name: this.$t('customer'), sortKey: 'c.name'},
+                        { name: this.$t('product'), sortKey: 'p.name' },
+                        { name: this.$t('orderStatus') },
+                        { name: this.$t('productionStatus') },
+                        { name: this.$t('actions') },
                     ]
                 ];
 

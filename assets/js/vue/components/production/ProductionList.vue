@@ -8,7 +8,7 @@
             <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
                 <td>
                     {{ order.header.orderNumber || order.line.id }}
-                    <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ getAgreementStatusName(order.line.status) }}</div>
+                    <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ $t(getAgreementStatusName(order.line.status)) }}</div>
                 </td>
                 <td v-text="order.line.confirmedDate"></td>
                 <td v-text="__mixin_customerName(order.customer)"></td>
@@ -31,7 +31,7 @@
                             <option
                                     v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
                                     :value="status.value"
-                                    v-text="status.name"
+                                    v-text="$t(status.name)"
                                     style="background-color: white"
                                     :disabled="!userCanProduction"
                             ></option>
@@ -43,8 +43,8 @@
 
                     <div v-if="getCustomTasks(order.production.data).length">
                         <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3" @click.prevent="order.showCustomTasks = !order.showCustomTasks">
-                            <span v-if="order.showCustomTasks === false"><i class="fa fa-eye"></i> <span class="pl-1" >Pokaż</span></span>
-                            <span v-if="order.showCustomTasks === true"><i class="fa fa-eye-slash"></i> <span class="pl-1" >Ukryj</span></span>
+                            <span v-if="order.showCustomTasks === false"><i class="fa fa-eye"></i> <span class="pl-1" >{{ $t('orders.show') }}</span></span>
+                            <span v-if="order.showCustomTasks === true"><i class="fa fa-eye-slash"></i> <span class="pl-1" >{{ $t('orders.hide') }}</span></span>
                         </button>
 
                         <template v-if="order.showCustomTasks">
@@ -62,7 +62,7 @@
                                         <option
                                                 v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
                                                 :value="status.value"
-                                                v-text="status.name"
+                                                v-text="$t(status.name)"
                                                 style="background-color: white"
                                         ></option>
                                     </select>
@@ -72,7 +72,7 @@
                     </div>
 
                     <div v-else>
-                        brak
+                        {{ $t('orders.na') }}
                     </div>
 
                 </td>
@@ -271,12 +271,12 @@
                     .then(() => {
                         Event.$emit('message', {
                             type: 'success',
-                            content: 'Zapisano zamianę statusu.'
+                            content: this.$t('statusChangeSaved')
                         });
                     })
                     .catch((error) => {
                         // TODO: gdy 403 to data zawiera htmla i nie można loopować po błędach
-                        Event.$emit('Błąd zapisu.', {
+                        Event.$emit('message', {
                             type: 'error',
                             content: msg
                         });
@@ -343,28 +343,28 @@
             tableHeaders() {
                 let headers = [
                     [
-                        { name: 'ID', sortKey: 'a.orderNumber', rowspan: 2 },
-                        { name: 'Data', sortKey: 'l.confirmedDate', rowspan: 2 },
-                        { name: 'Klient', sortKey: 'c.name', rowspan: 2},
-                        { name: 'Produkt', sortKey: 'p.name', rowspan: 2 },
-                        { name: 'Produkcja', colspan: 5},
+                        { name: this.$t('ID'), sortKey: 'a.orderNumber', rowspan: 2 },
+                        { name: this.$t('orders.date'), sortKey: 'l.confirmedDate', rowspan: 2 },
+                        { name: this.$t('customer'), sortKey: 'c.name', rowspan: 2},
+                        { name: this.$t('product'), sortKey: 'p.name', rowspan: 2 },
+                        { name: this.$t('orders.production'), colspan: 5},
                     ],
                     [
-                        { name: 'Klejenie'},
-                        { name: 'CNC'},
-                        { name: 'Szlifowanie'},
-                        { name: 'Lakierowanie'},
-                        { name: 'Pakowanie'},
+                        { name: this.$t('Klejenie')},
+                        { name: this.$t('CNC')},
+                        { name: this.$t('Szlifowanie')},
+                        { name: this.$t('Lakierowanie')},
+                        { name: this.$t('Pakowanie')},
                     ]
 
                 ];
 
                 if (this.userCanProduction) {
-                    headers[0].splice(4, 0, { name: 'Wsp.', sortKey: 'l.factor', rowspan: 2 });
-                    headers[0].push({ name: 'Dodatkowe zadania', rowspan: 2});
+                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'l.factor', rowspan: 2 });
+                    headers[0].push({ name: this.$t('orders.additionalOrders'), rowspan: 2});
                 }
 
-                headers[0].push({ name: 'Akcje', rowspan: 2 });
+                headers[0].push({ name: this.$t('actions'), rowspan: 2 });
 
                 return headers;
             },

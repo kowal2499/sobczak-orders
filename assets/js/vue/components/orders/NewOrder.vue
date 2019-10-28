@@ -20,11 +20,11 @@
                         <div class="row">
                             <div class="col-sm-5">
                                 <div class="form-group">
-                                    <label>Numer zamówienia</label>
+                                    <label>{{ $t('orderNumber') }}</label>
                                     <input type="text" class="form-control" v-model="orderNumber">
                                 </div>
 
-                                <div class="alert alert-danger" v-if="orderNumber && isNumberValid === false"><strong>Podany numer był już wcześniej użyty!</strong></div>
+                                <div class="alert alert-danger" v-if="orderNumber && isNumberValid === false"><strong>{{ $t('orderWasUsed') }}</strong></div>
                             </div>
                         </div>
                     </div>
@@ -32,11 +32,9 @@
             </div>
         </div>
 
-
-
         <div class="row mt-3">
             <button class="btn btn-primary ml-3 mr-3 w-100" :disabled="isNotReadyToSave()" @click="save()">
-                <i class="fa fa-check-square-o" aria-hidden="true"></i> <span v-if="!this.agreementId">Złóż zamówienie</span><span v-else>Zapisz zmiany w zamówieniu</span></button>
+                <i class="fa fa-check-square-o" aria-hidden="true"></i> <span v-if="!this.agreementId">{{ $t('orders.saveNewOrder') }}</span><span v-else>{{ $t('orders.saveChanges') }}</span></button>
         </div>
 
     </div>

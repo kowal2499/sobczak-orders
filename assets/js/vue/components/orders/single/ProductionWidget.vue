@@ -12,7 +12,7 @@
                     >
                         <span class="statusNotify"
                             :style="getStatusStyle(task.status)"></span>
-                        {{ task.title }}
+                        {{ $t(task.title) }}
                     </a>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                             <div class="form-row" v-if="canAdd">
                                 <div class="col-sm-8">
                                     <div class="form-group">
-                                        <label>Tytuł</label>
+                                        <label>{{ $t('orders.title') }}</label>
                                         <input type="text" class="form-control" v-model="task.title">
                                     </div>
                                 </div>
@@ -36,7 +36,7 @@
                             <div class="form-row">
                                 <div class="col-sm-10">
                                     <div class="form-group">
-                                        <label>Opis</label>
+                                        <label>{{ $t('orders.description') }}</label>
                                         <textarea class="form-control" v-model="task.description" :disabled="!canEditLine()"></textarea>
                                     </div>
                                 </div>
@@ -46,12 +46,12 @@
 
                                 <div class="col-sm-8">
                                     <div class="form-group">
-                                        <label>Status</label>
+                                        <label>{{ $t('orders.status') }}</label>
                                         <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)" :disabled="!canEditLine()">
                                             <option
                                                     v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
                                                     :value="status.value"
-                                                    v-text="status.name"
+                                                    v-text="$t(status.name)"
                                                     style="background-color: white"
                                             ></option>
                                         </select>
@@ -64,14 +64,14 @@
                             <div class="form-row" v-if="canEditLine()">
                                 <div class="col-sm-5">
                                     <div class="form-group">
-                                        <label>Realizacja od</label><br>
+                                        <label>{{ $t('orders.realizationFrom') }}</label><br>
                                         <date-picker v-model="task.dateStart" :is-range="false" :width="'100%'" />
                                     </div>
                                 </div>
 
                                 <div class="col-sm-5" v-if="canEditLine()">
                                     <div class="form-group">
-                                        <label>Realizacja do</label><br>
+                                        <label>{{ $t('orders.realizationTo') }}</label><br>
                                         <date-picker v-model="task.dateEnd" :is-range="false" :width="'100%'"/>
                                     </div>
                                 </div>
@@ -81,18 +81,18 @@
                             <div class="mb-2">
                                 <a href="#" @click.prevent="toggleHistory(task)">
                                     <template v-if="showHistoryForSlugs.indexOf(task.departmentSlug) !== -1">
-                                        Ukryj historię zmian statusów
+                                        {{ $t('orders.hideStatuses') }}
                                     </template>
                                     <template v-else>
-                                        Pokaż historię zmian statusów
+                                        {{ $t('orders.showStatuses') }}
                                     </template>
                                 </a>
                             </div>
 
                             <table class="table table-bordered" v-if="showHistoryForSlugs.indexOf(task.departmentSlug) !== -1">
                                 <tr>
-                                    <th>Data zmiany</th>
-                                    <th>Nowy status</th>
+                                    <th>{{ $t('orders.dateOfChange') }}</th>
+                                    <th>{{ $t('orders.newStatus') }}</th>
                                 </tr>
 
                                 <tr v-for="status in task.statusLog">
@@ -118,7 +118,7 @@
 
         <div class="row" v-else>
             <div class="col">
-                <div class="alert alert-info">Brak dodatkowych zamówień</div>
+                <div class="alert alert-info">{{ $t('orders.noAdditionalOrders') }}</div>
             </div>
         </div>
 
@@ -127,7 +127,7 @@
                 <hr>
                 <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm mb-3 float-right" @click.prevent="add">
                     <i class="fa fa-plus"></i>
-                    <span class="pl-1">Nowe zadanie</span>
+                    <span class="pl-1">{{ $t('orders.newTask') }}</span>
                 </button>
             </div>
         </div>
@@ -138,7 +138,7 @@
             @answerYes="handleDelete()"
         >
             <div v-if="confirmations.delete.show">
-                <p><strong>Czy usunąć zadanie '{{ confirmations.delete.context.title }}'?</strong></p>
+                {{ $t('orders.shouldDeleteTask') }} '{{ confirmations.delete.context.title }}'?
             </div>
         </confirmation-modal>
 
@@ -251,7 +251,7 @@
                     departmentSlug: 'custom_task',
                     description: null,
                     id: null,
-                    title: 'Nowe zadanie',
+                    title: this.$t('orders.newTask'),
                     status: 10
                 });
 

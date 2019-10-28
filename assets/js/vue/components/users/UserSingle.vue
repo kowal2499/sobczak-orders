@@ -111,7 +111,7 @@
                             :button-class="'btn-primary float-right'"
                             :icon-class="'fa fa-floppy-o'"
                             :inner-text="isNew() ? 'Dodaj użytkownika' : 'Zapisz zmiany'"
-                            :is-disabled="!passwords.passwordsMatch"
+                            :is-disabled="!passwords.passwordsMatch || user.roles.length===0"
                             :is-busy="locked"
                             @clicked="save"
                         >
@@ -150,7 +150,9 @@
 
         data() {
             return {
-                user: {},
+                user: {
+                    roles: []
+                },
                 locked: false,
                 dataFetched: false,
                 title: '',

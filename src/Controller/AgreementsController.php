@@ -172,7 +172,8 @@ class AgreementsController extends AbstractController
                          CustomerRepository $customerRepository,
                          AgreementLineRepository $agreementLineRepository,
                          ProductRepository $productRepository,
-                         EntityManagerInterface $em)
+                         EntityManagerInterface $em,
+                         TranslatorInterface $t)
     {
         /**
          * 1. operujemy na agreement_line_id
@@ -254,7 +255,7 @@ class AgreementsController extends AbstractController
         }
 
         if ($em->contains($agreement)) {
-            $this->addFlash('success', 'Zapisano zmiany.');
+            $this->addFlash('success', $t->trans('Zapisano zmiany.', [], 'agreements'));
         }
 
         return new JsonResponse();

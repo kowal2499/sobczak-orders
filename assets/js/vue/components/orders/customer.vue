@@ -1,18 +1,18 @@
 <template>
     <div class="card">
         <div class="card-header">
-            <strong>Klient</strong>
+            <strong>{{ $t('customer') }}</strong>
         </div>
         <div class="card-body">
 
             <div class="row">
 
                 <label class="col-2 col-form-label">
-                    Wyszukaj
+                    {{ $t('search') }}
                 </label>
 
                 <div class="col">
-                    <input type="text" class="form-control" placeholder="nazwa/adres/kontakt szukanego klienta" v-model="customerSearch">
+                    <input type="text" class="form-control" :placeholder="$t('nameAddressContact')" v-model="customerSearch">
                 </div>
 
             </div>
@@ -21,7 +21,7 @@
                 <div class="col-10 offset-2">
 
                     <div class="alert alert-info" v-if="fetchingCustomers">
-                        <i class="fa fa-spinner fa-pulse fa-fw"></i> Trwa wyszukiwanie ...
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i> {{ $t('searching') }}
                     </div>
 
                     <template v-if="fetchComplete">
@@ -36,7 +36,7 @@
                                     </div>
 
                                     <div>
-                                        <button class="btn btn-light" @click.prevent="choose(index)"><i class="fa fa-check" aria-hidden="true"></i> Wybierz</button>
+                                        <button class="btn btn-light" @click.prevent="choose(index)"><i class="fa fa-check" aria-hidden="true"></i> {{ $t('choose') }}</button>
                                     </div>
                                 </li>
 
@@ -48,11 +48,11 @@
                             <div class="alert alert-info">
                                 <div class="row">
                                     <div class="col">
-                                        Nie znaleziono wyników w bazie ...
+                                        {{ $t('noResults') }}
                                     </div>
 
                                     <div class="col text-right" v-if="userCanAddCustomer()">
-                                        <a :href="getLink('customers_new')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Dodaj nowego klienta</a>
+                                        <a :href="getLink('customers_new')" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('addNewCustomer') }}</a>
                                     </div>
                                 </div>
 
@@ -70,9 +70,9 @@
                         <table class="table" style="width: 100%">
                             <thead>
                             <tr>
-                                <th>Nazwa</th>
-                                <th>Adres</th>
-                                <th>Kontakt</th>
+                                <th>{{ $t('name') }}</th>
+                                <th>{{ $t('address') }}</th>
+                                <th>{{ $t('contact') }}</th>
                             </tr>
                             </thead>
                             <tbody>
