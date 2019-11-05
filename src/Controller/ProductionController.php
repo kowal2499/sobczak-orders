@@ -32,7 +32,7 @@ class ProductionController extends AbstractController
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_USER"})
+     * @isGranted({"ROLE_ADMIN", "ROLE_PRODUCTION"})
      * @Route ("/production/save", name="production_save", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @return JsonResponse
@@ -152,7 +152,10 @@ class ProductionController extends AbstractController
         $statusLog = new StatusLog();
         $statusLog
             ->setProduction($production)
-            ->setCurrentStatus($request->request->getInt('newStatus'));
+            ->setCurrentStatus($request->request->getInt('newStatus'))
+            ->setUser($this->getUser())
+        ;
+
         $em->persist($statusLog);
 
         $em->flush();

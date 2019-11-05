@@ -34,11 +34,13 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->innerJoin('l.Product', 'p')
             ->leftJoin('l.productions', 'pr')
             ->leftJoin('pr.statusLogs', 's')
+            ->leftJoin('s.user', 'u')
             ->addSelect('a')
             ->addSelect('c')
             ->addSelect('p')
             ->addSelect('pr')
             ->addSelect('s')
+            ->addSelect('u')
         ;
 
         if (is_array($term['search'])) {

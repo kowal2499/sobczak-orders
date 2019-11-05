@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -17,6 +18,7 @@ class User implements UserInterface
     public function __construct()
     {
         $this->customers = new ArrayCollection();
+        $this->statusLogs = new ArrayCollection();
     }
     /**
      * @ORM\Id()
@@ -62,6 +64,11 @@ class User implements UserInterface
      * @MaxDepth(2)
      */
     private $customers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="user")
+     */
+    private $statusLogs;
 
     public function getId(): ?int
     {
@@ -188,5 +195,36 @@ class User implements UserInterface
             $ret[] = $customer->getCustomer();
         }
         return $ret;
+    }
+
+    /**
+     * @return Collection|StatusLog[]
+     */
+    public function getStatusLogs(): Collection
+    {
+        return $this->statusLogs;
+    }
+
+    public function addStatusLog(StatusLog $statusLog): self
+    {
+        if (!$this->statusLogs->contains($statusLog)) {
+            $this->statusLogs[] = $statusLog;
+            $statusLog->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStatusLog(StatusLog $statusLog): self
+    {
+        if ($this->statusLogs->contains($statusLog)) {
+            $this->statusLogs->removeElement($statusLog);
+            // set the owning side to null (unless already changed)
+            if ($statusLog->getUser() === $this) {
+                $statusLog->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

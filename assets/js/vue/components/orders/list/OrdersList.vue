@@ -5,7 +5,7 @@
             :filters-collection="filters"
             @filtersChange="handleFiltersChange"
         >
-            <div class="col float-right text-right">
+            <div class="col float-right text-right" v-if="userCanAddOrder()">
                 <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('newOrder') }} </a>
             </div>
         </filters>
@@ -237,6 +237,10 @@
                 };
 
             },
+
+            userCanAddOrder() {
+                return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
+            }
 
         },
         computed: {

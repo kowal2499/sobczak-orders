@@ -91,13 +91,15 @@
 
                             <table class="table table-bordered" v-if="showHistoryForSlugs.indexOf(task.departmentSlug) !== -1">
                                 <tr>
-                                    <th>{{ $t('orders.dateOfChange') }}</th>
                                     <th>{{ $t('orders.newStatus') }}</th>
+                                    <th>{{ $t('orders.dateOfChange') }}</th>
+                                    <th>{{ $t('orders.user') }}</th>
                                 </tr>
 
                                 <tr v-for="status in task.statusLog">
-                                    <td v-text="status.createdAt"></td>
                                     <td v-text="getStatusName(status.currentStatus)"></td>
+                                    <td v-text="status.createdAt"></td>
+                                    <td v-text="status.user"></td>
                                 </tr>
                             </table>
                         </div>
@@ -219,7 +221,7 @@
 
             getStatusName(statusCode) {
                 let status = this.helpers.statuses.find(item => item.value == statusCode);
-                return status ? status.name : 'nieznany';
+                return this.$t(status ? status.name : 'nieznany');
             },
 
             toggleHistory(dpt) {
