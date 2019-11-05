@@ -81,6 +81,7 @@ export default {
             hide: 'Hide',
             hideArchivedOrder: 'Hide archived and in warehouse',
             na: 'n/a',
+            user: 'User',
         }
 
 
@@ -92,7 +93,7 @@ export default {
         'Nie zlecone': 'Nie zlecone',
         'W realizacji': 'W realizacji',
         Magazyn: 'Magazyn',
-        Panel: 'Panel pozycji zamówienia',
+        Panel: 'Panel zamówienia',
         editOrder: 'Edytuj zamówienie',
         setWarehouseStatus: 'Ustaw status: Magazyn',
         setArchivedStatus: 'Ustaw status: Archiwum',
@@ -167,6 +168,7 @@ export default {
             hide: 'Ukryj',
             hideArchivedOrder: 'Ukrywaj archiwalne i w magazynie',
             na: 'brak',
+            user: 'Użytkownik'
         }
 
     }

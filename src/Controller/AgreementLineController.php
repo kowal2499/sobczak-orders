@@ -81,7 +81,8 @@ class AgreementLineController extends AbstractController
                                     'statusLog' => array_map(function($status) {
                                         return [
                                             'createdAt' => is_object($status['createdAt']) ? ($status['createdAt'])->format('Y-m-d H:m:s') : null,
-                                            'currentStatus' => (int) $status['currentStatus']
+                                            'currentStatus' => (int) $status['currentStatus'],
+                                            'user' => $status['user'] ? sprintf('%s %s', $status['user']['firstName'], $status['user']['lastName']) : ''
                                         ];
                                     }, $prod['statusLogs'])
                                 ];
@@ -167,13 +168,14 @@ class AgreementLineController extends AbstractController
                     $newStatus = new StatusLog();
                     $newStatus
                         ->setCurrentStatus((int)$prod['status'])
-                        ->setProduction($production);
+                        ->setProduction($production)
+                        ->setUser($this->getUser());
                     $em->persist($newStatus);
 
                     $retStatus[] = [
                         'currentStatus' => (int)$newStatus->getCurrentStatus(),
                         'createdAt' => $newStatus->getCreatedAt()->format('Y-m-d H:i:s'),
-                        'productionId' => $production->getId()
+                        'productionId' => $production->getId(),
                     ];
                 }
             }

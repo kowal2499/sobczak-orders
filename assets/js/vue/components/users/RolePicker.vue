@@ -38,9 +38,6 @@
         data() {
             return {
                 subject: this.value
-                // innerRoles: this.value.roles,
-                // innerCustomers: this.value.customers
-                // selection: this.value
             }
         },
 

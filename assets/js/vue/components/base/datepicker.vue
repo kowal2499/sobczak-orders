@@ -1,7 +1,7 @@
 <template>
     <vueDP
         v-model="innerDate"
-        :lang="lang"
+        :lang="getTranslations"
         :range="isRange"
         :width="width"
         type="date"
@@ -40,13 +40,23 @@
                 innerDate: this.value,
 
                 lang: {
-                    days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
-                    months: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
-                    placeholder: {
-                        date: 'Wybierz datę',
-                        dateRange: 'Wybierz zakres'
-                    }
+                    pl : {
+                        days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
+                        months: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
+                        pickers: ['następne 7 dni', 'następne 30 dni', 'wcześniejsze 7 dni', 'wcześniejsze 30 dni'],
+                        placeholder: {
+                            date: 'Wybierz datę',
+                            dateRange: 'Wybierz zakres'
+                        }
+                    },
+                    en: null
                 }
+            }
+        },
+
+        computed: {
+            getTranslations() {
+                return this.lang[this.$user.user.locale] || 'en';
             }
         },
 

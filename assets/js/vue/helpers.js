@@ -13,6 +13,7 @@ const statuses = [
 const roles = [
     { value: 'ROLE_ADMIN', name: 'Administrator' },
     { value: 'ROLE_USER', name: 'Handlowiec' },
+    { value: 'ROLE_PRODUCTION', name: 'Produkcja' },
     { value: 'ROLE_CUSTOMER', name: 'Klient' },
 ];
 
