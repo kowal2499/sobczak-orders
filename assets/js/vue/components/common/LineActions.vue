@@ -31,12 +31,13 @@
                     <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setArchivedStatus') }}
                 </a>
 
-                <a class="dropdown-item text-danger" href="#"
-                   @click.prevent="isModalConfirmDeleteOrderVisible = true"
-                   v-if="canDeleteOrder(line)"
-                >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}
-                </a>
+<!--                todo: zamienić na funkcję kosza -->
+<!--                <a class="dropdown-item text-danger" href="#"-->
+<!--                   @click.prevent="isModalConfirmDeleteOrderVisible = true"-->
+<!--                   v-if="canDeleteOrder(line)"-->
+<!--                >-->
+<!--                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}-->
+<!--                </a>-->
 
 
                 <hr style="margin: 5px auto">
@@ -256,7 +257,7 @@
             },
 
             canDeleteProduction() {
-                return this.hasProduction(this.line) && this.$user.can(this.$privilages.CAN_PRODUCTION);
+                return this.hasProduction(this.line) && this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
             },
 
             deleteProduction() {

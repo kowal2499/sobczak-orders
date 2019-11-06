@@ -285,7 +285,7 @@ class AgreementsController extends AbstractController
         $postalCode = preg_replace('/[^0-9]/', '', $customer->getPostalCode());
 
         return new JsonResponse([
-            'next_number' => sprintf("%s%02d", $postalCode, count($orders)+1),
+            'next_number' => sprintf("%s%d", $postalCode, count($orders)+1),
         ]);
     }
 

@@ -168,7 +168,7 @@ export default {
             hide: 'Ukryj',
             hideArchivedOrder: 'Ukrywaj archiwalne i w magazynie',
             na: 'brak',
-            user: 'Użytkownik'
+            user: 'Uytkownik'
         }
 
     }
