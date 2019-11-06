@@ -281,7 +281,7 @@ class AgreementsController extends AbstractController
      */
     public function orderNumber(Request $request, Customer $customer, EntityManagerInterface $em)
     {
-        $orders = $em->getRepository(Agreement::class)->getByCustomer($customer);
+        $orders = $em->getRepository(Agreement::class)->getByCustomerPostalCode($customer->getPostalCode());
         $postalCode = preg_replace('/[^0-9]/', '', $customer->getPostalCode());
 
         return new JsonResponse([

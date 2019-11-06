@@ -30,6 +30,16 @@ class AgreementRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+    public function getByCustomerPostalCode($postalCode)
+    {
+        return $this->createQueryBuilder('a')
+            ->innerJoin('a.Customer', 'c')
+            ->andWhere('c.postal_code = :val')
+            ->setParameter('val', $postalCode)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 
     // /**
     //  * @return Agreement[] Returns an array of Agreement objects
