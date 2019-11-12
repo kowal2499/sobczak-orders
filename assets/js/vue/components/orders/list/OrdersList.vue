@@ -72,8 +72,8 @@
             return {
                 filters: {
                     dateStart: {
-                        start: '',
-                        end: ''
+                        start: null,
+                        end: null
                     },
                     q: '',
                     page: 1,
@@ -148,12 +148,12 @@
                 this.filters.page = query.page || 1;
                 this.filters.q = query.q || '';
 
-                if ((!this.filters.dateStart.start || !moment(this.filters.dateStart.start).isValid())) {
-                    this.filters.dateStart.start = moment().subtract(2, 'M').startOf('month').format('YYYY-MM-DD');
+                if (!moment(this.filters.dateStart.start).isValid()) {
+                    this.filters.dateStart.start = '';
                 }
 
-                if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
-                    this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
+                if (!moment(this.filters.dateStart.end).isValid()) {
+                    this.filters.dateStart.end = '';
                 }
             },
 
