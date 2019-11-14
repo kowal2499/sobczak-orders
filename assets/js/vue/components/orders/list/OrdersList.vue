@@ -2,17 +2,16 @@
     <div>
 
         <filters
-            :filters-collection="filters"
-            @filtersChange="handleFiltersChange"
+            :filters-collection="args.filters"
         >
             <div class="col float-right text-right" v-if="userCanAddOrder()">
                 <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('newOrder') }} </a>
             </div>
         </filters>
 
-        <br>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
+        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(agreement, key) in agreements" :key="key">
                 <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
                 <td>{{ agreement.header.createDate }}</td>
@@ -48,15 +47,16 @@
     import Dropdown from '../../base/Dropdown';
     import api from '../../../api/neworder';
     import routing from  '../../../api/routing';
-    import ConfirmationModal from "../../base/ConfirmationModal";
+    import ConfirmationModal from '../../base/ConfirmationModal';
     import TablePlus from '../../base/TablePlus';
-    import Tooltip from "../../base/Tooltip";
-    import LineActions from "../../common/LineActions";
+    import Tooltip from '../../base/Tooltip';
+    import LineActions from '../../common/LineActions';
+    import Pagination from '../../base/Pagination';
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions },
+        components: { Filters, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions, Pagination },
 
         props: {
             statuses: {
@@ -70,18 +70,21 @@
 
         data() {
             return {
-                filters: {
-                    dateStart: {
-                        start: null,
-                        end: null
+
+                args: {
+                    filters: {
+                        dateStart: {
+                            start: '',
+                            end: ''
+                        },
+                        q: '',
                     },
-                    q: '',
-                    page: 1,
 
                     meta: {
-                        sort: 'l.confirmedDate:ASC',
-                        page: 1
-                    }
+                        page: 0,
+                        pages: 0,
+                        sort: ''
+                    },
                 },
 
                 agreements: [],
@@ -102,86 +105,146 @@
                     }
                 },
 
-                loading: false
+                loading: false,
             }
         },
 
-        mounted() {
-            this.setFilters();
+        created() {
+
+            // set initial values
+            this.args.meta.page = 1;
+            this.args.meta.sort = 'id_asc';
+
+            // read query string and set values
+            //
+            //
+            //
+
         },
 
         watch: {
-
-            filters: {
-                handler(value) {
-
-                    let query = {
-                        dateStart: this.filters.dateStart.start,
-                        dateEnd: this.filters.dateStart.end,
-                        page: this.filters.page
-                    };
-
-                    if (this.filters.q && this.filters.q.length > 0) {
-                        query.q = this.filters.q;
-                    }
-
-                    let queryString = qs.stringify(query);
-
-                    if (queryString.length > 0) {
-                        queryString = '?'.concat(queryString);  
-                        history.pushState(null, '', window.location.pathname + queryString);  
-                    }
-
-                    this.fetchData();
-
+            'args.filters': {
+                handler() {
+                    // zmiana filtrów przywraca paginację na stronę 1
+                    this.args.meta.page = 1
                 },
-                deep: true
+                deep: true,
+            },
+
+            queryString: {
+                handler() {
+                    // zmiana query string odpala pobranie danych
+                    console.log('wykryłem zmianę w qs, trzeba pobrać dane... ' + this.queryString)
+
+                    this.loading = true;
+
+                    let bag = this.args.filters;
+                    bag.page = this.args.meta.page;
+                    bag.sort = this.args.meta.sort;
+                    if (parseInt(this.status) > 0) {
+                        bag.status = this.status;
+                    }
+
+                    api.fetchAgreements(bag)
+                        .then(({data}) => {
+                            this.agreements = data.data.orders || [];
+                            this.agreements = data.data.orders || [];
+                            this.args.meta.pages = data.meta.pages || 0;
+                        })
+                        .catch(data => {})
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                }
+            }
+        },
+
+        computed: {
+
+            /**
+             * Tworzenie queryString na podstawie argumentów
+             *
+             * @returns {string}
+             */
+            queryString() {
+                let query = {};
+                if (this.args.filters.dateStart.start) {
+                    query.dateReceive0 = this.args.filters.dateStart.start;
+                }
+                if (this.args.filters.dateStart.end) {
+                    query.dateReceive1 = this.args.filters.dateStart.end;
+                }
+                if (this.args.filters.q && this.args.filters.q.length > 0) {
+                    query.q = this.args.filters.q;
+                }
+                query.page = this.args.meta.page;
+                if (this.args.meta.sort) {
+                    query.sort = this.args.meta.sort;
+                }
+
+                let qString = window.location.pathname.concat('?', qs.stringify(query));
+                history.pushState(null, '', qString);
+
+                return qString;
+            },
+
+            tableHeaders() {
+                return [
+                    [
+                        { name: this.$t('id'), sortKey: 'id' },
+                        { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
+                        { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
+                        { name: this.$t('customer'), sortKey: 'customer'},
+                        { name: this.$t('product'), sortKey: 'product' },
+                        { name: this.$t('orderStatus') },
+                        { name: this.$t('productionStatus') },
+                        { name: this.$t('actions') },
+                    ]
+                ];
             },
         },
 
+
         methods: {
 
-            setFilters() {
-                let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-                this.filters.dateStart.start = query.dateStart || '';
-                this.filters.dateStart.end = query.dateEnd || '';
-                this.filters.page = query.page || 1;
-                this.filters.q = query.q || '';
-
-                if (!moment(this.filters.dateStart.start).isValid()) {
-                    this.filters.dateStart.start = '';
-                }
-
-                if (!moment(this.filters.dateStart.end).isValid()) {
-                    this.filters.dateStart.end = '';
-                }
-            },
-
-            handleFiltersChange(date) {
-                this.filters = date;
+            updateQueryString() {
+                console.log('aktualizuję qs')
             },
 
             fetchData() {
-                this.loading = true;
-
-                let bag = this.filters;
-
-                if (parseInt(this.status) > 0) {
-                    bag.status = this.status;
-                }
-
-                api.fetchAgreements(bag)
-                    .then(({data}) => {
-                        this.agreements = data.orders || [];
-                        this.departments = data.departments || [];
-                        this.production = data.production.data || [];
-                    })
-                    .catch(data => {})
-                    .finally(() => { this.loading = false; });
+                console.log('Pobieram dane ....');
             },
 
+            generateQueryString() {
+
+            },
+
+            /**
+             * a.orderNumber
+             * a.createDate
+             * c.name
+             * p.name
+             */
+
+            // setFilters() {
+            //     let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+            //     this.filters.dateStart.start = query.dateStart || '';
+            //     this.filters.dateStart.end = query.dateEnd || '';
+            //     this.page = query.page || 1;
+            //     this.filters.q = query.q || '';
+            //
+            //     if (!moment(this.filters.dateStart.start).isValid()) {
+            //         this.filters.dateStart.start = '';
+            //     }
+            //
+            //     if (!moment(this.filters.dateStart.end).isValid()) {
+            //         this.filters.dateStart.end = '';
+            //     }
+            // },
+            //
+
             updateSort(event) {
-                this.filters.meta.sort = event
+                this.args.meta.sort = event
             },
 
             getAgreementStatusName(statusId) {
@@ -243,24 +306,9 @@
             }
 
         },
-        computed: {
-            tableHeaders() {
-                let headers = [
-                    [
-                        { name: this.$t('id'), sortKey: 'a.orderNumber' },
-                        { name: this.$t('receiveDate'), sortKey: 'a.createDate'},
-                        { name: this.$t('deliveryDate'), sortKey: 'l.confirmedDate'},
-                        { name: this.$t('customer'), sortKey: 'c.name'},
-                        { name: this.$t('product'), sortKey: 'p.name' },
-                        { name: this.$t('orderStatus') },
-                        { name: this.$t('productionStatus') },
-                        { name: this.$t('actions') },
-                    ]
-                ];
 
-                return headers;
-            },
-        }
+
+
     }
 </script>
 

@@ -250,16 +250,16 @@
                 api.fetchAgreements(filters)
                     .then(({data}) => {
 
-                        if (data && data.orders) {
+                        if (data && data.data.orders) {
 
-                            data.orders.forEach(order => {
+                            data.data.orders.forEach(order => {
                                 order.buttonExpanded = false;
                                 order.confirmRemove = false;
                                 order.showCustomTasks = false;
                             });
 
-                            this.orders = data.orders;
-                            this.departments = data.departments;
+                            this.orders = data.data.orders;
+                            this.departments = data.data.departments;
                         }
                     })
                     .catch(data => {})

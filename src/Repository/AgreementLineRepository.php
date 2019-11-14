@@ -110,11 +110,19 @@ class AgreementLineRepository extends ServiceEntityRepository
         
         }
 
-        if (isset($term['search']['meta']['sort']) && !empty($term['search']['meta']['sort'])) {
-            list($sort, $order) = explode(':', $term['search']['meta']['sort']);
+        if (isset($term['search']['sort']) && !empty($term['search']['sort'])) {
+
+            $sort = preg_replace('/_.+$/', '', $term['search']['sort']);
+            $order = preg_replace('/^.+_/', '', $term['search']['sort']);
 
             if ($sort && $order) {
-                $qb->orderBy($sort, $order);
+                switch ($sort) {
+                    case 'id': $qb->orderBy('a.orderNumber', $order); break;
+                    case 'dateReceive': $qb->orderBy('a.createDate', $order); break;
+                    case 'dateConfirmed': $qb->orderBy('l.confirmedDate', $order); break;
+                    case 'customer': $qb->orderBy('c.name', $order); break;
+                    case 'product': $qb->orderBy('p.name', $order); break;
+                }
             }
 
         }

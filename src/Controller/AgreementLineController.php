@@ -58,9 +58,10 @@ class AgreementLineController extends AbstractController
         $agreements = $paginator->paginate(
             $repository->getFiltered($search),
             $search['search']['page'] ?? 1,
-            5
+            20
         );
 
+        $paginationMeta = ($agreements->getPaginationData());
 
         $result = [];
 
@@ -138,7 +139,15 @@ class AgreementLineController extends AbstractController
         $result['departments'] = array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
         \App\Entity\Department::names());
 
-        return $this->json($result);
+        return $this->json([
+            'data' => $result,
+            'meta' => [
+                'current' => $paginationMeta['current'],
+                'pages' => $paginationMeta['pageCount'],
+                'totalCount' => $paginationMeta['totalCount'],
+                'pageSize' => $paginationMeta['numItemsPerPage']
+            ],
+        ]);
 
 //        return $this->json(
 //            [

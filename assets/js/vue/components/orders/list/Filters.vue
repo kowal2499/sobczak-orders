@@ -24,7 +24,12 @@
 
     export default {
         name: "filters",
-        props: ['filtersCollection'],
+        props: {
+            filtersCollection: {
+                type: Object,
+                default: () => {}
+            }
+        },
 
         components: { DatePicker },
 
