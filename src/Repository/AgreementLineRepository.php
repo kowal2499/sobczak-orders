@@ -49,23 +49,23 @@ class AgreementLineRepository extends ServiceEntityRepository
                 switch ($key) {
                     case 'dateStart':
 
-                        if (isset($value['start']) && !empty($value['start'])) {
+                        if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("a.createDate >= :dateStart0");
-                            $qb->setParameter('dateStart0', (new \DateTime($value['start'])));
+                            $qb->setParameter('dateStart0', new \DateTime($value['start'] . ' 23:59:59'));
                         }
-                        if (isset($value['end']) && !empty($value['end'])) {
+                        if (isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)) {
                             $qb->andWhere("a.createDate <= :dateStart1");
-                            $qb->setParameter('dateStart1', (new \DateTime($value['end'] . ' 23:59:59')));
+                            $qb->setParameter('dateStart1', new \DateTime($value['end'] . ' 23:59:59'));
                         }
                         break;
 
                     case 'dateDelivery':
 
-                        if (isset($value['start']) && !empty($value['start'])) {
+                        if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("l.confirmedDate >= :dateConfirmed0");
                             $qb->setParameter('dateConfirmed0', (new \DateTime($value['start'])));
                         }
-                        if (isset($value['end']) && !empty($value['end'])) {
+                        if (isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)) {
                             $qb->andWhere("l.confirmedDate <= :dateConfirmed1");
                             $qb->setParameter('dateConfirmed1', (new \DateTime($value['end'] . ' 23:59:59')));
                         }

@@ -6,8 +6,8 @@
                 <thead>
                     <tr v-for="header in headers">
 
-                        <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''">
-                            <div class="wrapper">
+                        <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.classHeader || ''">
+                            <div class="wrapper" :class="cell.classCell || ''">
                                 <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
                                     {{ cell.name }}
                                 </a>
@@ -113,12 +113,8 @@
 
         th {
             vertical-align: middle;
-            text-align: center;
             .wrapper {
                 font-size: 0.85rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
 
                 a {
                     color: #666;
@@ -138,6 +134,10 @@
                         padding-left: 3px;
                         color: #4E73DF;
                     }
+                }
+
+                &.hCenter {
+                    text-align: center;
                 }
             }
         }

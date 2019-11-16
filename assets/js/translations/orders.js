@@ -82,6 +82,7 @@ export default {
             hideArchivedOrder: 'Hide archived and in warehouse',
             na: 'n/a',
             user: 'User',
+            list: 'Orders list',
         }
 
 
@@ -168,7 +169,8 @@ export default {
             hide: 'Ukryj',
             hideArchivedOrder: 'Ukrywaj archiwalne i w magazynie',
             na: 'brak',
-            user: 'Uytkownik'
+            user: 'Uytkownik',
+            list: 'Lista zamówień',
         }
 
     }

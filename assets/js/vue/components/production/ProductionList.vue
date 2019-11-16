@@ -347,14 +347,14 @@
                         { name: this.$t('orders.date'), sortKey: 'l.confirmedDate', rowspan: 2 },
                         { name: this.$t('customer'), sortKey: 'c.name', rowspan: 2},
                         { name: this.$t('product'), sortKey: 'p.name', rowspan: 2 },
-                        { name: this.$t('orders.production'), colspan: 5},
+                        { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
                     ],
                     [
-                        { name: this.$t('Klejenie')},
-                        { name: this.$t('CNC')},
-                        { name: this.$t('Szlifowanie')},
-                        { name: this.$t('Lakierowanie')},
-                        { name: this.$t('Pakowanie')},
+                        { name: this.$t('Klejenie'), classCell: 'text-center'},
+                        { name: this.$t('CNC'), classCell: 'text-center'},
+                        { name: this.$t('Szlifowanie'), classCell: 'text-center'},
+                        { name: this.$t('Lakierowanie'), classCell: 'text-center'},
+                        { name: this.$t('Pakowanie'), classCell: 'text-center'},
                     ]
 
                 ];
@@ -385,7 +385,7 @@
 <style scoped lang="scss">
 
     .table tbody tr {
-        text-align: center;
+        /*text-align: center;*/
     }
 
     .production {

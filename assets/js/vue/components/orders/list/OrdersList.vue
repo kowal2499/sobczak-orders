@@ -1,13 +1,17 @@
 <template>
-    <div>
+    <collapsible-card :title="$t('orders.list')">
 
-        <filters
-            :filters-collection="args.filters"
-        >
-            <div class="col float-right text-right" v-if="userCanAddOrder()">
-                <a :href="newOrderLink" class="btn btn-success btn-sm text-right mb-4"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('newOrder') }} </a>
+        <template v-slot:header>
+            <div v-if="userCanAddOrder()">
+                <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"></i><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
             </div>
-        </filters>
+        </template>
+
+        <template v-slot:filters>
+            <filters
+                    :filters-collection="args.filters"
+            ></filters>
+        </template>
 
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
 
@@ -37,7 +41,9 @@
             </tr>
         </table-plus>
 
-    </div>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+
+    </collapsible-card>
 </template>
 
 <script>
@@ -52,11 +58,12 @@
     import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
     import Pagination from '../../base/Pagination';
+    import CollapsibleCard from '../../base/CollapsibleCard';
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions, Pagination },
+        components: { Filters, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions, Pagination, CollapsibleCard },
 
         props: {
             statuses: {
@@ -76,8 +83,12 @@
                 args: {
                     filters: {
                         dateStart: {
-                            start: '',
-                            end: ''
+                            start: null,
+                            end: null
+                        },
+                        dateDelivery: {
+                            start: null,
+                            end: null
                         },
                         q: '',
                     },
@@ -118,22 +129,25 @@
             // parse initial query string
             let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
 
-            // receive date
-            let momentReceive0 = moment(query.dateReceive0 || null);
-            let momentReceive1 = moment(query.dateReceive1 || null);
+            for (let i of [
+                    {
+                        moment0: moment(query.dateReceive0 || null),
+                        moment1: moment(query.dateReceive1 || null),
+                        store0: 'args.filters.dateStart.start',
+                        store1: 'args.filters.dateStart.end',
+                    },
+                    {
+                        moment0: moment(query.dateDelivery0 || null),
+                        moment1: moment(query.dateDelivery1 || null),
+                        store0: 'args.filters.dateDelivery.start',
+                        store1: 'args.filters.dateDelivery.end',
+                    },
+            ]) {
 
-            if (momentReceive0.isValid()) {
-                this.args.filters.dateStart.start = momentReceive0.format('YYYY-MM-DD');
-            }
-
-            if (momentReceive1.isValid()) {
-                this.args.filters.dateStart.end = momentReceive1.format('YYYY-MM-DD');
-            }
-
-            // additional check if both dates are set and valid
-            if (momentReceive0.isValid() && momentReceive1.isValid()) {
-                if (momentReceive0 > momentReceive1) {
-                    this.args.filters.dateStart.start = this.args.filters.dateStart.end = '';
+                // both dates need to be set and valid
+                if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
+                    _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
+                    _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
                 }
             }
 
@@ -144,7 +158,7 @@
             this.args.meta.page = parseInt(query.page) || 1;
 
             // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : 'id_asc';
+            this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
 
         },
 
@@ -201,6 +215,12 @@
                 }
                 if (this.args.filters.dateStart.end) {
                     query.dateReceive1 = this.args.filters.dateStart.end;
+                }
+                if (this.args.filters.dateDelivery.start) {
+                    query.dateDelivery0 = this.args.filters.dateDelivery.start;
+                }
+                if (this.args.filters.dateDelivery.end) {
+                    query.dateDelivery1 = this.args.filters.dateDelivery.end;
                 }
                 if (this.args.filters.q && this.args.filters.q.length > 0) {
                     query.q = this.args.filters.q;
@@ -305,11 +325,11 @@
 </script>
 
 <style scoped>
-    .table thead th {
-        text-align: center;
-    }
 
-    .table tbody tr {
-        text-align: center;
+@media screen and (max-width: 768px) {
+    span.addNewOrder {
+        display: none;
     }
+}
+
 </style>

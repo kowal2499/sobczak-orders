@@ -1,16 +1,16 @@
 <template>
         <ul class="my-pagination" v-if="pages > 1 ">
                 <li>
-                        <a href="" @click.prevent="switchPage(currentPage-1)" class="page-link" v-if="canShowPrev">Poprzednia</a>
-                        <span class="page-link disabled" v-else>Poprzednia</span>
+                        <a href="" @click.prevent="switchPage(currentPage-1)" class="page-link" v-if="canShowPrev"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+                        <span class="page-link disabled" v-else><i class="fa fa-angle-left" aria-hidden="true"></i></span>
                 </li>
                 <li v-for="page in visiblePages ">
                         <span class="page-link active" v-if="page == currentPage">{{ page }}</span>
                         <a v-else href="" @click.prevent="switchPage(page)" class="page-link" >{{ page }}</a>
                 </li>
                 <li>
-                        <a href="" @click.prevent="switchPage(currentPage+1)" class="page-link" v-if="canShowNext">Następna</a>
-                        <span class="page-link disabled" v-else>Następna</span>
+                        <a href="" @click.prevent="switchPage(currentPage+1)" class="page-link" v-if="canShowNext"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                        <span class="page-link disabled" v-else><i class="fa fa-angle-right" aria-hidden="true"></i></span>
                 </li>
         </ul>
 </template>
