@@ -2,28 +2,24 @@
 
     <div class="form-row">
 
+        <div class="form-group col-md-3">
+            <label>{{ $t('search') }}</label><br>
+            <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
+        </div>
 
-            <div class="form-group col-sm-3">
-                <label>{{ $t('search') }}</label><br>
-                <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
-            </div>
+        <div class="form-group">
+            <label>{{ $t('receiveDate') }}</label><br>
+            <date-picker v-model="filtersCollection.dateStart"></date-picker>
+        </div>
 
-            <div class="form-group" col-sm-3>
-                <label>{{ $t('receiveDate') }}</label><br>
-                <date-picker v-model="filtersCollection.dateStart"></date-picker>
-            </div>
+        <div class="form-group">
+            <label>{{ $t('deliveryDate') }}</label><br>
+            <date-picker v-model="filtersCollection.dateDelivery"></date-picker>
+        </div>
 
-            <div class="form-group" col-sm-3>
-                <label>{{ $t('deliveryDate') }}</label><br>
-                <date-picker v-model="filtersCollection.dateDelivery"></date-picker>
-            </div>
-
-
-
-
-            <div class="col">
-                <slot></slot>
-            </div>
+        <div class="col">
+            <slot></slot>
+        </div>
 
     </div>
 

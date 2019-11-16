@@ -77,15 +77,31 @@
         right: 0;
         bottom: 0;
         width: 350px;
-        margin: 20px;
+        margin: 40px;
         z-index: 1000;
 
         .notification {
             padding: 20px;
             padding-right: 35px;
+            margin-top: 30px;
 
             button {
                 outline: none;
+            }
+
+            &.alert {
+                box-shadow: 0 0 30px gray;
+                font-weight: bold;
+            }
+            &.alert-success {
+                color: #ffff;
+                background-color: #28A745;
+                border-color: #28A745;
+            }
+            &.alert-danger {
+                color: #ffff;
+                background-color: #df072c;
+                border-color: #ce072c;
             }
         }
 

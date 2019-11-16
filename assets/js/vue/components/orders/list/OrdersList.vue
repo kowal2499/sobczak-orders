@@ -8,9 +8,7 @@
         </template>
 
         <template v-slot:filters>
-            <filters
-                    :filters-collection="args.filters"
-            ></filters>
+            <filters :filters-collection="args.filters"></filters>
         </template>
 
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
@@ -173,27 +171,7 @@
 
             queryString: {
                 handler() {
-                    // zmiana query string odpala pobranie danych
-
-                    this.loading = true;
-
-                    let bag = this.args.filters;
-                    bag.page = this.args.meta.page;
-                    bag.sort = this.args.meta.sort;
-                    if (parseInt(this.status) > 0) {
-                        bag.status = this.status;
-                    }
-
-                    api.fetchAgreements(bag)
-                        .then(({data}) => {
-                            this.agreements = data.data.orders || [];
-                            this.agreements = data.data.orders || [];
-                            this.args.meta.pages = data.meta.pages || 0;
-                        })
-                        .catch(data => {})
-                        .finally(() => {
-                            this.loading = false;
-                        });
+                    this.fetchData();
                 }
             }
         },
@@ -254,6 +232,28 @@
 
 
         methods: {
+
+            fetchData() {
+                this.loading = true;
+
+                let bag = this.args.filters;
+                bag.page = this.args.meta.page;
+                bag.sort = this.args.meta.sort;
+                if (parseInt(this.status) > 0) {
+                    bag.status = this.status;
+                }
+
+                api.fetchAgreements(bag)
+                    .then(({data}) => {
+                        this.agreements = data.data.orders || [];
+                        this.agreements = data.data.orders || [];
+                        this.args.meta.pages = data.meta.pages || 0;
+                    })
+                    .catch(data => {})
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
 
             updateSort(event) {
                 this.args.meta.sort = event

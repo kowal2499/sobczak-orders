@@ -1,24 +1,29 @@
 <template>
-    <div class="card-menu d-flex">
 
-        <div class="form-group">
+    <div class="form-row">
+
+        <div class="form-group col-md-3">
             <label>{{ $t('search') }}</label><br>
-            <input type="text" class="form-control" v-model="model.q" style="height: 34px;">
+            <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
         </div>
 
         <div class="form-group">
             <label>{{ $t('receiveDate') }}</label><br>
-            <date-picker v-model="model.dateStart"/>
+            <date-picker v-model="filtersCollection.dateStart"></date-picker>
         </div>
 
         <div class="form-group">
             <label>{{ $t('deliveryDate') }}</label><br>
-            <date-picker v-model="model.dateDelivery"/>
+            <date-picker v-model="filtersCollection.dateDelivery"></date-picker>
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-sm-3">
             <label>{{ $t('orders.hideArchivedOrder') }}</label><br>
-            <input type="checkbox" v-model="model.hideArchive">
+            <input type="checkbox" v-model="filtersCollection.hideArchive">
+        </div>
+
+        <div class="col">
+            <slot></slot>
         </div>
 
     </div>
@@ -31,7 +36,12 @@
         name: "Filters",
         components: { DatePicker },
 
-        props: ['model']
+        props: {
+            filtersCollection: {
+                type: Object,
+                default: () => {}
+            }
+        },
     }
 </script>
 

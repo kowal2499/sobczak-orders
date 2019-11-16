@@ -83,6 +83,7 @@ export default {
             na: 'n/a',
             user: 'User',
             list: 'Orders list',
+            productionSchedule: 'Production schedule',
         }
 
 
@@ -171,6 +172,7 @@ export default {
             na: 'brak',
             user: 'Uytkownik',
             list: 'Lista zamówień',
+            productionSchedule: 'Harmonogram produkcji',
         }
 
     }

@@ -123,8 +123,8 @@
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
 
-                    if (data && Array.isArray(data.orders) && data.orders.length === 1) {
-                        this.orderData = data.orders[0];
+                    if (data.data && Array.isArray(data.data.orders) && data.data.orders.length === 1) {
+                        this.orderData = data.data.orders[0];
                     }
                 })
                 .catch(() => {})

@@ -122,6 +122,7 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'dateConfirmed': $qb->orderBy('l.confirmedDate', $order); break;
                     case 'customer': $qb->orderBy('c.name', $order); break;
                     case 'product': $qb->orderBy('p.name', $order); break;
+                    case 'factor': $qb->orderBy('l.factor', $order); break;
                 }
             }
 
