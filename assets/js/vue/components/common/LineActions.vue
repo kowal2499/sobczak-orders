@@ -1,7 +1,24 @@
 <template>
     <div>
         <dropdown class="icon-only">
-            <template v-if="line">
+
+            <template v-if="line && line.line.status === 25">
+                <!-- 1.1 delete order line -->
+                <a class="dropdown-item text-danger" href="#"
+                   @click.prevent="isModalConfirmDeleteOrderVisible = true"
+                   v-if="canDeleteOrder()"
+                >
+                    <i class="fa fa-exclamation-circle text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}
+                </a>
+                <!-- 1.2 restore order line -->
+                <a class="dropdown-item" href="#"
+                   @click.prevent="isModalConfirmRestoreOrderVisible = true"
+                >
+                    <i class="fa fa-undo" aria-hidden="true"></i> {{ $t('restoreOrder') }}
+                </a>
+            </template>
+
+            <template v-if="line && line.line.status !== 25">
 
                 <!-- sekcja wspólna -->
 
@@ -11,12 +28,14 @@
 
                 <hr style="margin: 5px auto">
 
-                <!-- sekcja zamówienie -->
+                <!-- 1. sekcja zamówienie -->
 
+                <!-- 1.1 edit order -->
                 <a class="dropdown-item" :href="__mixin_getRouting('orders_edit') + '/' + line.header.id">
                     <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('editOrder') }}
                 </a>
 
+                <!-- 1.1 set warehouse status -->
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmWarehouseVisible = true"
                    v-if="canWarehouse()"
@@ -24,6 +43,7 @@
                     <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setWarehouseStatus') }}
                 </a>
 
+                <!-- 1.2 set archive status -->
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmArchiveVisible = true"
                    v-if="canArchive()"
@@ -31,43 +51,62 @@
                     <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setArchivedStatus') }}
                 </a>
 
-<!--                todo: zamienić na funkcję kosza -->
+                <!-- 1.3 set trash status -->
                 <a class="dropdown-item text-danger" href="#"
-                   @click.prevent="isModalConfirmDeleteOrderVisible = true"
-                   v-if="canDeleteOrder(line)"
+                   @click.prevent="isModalConfirmTrashOrderVisible = true"
+                   v-if="canTrashOrder()"
                 >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}
+                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('trashOrder') }}
                 </a>
 
 
-                <hr style="margin: 5px auto">
+                <span v-if="canStartProduction(line)">
+                    <hr style="margin: 5px auto">
 
-                <!-- sekcja produkcja -->
+                    <!-- sekcja produkcja -->
 
-                <a class="dropdown-item" href="#"
-                   v-if="canStartProduction(line)"
-                   @click="startProduction(line)"
-                >
-                    <i class="fa fa-play" aria-hidden="true"></i> {{ $t('startProduction') }}
-                </a>
+                    <a class="dropdown-item" href="#"
+                       @click="startProduction(line)">
+                        <i class="fa fa-play" aria-hidden="true"></i> {{ $t('startProduction') }}
+                    </a>
+                </span>
 
-                <a class="dropdown-item" href="#"
-                   @click.prevent="isModalConfirmDeleteProductionVisible = true"
-                   v-if="canDeleteProduction()"
-                >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">{{ $t('deleteProduction') }}</span>
-                </a>
+<!--                <a class="dropdown-item" href="#"-->
+<!--                   @click.prevent="isModalConfirmDeleteProductionVisible = true"-->
+<!--                   v-if="canDeleteProduction()"-->
+<!--                >-->
+<!--                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">{{ $t('deleteProduction') }}</span>-->
+<!--                </a>-->
 
             </template>
         </dropdown>
 
+        <!-- Modal wyrzucania zamówienia do kosza -->
 
-        <!-- Modal usuwania zamówienia -->
+        <confirmation-modal
+                :show="isModalConfirmTrashOrderVisible"
+                :busy="isModalConfirmTrashOrderBusy"
+                @answerYes="updateAgreementStatus(25)"
+                @closeModal="isModalConfirmTrashOrderVisible = false"
+                v-if="isModalConfirmTrashOrderVisible"
+        >
+            <div>
+                <p><strong>{{ $t('areYouSureToTrashOrder') }} {{ line.header.orderNumber }}'?</strong></p>
+
+                <ul class="list-unstyled">
+                    <li>{{ line.product.name }}</li>
+                </ul>
+
+            </div>
+
+        </confirmation-modal>
+
+        <!-- Modal usuwania zamówienia (ustawia pole deleted w bazie) -->
 
         <confirmation-modal
                 :show="isModalConfirmDeleteOrderVisible"
                 :busy="isModalConfirmDeleteOrderBusy"
-                @answerYes="deleteOrder(line)"
+                @answerYes="deleteOrder()"
                 @closeModal="isModalConfirmDeleteOrderVisible = false"
                 v-if="isModalConfirmDeleteOrderVisible"
         >
@@ -87,34 +126,52 @@
 
         </confirmation-modal>
 
-        <!-- Modal usuwania produkcji -->
+        <!-- Modal przywracania zamówienia (wyciąga z kosza) -->
 
         <confirmation-modal
-                :show="isModalConfirmDeleteProductionVisible"
-                @answerYes="deleteProduction()"
-                @closeModal="isModalConfirmDeleteProductionVisible = false"
-                v-if="isModalConfirmDeleteProductionVisible"
+                :show="isModalConfirmRestoreOrderVisible"
+                :busy="isModalConfirmRestoreOrderBusy"
+                @answerYes="restoreOrder()"
+                @closeModal="isModalConfirmRestoreOrderVisible = false"
+                v-if="isModalConfirmRestoreOrderVisible"
         >
             <div>
-                <p><strong>{{ $t('areYouSureToDeleteProduction') }}</strong></p>
-
+                <p><strong>{{ $t('areYouSureToRestoreOrder') }} {{ line.header.orderNumber }}'?</strong></p>
                 <ul class="list-unstyled">
-                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
-                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
-                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ line.product.name }}</li>
                 </ul>
-
-                <div class="alert alert-danger">
-                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                    {{ $t('willRemoveProductionData') }}
-                </div>
-
-                <div class="alert alert-info">
-                    {{ $t('deleteNotification') }}
-                </div>
             </div>
 
         </confirmation-modal>
+
+        <!-- Modal usuwania produkcji -->
+
+<!--        <confirmation-modal-->
+<!--                :show="isModalConfirmDeleteProductionVisible"-->
+<!--                @answerYes="deleteProduction()"-->
+<!--                @closeModal="isModalConfirmDeleteProductionVisible = false"-->
+<!--                v-if="isModalConfirmDeleteProductionVisible"-->
+<!--        >-->
+<!--            <div>-->
+<!--                <p><strong>{{ $t('areYouSureToDeleteProduction') }}</strong></p>-->
+
+<!--                <ul class="list-unstyled">-->
+<!--                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>-->
+<!--                    <li>{{ $t('product') }}: {{ line.product.name }}</li>-->
+<!--                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>-->
+<!--                </ul>-->
+
+<!--                <div class="alert alert-danger">-->
+<!--                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>-->
+<!--                    {{ $t('willRemoveProductionData') }}-->
+<!--                </div>-->
+
+<!--                <div class="alert alert-info">-->
+<!--                    {{ $t('deleteNotification') }}-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--        </confirmation-modal>-->
 
         <!-- Modal dla magazynowania zamówienia -->
         <confirmation-modal
@@ -183,6 +240,9 @@
         },
         data() {
             return {
+                isModalConfirmTrashOrderVisible: false,
+                isModalConfirmTrashOrderBusy: false,
+
                 isModalConfirmDeleteOrderVisible: false,
                 isModalConfirmDeleteOrderBusy: false,
 
@@ -194,6 +254,9 @@
 
                 isModalConfirmArchiveVisible: false,
                 isModalConfirmArchiveBusy: false,
+
+                isModalConfirmRestoreOrderVisible: false,
+                isModalConfirmRestoreOrderBusy: false,
             }
         },
         methods: {
@@ -234,14 +297,18 @@
                     .finally(() => {})
             },
 
-            canDeleteOrder(line) {
+            canDeleteOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
             },
 
-            deleteOrder(line) {
+            canTrashOrder() {
+                return this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
+            },
+
+            deleteOrder() {
                 this.isModalConfirmDeleteOrderBusy = true;
 
-                ApiNewOrder.deleteOrder(line.header.id)
+                ApiNewOrder.deleteAgreementLine(this.line.line.id)
                     .then(() => {
                         Event.$emit('message', {
                             type: 'success',
@@ -256,26 +323,37 @@
                     });
             },
 
-            canDeleteProduction() {
-                return this.hasProduction(this.line) && this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
+            restoreOrder() {
+                /** jeśli jest produkcja to ustaw status 'w realizacji'
+                 *  w przeciwnym razie ustaw na oczekujące
+                 */
+                if (this.hasProduction(this.line)) {
+                    this.updateAgreementStatus(10);
+                } else {
+                    this.updateAgreementStatus(5);
+                }
             },
 
-            deleteProduction() {
-                this.isModalConfirmDeleteProductionBusy = true;
-                ApiProduction.delete(this.line.line.id)
-                    .then(() => {
-                        Event.$emit('message', {
-                            type: 'success',
-                            content: this.$t('removedFromSchedule')
-                        });
-                        Event.$emit('statusUpdated');
-                        this.$emit('lineChanged');
-                    })
-                    .finally(() => {
-                        this.isModalConfirmDeleteProductionBusy = false;
-                        this.isModalConfirmDeleteProductionVisible = false;
-                    });
-            },
+            // canDeleteProduction() {
+            //     return this.hasProduction(this.line) && this.$user.can(this.$privilages.CAN_ORDERS_DELETE);
+            // },
+            //
+            // deleteProduction() {
+            //     this.isModalConfirmDeleteProductionBusy = true;
+            //     ApiProduction.delete(this.line.line.id)
+            //         .then(() => {
+            //             Event.$emit('message', {
+            //                 type: 'success',
+            //                 content: this.$t('removedFromSchedule')
+            //             });
+            //             Event.$emit('statusUpdated');
+            //             this.$emit('lineChanged');
+            //         })
+            //         .finally(() => {
+            //             this.isModalConfirmDeleteProductionBusy = false;
+            //             this.isModalConfirmDeleteProductionVisible = false;
+            //         });
+            // },
 
             canArchiveOrWarehouse() {
                 let lastProductionStage = this.line.production.data.find(stage => { return stage.departmentSlug === 'dpt05'; });
@@ -308,6 +386,15 @@
 
                         this.isModalConfirmArchiveBusy = false;
                         this.isModalConfirmArchiveVisible = false;
+
+                        this.isModalConfirmDeleteOrderBusy = false;
+                        this.isModalConfirmDeleteOrderVisible = false;
+
+                        this.isModalConfirmTrashOrderBusy = false;
+                        this.isModalConfirmTrashOrderVisible = false;
+
+                        this.isModalConfirmRestoreOrderBusy = false;
+                        this.isModalConfirmRestoreOrderVisible = false;
                     })
                 ;
             },

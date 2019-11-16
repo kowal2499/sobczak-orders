@@ -202,7 +202,8 @@ class AgreementLine
             self::STATUS_WAITING => 'Oczekujące',
             self::STATUS_MANUFACTURING => 'W realizacji',
             self::STATUS_WAREHOUSE => 'Magazyn',
-            self::STATUS_ARCHIVED => 'Archiwum'
+            self::STATUS_ARCHIVED => 'Archiwum',
+            self::STATUS_DELETED => 'Kosz'
         ];
     }
 

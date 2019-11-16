@@ -236,8 +236,11 @@
 
                             this.orders = data.data.orders;
                             this.departments = data.data.departments;
-                            this.args.meta.pages = data.meta.pages || 0;
+
+                        } else {
+                            this.orders = [];
                         }
+                        this.args.meta.pages = data.meta.pages || 0;
                     })
                     .catch(data => {})
                     .finally(() => { this.loading = false; })

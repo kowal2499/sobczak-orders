@@ -45,6 +45,7 @@
             {% set statusManufacturing = constant('\\App\\Entity\\AgreementLine::STATUS_MANUFACTURING') %}
             {% set statusWarehouse = constant('\\App\\Entity\\AgreementLine::STATUS_WAREHOUSE') %}
             {% set statusArchived = constant('\\App\\Entity\\AgreementLine::STATUS_ARCHIVED') %}
+            {% set statusDeleted = constant('\\App\\Entity\\AgreementLine::STATUS_DELETED') %}
 
             {% set array = [
 
@@ -80,6 +81,16 @@
                 }
 
             ] %}
+
+            {% if is_granted('ROLE_ADMIN') %}
+                {%  set array = array|merge([{
+                        'title': 'Kosz'|trans,
+                        'statusId': statusDeleted,
+                        'path': path('agreements_show', {'status': statusDeleted}),
+                        'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusDeleted) ? true : false
+                    }])
+                %}
+            {% endif %}
 
             <nav-orders :elements="{{ array|json_encode }}"></nav-orders>
 
