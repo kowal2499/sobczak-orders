@@ -74,7 +74,7 @@ class AgreementLineController extends AbstractController
                 $statusLog = [];
                 foreach ($prod->getStatusLogs() as $log) {
                     $statusLog[] = [
-                        'createdAt' => $log->getCreatedAt(),
+                        'createdAt' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
                         'currentStatus' => $log->getCurrentStatus(),
                         'user' => $log->getUser() ? $log->getUser()->getUserFullName() : ''
                     ];

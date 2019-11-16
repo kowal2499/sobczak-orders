@@ -180,7 +180,7 @@ export default {
             hide: 'Ukryj',
             hideArchivedOrder: 'Ukrywaj archiwalne i w magazynie',
             na: 'brak',
-            user: 'Uytkownik',
+            user: 'Użytkownik',
             list: 'Lista zamówień',
             productionSchedule: 'Harmonogram produkcji',
         }
