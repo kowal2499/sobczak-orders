@@ -71,6 +71,8 @@
         data() {
             return {
 
+                syncQueryString: false,
+
                 args: {
                     filters: {
                         dateStart: {
@@ -89,21 +91,21 @@
 
                 agreements: [],
                 departments: [],
-                production: [],
+                // production: [],
 
                 newOrderLink: routing.get('orders_view_new'),
 
-                showProductionPlan: false,
-                selectedOrder: null,
-                selectedProduction: [],
+                // showProductionPlan: false,
+                // selectedOrder: null,
+                // selectedProduction: [],
 
-                confirmations: {
-                    delete: {
-                        show: false,
-                        context: false,
-                        busy: false
-                    }
-                },
+                // confirmations: {
+                //     delete: {
+                //         show: false,
+                //         context: false,
+                //         busy: false
+                //     }
+                // },
 
                 loading: false,
             }
@@ -111,14 +113,38 @@
 
         created() {
 
-            // set initial values
-            this.args.meta.page = 1;
-            this.args.meta.sort = 'id_asc';
+            this.syncQueryString = true;
 
-            // read query string and set values
-            //
-            //
-            //
+            // parse initial query string
+            let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+
+            // receive date
+            let momentReceive0 = moment(query.dateReceive0 || null);
+            let momentReceive1 = moment(query.dateReceive1 || null);
+
+            if (momentReceive0.isValid()) {
+                this.args.filters.dateStart.start = momentReceive0.format('YYYY-MM-DD');
+            }
+
+            if (momentReceive1.isValid()) {
+                this.args.filters.dateStart.end = momentReceive1.format('YYYY-MM-DD');
+            }
+
+            // additional check if both dates are set and valid
+            if (momentReceive0.isValid() && momentReceive1.isValid()) {
+                if (momentReceive0 > momentReceive1) {
+                    this.args.filters.dateStart.start = this.args.filters.dateStart.end = '';
+                }
+            }
+
+            // q
+            this.args.filters.q = query.q ? String(query.q) : '';
+
+            // page
+            this.args.meta.page = parseInt(query.page) || 1;
+
+            // sort
+            this.args.meta.sort = query.sort ? String(query.sort) : 'id_asc';
 
         },
 
@@ -134,7 +160,6 @@
             queryString: {
                 handler() {
                     // zmiana query string odpala pobranie danych
-                    console.log('wykryłem zmianę w qs, trzeba pobrać dane... ' + this.queryString)
 
                     this.loading = true;
 
@@ -162,11 +187,14 @@
         computed: {
 
             /**
-             * Tworzenie queryString na podstawie argumentów
+             * Tworzenie queryString na podstawie zmiennych z data
              *
              * @returns {string}
              */
             queryString() {
+                if (!this.syncQueryString) {
+                    return;
+                }
                 let query = {};
                 if (this.args.filters.dateStart.start) {
                     query.dateReceive0 = this.args.filters.dateStart.start;
@@ -206,42 +234,6 @@
 
 
         methods: {
-
-            updateQueryString() {
-                console.log('aktualizuję qs')
-            },
-
-            fetchData() {
-                console.log('Pobieram dane ....');
-            },
-
-            generateQueryString() {
-
-            },
-
-            /**
-             * a.orderNumber
-             * a.createDate
-             * c.name
-             * p.name
-             */
-
-            // setFilters() {
-            //     let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-            //     this.filters.dateStart.start = query.dateStart || '';
-            //     this.filters.dateStart.end = query.dateEnd || '';
-            //     this.page = query.page || 1;
-            //     this.filters.q = query.q || '';
-            //
-            //     if (!moment(this.filters.dateStart.start).isValid()) {
-            //         this.filters.dateStart.start = '';
-            //     }
-            //
-            //     if (!moment(this.filters.dateStart.end).isValid()) {
-            //         this.filters.dateStart.end = '';
-            //     }
-            // },
-            //
 
             updateSort(event) {
                 this.args.meta.sort = event
