@@ -10,13 +10,12 @@ html {
 
     font-family: 'Roboto', sans-serif;
 
-    height: 100%;
+    //height: 100%;
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
     color: slategray;
     text-align: left;
-    background-color: white;
 
 
     body {
@@ -33,11 +32,70 @@ html {
             }
         }
 
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            margin-top: 60px;
+            overflow: hidden;
+            border-radius: 5px;
+
+            .side-left {
+                background-color: #E7E7E7;
+                flex: 1;
+                display: flex;
+                align-items: center;
+
+                img {
+                    padding: 20px;
+                    max-width: 100%;
+                    margin: 0 auto;
+                    display: block;
+                }
+            }
+
+            .side-right {
+                background-color: white;
+                flex: 3;
+                padding: 5px;
+                .h2 {
+                    margin-bottom: 3rem;
+                }
+            }
+        }
+
         .leftpanel {
+            img {
+                padding: 20px;
+            }
             background-color: #E7E7E7;
-            //background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#e2e4f9),to(#90a3ea));
-            //background-image: linear-gradient(180deg,#e2e4f9 10%,#90a3ea 100%);
-            background-size: cover;
+        }
+
+    }
+
+    @media screen and (max-width: 765px) {
+
+        body {
+            .wrapper {
+                flex-direction: column;
+                margin-top: 15px;
+
+                .side-left {
+                    flex: 1;
+                    img {
+                        width: 100px;
+                        padding: 10px;
+                    }
+                }
+
+                .side-right {
+                    flex: 1;
+
+                    .h2 {
+                       font-size: 1.5rem;
+                        margin-bottom: 1rem;
+                    }
+                }
+            }
         }
     }
 

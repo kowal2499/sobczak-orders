@@ -108,6 +108,8 @@ class ProductionRepository extends ServiceEntityRepository
             ->join('l.Product', 'pr')
             ->join('l.Agreement', 'a')
             ->join('a.Customer', 'c')
+            ->andWhere('l.status NOT IN (:statusNotInKey)')
+            ->setParameter('statusNotInKey', [AgreementLine::STATUS_DELETED])
 
             ->select('p, l, pr')
         ;

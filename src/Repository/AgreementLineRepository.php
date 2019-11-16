@@ -41,9 +41,15 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->addSelect('pr')
             ->addSelect('s')
             ->addSelect('u')
+            ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
         if (is_array($term['search'])) {
+
+            // Jeżeli nie wskazano statusu (tzn chcemy widzieć wszystkie zamówienia), to ukryj zamówienia usunięte
+            if (false === isset($term['search']['status'])) {
+                $term['search']['hideDeleted'] = true;
+            }
 
             foreach ($term['search'] as $key => $value) {
                 switch ($key) {
@@ -75,10 +81,6 @@ class AgreementLineRepository extends ServiceEntityRepository
                         $qb->andWhere("l.archived = :{$key}");
                         $qb->setParameter($key, $value);
                         break;
-                    case 'deleted':
-                        $qb->andWhere("l.deleted = :{$key}");
-                        $qb->setParameter($key, $value);
-                        break;
                     case 'agreementLineId':
                         $qb->andWhere("l.id = :{$key}");
                         $qb->setParameter($key, $value);
@@ -102,9 +104,15 @@ class AgreementLineRepository extends ServiceEntityRepository
                             $qb->setParameter($key, [AgreementLine::STATUS_DELETED, AgreementLine::STATUS_ARCHIVED, AgreementLine::STATUS_WAREHOUSE]);
                         }
                         break;
+                    case 'hideDeleted':
+                        $qb->andWhere("l.status NOT IN (:{$key})");
+                        $qb->setParameter($key, [AgreementLine::STATUS_DELETED]);
+                        break;
+
                     case 'q':
                         $qb->andWhere("a.orderNumber Like :q OR c.name Like :q OR p.name Like :q OR c.first_name Like :q OR c.last_name Like :q");
                         $qb->setParameter('q', '%'.$value.'%');
+                        break;
                 }
             }
         

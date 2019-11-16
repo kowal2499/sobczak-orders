@@ -321,7 +321,7 @@ class AgreementLineController extends AbstractController
     }
 
     /**
-     * @isGranted("ROLE_PRODUCTION")
+     * @isGranted("ROLE_ADMIN")
      *
      * @Route("/agreement_line/delete/{agreementLine}", name="agreement_line_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
