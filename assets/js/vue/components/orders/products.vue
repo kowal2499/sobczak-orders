@@ -42,7 +42,7 @@
 
             <div class="row mt-3">
                 <div class="col text-right">
-                    <button class="btn btn-success" :disabled="orderDate === '' || orderProduct === ''" @click="add"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('orders.addProduct') }}</button>
+                    <button class="btn btn-success" :disabled="!canAddProduct()" @click="add"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('orders.addProduct') }}</button>
                 </div>
             </div>
 
@@ -120,6 +120,7 @@
 
     import DatePicker from '../base/datepicker';
     import api from '../../api/neworder';
+    import moment from "moment";
 
 
     export default {
@@ -177,6 +178,10 @@
 
             factorUpdated(product, val) {
                 product.factor = val / 100;
+            },
+
+            canAddProduct() {
+                return moment(this.orderDate).isValid() && this.orderProduct !== '';
             },
 
             userCanProduction() {

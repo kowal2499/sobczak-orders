@@ -1,8 +1,8 @@
 <template>
 
-    <div class="card-menu d-flex">
+    <div class="form-row">
 
-        <div class="form-group">
+        <div class="form-group col-md-3">
             <label>{{ $t('search') }}</label><br>
             <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
         </div>
@@ -12,7 +12,14 @@
             <date-picker v-model="filtersCollection.dateStart"></date-picker>
         </div>
 
-        <slot></slot>
+        <div class="form-group">
+            <label>{{ $t('deliveryDate') }}</label><br>
+            <date-picker v-model="filtersCollection.dateDelivery"></date-picker>
+        </div>
+
+        <div class="col">
+            <slot></slot>
+        </div>
 
     </div>
 
@@ -24,7 +31,12 @@
 
     export default {
         name: "filters",
-        props: ['filtersCollection'],
+        props: {
+            filtersCollection: {
+                type: Object,
+                default: () => {}
+            }
+        },
 
         components: { DatePicker },
 

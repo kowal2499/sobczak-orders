@@ -1,9 +1,13 @@
 <template>
-    <div>
+    <collapsible-card :title="$t('orders.productionSchedule')">
 
-        <filters :model="filters"></filters>
+        <template v-slot:filters>
+            <filters :filters-collection="args.filters"></filters>
+        </template>
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="'l.confirmedDate'" @sortChanged="updateSort">
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+
+        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
 
             <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
                 <td>
@@ -84,7 +88,9 @@
 
         </table-plus>
 
-    </div>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+
+    </collapsible-card>
 </template>
 
 <script>
@@ -99,11 +105,13 @@
     import TablePlus from '../base/TablePlus';
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
+    import CollapsibleCard from "../base/CollapsibleCard";
+    import Pagination from "../base/Pagination";
 
     export default {
         name: "ProductionList",
 
-        components: { Filters, TablePlus, Tooltip, LineActions },
+        components: {Filters, TablePlus, Tooltip, LineActions, CollapsibleCard, Pagination},
 
         props: {
             statuses: {
@@ -114,28 +122,28 @@
 
         data() {
             return {
-                filters: {
 
-                    dateStart: {
-                        start: '',
-                        end: ''
+                syncQueryString: false,
+
+                args: {
+                    filters: {
+                        dateStart: {
+                            start: null,
+                            end: null
+                        },
+                        dateDelivery: {
+                            start: null,
+                            end: null
+                        },
+                        hideArchive: true,
+                        q: '',
                     },
-
-                    dateDelivery: {
-                        start: '',
-                        end: ''
-                    },
-
-                    q: '',
-
-                    deleted: false,
-
-                    hideArchive: true,
 
                     meta: {
-                        sort: 'l.confirmedDate:ASC',
-                        page: 1,
-                    }
+                        page: 0,
+                        pages: 0,
+                        sort: ''
+                    },
                 },
 
                 helpers: Helpers,
@@ -145,121 +153,90 @@
 
                 loading: false,
 
-                confirmations: {
-                    warehouse: {
-                        show: false,
-                        busy: false,
-                        context: false,
-                    },
+            }
+        },
 
-                    archive: {
-                        show: false,
-                        busy: false,
-                        context: false,
-                    },
+        created() {
 
-                    delete: {
-                        show: false,
-                        busy: false,
-                        context: false,
-                    }
+            this.syncQueryString = true;
+
+            // parse initial query string
+            let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+
+            for (let i of [
+                {
+                    moment0: moment(query.dateReceive0 || null),
+                    moment1: moment(query.dateReceive1 || null),
+                    store0: 'args.filters.dateStart.start',
+                    store1: 'args.filters.dateStart.end',
+                },
+                {
+                    moment0: moment(query.dateDelivery0 || null),
+                    moment1: moment(query.dateDelivery1 || null),
+                    store0: 'args.filters.dateDelivery.start',
+                    store1: 'args.filters.dateDelivery.end',
+                },
+            ]) {
+
+                // both dates need to be set and valid
+                if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
+                    _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
+                    _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
+                }
+            }
+
+            // q
+            this.args.filters.q = query.q ? String(query.q) : '';
+
+            // hide active
+            this.args.filters.hideArchive = query.hideArchive ? String(query.hideArchive) : '';
+
+            // page
+            this.args.meta.page = parseInt(query.page) || 1;
+
+            // sort
+            this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
+        },
+
+        watch: {
+            'args.filters': {
+                handler() {
+                    // zmiana filtrów przywraca paginację na stronę 1
+                    this.args.meta.page = 1
+                },
+                deep: true,
+            },
+
+            queryString: {
+                handler() {
+                    this.fetchData();
                 }
             }
         },
 
-        mounted() {
-            this.setFilters();
-        },
-
-        watch: {
-            filters: {
-                handler(value) {
-                    let query = {
-                        dateStart: this.filters.dateStart.start,
-                        dateEnd: this.filters.dateStart.end,
-                        all: this.filters.showAll,
-                        page: this.filters.meta.page
-                    };
-
-                    if (this.filters.dateDelivery.start && String(this.filters.dateDelivery.start).length > 0) {
-                        query.dateDeliveryStart = this.filters.dateDelivery.start
-                    }
-
-                    if (this.filters.dateDelivery.end && String(this.filters.dateDelivery.end).length > 0) {
-                        query.dateDeliveryEnd = this.filters.dateDelivery.end
-                    }
-
-                    query.hideArchive = this.filters.hideArchive;
-
-                    if (this.filters.q !== '') {
-                        query.q = this.filters.q;
-                    }
-
-                    let queryString = qs.stringify(query);
-
-                    if (queryString.length > 0) {
-                        queryString = '?'.concat(queryString);
-                        history.pushState(null, '', window.location.pathname + queryString);
-                    }
-
-                    this.fetchData();
-                },
-                deep: true
-            },
-
-        },
-
         methods: {
-
-            setFilters() {
-                let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-                this.filters.dateStart.start = query.dateStart;
-                this.filters.dateStart.end = query.dateEnd;
-                this.filters.dateDelivery.start = query.dateDeliveryStart;
-                this.filters.dateDelivery.end = query.dateDeliveryEnd;
-                this.filters.q = query.q;
-                this.filters.page = query.page || 1;
-
-                if ((!this.filters.dateStart.start || !moment(this.filters.dateStart.start).isValid())) {
-                    this.filters.dateStart.start = moment().subtract(2, 'M').startOf('month').format('YYYY-MM-DD');
-                }
-
-                if ((!this.filters.dateStart.end || !moment(this.filters.dateStart.end).isValid())) {
-                    this.filters.dateStart.end = moment().endOf('month').format('YYYY-MM-DD');
-                }
-
-                if (moment(this.filters.dateDelivery.start).isValid() === false) {
-                    this.filters.dateDelivery.start = '';
-                }
-
-                if (moment(this.filters.dateDelivery.end).isValid() === false) {
-                    this.filters.dateDelivery.end = '';
-                }
-            },
 
             fetchData() {
                 this.loading = true;
 
-                let filters = {};
-                for(let i of Object.keys(this.filters)) {
-                    if (this.filters[i] !== '' && this.filters[i] !== null) {
-                        filters[i] = this.filters[i];
-                    }
-                }
+                let bag = this.args.filters;
+                bag.page = this.args.meta.page;
+                bag.sort = this.args.meta.sort;
 
-                api.fetchAgreements(filters)
+                api.fetchAgreements(bag)
                     .then(({data}) => {
 
-                        if (data && data.orders) {
+                        if (data && data.data.orders) {
 
-                            data.orders.forEach(order => {
+                            data.data.orders.forEach(order => {
                                 order.buttonExpanded = false;
                                 order.confirmRemove = false;
                                 order.showCustomTasks = false;
                             });
 
-                            this.orders = data.orders;
-                            this.departments = data.departments;
+                            this.orders = data.data.orders;
+                            this.departments = data.data.departments;
+                            this.args.meta.pages = data.meta.pages || 0;
                         }
                     })
                     .catch(data => {})
@@ -294,9 +271,8 @@
                 return '';
             },
 
-
             updateSort(event) {
-                this.filters.meta.sort = event
+                this.args.meta.sort = event
             },
 
             getCustomTasks(production) {
@@ -343,24 +319,24 @@
             tableHeaders() {
                 let headers = [
                     [
-                        { name: this.$t('ID'), sortKey: 'a.orderNumber', rowspan: 2 },
-                        { name: this.$t('orders.date'), sortKey: 'l.confirmedDate', rowspan: 2 },
-                        { name: this.$t('customer'), sortKey: 'c.name', rowspan: 2},
-                        { name: this.$t('product'), sortKey: 'p.name', rowspan: 2 },
-                        { name: this.$t('orders.production'), colspan: 5},
+                        { name: this.$t('ID'), sortKey: 'id', rowspan: 2 },
+                        { name: this.$t('orders.date'), sortKey: 'dateConfirmed', rowspan: 2 },
+                        { name: this.$t('customer'), sortKey: 'customer', rowspan: 2},
+                        { name: this.$t('product'), sortKey: 'product', rowspan: 2 },
+                        { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
                     ],
                     [
-                        { name: this.$t('Klejenie')},
-                        { name: this.$t('CNC')},
-                        { name: this.$t('Szlifowanie')},
-                        { name: this.$t('Lakierowanie')},
-                        { name: this.$t('Pakowanie')},
+                        { name: this.$t('Klejenie'), classCell: 'text-center'},
+                        { name: this.$t('CNC'), classCell: 'text-center'},
+                        { name: this.$t('Szlifowanie'), classCell: 'text-center'},
+                        { name: this.$t('Lakierowanie'), classCell: 'text-center'},
+                        { name: this.$t('Pakowanie'), classCell: 'text-center'},
                     ]
 
                 ];
 
                 if (this.userCanProduction) {
-                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'l.factor', rowspan: 2 });
+                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'factor', rowspan: 2 });
                     headers[0].push({ name: this.$t('orders.additionalOrders'), rowspan: 2});
                 }
 
@@ -377,6 +353,44 @@
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
 
+            /**
+             * Tworzenie queryString na podstawie zmiennych z data
+             *
+             * @returns {string}
+             */
+            queryString() {
+                if (!this.syncQueryString) {
+                    return;
+                }
+                let query = {};
+                if (this.args.filters.dateStart.start) {
+                    query.dateReceive0 = this.args.filters.dateStart.start;
+                }
+                if (this.args.filters.dateStart.end) {
+                    query.dateReceive1 = this.args.filters.dateStart.end;
+                }
+                if (this.args.filters.dateDelivery.start) {
+                    query.dateDelivery0 = this.args.filters.dateDelivery.start;
+                }
+                if (this.args.filters.dateDelivery.end) {
+                    query.dateDelivery1 = this.args.filters.dateDelivery.end;
+                }
+                if (this.args.filters.q && this.args.filters.q.length > 0) {
+                    query.q = this.args.filters.q;
+                }
+                query.hideArchive = this.args.filters.hideArchive ? 'true' : 'false';
+
+                query.page = this.args.meta.page;
+                if (this.args.meta.sort) {
+                    query.sort = this.args.meta.sort;
+                }
+
+                let qString = window.location.pathname.concat('?', qs.stringify(query));
+                history.pushState(null, '', qString);
+
+                return qString;
+            },
+
         }
     }
 
@@ -385,7 +399,7 @@
 <style scoped lang="scss">
 
     .table tbody tr {
-        text-align: center;
+        /*text-align: center;*/
     }
 
     .production {

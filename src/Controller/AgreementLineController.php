@@ -6,6 +6,7 @@ use App\Entity\AgreementLine;
 use App\Entity\Production;
 use App\Entity\StatusLog;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -46,7 +47,7 @@ class AgreementLineController extends AbstractController
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t)
+    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator)
     {
         $search = $request->request->all();
 
@@ -54,55 +55,151 @@ class AgreementLineController extends AbstractController
             $search['search']['ownedBy'] = $this->getUser();
         }
 
-        $agreements = $repository->getFiltered($search);
-
-        return $this->json(
-            [
-                'orders' => array_map(function ($record) {
-                    return [
-                        'header' => [
-                            'id' => $record['Agreement']['id'],
-                            'status' => $record['Agreement']['status'],
-                            'orderNumber' => $record['Agreement']['orderNumber'],
-                            'createDate' => $record['Agreement']['createDate']->format('Y-m-d'),
-                        ],
-                        'customer' => $record['Agreement']['Customer'],
-                        'product' => $record['Product'],
-                        'production' => [
-                            'data' => array_map(function ($prod) {
-                                return [
-                                    'id' => $prod['id'],
-                                    'status' => (int) $prod['status'],
-                                    'departmentSlug' => $prod['departmentSlug'],
-                                    'dateStart' => is_object($prod['dateStart']) ? ($prod['dateStart'])->format('Y-m-d') : null,
-                                    'dateEnd' => is_object($prod['dateEnd']) ? ($prod['dateEnd']->format('Y-m-d')) : null,
-                                    'description' => $prod['description'],
-                                    'title' => $prod['title'],
-                                    'statusLog' => array_map(function($status) {
-                                        return [
-                                            'createdAt' => is_object($status['createdAt']) ? ($status['createdAt'])->format('Y-m-d H:m:s') : null,
-                                            'currentStatus' => (int) $status['currentStatus'],
-                                            'user' => $status['user'] ? sprintf('%s %s', $status['user']['firstName'], $status['user']['lastName']) : ''
-                                        ];
-                                    }, $prod['statusLogs'])
-                                ];
-                            }, $record['productions'])
-                        ],
-                        'line' => [
-                            'id' => $record['id'],
-                            'factor' => $record['factor'],
-                            'confirmedDate' => $record['confirmedDate']->format('Y-m-d'),
-                            'status' => $record['status'],
-                            'description' => $record['description']
-                        ]    
-                    ];
-                }, $agreements->getArrayResult()),
-                
-                'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
-                    \App\Entity\Department::names()
-                ),
-            ]
+        $agreements = $paginator->paginate(
+            $repository->getFiltered($search),
+            $search['search']['page'] ?? 1,
+            20
         );
+
+        $paginationMeta = ($agreements->getPaginationData());
+
+        $result = [];
+
+        foreach ($agreements as $agreement) {
+
+            $productionData = [];
+            foreach ($agreement->getProductions() as $prod) {
+                /** @var Production $prod */
+
+                $statusLog = [];
+                foreach ($prod->getStatusLogs() as $log) {
+                    $statusLog[] = [
+                        'createdAt' => $log->getCreatedAt(),
+                        'currentStatus' => $log->getCurrentStatus(),
+                        'user' => $log->getUser() ? $log->getUser()->getUserFullName() : ''
+                    ];
+                }
+
+                $productionData[] = [
+                    'dateEnd' => $prod->getDateEnd(),
+                    'dateStart' => $prod->getDateStart(),
+                    'departmentSlug' => $prod->getDepartmentSlug(),
+                    'description' => $prod->getDescription(),
+                    'id' => (int)$prod->getId(),
+                    'status' => (int)$prod->getStatus(),
+                    'title' => $prod->getTitle(),
+                    'statusLog' => $statusLog,
+                ];
+            }
+
+            /** @var AgreementLine $agreement */
+            $result['orders'][] = [
+                'header' => [
+                    'id' => $agreement->getAgreement()->getId(),
+                    'status' => $agreement->getAgreement()->getStatus(),
+                    'orderNumber' => $agreement->getAgreement()->getOrderNumber(),
+                    'createDate' => $agreement->getAgreement()->getCreateDate()->format('Y-m-d'),
+                ],
+                'customer' => [
+                    'apartment_number' => $agreement->getAgreement()->getCustomer()->getApartmentNumber(),
+                    'city' => $agreement->getAgreement()->getCustomer()->getCity(),
+                    'country' => $agreement->getAgreement()->getCustomer()->getCountry(),
+                    'createDate' => $agreement->getAgreement()->getCustomer()->getCreateDate()->format('Y-m-d'),
+                    'updateDate' => $agreement->getAgreement()->getCustomer()->getUpdateDate()->format('Y-m-d'),
+                    'email' => $agreement->getAgreement()->getCustomer()->getEmail(),
+                    'first_name' => $agreement->getAgreement()->getCustomer()->getFirstName(),
+                    'id' => $agreement->getAgreement()->getCustomer()->getId(),
+                    'last_name' => $agreement->getAgreement()->getCustomer()->getLastName(),
+                    'name' => $agreement->getAgreement()->getCustomer()->getName(),
+                    'phone' => $agreement->getAgreement()->getCustomer()->getPhone(),
+                    'postal_colde' => $agreement->getAgreement()->getCustomer()->getPostalCode(),
+                    'street' => $agreement->getAgreement()->getCustomer()->getStreet(),
+                    'street_number' => $agreement->getAgreement()->getCustomer()->getStreetNumber(),
+                ],
+                'product' => [
+                    'createDate' => $agreement->getProduct()->getCreateDate()->format('Y-m-d'),
+                    'description' => $agreement->getProduct()->getDescription(),
+                    'factor' => $agreement->getProduct()->getFactor(),
+                    'id' => $agreement->getProduct()->getId(),
+                    'name' => $agreement->getProduct()->getName()
+                ],
+                'production' => [
+                    'data' => $productionData
+                ],
+                'line' => [
+                    'id' => $agreement->getId(),
+                    'factor' => $agreement->getFactor(),
+                    'confirmedDate' => $agreement->getConfirmedDate()->format('Y-m-d'),
+                    'status' => $agreement->getStatus(),
+                    'description' => $agreement->getDescription()
+                ]
+            ];
+        }
+
+        $result['departments'] = array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
+        \App\Entity\Department::names());
+
+        return $this->json([
+            'data' => $result,
+            'meta' => [
+                'current' => $paginationMeta['current'],
+                'pages' => $paginationMeta['pageCount'],
+                'totalCount' => $paginationMeta['totalCount'],
+                'pageSize' => $paginationMeta['numItemsPerPage']
+            ],
+        ]);
+
+//        return $this->json(
+//            [
+//                'orders' => array_map(function ($record) {
+//                    var_dump($record);
+//                    /** @var AgreementLine $record */
+//                    return [
+//                        'header' => [
+//                            'id' => $record->getAgreement()->getId(),
+//                            'status' => $record->getAgreement()->getStatus(),
+//                            'orderNumber' => $record->getAgreement()->getOrderNumber(),
+//                            'createDate' => $record->getAgreement()->getCreateDate()->format('Y-m-d'),
+//                        ],
+//                        'customer' => $record->getAgreement()->getCustomer(),
+//                        'product' => $record->getProduct(),
+//                        'production' => [
+//                            'data' => array_map(function ($prod) {
+//                                /** @var Production $prod */
+//                                return [
+//                                    'id' => $prod->getId(),
+//                                    'status' => (int) $prod->getStatus(),
+//                                    'departmentSlug' => $prod->getDepartmentSlug(),
+//                                    'dateStart' => is_object($prod->getDateStart()) ? ($prod->getDateStart())->format('Y-m-d') : null,
+//                                    'dateEnd' => is_object($prod->getDateEnd()) ? ($prod->getDateEnd()->format('Y-m-d')) : null,
+//                                    'description' => $prod->getDescription(),
+//                                    'title' => $prod->getTitle(),
+//                                    'statusLog' => array_map(function($status) {
+//                                        /** @var StatusLog $status */
+//                                        return [
+//                                            'createdAt' => is_object($status->getCreatedAt()) ? ($status->getCreatedAt())->format('Y-m-d H:m:s') : null,
+//                                            'currentStatus' => (int) $status->getCurrentStatus(),
+//                                            'user' => $status->getUser() ? sprintf('%s %s', $status->getUser()->getFirstName(), $status->getUser()->getLastName()) : ''
+//                                        ];
+//                                    }, $prod->getStatusLogs())
+//                                ];
+//                            }, $record->getProductions())
+//                        ],
+//                        'line' => [
+//                            'id' => $record->getId(),
+//                            'factor' => $record->getFactor(),
+//                            'confirmedDate' => $record->getConfirmedDate()->format('Y-m-d'),
+//                            'status' => $record->getStatus(),
+//                            'description' => $record->getDescription()
+//                        ]
+//                    ];
+//                }, (array)$agreements),
+//
+//                'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
+//                    \App\Entity\Department::names()
+//                ),
+//            ]
+//        );
     }
 
     /**

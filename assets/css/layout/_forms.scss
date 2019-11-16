@@ -6,6 +6,25 @@ label.required:before {
 
 #app {
 
+    .card {
+        .card-header {
+            .fa {
+                padding: 5px;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+        }
+
+        .card-filters {
+            .form-group {
+                label {
+                    margin-bottom: 0.1rem;
+                    font-size: 0.8rem !important;
+                }
+            }
+        }
+    }
+
 
     .btn-primary {
         color: #fff;

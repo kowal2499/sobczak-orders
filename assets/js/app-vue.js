@@ -1,12 +1,13 @@
 import Vue from 'vue';
+import _ from 'lodash';
 import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
 import helpers from "./vue/helpers";
+
 import routing from "./vue/api/routing";
 
 import VueI18n from 'vue-i18n'
-
 import translationsGeneral from './translations/general';
 import translationsDashboard from './translations/dashboard';
 import translationsOrders from './translations/orders';

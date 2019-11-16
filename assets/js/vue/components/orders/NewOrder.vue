@@ -70,7 +70,7 @@
         },
 
         created() {
-            // gdy edytujemy istniejące zamówienie to zacznij od wczytania danych istniejącego zamówienia
+            // gdy edytujemy istniejące zamówienie to zacznij od wczytania jego danych
             if (this.agreementId > 0) {
                 this.waiting = true;
 

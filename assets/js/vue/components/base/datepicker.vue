@@ -29,7 +29,7 @@
 
             width: {
                 type: String,
-                default: '230px'
+                default: 'auto'
             }
         },
 
