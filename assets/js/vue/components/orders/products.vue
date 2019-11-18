@@ -89,6 +89,17 @@
                             </div>
                         </div>
 
+                        <div class="row mt-3" v-if="product.id">
+                            <label class="col-2 col-form-label">{{ $t('orders.attachments') }}</label>
+                            <div class="col">
+
+                                <form method="POST" :action="getUploadUrl" enctype="multipart/form-data">
+                                    <input type="file" name="sobczak-attach">
+                                    <button type="submit" class="btn btn-info"><i class="fa fa-paperclip" aria-hidden="true"></i> Dodaj załącznik do tego produktu</button>
+                                </form>
+                            </div>
+                        </div>
+
                         <div class="row mt-3">
                             <div class="col text-right">
                                 <button class="btn btn-danger" @click="remove(key)"><i class="fa fa-trash" aria-hidden="true"></i> {{ $t('orders.removeProduct') }}</button>
@@ -121,6 +132,7 @@
     import DatePicker from '../base/datepicker';
     import api from '../../api/neworder';
     import moment from "moment";
+    import routing from "../../api/routing";
 
 
     export default {
@@ -186,6 +198,12 @@
 
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            }
+        },
+
+        computed: {
+            getUploadUrl() {
+                return routing.get('agreement_line_upload');
             }
         },
 

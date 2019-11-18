@@ -6,8 +6,10 @@ use App\Entity\AgreementLine;
 use App\Entity\Production;
 use App\Entity\StatusLog;
 use Doctrine\ORM\EntityManagerInterface;
+use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -300,6 +302,25 @@ class AgreementLineController extends AbstractController
         }
 
         return $this->json(['newStatuses' => $retStatus]);
+    }
+
+    /**
+     * @Route("/agreement_line/upload", name="agreement_line_upload", methods={"POST"}, options={"expose"=true})
+     * @param Request $request
+     */
+    public function uploadTest(Request $request)
+    {
+        /** @var UploadedFile $uploadedFile */
+        $uploadedFile = $request->files->get('sobczak-attach');
+        $destination = $this->getParameter('kernel.project_dir') . '/public/uploads';
+
+        $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFileName = Urlizer::urlize($originalFileName) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+        dd($uploadedFile->move(
+            $destination,
+            $newFileName
+        ));
+
     }
 
     /**

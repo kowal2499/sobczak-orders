@@ -189,7 +189,12 @@
             this.args.filters.q = query.q ? String(query.q) : '';
 
             // hide active
-            this.args.filters.hideArchive = query.hideArchive ? String(query.hideArchive) : '';
+            if (query.hideArchive === 'true' || query.hideArchive === undefined) {
+                this.args.filters.hideArchive = true;
+            } else {
+                this.args.filters.hideArchive = false;
+            }
+            // this.args.filters.hideArchive = query.hideArchive === 'true' ? false : '';
 
             // page
             this.args.meta.page = parseInt(query.page) || 1;
