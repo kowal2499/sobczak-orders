@@ -6,6 +6,7 @@ use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Form\AgreementsType;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
@@ -116,19 +117,26 @@ class AgreementsController extends AbstractController
      */
     public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, TranslatorInterface $t)
     {
-        $customer = $customerRepository->find($request->request->getInt('customerId'));
+
+        $data = $request->request->all();
+
+        if (false === is_array($data['products'])) {
+            $data['products'] = json_decode($data['products'], true);
+        }
+
+        $customer = $customerRepository->find($data['customerId']);
 
         $agreement = new Agreement();
         $agreement
             ->setCreateDate(new \DateTime())
             ->setUpdateDate(new \DateTime())
             ->setCustomer($customer)
-            ->setOrderNumber($request->request->get('orderNumber'))
+            ->setOrderNumber($data['orderNumber'])
         ;
 
         $em->persist($agreement);
 
-        foreach($request->request->get('products') as $productData) {
+        foreach($data['products'] as $productData) {
             $product = $productRepository->find($productData['productId']);
 
             $agreementLine = new AgreementLine();
@@ -183,6 +191,24 @@ class AgreementsController extends AbstractController
          * 5. z tych agreement które otrzymaliśmy i które nie mają id - dodajemy jako nowe
          * 6. jeśli zbiór jest niepusty to znaczy że te które zostały trzeba usunąć. usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
+
+        $data = $request->request->all();
+        if (false === is_array($data['products'])) {
+            $data['products'] = json_decode($data['products'], true);
+        }
+        dump($data);
+        dump($request->files->all());
+        die;
+
+        $form = $this->createForm(AgreementsType::class, $agreement);
+        $data = $request->request->all() + $request->files->all();
+        $form->submit($data);
+
+
+        dump($form->isSubmitted());
+        dd($form->getData());
+
+
 
         /**
          * Stara tablica wszystkich pozycji zamówienia

@@ -43,12 +43,24 @@ export default {
         return axios.post(Routing.get('agreement_line_update') + '/' + lineId, { productionData, agreementLineData });
     },
 
-    storeOrder(customerId, products, orderNumber) {
-        return axios.post(Routing.get('orders_add'), { customerId, products, orderNumber });
+    /**
+     * Argumenty jako obiekt FormData (mogą zawierać pliki)
+     * @returns {Promise<AxiosResponse<T>>}
+     * @param formData
+     */
+    storeOrder(formData) {
+        return axios.post(Routing.get('orders_add'), formData);
     },
 
-    patchOrder(agreementId, customerId, products, orderNumber) {
-        return axios.post(Routing.get('orders_patch') + '/' + agreementId, { customerId, products, orderNumber });
+    /**
+     * Argumenty jako obiekt FormData (mogą zawierać pliki)
+     *
+     * @param agreementId
+     * @param formData
+     * @returns {Promise<AxiosResponse<T>>}
+     */
+    patchOrder(agreementId, formData) {
+        return axios.post(Routing.get('orders_patch') + '/' + agreementId, formData);
     },
 
     deleteOrder(agreementId) {
