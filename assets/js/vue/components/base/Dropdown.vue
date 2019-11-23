@@ -10,14 +10,12 @@
             <span v-if="btnText">&nbsp;{{ btnText }}</span>
         </button>
 
-<!--        <div style="position: fixed">-->
         <div class="dropdown-menu"
              :class="{show: expanded}"
              @click="expanded = false"
         >
             <slot></slot>
         </div>
-<!--        </div>-->
 
     </div>
 
@@ -88,23 +86,28 @@
     }
 
     .dropdown {
+
         .dropdown-menu {
             left: auto;
-            /*right: 18px;*/
             right: 0;
             top: 110%;
 
             padding: 0;
 
             a {
-                padding: 3px 15px;
                 font-size: 0.8rem;
             }
 
         }
 
-        button.dropdown-toggle:after {
-            display: none;
+        button {
+            &.dropdown-toggle:after {
+                display: none;
+            }
+
+            &.btn {
+                padding: 0 0.5rem;
+            }
         }
 
         a i {

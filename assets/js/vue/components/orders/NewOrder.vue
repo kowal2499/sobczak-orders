@@ -81,7 +81,8 @@
                 dropzoneOptions: {
                     url: null,
                     thumbnailWidth: 150,
-                    maxFilesize: 5,
+                    maxFilesize: 10,
+                    acceptedFiles: 'image/*,application/pdf',
                     autoProcessQueue: false,
                     addRemoveLinks: true,
                     uploadMultiple: true,
@@ -169,11 +170,14 @@
             },
 
             onSaveSuccess(file, response) {
-                // window.location.replace(routing.get('agreements_show'));
-                Event.$emit('message', {
-                    type: 'success',
-                    content: 'Zapisano zmiany'
-                });
+                if (!this.agreementId) {
+                    window.location.replace(routing.get('agreements_show'));
+                } else {
+                    Event.$emit('message', {
+                        type: 'success',
+                        content: 'Zapisano zmiany'
+                    });
+                }
             },
 
             onSaveError(file, message, xhr) {

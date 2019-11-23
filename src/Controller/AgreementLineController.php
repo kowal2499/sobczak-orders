@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
 use App\Entity\StatusLog;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
@@ -49,7 +50,7 @@ class AgreementLineController extends AbstractController
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator)
+    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator, UploaderHelper $uploaderHelper)
     {
         $search = $request->request->all();
 
@@ -95,35 +96,52 @@ class AgreementLineController extends AbstractController
             }
 
             /** @var AgreementLine $agreement */
+
+            $agr = $agreement->getAgreement();
+            $cust = $agr->getCustomer();
+            $prod = $agreement->getProduct();
+            $attachments = [];
+
+            foreach ($agr->getAttachments() as $a) {
+                $attachments[] = [
+                    'name' => $a->getName(),
+                    'original' => $a->getOriginalName(),
+                    'path' => $uploaderHelper->getPublicPath($a->getPath()),
+                    'thumbnail' => $uploaderHelper->getPublicPathThumbnail($a->getPath()),
+                    'extension' => $a->getExtension(),
+                ];
+            }
+
             $result['orders'][] = [
                 'header' => [
-                    'id' => $agreement->getAgreement()->getId(),
-                    'status' => $agreement->getAgreement()->getStatus(),
-                    'orderNumber' => $agreement->getAgreement()->getOrderNumber(),
-                    'createDate' => $agreement->getAgreement()->getCreateDate()->format('Y-m-d'),
+                    'id' => $agr->getId(),
+                    'status' => $agr->getStatus(),
+                    'orderNumber' => $agr->getOrderNumber(),
+                    'attachments' => $attachments,
+                    'createDate' => $agr->getCreateDate()->format('Y-m-d'),
                 ],
                 'customer' => [
-                    'apartment_number' => $agreement->getAgreement()->getCustomer()->getApartmentNumber(),
-                    'city' => $agreement->getAgreement()->getCustomer()->getCity(),
-                    'country' => $agreement->getAgreement()->getCustomer()->getCountry(),
-                    'createDate' => $agreement->getAgreement()->getCustomer()->getCreateDate()->format('Y-m-d'),
-                    'updateDate' => $agreement->getAgreement()->getCustomer()->getUpdateDate()->format('Y-m-d'),
-                    'email' => $agreement->getAgreement()->getCustomer()->getEmail(),
-                    'first_name' => $agreement->getAgreement()->getCustomer()->getFirstName(),
-                    'id' => $agreement->getAgreement()->getCustomer()->getId(),
-                    'last_name' => $agreement->getAgreement()->getCustomer()->getLastName(),
-                    'name' => $agreement->getAgreement()->getCustomer()->getName(),
-                    'phone' => $agreement->getAgreement()->getCustomer()->getPhone(),
-                    'postal_colde' => $agreement->getAgreement()->getCustomer()->getPostalCode(),
-                    'street' => $agreement->getAgreement()->getCustomer()->getStreet(),
-                    'street_number' => $agreement->getAgreement()->getCustomer()->getStreetNumber(),
+                    'apartment_number' => $cust->getApartmentNumber(),
+                    'city' => $cust->getCity(),
+                    'country' => $cust->getCountry(),
+                    'createDate' => $cust->getCreateDate()->format('Y-m-d'),
+                    'updateDate' => $cust->getUpdateDate()->format('Y-m-d'),
+                    'email' => $cust->getEmail(),
+                    'first_name' => $cust->getFirstName(),
+                    'id' => $cust->getId(),
+                    'last_name' => $cust->getLastName(),
+                    'name' => $cust->getName(),
+                    'phone' => $cust->getPhone(),
+                    'postal_colde' => $cust->getPostalCode(),
+                    'street' => $cust->getStreet(),
+                    'street_number' => $cust->getStreetNumber(),
                 ],
                 'product' => [
-                    'createDate' => $agreement->getProduct()->getCreateDate()->format('Y-m-d'),
-                    'description' => $agreement->getProduct()->getDescription(),
-                    'factor' => $agreement->getProduct()->getFactor(),
-                    'id' => $agreement->getProduct()->getId(),
-                    'name' => $agreement->getProduct()->getName()
+                    'createDate' => $prod->getCreateDate()->format('Y-m-d'),
+                    'description' => $prod->getDescription(),
+                    'factor' => $prod->getFactor(),
+                    'id' => $prod->getId(),
+                    'name' => $prod->getName()
                 ],
                 'production' => [
                     'data' => $productionData

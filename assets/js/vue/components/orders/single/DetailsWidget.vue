@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="sb-info-card">
 
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label>Status</label><br>
 
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-md-10">
                 <div class="form-group">
-                    <label>Data realizacji</label><br>
+                    <label>{{ $t('deliveryDate') }}</label><br>
                     <date-picker v-model="inner.confirmedDate" :is-range="false"/>
                 </div>
 
@@ -30,7 +30,7 @@
         <div class="row">
             <div class="col-md-10">
                 <div class="form-group">
-                    <label>Wymagania</label>
+                    <label>{{ $t('orders.requirements') }}</label>
                     <textarea class="form-control" cols="30" rows="7" v-model="inner.description"/>
                 </div>
 

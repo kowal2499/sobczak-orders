@@ -24,6 +24,7 @@
                         <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
                         <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(agreement.line.description)"></div>
                     </tooltip>
+                    <span v-if="agreement.header.attachments.length > 0"><i class="fa fa-paperclip sb-color"></i></span>
                 </td>
                 <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ $t(getAgreementStatusName(agreement.line.status)) }}</span></td>
                 <td>

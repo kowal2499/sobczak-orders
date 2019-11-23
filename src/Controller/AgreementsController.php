@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
+use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
 use App\Form\AgreementsType;
@@ -11,8 +12,11 @@ use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
 use App\Repository\AgreementRepository;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -115,7 +119,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, TranslatorInterface $t)
+    public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, UploaderHelper $uploaderHelper, TranslatorInterface $t)
     {
 
         $data = $request->request->all();
@@ -153,6 +157,23 @@ class AgreementsController extends AbstractController
             $em->persist($agreementLine);
         }
 
+        // file upload logic
+        $uploadedFiles = $request->files->get('file');
+        if (is_array($uploadedFiles) && !empty($uploadedFiles)) {
+
+            foreach ($uploadedFiles as $file) {
+                $fileNames = $uploaderHelper->uploadAttachment($file);
+
+                dd($fileNames);
+                $attachment = new Attachment();
+                $attachment->setAgreement($agreement);
+                $attachment->setName($fileNames['newFileName']);
+                $attachment->setOriginalName($fileNames['originalFileName']);
+                $attachment->setExtension($fileNames['extension']);
+                $em->persist($attachment);
+            }
+        }
+
 
         $em->flush();
 
@@ -181,6 +202,7 @@ class AgreementsController extends AbstractController
                          AgreementLineRepository $agreementLineRepository,
                          ProductRepository $productRepository,
                          EntityManagerInterface $em,
+                         UploaderHelper $uploaderHelper,
                          TranslatorInterface $t)
     {
         /**
@@ -192,23 +214,21 @@ class AgreementsController extends AbstractController
          * 6. jeśli zbiór jest niepusty to znaczy że te które zostały trzeba usunąć. usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
 
-        $data = $request->request->all();
-        if (false === is_array($data['products'])) {
-            $data['products'] = json_decode($data['products'], true);
+        $requestData = $request->request->all();
+        if (false === is_array($requestData['products'])) {
+            $requestData['products'] = json_decode($requestData['products'], true);
         }
-        dump($data);
-        dump($request->files->all());
-        die;
+//        dump($data);
+//        dump($request->files->all());
+//        die;
 
-        $form = $this->createForm(AgreementsType::class, $agreement);
-        $data = $request->request->all() + $request->files->all();
-        $form->submit($data);
-
-
-        dump($form->isSubmitted());
-        dd($form->getData());
+//        $form = $this->createForm(AgreementsType::class, $agreement);
+//        $data = $request->request->all() + $request->files->all();
+//        $form->submit($data);
 
 
+//        dump($form->isSubmitted());
+//        dd($form->getData());
 
         /**
          * Stara tablica wszystkich pozycji zamówienia
@@ -219,8 +239,8 @@ class AgreementsController extends AbstractController
         }
 
         try {
-            $customer = $customerRepository->find($request->request->getInt('customerId'));
-            $orderNumber = $request->request->get('orderNumber');
+            $customer = $customerRepository->find($requestData['customerId']);
+            $orderNumber = $requestData['orderNumber'];
 
             if (!$customer || !$orderNumber) {
                 throw new \Exception('Wrong input data');
@@ -230,7 +250,7 @@ class AgreementsController extends AbstractController
                 ->setOrderNumber($orderNumber)
             ;
 
-            $incomingLines = $request->request->get('products');
+            $incomingLines = $requestData['products'];
             if (empty($incomingLines)) {
                 throw new \Exception('Wrong input data');
             }
@@ -261,6 +281,22 @@ class AgreementsController extends AbstractController
 
                 $em->persist($line);
 
+            }
+
+            // file upload logic
+            $uploadedFiles = $request->files->get('file');
+            if (is_array($uploadedFiles) && !empty($uploadedFiles)) {
+
+                foreach ($uploadedFiles as $file) {
+                    $fileNames = $uploaderHelper->uploadAttachment($file);
+
+                    $attachment = new Attachment();
+                    $attachment->setAgreement($agreement);
+                    $attachment->setName($fileNames['newFileName']);
+                    $attachment->setOriginalName($fileNames['originalFileName']);
+                    $attachment->setExtension($fileNames['extension']);
+                    $em->persist($attachment);
+                }
             }
 
         } catch (Exception $e) {

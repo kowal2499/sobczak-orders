@@ -71,4 +71,13 @@ div#content-wrapper {
         padding-bottom: 110px;
     }
 
+    .sb-info-card {
+        .form-group > label {
+            color: $mainBlue;
+        }
+    }
+
+    .sb-color {
+        color: $mainBlue;
+    }
 }
