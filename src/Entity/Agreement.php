@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -49,9 +50,15 @@ class Agreement
      */
     private $orderNumber;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Attachment", mappedBy="Agreement", orphanRemoval=true)
+     */
+    private $attachments;
+
     public function __construct()
     {
         $this->agreementLines = new ArrayCollection();
+        $this->attachments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -145,6 +152,37 @@ class Agreement
     public function setOrderNumber(?string $orderNumber): self
     {
         $this->orderNumber = $orderNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Attachment[]
+     */
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
+
+    public function addAttachment(Attachment $attachment): self
+    {
+        if (!$this->attachments->contains($attachment)) {
+            $this->attachments[] = $attachment;
+            $attachment->setAgreement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAttachment(Attachment $attachment): self
+    {
+        if ($this->attachments->contains($attachment)) {
+            $this->attachments->removeElement($attachment);
+            // set the owning side to null (unless already changed)
+            if ($attachment->getAgreement() === $this) {
+                $attachment->setAgreement(null);
+            }
+        }
 
         return $this;
     }

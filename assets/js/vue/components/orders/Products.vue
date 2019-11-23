@@ -121,6 +121,7 @@
     import DatePicker from '../base/datepicker';
     import api from '../../api/neworder';
     import moment from "moment";
+    import routing from "../../api/routing";
 
 
     export default {
@@ -186,6 +187,12 @@
 
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            }
+        },
+
+        computed: {
+            getUploadUrl() {
+                return routing.get('agreement_line_upload');
             }
         },
 

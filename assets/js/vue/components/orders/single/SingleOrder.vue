@@ -46,6 +46,14 @@
                 <collapsible-card :title="$t('customer')" :locked="locked" v-if="orderData.customer">
                     <customer-widget v-model="orderData.customer"></customer-widget>
                 </collapsible-card>
+
+                <collapsible-card :title="$t('orders.attachments')" :locked="locked" v-if="orderData.header">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <attachments-widget :attachments="orderData.header.attachments || []" :show-name="true" :tooltip="false"></attachments-widget>
+                        </div>
+                    </div>
+                </collapsible-card>
             </div>
         </div>
 
@@ -60,10 +68,11 @@
     import DetailsWidget from "./DetailsWidget";
     import ProductWidget from "./ProductWidget";
     import CustomerWidget from "./CustomerWidget";
+    import AttachmentsWidget from "./AttachmentsWidget";
 
     export default {
         name: "SingleOrder",
-        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, CustomerWidget },
+        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, CustomerWidget, AttachmentsWidget },
         props: ['lineId', 'statuses'],
 
         data() {

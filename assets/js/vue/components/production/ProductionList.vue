@@ -8,84 +8,27 @@
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
 
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
+            <template v-for="(order, key) in orders">
 
-            <tr v-for="(order, ordersKey) in orders" v-if="order.production.data.length" :key="order.line.id">
-                <td>
-                    {{ order.header.orderNumber || order.line.id }}
-                    <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ $t(getAgreementStatusName(order.line.status)) }}</div>
-                </td>
-                <td v-text="order.line.confirmedDate"></td>
-                <td v-text="__mixin_customerName(order.customer)"></td>
-                <td>
-                    {{ order.product.name }}
-                    <tooltip v-if="order.line.description.length > 0">
-                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
-                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.line.description)"></div>
-                    </tooltip>
-                </td>
-                <td v-text="order.line.factor" class="text-center" v-if="userCanProduction"></td>
+                <production-row
+                    v-if="order.production.data.length"
+                    :order="order"
+                    :statuses="statuses"
+                    :key="order.line.id"
+                    @statusUpdated="updateStatus"
+                    @lineChanged="fetchData"
+                    @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
+                ></production-row>
 
-                <td class="production" v-for="(production, prodKey) in order.production.data" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
-                    <div class="task">
-                        <select class="form-control"
-                                v-model="production.status"
-                                @change="updateStatus(production.id, production.status)"
-                                :style="getStatusStyle(production)"
-                        >
-                            <option
-                                    v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
-                                    :value="status.value"
-                                    v-text="$t(status.name)"
-                                    style="background-color: white"
-                                    :disabled="!userCanProduction"
-                            ></option>
-                        </select>
-                    </div>
-                </td>
+                <production-row-details
+                    v-if="order.line.id === prodExpanded"
+                    :order="order"
+                    :statuses="statuses"
+                    :key="'details' + order.line.id"
+                    @statusUpdated="updateStatus"
+                ></production-row-details>
 
-                <td class="production" v-if="userCanProduction">
-
-                    <div v-if="getCustomTasks(order.production.data).length">
-                        <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3" @click.prevent="order.showCustomTasks = !order.showCustomTasks">
-                            <span v-if="order.showCustomTasks === false"><i class="fa fa-eye"></i> <span class="pl-1" >{{ $t('orders.show') }}</span></span>
-                            <span v-if="order.showCustomTasks === true"><i class="fa fa-eye-slash"></i> <span class="pl-1" >{{ $t('orders.hide') }}</span></span>
-                        </button>
-
-                        <template v-if="order.showCustomTasks">
-                            <div v-for="task in getCustomTasks(order.production.data)">
-
-                                <div class="task">
-                                    <label>{{ task.title }}</label>
-                                    <select class="form-control"
-                                            v-model="task.status"
-                                            @change="updateStatus(task.id, task.status)"
-                                            style="width: 120px;"
-                                            :style="getStatusStyle(task)"
-                                            :disabled="!userCanProduction"
-                                    >
-                                        <option
-                                                v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
-                                                :value="status.value"
-                                                v-text="$t(status.name)"
-                                                style="background-color: white"
-                                        ></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div v-else>
-                        {{ $t('orders.na') }}
-                    </div>
-
-                </td>
-
-                <td>
-                    <line-actions :line="order" @lineChanged="fetchData()"></line-actions>
-                </td>
-            </tr>
-
+            </template>
         </table-plus>
 
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
@@ -103,15 +46,15 @@
     import Helpers from '../../helpers';
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
-    import Tooltip from "../base/Tooltip";
-    import LineActions from "../common/LineActions";
     import CollapsibleCard from "../base/CollapsibleCard";
     import Pagination from "../base/Pagination";
+    import ProductionRow from "./ProductionRow";
+    import ProductionRowDetails from "./ProductionRowDetails";
 
     export default {
         name: "ProductionList",
 
-        components: {Filters, TablePlus, Tooltip, LineActions, CollapsibleCard, Pagination},
+        components: {Filters, TablePlus, CollapsibleCard, Pagination, ProductionRow, ProductionRowDetails},
 
         props: {
             statuses: {
@@ -150,6 +93,8 @@
 
                 orders: [],
                 departments: [],
+
+                prodExpanded: null,
 
                 loading: false,
 
@@ -194,6 +139,8 @@
             } else {
                 this.args.filters.hideArchive = false;
             }
+            // this.args.filters.hideArchive = query.hideArchive === 'true' ? false : '';
+
             // page
             this.args.meta.page = parseInt(query.page) || 1;
 
@@ -249,7 +196,10 @@
                     .finally(() => { this.loading = false; })
             },
 
-            updateStatus(productionId, newStatus) {
+            updateStatus(data) {
+                let productionId = data.id;
+                let newStatus = data.status;
+
                 productionApi.updateStatus(productionId, newStatus)
                     .then(() => {
                         Event.$emit('message', {
@@ -289,36 +239,6 @@
                 return routing;
             },
 
-            canArchiveOrWarehouse(order) {
-                let lastProductionStage = order.production.data.find(stage => { return stage.departmentSlug === 'dpt05'; });
-                return lastProductionStage.status === 3;
-            },
-
-            getAgreementStatusName(statusId) {
-                return this.statuses[statusId];
-            },
-
-            getAgreementStatusClass(statusId) {
-                let className = '';
-                switch (statusId) {
-                    case 5:
-                        className = 'badge-danger';
-                        break;
-                    case 10:
-                        className = 'badge-primary';
-                        break;
-                    case 15:
-                        className = 'badge-warning';
-                        break;
-                    case 20:
-                        className = 'badge-success';
-                        break;
-
-                    default:
-                        className = 'badge-primary'
-                }
-                return className;
-            }
         },
 
         computed: {
@@ -403,27 +323,6 @@
 </script>
 
 <style scoped lang="scss">
-
-    .table tbody tr {
-        /*text-align: center;*/
-    }
-
-    .production {
-
-        .task {
-            width: 80px;
-            label {
-                font-size: 0.75rem;
-                margin-bottom: 2px;
-                color: #aaa;
-            }
-            select {
-                font-size: 0.65rem;
-                padding: 5px;
-            }
-        }
-
-    }
 
 
 </style>
