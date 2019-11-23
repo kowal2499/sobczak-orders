@@ -163,8 +163,6 @@ class AgreementsController extends AbstractController
 
             foreach ($uploadedFiles as $file) {
                 $fileNames = $uploaderHelper->uploadAttachment($file);
-
-                dd($fileNames);
                 $attachment = new Attachment();
                 $attachment->setAgreement($agreement);
                 $attachment->setName($fileNames['newFileName']);
@@ -218,17 +216,6 @@ class AgreementsController extends AbstractController
         if (false === is_array($requestData['products'])) {
             $requestData['products'] = json_decode($requestData['products'], true);
         }
-//        dump($data);
-//        dump($request->files->all());
-//        die;
-
-//        $form = $this->createForm(AgreementsType::class, $agreement);
-//        $data = $request->request->all() + $request->files->all();
-//        $form->submit($data);
-
-
-//        dump($form->isSubmitted());
-//        dd($form->getData());
 
         /**
          * Stara tablica wszystkich pozycji zamówienia
