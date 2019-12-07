@@ -40,7 +40,8 @@ class UploaderHelper
         $destination = $this->uploadsPath . '/' . self::AGREEMENTS_PATH;
 
         $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $verifiedExtension = $uploadedFile->guessExtension();
+//        $verifiedExtension = $uploadedFile->guessExtension();
+        $verifiedExtension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
 
         $newFileName = Urlizer::urlize($originalFileName) . '-' . uniqid() . '.' . $verifiedExtension;
         $uploadedFile->move($destination, $newFileName);

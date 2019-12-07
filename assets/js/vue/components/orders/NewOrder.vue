@@ -28,12 +28,12 @@
 
                             <div class="form-group col-9">
                                 Załączniki
-                                    <vue2dropzone ref="myVueDropzone" id="dropzone"
-                                          :options="dropzoneOptions"
-                                          v-on:vdropzone-sending="dropzoneBeforeSend"
-                                          v-on:vdropzone-success="onSaveSuccess"
-                                          v-on:vdropzone-error="onSaveError"
-                                    ></vue2dropzone>
+                                <vue2dropzone ref="myVueDropzone" id="dropzone"
+                                              :options="dropzoneOptions"
+                                              v-on:vdropzone-sending="dropzoneBeforeSend"
+                                              v-on:vdropzone-success="onSaveSuccess"
+                                              v-on:vdropzone-error="onSaveError"
+                                />
 
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                     url: null,
                     thumbnailWidth: 150,
                     maxFilesize: 10,
-                    acceptedFiles: 'image/*,application/pdf',
+                    acceptedFiles: 'image/*,application/pdf,.txt,.cs',
                     autoProcessQueue: false,
                     addRemoveLinks: true,
                     uploadMultiple: true,

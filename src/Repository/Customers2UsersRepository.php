@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Customers2Users;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @method Customers2Users|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,9 +14,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class Customers2UsersRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $managerRegistry)
     {
-        parent::__construct($registry, Customers2Users::class);
+        parent::__construct($managerRegistry, Customers2Users::class);
     }
 
     // /**

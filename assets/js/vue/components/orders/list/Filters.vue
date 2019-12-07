@@ -7,14 +7,14 @@
             <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-md-3">
             <label>{{ $t('receiveDate') }}</label><br>
-            <date-picker v-model="filtersCollection.dateStart"></date-picker>
+            <date-picker v-model="filtersCollection.dateStart" style="width: 100%"/>
         </div>
 
-        <div class="form-group">
+        <div class="form-group col-md-3">
             <label>{{ $t('deliveryDate') }}</label><br>
-            <date-picker v-model="filtersCollection.dateDelivery"></date-picker>
+            <date-picker v-model="filtersCollection.dateDelivery" style="width: 100%"/>
         </div>
 
         <div class="col">
@@ -27,7 +27,7 @@
 
 <script>
 
-    import DatePicker from '../../base/datepicker';
+    import DatePicker from '../../base/DatePicker';
 
     export default {
         name: "filters",

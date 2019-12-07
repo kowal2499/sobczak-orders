@@ -34,6 +34,7 @@
     "qs": "^6.7.0",
     "vue-i18n": "^8.15.0",
     "vue-select": "^3.1.0",
+    "vue2-datepicker": "^3.2.2",
     "vue2-dropzone": "^3.6.0"
   }
 }

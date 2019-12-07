@@ -103,7 +103,9 @@ class ProductionController extends AbstractController
                 $newStatus = new StatusLog();
                 $newStatus
                     ->setCurrentStatus($plans[$idx]['status'])
-                    ->setProduction($prod);
+                    ->setCreatedAt(new \DateTime())
+                    ->setProduction($prod)
+                    ->setUser($this->getUser());
                 $em->persist($newStatus);
             }
         }
@@ -153,6 +155,7 @@ class ProductionController extends AbstractController
         $statusLog
             ->setProduction($production)
             ->setCurrentStatus($request->request->getInt('newStatus'))
+            ->setCreatedAt(new \DateTime())
             ->setUser($this->getUser())
         ;
 

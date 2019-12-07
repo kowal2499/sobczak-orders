@@ -6,8 +6,9 @@ use App\Entity\AgreementLine;
 use App\Entity\Production;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Security;
+
 
 /**
  * @method Production|null find($id, $lockMode = null, $lockVersion = null)
@@ -22,7 +23,7 @@ class ProductionRepository extends ServiceEntityRepository
      */
     private $security;
 
-    public function __construct(RegistryInterface $registry, Security $security)
+    public function __construct(ManagerRegistry $registry, Security $security)
     {
         parent::__construct($registry, Production::class);
         $this->security = $security;

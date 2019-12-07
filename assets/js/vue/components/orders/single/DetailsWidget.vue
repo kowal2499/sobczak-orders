@@ -41,7 +41,7 @@
 </template>
 
 <script>
-    import DatePicker from "../../base/datepicker";
+    import DatePicker from "../../base/DatePicker";
 
     export default {
         name: "DetailsWidget",
