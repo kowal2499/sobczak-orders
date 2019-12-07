@@ -62,17 +62,17 @@
 
 
                             <div class="form-row" v-if="canEditLine()">
-                                <div class="col-sm-5">
+                                <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>{{ $t('orders.realizationFrom') }}</label><br>
-                                        <date-picker v-model="task.dateStart" :is-range="false" :width="'100%'" />
+                                        <date-picker v-model="task.dateStart" :is-range="false" style="width: 100%"/>
                                     </div>
                                 </div>
 
-                                <div class="col-sm-5" v-if="canEditLine()">
+                                <div class="col-lg-6" v-if="canEditLine()">
                                     <div class="form-group">
                                         <label>{{ $t('orders.realizationTo') }}</label><br>
-                                        <date-picker v-model="task.dateEnd" :is-range="false" :width="'100%'"/>
+                                        <date-picker v-model="task.dateEnd" :is-range="false" style="width: 100%"/>
                                     </div>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
 </template>
 
 <script>
-    import DatePicker from "../../base/datepicker";
+    import DatePicker from "../../base/DatePicker";
     import Helpers from "../../../helpers";
     import ConfirmationModal from "../../base/ConfirmationModal";
 

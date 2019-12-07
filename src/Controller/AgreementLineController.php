@@ -286,6 +286,7 @@ class AgreementLineController extends AbstractController
                     $newStatus
                         ->setCurrentStatus((int)$prod['status'])
                         ->setProduction($production)
+                        ->setCreatedAt(new \DateTime())
                         ->setUser($this->getUser());
                     $em->persist($newStatus);
 

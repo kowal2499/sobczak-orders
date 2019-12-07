@@ -1,0 +1,99 @@
+<template>
+    <vueDP
+        v-model="innerDate"
+        type="date"
+        :lang="getTranslations"
+        :range="isRange"
+        :width="width"
+        use-utc="true"
+        :first-day-of-week="Number(1)"
+        >
+    </vueDP>
+</template>
+
+<script>
+
+
+    import vueDP from 'vue2-datepicker';
+    import 'vue2-datepicker/index.css';
+    import moment from 'moment';
+
+    export default {
+        name: "DatePicker",
+
+        props: {
+            value: {},
+
+            isRange: {
+                type: Boolean,
+                default: true
+            },
+
+            width: {
+                type: String,
+                default: 'auto'
+            }
+        },
+
+        components: { vueDP },
+
+        data() {
+            return {
+
+                lang: {
+                    pl : {
+                        days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
+                        months: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
+                        pickers: ['następne 7 dni', 'następne 30 dni', 'wcześniejsze 7 dni', 'wcześniejsze 30 dni'],
+                        placeholder: {
+                            date: 'Wybierz datę',
+                            dateRange: 'Wybierz zakres'
+                        }
+                    },
+                    en: null
+                },
+            }
+        },
+
+        computed: {
+            getTranslations() {
+                return this.lang[this.$user.user.locale] || 'en';
+            },
+
+            innerDate: {
+                get() {
+                    if (!this.value) {
+                        return null;
+                    }
+
+                    if (this.isRange) {
+                        return [
+                            new Date(String(this.value.start)),
+                            new Date(String(this.value.end))
+                        ]
+                    } else {
+                        return new Date(String(this.value));
+                    }
+                },
+
+                set(newValue) {
+                    if (this.isRange) {
+                        this.$emit('input', {
+                            start: moment(newValue[0]).format('YYYY-MM-DD'),
+                            end: moment(newValue[1]).format('YYYY-MM-DD'),
+                        });
+                    } else {
+                        this.$emit('input', moment(newValue).format('YYYY-MM-DD'));
+                    }
+                }
+            }
+
+
+        },
+
+    }
+</script>
+
+<style scoped>
+
+</style>

@@ -118,7 +118,7 @@
 
 <script>
 
-    import DatePicker from '../base/datepicker';
+    import DatePicker from '../base/DatePicker';
     import api from '../../api/neworder';
     import moment from "moment";
     import routing from "../../api/routing";
