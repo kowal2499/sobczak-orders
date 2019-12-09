@@ -212,6 +212,12 @@ class AgreementsController extends AbstractController
          * 6. jeśli zbiór jest niepusty to znaczy że te które zostały trzeba usunąć. usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
 
+        dump($request->request->all());
+
+        dump($request->files->all());
+
+        die;
+
         $requestData = $request->request->all();
         if (false === is_array($requestData['products'])) {
             $requestData['products'] = json_decode($requestData['products'], true);
@@ -339,15 +345,14 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/number_validate/{number}", name="validate_number", methods={"POST"}, options={"expose"=true})
-     * @param $number string
+     * @Route("/orders/number_validate/", name="validate_number", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function validateNumber(Request $request, $number, EntityManagerInterface $em)
+    public function validateNumber(Request $request, EntityManagerInterface $em)
     {
-        $orders = $em->getRepository(Agreement::class)->findBy(['orderNumber' => $number]);
+        $orders = $em->getRepository(Agreement::class)->findBy(['orderNumber' => $request->request->get('number')]);
 
         return new JsonResponse(['isValid' => !count($orders)]);
     }

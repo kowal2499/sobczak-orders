@@ -85,7 +85,7 @@ export default {
     },
 
     validateNumber(number) {
-        return axios.post(Routing.get('validate_number') + '/' + number);
+        return axios.post(Routing.get('validate_number'), {number} );
     }
 
 }
