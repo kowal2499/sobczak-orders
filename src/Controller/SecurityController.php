@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Customers2Users;
 use App\Entity\User;
+use App\Form\UserSecurityFormType;
 use App\Repository\CustomerRepository;
 use App\Repository\Customers2UsersRepository;
 use App\Repository\UserRepository;
@@ -126,6 +127,18 @@ class SecurityController extends AbstractController
     {
 
         try {
+
+            $form = $this->createForm(UserSecurityFormType::class);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+                $user = $form->getData();
+
+            }
+            dd($form->getData());
+
+            die;
+
             $userId = $request->request->getInt('id');
             $newFirstName = $request->request->get('firstName');
             $newLastName = $request->request->get('lastName');
