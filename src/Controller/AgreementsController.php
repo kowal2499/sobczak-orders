@@ -212,12 +212,6 @@ class AgreementsController extends AbstractController
          * 6. jeśli zbiór jest niepusty to znaczy że te które zostały trzeba usunąć. usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
 
-        dump($request->request->all());
-
-        dump($request->files->all());
-
-        die;
-
         $requestData = $request->request->all();
         if (false === is_array($requestData['products'])) {
             $requestData['products'] = json_decode($requestData['products'], true);
