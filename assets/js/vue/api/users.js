@@ -3,14 +3,19 @@ import Routing from './routing';
 
 export default {
     fetchUsers() {
-        return axios.post(Routing.get('security_fetch'));
+
+        return axios.get(Routing.get('users_fetch'));
     },
 
     fetchUser(id) {
-        return axios.post(Routing.get('security_fetch_user') + '/' + id);
+        return axios.get(Routing.get('user_fetch') + '/' + id);
+    },
+
+    addUser(user) {
+        return axios.post(Routing.get('user_add'), user);
     },
 
     storeUser(user) {
-        return axios.post(Routing.get('security_store_user'), { ... user });
+        return axios.patch(Routing.get('user_edit') + '/' + user.id, user);
     }
 }

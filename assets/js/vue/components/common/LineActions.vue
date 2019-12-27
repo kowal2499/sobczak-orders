@@ -287,11 +287,11 @@
                 ApiNewOrder.storeProductionPlan(production, line.line.id)
                     .then(({data}) => {
                         line.production.data = Array.isArray(data) ? data[0] : [];
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('addedToSchedule')
                         });
-                        Event.$emit('statusUpdated');
+                        EventBus.$emit('statusUpdated');
                         this.$emit('lineChanged');
                     })
                     .finally(() => {})
@@ -310,11 +310,11 @@
 
                 ApiNewOrder.deleteAgreementLine(this.line.line.id)
                     .then(() => {
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('orderDeleted')
                         });
-                        Event.$emit('statusUpdated');
+                        EventBus.$emit('statusUpdated');
                         this.$emit('lineChanged');
                     })
                     .finally(() => {
@@ -373,11 +373,11 @@
                 this.isModalConfirmArchiveBusy = true;
                 ApiNewOrder.setAgreementStatus(this.line.line.id, statusCode)
                     .then(({data}) => {
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('statusChangeSaved')
                         });
-                        Event.$emit('statusUpdated');
+                        EventBus.$emit('statusUpdated');
                         this.$emit('lineChanged');
                     })
                     .finally(() => {

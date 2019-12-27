@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import _ from 'lodash';
+import BootstrapVue from 'bootstrap-vue'
 import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
@@ -13,7 +14,7 @@ import translationsDashboard from './translations/dashboard';
 import translationsOrders from './translations/orders';
 import translationsProduction from './translations/production';
 
-window.Event = new Vue();
+window.EventBus = new Vue();
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     Vue.use(VueI18n);
+    Vue.use(BootstrapVue);
 
     const i18n = new VueI18n({locale: user.locale, fallbackLocale: 'pl',
         messages: {
@@ -65,9 +67,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-});
-
-window.addEventListener("load", function(event) {
-    // var blur = document.querySelector('.blur');
-    // blur.style.display = 'none';
 });

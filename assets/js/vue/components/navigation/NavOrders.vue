@@ -33,7 +33,7 @@
         },
 
         mounted() {
-            Event.$on('statusUpdated', this.fetchData);
+            EventBus.$on('statusUpdated', this.fetchData);
 
             this.fetchData();
         },
@@ -46,7 +46,7 @@
                 })
                 .catch((data) => {
                     for (let msg of data.response.data) {
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'error',
                             content: msg
                         });

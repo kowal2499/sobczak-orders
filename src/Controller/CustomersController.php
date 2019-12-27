@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CustomersController extends AbstractController
@@ -46,7 +47,7 @@ class CustomersController extends AbstractController
     /**
      * @isGranted({"ROLE_CUSTOMERS", "ROLE_CUSTOMERS_LIMITED"})
      *
-     * @Route("/api/customers/search", name="api_customers_search", methods={"GET"}, options={"expose"=true})
+     * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $repository
      * @return JsonResponse
@@ -59,9 +60,11 @@ class CustomersController extends AbstractController
             $search['ownedBy'] = $this->getUser();
         }
 
-        $customers = $repository->getWithSearch($search);
+        $customers = $repository->getWithSearch($search)->execute();
 
-        return new JsonResponse($customers->getArrayResult());
+        return $this->json($customers, Response::HTTP_OK, [], [
+            ObjectNormalizer::GROUPS => ['_main']
+        ]);
     }
 
     /**

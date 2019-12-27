@@ -173,7 +173,7 @@
                 if (!this.agreementId) {
                     window.location.replace(routing.get('agreements_show'));
                 } else {
-                    Event.$emit('message', {
+                    EventBus.$emit('message', {
                         type: 'success',
                         content: 'Zapisano zmiany'
                     });
@@ -181,7 +181,7 @@
             },
 
             onSaveError(file, message, xhr) {
-                Event.$emit('message', {
+                EventBus.$emit('message', {
                     type: 'error',
                     content: 'Wystąpił błąd'
                 });

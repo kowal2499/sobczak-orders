@@ -1,13 +1,14 @@
 
 const statuses = [
-    { value: 0, name: 'oczekuje', color: '#FFF' },
-    { value: 1, name: 'rozpoczęte', color: '#FFA07A' },
-    { value: 2, name: 'w trakcie', color: '#87CEFA' },
-    { value: 3, name: 'zakończone', color: '#8FBC8F' },
+    { value: 0, name: 'oczekuje', color: '#FFF', className: 'dropdown-white' },
+    { value: 1, name: 'rozpoczęte', color: '#FFA07A', className: 'dropdown-orange' },
+    { value: 2, name: 'w trakcie', color: '#87CEFA', className: 'dropdown-blue' },
+    { value: 3, name: 'zakończone', color: '#8FBC8F', className: 'dropdown-green1' },
+    { value: 4, name: 'nie dotyczy', color: '#419D78', className: 'dropdown-green2' },
 
-    { value: 10, name: 'do zamówienia', color: '#FFF' },
-    { value: 11, name: 'zamówione i oczekiwanie', color: '#87CEFA' },
-    { value: 12, name: 'zrealizowane na stanie', color: '#8FBC8F' }
+    { value: 10, name: 'do zamówienia', color: '#FFF', className: 'dropdown-white' },
+    { value: 11, name: 'zamówione i oczekiwanie', color: '#87CEFA', className: 'dropdown-blue' },
+    { value: 12, name: 'zrealizowane na stanie', color: '#8FBC8F', className: 'dropdown-green1' }
 ];
 
 const roles = [
@@ -59,11 +60,11 @@ export default {
             case 'dpt03':
             case 'dpt04':
             case 'dpt05':
-                result = statuses.slice(0, 4);
+                result = statuses.slice(0, 5);
                 break;
 
             case 'custom_task':
-                result = statuses.slice(4);
+                result = statuses.slice(5);
                 break;
         }
 

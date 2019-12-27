@@ -32,7 +32,7 @@
 
         <transition name="fade">
             <div class="courtain text-center" v-if="loading">
-                <i class="fa fa-spinner fa-spin fa-2x mt-4"></i>
+                <i class="fa fa-spinner fa-spin fa-2x mt-4"/>
             </div>
         </transition>
 
@@ -111,7 +111,10 @@
     table.table {
         font-size: 0.8rem;
 
+
         th {
+
+            border-bottom: 1px solid #e3e6f0;
             vertical-align: middle;
             .wrapper {
                 font-size: 0.85rem;

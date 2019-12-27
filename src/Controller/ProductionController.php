@@ -144,6 +144,7 @@ class ProductionController extends AbstractController
      * @param ProductionRepository $repository
      * @param EntityManagerInterface $em
      * @return JsonResponse
+     * @throws \Exception
      */
     public function updateStatus(Request $request, ProductionRepository $repository, EntityManagerInterface $em)
     {

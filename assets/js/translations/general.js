@@ -28,9 +28,12 @@ export default {
         'rozpoczęte': 'started',
         'w trakcie': 'in progress',
         'zakończone': 'finished',
+        'nie dotyczy': 'not applicable',
         'do zamówienia': 'ready to order',
         'zamówione i oczekiwanie': 'ordered and awaiting',
         'zrealizowane na stanie': 'finished on stock',
+        'forbidden': 'No access',
+        'error': 'An error occured',
     },
     'pl': {
         Styczeń: 'Styczeń',
@@ -62,7 +65,10 @@ export default {
         'w trakcie': 'w trakcie',
         'zakończone': 'zakończone',
         'do zamówienia': 'do zamówienia',
+        'nie dotyczy': 'nie dotyczy',
         'zamówione i oczekiwanie': 'zamówione i oczekiwanie',
         'zrealizowane na stanie': 'zrealizowane na stanie',
+        'forbidden': 'Brak dostępu',
+        'error': 'Wystąpił błąd',
     }
 }
