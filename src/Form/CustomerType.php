@@ -4,6 +4,7 @@
 namespace App\Form;
 
 
+use App\Entity\Customer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -19,6 +20,7 @@ class CustomerType extends AbstractType
     {
         $resolver->setDefaults([
             'translation_domain' => 'customers',
+            'data_class' => Customer::class,
         ]);
     }
 

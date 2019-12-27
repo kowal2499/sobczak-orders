@@ -4,6 +4,8 @@ namespace App\Security\Voter;
 
 use App\Entity\Customer;
 use App\Entity\User;
+use App\Repository\CustomerRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -26,7 +28,7 @@ class CustomerVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        /** @var Customer $subject */
+        /** @var $user User */
         $user = $token->getUser();
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
@@ -36,16 +38,12 @@ class CustomerVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'ASSIGNED_CUSTOMER':
-
-                if ($this->security->isGranted('ROLE_CUSTOMERS')) {
+                // if user doesn't have ROLE_CUSTOMER than grant access
+                if (false === $this->security->isGranted('ROLE_CUSTOMER')) {
                     return true;
                 }
-
-                /** @var $user User */
-                $user = $this->security->getUser();
-                $customersIds = array_map(function($customer) { return $customer->getId(); }, $user->getCustomers());
-
-                return in_array($subject->getId(), $customersIds);
+                return $user->getCustomers()->contains($subject);
+                break;
         }
 
         return false;

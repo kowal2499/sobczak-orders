@@ -5,7 +5,6 @@
             :options="selectOptions"
             :multiple="true"
             :filterable="false"
-            :reduce="customer => customer.id"
             v-model="selection"
             @search="fetchOptionsWithSearch"
             label="label"
@@ -57,7 +56,11 @@
 
         components: { VueSelect, Waiting },
 
-        props: [ 'value' ],
+        props: {
+            value: {
+                default: () => []
+            }
+        },
 
         data() {
             return {
@@ -74,11 +77,12 @@
 
         mounted() {
             this.fetch();
+            this.selection = this.selection.map(this.prepareOption);
         },
 
         watch: {
             selection(val) {
-                this.$emit('input', val);
+                this.$emit('input', val.map(v => v.id));
             }
         },
 
@@ -91,20 +95,12 @@
                     CustomerAPI.findCustomers(this.q)
                         .then(({data}) => {
                             if (Array.isArray(data)) {
-                                this.selectOptions = data.map(record => {
-                                    let label = '';
-                                    if (record.name) {
-                                        label = record.name;
-                                        if (record.first_name || record.last_name) {
-                                            label = label + ' (' + [record.first_name, record.last_name].filter(i => { return i}).join(' ') +')'
-                                        }
-                                    } else {
-                                        label = [record.first_name, record.last_name].filter(i => { return i}).join(' ');
-                                    }
-                                    record['label'] = label;
-                                    record['value'] = record.id;
-                                    return record;
-                                });
+                                this.selectOptions = data
+                                    .map(this.prepareOption)
+                                    .filter(option => {
+                                        return this.value.indexOf(option.id) === -1;
+                                    })
+                                ;
                             } else {
                                 this.selectOptions = [];
                             }
@@ -124,7 +120,16 @@
                 this.fetch().then(data => {
                     loading(false)
                 });
-            }, 500)
+            }, 500),
+
+            prepareOption(customer) {
+                let nameText = '';
+                if (customer.first_name && customer.last_name) {
+                    nameText = ` (${customer.first_name} ${customer.last_name})`;
+                }
+                customer.label = `${customer.name}${nameText}`;
+                return customer;
+            }
 
         }
     }

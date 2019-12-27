@@ -103,16 +103,16 @@
                             })
                         }
 
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('orders.changesWereSaved')
                         });
 
-                        Event.$emit('statusUpdated');
+                        EventBus.$emit('statusUpdated');
                     })
                     .catch((data) => {
                         for (let msg of data.response.data) {
-                            Event.$emit('message', {
+                            EventBus.$emit('message', {
                                 type: 'error',
                                 content: msg
                             });

@@ -209,20 +209,22 @@
             save() {
                 this.locked = true;
 
-                let userData = this.user;
+                let userData = { ... this.user };
 
                 if (this.passwords.new) {
-                    userData.password = this.passwords.new;
+                    userData.passwordPlain = this.passwords.new;
                     userData.passwordOld = this.passwords.old;
                 }
 
-                users.storeUser(userData)
+                let fn = this.userId ? users.storeUser : users.addUser;
+
+                fn(userData)
                     .then(() => {
                         // gdy dodano nowego użytkownika to przekieruj do listy
                         if (this.isNew()) {
                             window.location.replace(Routing.get('security_users'));
                         } else {
-                            Event.$emit('message', {
+                            EventBus.$emit('message', {
                                 type: 'success',
                                 content: 'Zapisano zmiany.'
                             });
@@ -230,10 +232,10 @@
                         }
                     })
                     .catch((data) => {
-                        for (let msg of data.response.data) {
-                            Event.$emit('message', {
+                        if (data.response.data) {
+                            EventBus.$emit('message', {
                                 type: 'error',
-                                content: msg
+                                content: data.response.data.errors.title
                             });
                         }
                         this.locked = false;

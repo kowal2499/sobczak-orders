@@ -33,7 +33,7 @@
         },
 
         created() {
-            Event.$on('message', (data) => {
+            EventBus.$on('message', (data) => {
                 this.addNewMessage(data)
             });
 

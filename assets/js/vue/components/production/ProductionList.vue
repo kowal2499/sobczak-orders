@@ -2,10 +2,10 @@
     <collapsible-card :title="$t('orders.productionSchedule')">
 
         <template v-slot:filters>
-            <filters :filters-collection="args.filters"></filters>
+            <filters :filters-collection="args.filters"/>
         </template>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
 
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
             <template v-for="(order, key) in orders">
@@ -18,7 +18,7 @@
                     @statusUpdated="updateStatus"
                     @lineChanged="fetchData"
                     @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
-                ></production-row>
+                />
 
                 <production-row-details
                     v-if="order.line.id === prodExpanded"
@@ -26,12 +26,12 @@
                     :statuses="statuses"
                     :key="'details' + order.line.id"
                     @statusUpdated="updateStatus"
-                ></production-row-details>
+                />
 
             </template>
         </table-plus>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
 
     </collapsible-card>
 </template>
@@ -199,17 +199,27 @@
             updateStatus(data) {
                 let productionId = data.id;
                 let newStatus = data.status;
-
                 productionApi.updateStatus(productionId, newStatus)
                     .then(() => {
-                        Event.$emit('message', {
+                        EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('statusChangeSaved')
                         });
                     })
                     .catch((error) => {
-                        // TODO: gdy 403 to data zawiera htmla i nie można loopować po błędach
-                        Event.$emit('message', {
+                        let msg = '';
+                        if (error.response && error.response.status) {
+                            switch (error.response.status) {
+                                case 403:
+                                    msg = this.$t('forbidden');
+                                    break;
+                                default:
+                                    msg = this.$t('error');
+
+                            }
+                        }
+
+                        EventBus.$emit('message', {
                             type: 'error',
                             content: msg
                         });

@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -17,38 +18,38 @@ class User implements UserInterface
 
     public function __construct()
     {
-        $this->customers = new ArrayCollection();
         $this->statusLogs = new ArrayCollection();
+        $this->customers = new ArrayCollection();
     }
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("public_attr")
+     * @Groups("_main")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups("public_attr")
+     * @Groups("_main")
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups("public_attr")
+     * @Groups("_main")
      */
     private $roles = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("public_attr")
+     * @Groups("_main")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("public_attr")
+     * @Groups("_main")
      */
     private $lastName;
 
@@ -58,17 +59,15 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="owner")
-     * @Groups("public_attr")
-     *
-     * @MaxDepth(2)
-     */
-    private $customers;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="user")
      */
     private $statusLogs;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Customer", inversedBy="users")
+     * @Groups("_main")
+     */
+    private $customers;
 
     public function getId(): ?int
     {
@@ -185,19 +184,6 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Customers2Users[]
-     * @Groups("public_attr")
-     */
-    public function getCustomers()
-    {
-        $ret = [];
-        foreach ($this->customers as $customer) {
-            $ret[] = $customer->getCustomer();
-        }
-        return $ret;
-    }
-
-    /**
      * @return Collection|StatusLog[]
      */
     public function getStatusLogs(): Collection
@@ -223,6 +209,32 @@ class User implements UserInterface
             if ($statusLog->getUser() === $this) {
                 $statusLog->setUser(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Customer[]
+     */
+    public function getCustomers(): Collection
+    {
+        return $this->customers;
+    }
+
+    public function addCustomer(Customer $customer): self
+    {
+        if (!$this->customers->contains($customer)) {
+            $this->customers[] = $customer;
+        }
+
+        return $this;
+    }
+
+    public function removeCustomer(Customer $customer): self
+    {
+        if ($this->customers->contains($customer)) {
+            $this->customers->removeElement($customer);
         }
 
         return $this;

@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
@@ -17,22 +17,26 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("_main")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Pole nie może być puste")
+     * @Groups("_main")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("_main")
      */
     private $first_name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("_main")
      */
     private $last_name;
 
@@ -91,9 +95,15 @@ class Customer
      */
     private $agreements;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="customers")
+     */
+    private $users;
+
     public function __construct()
     {
         $this->agreements = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,6 +293,34 @@ class Customer
             if ($agreement->getCustomer() === $this) {
                 $agreement->setCustomer(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            $user->removeCustomer($this);
         }
 
         return $this;
