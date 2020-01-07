@@ -43,7 +43,6 @@
                 lang: {
                     pl : {
                         days: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'So'],
-                        monthsShort: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
                         pickers: ['następne 7 dni', 'następne 30 dni', 'wcześniejsze 7 dni', 'wcześniejsze 30 dni'],
                         placeholder: {
                             date: 'Wybierz datę',
@@ -51,6 +50,7 @@
                         },
                         formatLocale: {
                             firstDayOfWeek: 1,
+                            monthsShort: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'],
                         },
                     },
                     en: {
