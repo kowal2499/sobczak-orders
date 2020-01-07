@@ -6,7 +6,7 @@
         :range="isRange"
         :width="width"
         use-utc="true"
-        :first-day-of-week="Number(1)"
+        :show-week-number="true"
         >
     </vueDP>
 </template>
@@ -48,16 +48,24 @@
                         placeholder: {
                             date: 'Wybierz datę',
                             dateRange: 'Wybierz zakres'
+                        },
+                        formatLocale: {
+                            firstDayOfWeek: 1,
+                        },
+                    },
+                    en: {
+                        formatLocale: {
+                            firstDayOfWeek: 1,
                         }
                     },
-                    en: null
+
                 },
             }
         },
 
         computed: {
             getTranslations() {
-                return this.lang[this.$user.user.locale] || 'en';
+                return this.lang[this.$user.user.locale] || this.lang['en'];
             },
 
             innerDate: {
@@ -87,8 +95,6 @@
                     }
                 }
             }
-
-
         },
 
     }
