@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
 use App\Entity\StatusLog;
+use App\Repository\AgreementRepository;
+use App\Service\DateTimeHelper;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -17,6 +19,11 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 
@@ -50,7 +57,7 @@ class AgreementLineController extends AbstractController
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator, UploaderHelper $uploaderHelper)
+    public function fetch(Request $request, AgreementRepository $agreementRepository, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator, UploaderHelper $uploaderHelper)
     {
         $search = $request->request->all();
 
@@ -66,160 +73,18 @@ class AgreementLineController extends AbstractController
 
         $paginationMeta = ($agreements->getPaginationData());
 
-        $result = [];
-
-        foreach ($agreements as $agreement) {
-
-            $productionData = [];
-            foreach ($agreement->getProductions() as $prod) {
-                /** @var Production $prod */
-
-                $statusLog = [];
-                foreach ($prod->getStatusLogs() as $log) {
-                    $statusLog[] = [
-                        'createdAt' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
-                        'currentStatus' => $log->getCurrentStatus(),
-                        'user' => $log->getUser() ? $log->getUser()->getUserFullName() : ''
-                    ];
-                }
-
-                $productionData[] = [
-                    'dateEnd' => $prod->getDateEnd(),
-                    'dateStart' => $prod->getDateStart(),
-                    'departmentSlug' => $prod->getDepartmentSlug(),
-                    'description' => $prod->getDescription(),
-                    'id' => (int)$prod->getId(),
-                    'status' => (int)$prod->getStatus(),
-                    'title' => $prod->getTitle(),
-                    'statusLog' => $statusLog,
-                ];
-            }
-
-            /** @var AgreementLine $agreement */
-
-            $agr = $agreement->getAgreement();
-            $cust = $agr->getCustomer();
-            $prod = $agreement->getProduct();
-            $attachments = [];
-
-            foreach ($agr->getAttachments() as $a) {
-                $attachments[] = [
-                    'name' => $a->getName(),
-                    'original' => $a->getOriginalName(),
-                    'path' => $uploaderHelper->getPublicPath($a->getPath()),
-                    'thumbnail' => $uploaderHelper->getPublicPathThumbnail($a->getPath()),
-                    'extension' => $a->getExtension(),
-                ];
-            }
-
-            $result['orders'][] = [
-                'header' => [
-                    'id' => $agr->getId(),
-                    'status' => $agr->getStatus(),
-                    'orderNumber' => $agr->getOrderNumber(),
-                    'attachments' => $attachments,
-                    'createDate' => $agr->getCreateDate()->format('Y-m-d'),
-                ],
-                'customer' => [
-                    'apartment_number' => $cust->getApartmentNumber(),
-                    'city' => $cust->getCity(),
-                    'country' => $cust->getCountry(),
-                    'createDate' => $cust->getCreateDate()->format('Y-m-d'),
-                    'updateDate' => $cust->getUpdateDate()->format('Y-m-d'),
-                    'email' => $cust->getEmail(),
-                    'first_name' => $cust->getFirstName(),
-                    'id' => $cust->getId(),
-                    'last_name' => $cust->getLastName(),
-                    'name' => $cust->getName(),
-                    'phone' => $cust->getPhone(),
-                    'postal_colde' => $cust->getPostalCode(),
-                    'street' => $cust->getStreet(),
-                    'street_number' => $cust->getStreetNumber(),
-                ],
-                'product' => [
-                    'createDate' => $prod->getCreateDate()->format('Y-m-d'),
-                    'description' => $prod->getDescription(),
-                    'factor' => $prod->getFactor(),
-                    'id' => $prod->getId(),
-                    'name' => $prod->getName()
-                ],
-                'production' => [
-                    'data' => $productionData
-                ],
-                'line' => [
-                    'id' => $agreement->getId(),
-                    'factor' => $agreement->getFactor(),
-                    'confirmedDate' => $agreement->getConfirmedDate()->format('Y-m-d'),
-                    'status' => $agreement->getStatus(),
-                    'description' => $agreement->getDescription()
-                ]
-            ];
-        }
-
-        $result['departments'] = array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
-        \App\Entity\Department::names());
-
         return $this->json([
-            'data' => $result,
+            'data' => $agreements,
             'meta' => [
                 'current' => $paginationMeta['current'],
                 'pages' => $paginationMeta['pageCount'],
                 'totalCount' => $paginationMeta['totalCount'],
                 'pageSize' => $paginationMeta['numItemsPerPage']
             ],
+        ], Response::HTTP_OK, [], [
+            AbstractNormalizer::GROUPS => ['_main'],
+            DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s',
         ]);
-
-//        return $this->json(
-//            [
-//                'orders' => array_map(function ($record) {
-//                    var_dump($record);
-//                    /** @var AgreementLine $record */
-//                    return [
-//                        'header' => [
-//                            'id' => $record->getAgreement()->getId(),
-//                            'status' => $record->getAgreement()->getStatus(),
-//                            'orderNumber' => $record->getAgreement()->getOrderNumber(),
-//                            'createDate' => $record->getAgreement()->getCreateDate()->format('Y-m-d'),
-//                        ],
-//                        'customer' => $record->getAgreement()->getCustomer(),
-//                        'product' => $record->getProduct(),
-//                        'production' => [
-//                            'data' => array_map(function ($prod) {
-//                                /** @var Production $prod */
-//                                return [
-//                                    'id' => $prod->getId(),
-//                                    'status' => (int) $prod->getStatus(),
-//                                    'departmentSlug' => $prod->getDepartmentSlug(),
-//                                    'dateStart' => is_object($prod->getDateStart()) ? ($prod->getDateStart())->format('Y-m-d') : null,
-//                                    'dateEnd' => is_object($prod->getDateEnd()) ? ($prod->getDateEnd()->format('Y-m-d')) : null,
-//                                    'description' => $prod->getDescription(),
-//                                    'title' => $prod->getTitle(),
-//                                    'statusLog' => array_map(function($status) {
-//                                        /** @var StatusLog $status */
-//                                        return [
-//                                            'createdAt' => is_object($status->getCreatedAt()) ? ($status->getCreatedAt())->format('Y-m-d H:m:s') : null,
-//                                            'currentStatus' => (int) $status->getCurrentStatus(),
-//                                            'user' => $status->getUser() ? sprintf('%s %s', $status->getUser()->getFirstName(), $status->getUser()->getLastName()) : ''
-//                                        ];
-//                                    }, $prod->getStatusLogs())
-//                                ];
-//                            }, $record->getProductions())
-//                        ],
-//                        'line' => [
-//                            'id' => $record->getId(),
-//                            'factor' => $record->getFactor(),
-//                            'confirmedDate' => $record->getConfirmedDate()->format('Y-m-d'),
-//                            'status' => $record->getStatus(),
-//                            'description' => $record->getDescription()
-//                        ]
-//                    ];
-//                }, (array)$agreements),
-//
-//                'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
-//                    \App\Entity\Department::names()
-//                ),
-//            ]
-//        );
     }
 
     /**
@@ -249,14 +114,10 @@ class AgreementLineController extends AbstractController
                     $production
                         ->setCreatedAt(new \DateTime())
                         ->setAgreementLine($agreementLine)
-//                    ->setDescription($prod['description'])
-                        ->setDepartmentSlug($prod['departmentSlug'])//                    ->setTitle($prod['title'])
+                        ->setDepartmentSlug($prod['departmentSlug'])
                     ;
                 } else {
                     $production = $em->getRepository(Production::class)->find($prod['id']);
-//                if (($idx = array_search($prod['id'], $productionOld) !== false)) {
-//                    unset($productionOld[])
-//                }
                 }
                 $oldStatus = $production->getStatus();
                 $production

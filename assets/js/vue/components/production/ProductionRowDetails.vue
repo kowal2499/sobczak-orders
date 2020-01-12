@@ -3,7 +3,7 @@
         <td colspan="5">
 
             <attachments-widget
-                :attachments="order.header.attachments || []"
+                :attachments="order.Agreement.attachments || []"
                 :show-name="false"
                 :tooltip="true"
                 :horizontal="true"
@@ -12,7 +12,7 @@
 
         <td colspan="5" class="tasks">
             <div class="custom-tasks">
-                <div class="task custom-task" v-for="task in getCustomTasks(order.production.data)">
+                <div class="task custom-task" v-for="task in getCustomTasks(order.productions)">
                     <label>{{ task.title }}</label>
 
                     <b-dropdown
@@ -66,7 +66,7 @@
             },
 
             getStatusData(status) {
-                return helpers.statuses.find(i => i.value === status);
+                return helpers.statuses.find(i => i.value === parseInt(status));
             },
 
             updateTask(task, newStatus) {

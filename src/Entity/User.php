@@ -98,7 +98,7 @@ class User implements UserInterface
 
     /**
      * Get user's full name string
-     *
+     * @Groups("_main")
      * @return string
      */
     public function getUserFullName()

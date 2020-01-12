@@ -3,44 +3,44 @@
 
         <template v-slot:header>
             <div v-if="userCanAddOrder()">
-                <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"></i><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
+                <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
             </div>
         </template>
 
         <template v-slot:filters>
-            <filters :filters-collection="args.filters"></filters>
+            <filters :filters-collection="args.filters"/>
         </template>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
-            <tr v-for="(agreement, key) in agreements" :key="key">
-                <td>{{ agreement.header.orderNumber || agreement.line.id }}</td>
-                <td>{{ agreement.header.createDate }}</td>
-                <td>{{ agreement.line.confirmedDate }}</td>
-                <td>{{ __mixin_customerName(agreement.customer) }}</td>
-                <td>{{ agreement.product.name }}
-                    <tooltip v-if="agreement.line.description.length > 0">
-                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"></i>
-                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(agreement.line.description)"></div>
+            <tr v-for="(line, key) in agreementLines" :key="key">
+                <td>{{ line.Agreement.orderNumber || line.Agreement.id }}</td>
+                <td>{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
+                <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
+                <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
+                <td>{{ line.Product.name }}
+                    <tooltip v-if="line.description.length > 0">
+                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
+                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(line.description)"></div>
                     </tooltip>
-                    <span v-if="agreement.header.attachments.length > 0"><i class="fa fa-paperclip sb-color"></i></span>
+                    <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
                 </td>
-                <td><span class="badge" :class="getAgreementStatusClass(agreement.line.status)">{{ $t(getAgreementStatusName(agreement.line.status)) }}</span></td>
+                <td><span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span></td>
                 <td>
-                    <span class="badge badge-pill" :class="getProductionStatusData(agreement.production)['className']">
-                        {{ $t(getProductionStatusData(agreement.production)['title']) }}
+                    <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
+                        {{ $t(getProductionStatusData(line.productions)['title']) }}
                     </span>
                 </td>
 
                 <td>
-                    <line-actions :line="agreement" @lineChanged="fetchData()"></line-actions>
+                    <line-actions :line="line" @lineChanged="fetchData()"/>
                 </td>
 
             </tr>
         </table-plus>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"></pagination>
+        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
 
     </collapsible-card>
 </template>
@@ -99,8 +99,8 @@
                     },
                 },
 
-                agreements: [],
-                departments: [],
+                agreementLines: [],
+                // departments: [],
                 // production: [],
 
                 newOrderLink: routing.get('orders_view_new'),
@@ -246,8 +246,7 @@
 
                 api.fetchAgreements(bag)
                     .then(({data}) => {
-                        this.agreements = data.data.orders || [];
-                        this.agreements = data.data.orders || [];
+                        this.agreementLines = data.data || [];
                         this.args.meta.pages = data.meta.pages || 0;
                     })
                     .catch(data => {})
@@ -261,12 +260,12 @@
             },
 
             getAgreementStatusName(statusId) {
-                return this.statuses[statusId];
+                return this.statuses[parseInt(statusId)];
             },
 
             getAgreementStatusClass(statusId) {
                 let className = '';
-                switch (statusId) {
+                switch (parseInt(statusId)) {
                     case 5:
                         className = 'badge-danger';
                         break;
@@ -288,19 +287,19 @@
 
             getProductionStatusData(production) {
 
-                if (production && production.data.length === 0) {
+                if (production && production.length === 0) {
                     return {
                         className: 'badge-danger',
                         title: 'Nie zlecone'
                     };
                 }
-                if (production && production.data[4] && production.data[4].status === 3) {
+                if (production && production[4] && parseInt(production[4].status) === 3) {
                     return {
                         className: 'badge-success',
                         title: 'Zakończona'
                     }
                 }
-                if (production && production.data.length > 0) {
+                if (production && production.length > 0) {
                     return {
                         className: 'badge-primary',
                         title: 'W trakcie'

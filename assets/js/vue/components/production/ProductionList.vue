@@ -11,20 +11,20 @@
             <template v-for="(order, key) in orders">
 
                 <production-row
-                    v-if="order.production.data.length"
+                    v-if="order.productions.length > 0"
                     :order="order"
                     :statuses="statuses"
-                    :key="order.line.id"
+                    :key="order.id"
                     @statusUpdated="updateStatus"
                     @lineChanged="fetchData"
                     @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
                 />
 
                 <production-row-details
-                    v-if="order.line.id === prodExpanded"
+                    v-if="order.id === prodExpanded"
                     :order="order"
                     :statuses="statuses"
-                    :key="'details' + order.line.id"
+                    :key="'details' + order.id"
                     @statusUpdated="updateStatus"
                 />
 
@@ -61,6 +61,10 @@
                 type: Object,
                 default: () => {}
             },
+            departments: {
+                type: Array,
+                default: () => []
+            }
         },
 
         data() {
@@ -92,7 +96,6 @@
                 helpers: Helpers,
 
                 orders: [],
-                departments: [],
 
                 prodExpanded: null,
 
@@ -175,17 +178,15 @@
 
                 api.fetchAgreements(bag)
                     .then(({data}) => {
+                        if (data && data.data) {
 
-                        if (data && data.data.orders) {
-
-                            data.data.orders.forEach(order => {
+                            data.data.forEach(order => {
                                 order.buttonExpanded = false;
                                 order.confirmRemove = false;
                                 order.showCustomTasks = false;
                             });
 
-                            this.orders = data.data.orders;
-                            this.departments = data.data.departments;
+                            this.orders = data.data;
 
                         } else {
                             this.orders = [];

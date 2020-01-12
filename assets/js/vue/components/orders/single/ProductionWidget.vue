@@ -11,7 +11,7 @@
                        v-if="taskTypes.indexOf(task.departmentSlug) !== -1"
                     >
                         <span class="statusNotify"
-                            :style="getStatusStyle(task.status)"></span>
+                              :style="getStatusStyle(task.status)"/>
                         {{ $t(task.title) }}
                     </a>
                 </div>
@@ -53,7 +53,7 @@
                                                     :value="status.value"
                                                     v-text="$t(status.name)"
                                                     style="background-color: white"
-                                            ></option>
+                                            />
                                         </select>
                                     </div>
                                 </div>
@@ -96,17 +96,17 @@
                                     <th>{{ $t('orders.user') }}</th>
                                 </tr>
 
-                                <tr v-for="status in task.statusLog">
-                                    <td v-text="getStatusName(status.currentStatus)"></td>
-                                    <td v-text="status.createdAt"></td>
-                                    <td v-text="status.user"></td>
+                                <tr v-for="status in task.statusLogs">
+                                    <td>{{ getStatusName(status.currentStatus) }}</td>
+                                    <td>{{ status.createdAt | formatDate() }}</td>
+                                    <td>{{ status.user.userFullName }}</td>
                                 </tr>
                             </table>
                         </div>
 
                         <div class="col-sm-2" v-if="canAdd">
                             <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-light shadow-sm float-right" @click.prevent="confirmDeleteModal(task, index)">
-                                <i class="fa fa-trash text-danger"></i>
+                                <i class="fa fa-trash text-danger"/>
                             </button>
                         </div>
 
@@ -128,7 +128,7 @@
             <div class="col">
                 <hr>
                 <button href="#" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm mb-3 float-right" @click.prevent="add">
-                    <i class="fa fa-plus"></i>
+                    <i class="fa fa-plus"/>
                     <span class="pl-1">{{ $t('orders.newTask') }}</span>
                 </button>
             </div>
@@ -189,8 +189,6 @@
         watch: {
             tasks: {
                 handler(val) {
-                    // this.selectedIndex = this.getFirstItemIndex();
-                    // console.log(this.selectedIndex)
                     this.$emit('input', val)
                 },
                 deep: true
@@ -212,7 +210,7 @@
             },
 
             getStatusStyle(statusId) {
-                let status = this.helpers.statuses.find(item => item.value == statusId);
+                let status = this.helpers.statuses.find(item => item.value === parseInt(statusId));
                 if (status) {
                     return 'background-color: '.concat(status.color);
                 }
@@ -220,7 +218,7 @@
             },
 
             getStatusName(statusCode) {
-                let status = this.helpers.statuses.find(item => item.value == statusCode);
+                let status = this.helpers.statuses.find(item => item.value === parseInt(statusCode));
                 return this.$t(status ? status.name : 'nieznany');
             },
 

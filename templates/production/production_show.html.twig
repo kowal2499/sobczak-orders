@@ -4,10 +4,10 @@
 
 {% block body %}
 
-
 <production-list
-    :statuses="{{ statuses|json_encode() }}">
-</production-list>
+    :statuses="{{ statuses|json_encode() }}"
+    :departments="{{ departments|json_encode() }}"
+></production-list>
 
 {% endblock %}
 

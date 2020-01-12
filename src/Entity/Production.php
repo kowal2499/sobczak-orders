@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductionRepository")
@@ -15,26 +16,31 @@ class Production
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("_main")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("_main")
      */
     private $departmentSlug;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("_main")
      */
     private $dateStart;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("_main")
      */
     private $dateEnd;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups("_main")
      */
     private $status;
 
@@ -56,16 +62,19 @@ class Production
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", orphanRemoval=true)
+     * @Groups("_main")
      */
     private $statusLogs;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("_main")
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("_main")
      */
     private $title;
 

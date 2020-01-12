@@ -44,7 +44,7 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
-        if (is_array($term['search'])) {
+        if (isset($term['search']) && is_array($term['search'])) {
 
             // Jeżeli nie wskazano statusu (tzn chcemy widzieć wszystkie zamówienia), to ukryj zamówienia usunięte
             if (false === isset($term['search']['status'])) {

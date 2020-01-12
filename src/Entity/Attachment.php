@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Service\UploaderHelper;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AttachmentRepository")
@@ -19,12 +21,15 @@ class Attachment
 
     /**
      * @ORM\Column(type="string", length=1024)
+     * @Groups("_main")
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=1024)
+     * @Groups("_main")
      */
+    // todo: used to be 'original'
     private $originalName;
 
     /**
@@ -35,6 +40,7 @@ class Attachment
 
     /**
      * @ORM\Column(type="string", length=16, nullable=true)
+     * @Groups("_main")
      */
     private $extension;
 

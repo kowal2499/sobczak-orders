@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StatusLogRepository")
@@ -25,17 +27,20 @@ class StatusLog
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Groups("_main")
      */
     private $currentStatus;
 
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
+     * @Groups("_main")
      */
     private $createdAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="statusLogs")
+     * @Groups("_main")
      */
     private $user;
 
