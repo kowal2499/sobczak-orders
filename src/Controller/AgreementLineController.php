@@ -55,9 +55,10 @@ class AgreementLineController extends AbstractController
      * @Route("/agreement/fetch", name="agreements_fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLineRepository $repository
+     * @param PaginatorInterface $paginator
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementRepository $agreementRepository, AgreementLineRepository $repository, TranslatorInterface $t, PaginatorInterface $paginator, UploaderHelper $uploaderHelper)
+    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator)
     {
         $search = $request->request->all();
 

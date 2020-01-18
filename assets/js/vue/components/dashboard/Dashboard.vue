@@ -2,7 +2,7 @@
 
     <div>
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col">
                 <div class="card border-0 mb-3">
 
                     <div class="form-inline">
