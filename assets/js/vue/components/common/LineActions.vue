@@ -2,28 +2,28 @@
     <div>
         <dropdown class="icon-only">
 
-            <template v-if="line && line.line.status === 25">
+            <template v-if="line && line.status === 25">
                 <!-- 1.1 delete order line -->
                 <a class="dropdown-item text-danger" href="#"
                    @click.prevent="isModalConfirmDeleteOrderVisible = true"
                    v-if="canDeleteOrder()"
                 >
-                    <i class="fa fa-exclamation-circle text-danger" aria-hidden="true"></i> {{ $t('deleteOrder') }}
+                    <i class="fa fa-exclamation-circle text-danger" aria-hidden="true"/> {{ $t('deleteOrder') }}
                 </a>
                 <!-- 1.2 restore order line -->
                 <a class="dropdown-item" href="#"
                    @click.prevent="isModalConfirmRestoreOrderVisible = true"
                 >
-                    <i class="fa fa-undo" aria-hidden="true"></i> {{ $t('restoreOrder') }}
+                    <i class="fa fa-undo" aria-hidden="true"/> {{ $t('restoreOrder') }}
                 </a>
             </template>
 
-            <template v-if="line && line.line.status !== 25">
+            <template v-if="line && line.status !== 25">
 
                 <!-- sekcja wspólna -->
 
-                <a class="dropdown-item" :href="__mixin_getRouting('agreement_line_details') + '/' + line.line.id">
-                    <i class="fa fa-tasks" aria-hidden="true"></i> {{ $t('Panel') }}
+                <a class="dropdown-item" :href="__mixin_getRouting('agreement_line_details') + '/' + line.id">
+                    <i class="fa fa-tasks" aria-hidden="true"/> {{ $t('Panel') }}
                 </a>
 
                 <hr style="margin: 5px auto">
@@ -31,8 +31,8 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <a class="dropdown-item" :href="__mixin_getRouting('orders_edit') + '/' + line.header.id">
-                    <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('editOrder') }}
+                <a class="dropdown-item" :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+                    <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </a>
 
                 <!-- 1.1 set warehouse status -->
@@ -40,7 +40,7 @@
                    @click.prevent="isModalConfirmWarehouseVisible = true"
                    v-if="canWarehouse()"
                 >
-                    <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setWarehouseStatus') }}
+                    <i class="fa fa-archive" aria-hidden="true"/> {{ $t('setWarehouseStatus') }}
                 </a>
 
                 <!-- 1.2 set archive status -->
@@ -48,7 +48,7 @@
                    @click.prevent="isModalConfirmArchiveVisible = true"
                    v-if="canArchive()"
                 >
-                    <i class="fa fa-archive" aria-hidden="true"></i> {{ $t('setArchivedStatus') }}
+                    <i class="fa fa-archive" aria-hidden="true"/> {{ $t('setArchivedStatus') }}
                 </a>
 
                 <!-- 1.3 set trash status -->
@@ -56,9 +56,8 @@
                    @click.prevent="isModalConfirmTrashOrderVisible = true"
                    v-if="canTrashOrder()"
                 >
-                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> {{ $t('trashOrder') }}
+                    <i class="fa fa-trash text-danger" aria-hidden="true"/> {{ $t('trashOrder') }}
                 </a>
-
 
                 <span v-if="canStartProduction(line)">
                     <hr style="margin: 5px auto">
@@ -67,7 +66,7 @@
 
                     <a class="dropdown-item" href="#"
                        @click="startProduction(line)">
-                        <i class="fa fa-play" aria-hidden="true"></i> {{ $t('startProduction') }}
+                        <i class="fa fa-play" aria-hidden="true"/> {{ $t('startProduction') }}
                     </a>
                 </span>
 
@@ -91,10 +90,10 @@
                 v-if="isModalConfirmTrashOrderVisible"
         >
             <div>
-                <p><strong>{{ $t('areYouSureToTrashOrder') }} {{ line.header.orderNumber }}'?</strong></p>
+                <p><strong>{{ $t('areYouSureToTrashOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
 
                 <ul class="list-unstyled">
-                    <li>{{ line.product.name }}</li>
+                    <li>{{ line.Product.name }}</li>
                 </ul>
 
             </div>
@@ -111,10 +110,10 @@
                 v-if="isModalConfirmDeleteOrderVisible"
         >
             <div>
-                <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.header.orderNumber }}'?</strong></p>
+                <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
 
                 <ul class="list-unstyled">
-                    <li>{{ line.product.name }}</li>
+                    <li>{{ line.Product.name }}</li>
                 </ul>
 
                 <div class="alert alert-danger" v-if="hasProduction(line)">
@@ -136,9 +135,9 @@
                 v-if="isModalConfirmRestoreOrderVisible"
         >
             <div>
-                <p><strong>{{ $t('areYouSureToRestoreOrder') }} {{ line.header.orderNumber }}'?</strong></p>
+                <p><strong>{{ $t('areYouSureToRestoreOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
                 <ul class="list-unstyled">
-                    <li>{{ line.product.name }}</li>
+                    <li>{{ line.Product.name }}</li>
                 </ul>
             </div>
 
@@ -183,9 +182,9 @@
             <div>
                 <p><strong>{{ $t('setAsWarehoused') }}</strong></p>
                 <ul class="list-unstyled">
-                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
-                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
-                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ $t('id') }}: {{ line.Agreement.orderNumber}}</li>
+                    <li>{{ $t('product') }}: {{ line.Product.name }}</li>
+                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
                 </ul>
             </div>
 
@@ -201,9 +200,9 @@
             <div>
                 <p><strong>{{ $t('setAsArchived') }}</strong></p>
                 <ul class="list-unstyled">
-                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>
-                    <li>{{ $t('product') }}: {{ line.product.name }}</li>
-                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
+                    <li>{{ $t('id') }}: {{ line.Agreement.orderNumber}}</li>
+                    <li>{{ $t('product') }}: {{ line.Product.name }}</li>
+                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
                 </ul>
             </div>
 
@@ -262,7 +261,7 @@
         methods: {
 
             hasProduction(line) {
-                return line.production && line.production.data.length !== 0;
+                return line.productions && line.productions.length !== 0;
             },
 
             canStartProduction(line) {
@@ -284,9 +283,9 @@
                     };
                 });
 
-                ApiNewOrder.storeProductionPlan(production, line.line.id)
+                ApiNewOrder.storeProductionPlan(production, line.id)
                     .then(({data}) => {
-                        line.production.data = Array.isArray(data) ? data[0] : [];
+                        line.productions = Array.isArray(data) ? data[0] : [];
                         EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('addedToSchedule')
@@ -308,7 +307,7 @@
             deleteOrder() {
                 this.isModalConfirmDeleteOrderBusy = true;
 
-                ApiNewOrder.deleteAgreementLine(this.line.line.id)
+                ApiNewOrder.deleteAgreementLine(this.line.id)
                     .then(() => {
                         EventBus.$emit('message', {
                             type: 'success',
@@ -356,14 +355,14 @@
             // },
 
             canArchiveOrWarehouse() {
-                let lastProductionStage = this.line.production.data.find(stage => { return stage.departmentSlug === 'dpt05'; });
-                return lastProductionStage.status === 3;
+                let lastProductionStage = this.line.productions.find(stage => { return stage.departmentSlug === 'dpt05'; });
+                return parseInt(lastProductionStage.status) === 3;
             },
 
             canWarehouse() {
                 return this.hasProduction(this.line) &&
                     this.$user.can(this.$privilages.CAN_PRODUCTION) &&
-                    this.line.line.status !== 15 &&
+                    this.line.status !== 15 &&
                     this.canArchiveOrWarehouse()
                 ;
             },
@@ -371,7 +370,7 @@
             updateAgreementStatus(statusCode) {
                 this.isModalConfirmWarehouseBusy = true;
                 this.isModalConfirmArchiveBusy = true;
-                ApiNewOrder.setAgreementStatus(this.line.line.id, statusCode)
+                ApiNewOrder.setAgreementStatus(this.line.id, statusCode)
                     .then(({data}) => {
                         EventBus.$emit('message', {
                             type: 'success',
@@ -402,9 +401,9 @@
             canArchive() {
                 return this.hasProduction(this.line) &&
                     this.$user.can(this.$privilages.CAN_PRODUCTION) &&
-                    this.line.line.status !== 20 &&
+                    this.line.status !== 20 &&
                     this.canArchiveOrWarehouse()
-                    ;
+                ;
             }
 
         }

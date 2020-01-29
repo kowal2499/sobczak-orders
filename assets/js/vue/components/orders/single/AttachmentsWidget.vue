@@ -15,15 +15,15 @@
                                 <tooltip>
                                     <span slot="visible-content">
                                         <img :src="attachment.thumbnail" :alt="attachment.name" v-if="attachment.thumbnail" >
-                                        <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.original, '.', attachment.extension) }}</span>
+                                        <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
                                     </span>
-                                    <span slot="tooltip-content">{{ ''.concat(attachment.original, '.', attachment.extension) }}</span>
+                                    <span slot="tooltip-content">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
                                 </tooltip>
                             </template>
 
                             <template v-else>
                                 <img :src="attachment.thumbnail" :alt="attachment.name" v-if="attachment.thumbnail" >
-                                <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.original, '.', attachment.extension) }}</span>
+                                <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
                             </template>
 
                         </a>

@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AgreementLineRepository")
@@ -21,28 +22,33 @@ class AgreementLine
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"_main", "_linePanel"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"_main", "_linePanel"})
      */
     private $confirmedDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="agreementLines")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups("_main")
      */
     private $Product;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="agreementLines")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups("_main")
      */
     private $Agreement;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Production", mappedBy="agreementLine", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Production", cascade={"persist", "remove"}, mappedBy="agreementLine", orphanRemoval=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $productions;
 
@@ -53,6 +59,7 @@ class AgreementLine
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $status;
 
@@ -63,11 +70,13 @@ class AgreementLine
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $factor;
 

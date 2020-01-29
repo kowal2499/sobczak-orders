@@ -25,31 +25,31 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("_main")
+     * @Groups({"user_main", "_linePanel"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups("_main")
+     * @Groups({"user_main", "_linePanel"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups("_main")
+     * @Groups("user_main")
      */
     private $roles = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("_main")
+     * @Groups("user_main")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("_main")
+     * @Groups("user_main")
      */
     private $lastName;
 
@@ -65,7 +65,7 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Customer", inversedBy="users")
-     * @Groups("_main")
+     * @Groups("user_main")
      */
     private $customers;
 
@@ -98,7 +98,7 @@ class User implements UserInterface
 
     /**
      * Get user's full name string
-     *
+     * @Groups({"user_main", "_linePanel"})
      * @return string
      */
     public function getUserFullName()

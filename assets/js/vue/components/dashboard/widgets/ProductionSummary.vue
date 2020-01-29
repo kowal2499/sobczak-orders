@@ -8,29 +8,17 @@
 
         <div class="row" v-else>
 
-            <div class="col">
                 <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" text-class="text-primary" :value="summary.ordersInProduction"></Badge>
-            </div>
 
-            <div class="col">
                 <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="summary.ordersFinished"></Badge>
-            </div>
 
-            <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
-            </div>
+                <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
 
-            <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
-            </div>
+                <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
 
-            <div class="col" v-if="canSeeProduction()">
-                <Badge border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
-            </div>
+                <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
 
-            <div class="col">
                 <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
-            </div>
 
         </div>
 

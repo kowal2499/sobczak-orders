@@ -27,7 +27,9 @@ class ProductionController extends AbstractController
     {
         return $this->render('production/production_show.html.twig', [
             'title' => $t->trans('Harmonogram produkcji', [], 'production'),
-            'statuses' => AgreementLine::getStatuses()
+            'statuses' => AgreementLine::getStatuses(),
+            'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
+                \App\Entity\Department::names())
         ]);
     }
 

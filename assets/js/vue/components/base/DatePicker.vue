@@ -29,6 +29,11 @@
                 default: true
             },
 
+            dateOnly: {
+                type: Boolean,
+                default: true
+            },
+
             width: {
                 type: String,
                 default: 'auto'
@@ -80,7 +85,11 @@
                             new Date(String(this.value.end))
                         ]
                     } else {
-                        return new Date(String(this.value));
+                        if (this.dateOnly) {
+                            return new Date(moment(this.value).format('YYYY-MM-DD'));
+                        } else {
+                            return new Date(moment(this.value).format('YYYY-MM-DD HH:mm:ss'));
+                        }
                     }
                 },
 
@@ -91,7 +100,12 @@
                             end: moment(newValue[1]).format('YYYY-MM-DD'),
                         });
                     } else {
-                        this.$emit('input', moment(newValue).format('YYYY-MM-DD'));
+                        if (this.dateOnly) {
+                            this.$emit('input', moment(newValue).format('YYYY-MM-DD'));
+                        } else {
+                            this.$emit('input', moment(newValue).format('YYYY-MM-DD HH:mm:ss'));
+                        }
+
                     }
                 }
             }

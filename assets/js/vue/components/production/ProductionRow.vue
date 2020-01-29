@@ -2,29 +2,29 @@
 
     <tr>
         <td>
-            {{ order.header.orderNumber || order.line.id }}
-            <div class="badge" :class="getAgreementStatusClass(order.line.status)" v-if="order.line.status !== 10">{{ $t(getAgreementStatusName(order.line.status)) }}</div>
+            {{ order.Agreement.orderNumber || order.id }}
+            <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
         </td>
 
         <td>
-            {{ order.line.confirmedDate }}
+            {{ order.confirmedDate | formatDate('YYYY-MM-DD') }}
         </td>
 
         <td>
-            {{ __mixin_customerName(order.customer) }}
+            {{ __mixin_customerName(order.Agreement.Customer) }}
         </td>
 
         <td>
-            {{ order.product.name }}
-            <tooltip v-if="order.line.description.length > 0">
+            {{ order.Product.name }}
+            <tooltip v-if="order.description.length > 0">
                 <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
-                <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.line.description)"></div>
+                <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.description)"></div>
             </tooltip>
         </td>
 
-        <td v-text="order.line.factor" class="text-center" v-if="userCanProduction()"/>
+        <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
 
-        <td class="tasks" v-for="(production, prodKey) in order.production.data" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
+        <td class="tasks" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
             <div class="task">
                 <b-dropdown
                         :text="$t(getStatusData(production.status).name)"
@@ -46,16 +46,16 @@
         </td>
 
         <td>
-            <button class="btn btn-light" style="padding: 0 0.5rem" v-if="hasDetails" @click.prevent="$emit('expandToggle', order.line.id)">
+            <button class="btn btn-light" style="padding: 0 0.5rem" v-if="hasDetails" @click.prevent="$emit('expandToggle', order.id)">
 
-                <span v-if="order.header.attachments.length > 0">
+                <span v-if="order.Agreement.attachments.length > 0">
                     <i class="fa fa-paperclip sb-color"/>
-                    <span class="badge badge-pill">{{ order.header.attachments.length }}</span>
+                    <span class="badge badge-pill">{{ order.Agreement.attachments.length }}</span>
                 </span>
 
-                <span v-if="getCustomTasks(order.production.data).length && userCanProduction()">
+                <span v-if="getCustomTasks(order.productions).length && userCanProduction()">
                     <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill">{{ getCustomTasks(order.production.data).length }}</span>
+                    <span class="badge badge-pill">{{ getCustomTasks(order.productions).length }}</span>
                 </span>
 
             </button>
@@ -90,7 +90,7 @@
         methods: {
             getAgreementStatusClass(statusId) {
                 let className = '';
-                switch (statusId) {
+                switch (parseInt(statusId)) {
                     case 5:
                         className = 'badge-danger';
                         break;
@@ -114,7 +114,7 @@
             },
 
             getStatusData(status) {
-                return helpers.statuses.find(i => i.value === status);
+                return helpers.statuses.find(i => i.value === parseInt(status));
             },
 
             updateProduction(production, newStatus) {
@@ -125,7 +125,7 @@
         },
         computed: {
             hasDetails() {
-                return (this.order.header.attachments.length > 0) || (this.getCustomTasks(this.order.production.data).length && this.userCanProduction());
+                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
             }
         }
     }

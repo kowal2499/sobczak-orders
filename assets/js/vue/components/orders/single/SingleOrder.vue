@@ -8,49 +8,50 @@
             href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
             v-if="canEditLine()"
         >
-            <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"></i>
+            <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
             <span class="pl-1">{{ $t('orders.saveChanges') }}</span>
         </button>
 
         <div class="row">
             <div class="col-md-8">
-                <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.production.data.length !== 0">
+                <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions && orderData.productions.length !== 0">
                     <production-widget
-                        v-model="orderData.production.data"
-                        :task-types="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05']"
-                    ></production-widget>
+                            v-model="orderData.productions"
+                            :task-types="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05']"
+                    />
                 </collapsible-card>
 
-                <collapsible-card :title="$t('orders.orderDetails')" :locked="locked" v-if="orderData.line">
+                <collapsible-card :title="$t('orders.orderDetails')" :locked="locked">
                     <details-widget
-                        v-model="orderData.line"
+                        v-model="orderData"
                         :statuses="statuses"
                     ></details-widget>
                 </collapsible-card>
 
-                <collapsible-card :title="$t('orders.additionalOrders')" :locked="locked" v-if="orderData.production.data.length !== 0 && canEditLine()">
+                <collapsible-card :title="$t('orders.additionalOrders')" :locked="locked" v-if="orderData.productions && orderData.productions.length !== 0 && canEditLine()">
                     <production-widget
-                        v-model="orderData.production.data"
-                        :task-types="['custom_task']"
-                        :can-add="true"
-                    ></production-widget>
+                            v-model="orderData.productions"
+                            :task-types="['custom_task']"
+                            :can-add="true"
+                    />
                 </collapsible-card>
 
             </div>
 
             <div class="col-md-4">
-                <collapsible-card :title="$t('product')" :locked="locked" v-if="orderData.product">
-                    <product-widget v-model="orderData.product"></product-widget>
+                <collapsible-card :title="$t('product')" :locked="locked" v-if="orderData.Product">
+                    <product-widget v-model="orderData.Product"/>
                 </collapsible-card>
 
-                <collapsible-card :title="$t('customer')" :locked="locked" v-if="orderData.customer">
-                    <customer-widget v-model="orderData.customer"></customer-widget>
+                <collapsible-card :title="$t('customer')" :locked="locked" v-if="orderData.Agreement && orderData.Agreement.Customer">
+                    <customer-widget v-model="orderData.Agreement.Customer"/>
                 </collapsible-card>
 
-                <collapsible-card :title="$t('orders.attachments')" :locked="locked" v-if="orderData.header">
+                <collapsible-card :title="$t('orders.attachments')" :locked="locked" v-if="orderData.Agreement">
                     <div class="row">
                         <div class="col-sm-12">
-                            <attachments-widget :attachments="orderData.header.attachments || []" :show-name="true" :tooltip="false"></attachments-widget>
+                            <attachments-widget :attachments="orderData.Agreement.attachments || []" :show-name="true"
+                                                :tooltip="false"/>
                         </div>
                     </div>
                 </collapsible-card>
@@ -69,6 +70,7 @@
     import ProductWidget from "./ProductWidget";
     import CustomerWidget from "./CustomerWidget";
     import AttachmentsWidget from "./AttachmentsWidget";
+    import _ from 'lodash';
 
     export default {
         name: "SingleOrder",
@@ -78,27 +80,27 @@
         data() {
             return {
                 locked: false,
-                orderData: {
-                    production: {
-                        data: []
-                    },
-                    customer: {}
-                },
+                orderData: {},
             }
         },
 
         methods: {
             save() {
                 this.locked = true;
-
-                ordersApi.updateOrder(this.lineId, this.orderData.production.data, this.orderData.line)
+                ordersApi.updateOrder(this.lineId, {
+                    status: this.orderData.status,
+                    confirmedDate: this.orderData.confirmedDate,
+                    description: this.orderData.description,
+                    factor: this.orderData.factor,
+                    productions: this.prodToSave,
+                })
                     .then(({data}) => {
                         if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
 
                             data.newStatuses.forEach(newStatus => {
-                                let production = this.orderData.production.data.find(prod => { return prod.id === newStatus.productionId; });
-                                if (production && production.statusLog) {
-                                    production.statusLog.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
+                                let production = this.orderData.productions.find(prod => { return prod.id === newStatus.productionId; });
+                                if (production && production.statusLogs) {
+                                    production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
                                 }
                             })
                         }
@@ -131,15 +133,28 @@
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
-
-                    if (data.data && Array.isArray(data.data.orders) && data.data.orders.length === 1) {
-                        this.orderData = data.data.orders[0];
+                    if (data.data && Array.isArray(data.data) && data.data.length === 1) {
+                        this.orderData = data.data[0];
                     }
                 })
                 .catch(() => {})
                 .finally(() => {
                     this.locked = false;
                 })
+        },
+
+        computed: {
+            prodToSave() {
+                let toSave = _.cloneDeep(this.orderData.productions);
+                for (let prod of toSave) {
+                    if (prod.statusLogs) {
+                        for (let statusLog of prod.statusLogs) {
+                            statusLog.user = statusLog.user.id;
+                        }
+                    }
+                }
+                return toSave;
+            }
         }
     }
 </script>

@@ -6,6 +6,7 @@ use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AgreementRepository")
@@ -16,11 +17,13 @@ class Agreement
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("_main")
      */
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups("_main")
      */
     private $createDate;
 
@@ -32,6 +35,7 @@ class Agreement
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="agreements")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups("_main")
      */
     private $Customer;
 
@@ -42,16 +46,19 @@ class Agreement
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
+     * @Groups("_main")
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups("_main")
      */
     private $orderNumber;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Attachment", mappedBy="Agreement", orphanRemoval=true)
+     * @Groups("_main")
      */
     private $attachments;
 

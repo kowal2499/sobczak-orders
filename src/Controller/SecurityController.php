@@ -95,7 +95,7 @@ class SecurityController extends BaseController
     public function fetchUsers(UserRepository $repository)
     {
         return $this->json($repository->findAll(), Response::HTTP_OK, [], [
-            ObjectNormalizer::GROUPS => ['_main']
+            ObjectNormalizer::GROUPS => ['user_main']
         ]);
     }
 
@@ -110,7 +110,7 @@ class SecurityController extends BaseController
     public function fetchUser(User $user): JsonResponse
     {
         return $this->json($user, Response::HTTP_OK, [], [
-            ObjectNormalizer::GROUPS => ['_main']
+            ObjectNormalizer::GROUPS => ['user_main', '_main']
         ]);
     }
 
@@ -154,7 +154,7 @@ class SecurityController extends BaseController
         }
 
         return $this->json($user, Response::HTTP_OK, [], [
-            ObjectNormalizer::GROUPS => ['_main']
+            ObjectNormalizer::GROUPS => ['user_main']
         ]);
     }
 

@@ -1,6 +1,6 @@
 <template>
 
-    <div class="card shadow h-100 py-2" :class="borderClass">
+    <div class="card shadow py-2 m-2" :class="borderClass">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col">
@@ -22,6 +22,12 @@
 </script>
 
 <style scoped lang="scss">
+
+    .card {
+        width: 180px;
+        min-height: 150px;
+        margin-right: 20px;
+    }
 
     .border-left-success {
         border-left: .25rem solid #1cc88a!important;

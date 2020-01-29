@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import _ from 'lodash';
+import moment from "moment";
 import BootstrapVue from 'bootstrap-vue'
 import '../css/app-vue.scss';
 import components from './vue/components/root-components';
@@ -57,6 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...translationsOrders.en,
                 ...translationsProduction.en,
             }
+        }
+    });
+
+    Vue.filter('formatDate', (value, format = null) => {
+        let mData = moment(value);
+        if (mData.isValid()) {
+            return mData.format(format ? format : 'YYYY-MM-DD HH:mm:ss');
+        } else {
+            return value;
         }
     });
 

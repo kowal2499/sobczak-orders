@@ -1,17 +1,16 @@
 <template>
-    <div class="sb-info-card">
-
+    <div class="sb-info-card" v-if="value">
         <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Status</label><br>
 
-                        <div v-for="(singleStatus, key) in statuses">
-                            <label>
-                                <input type="radio" :value="key" v-model="inner.status" :disabled="!canEditStatus()">
-                                {{ singleStatus }}
-                            </label>
-                        </div>
+                    <div v-for="(singleStatus, key) in statuses">
+                        <label>
+                            <input type="radio" :value="key" v-model="status" :disabled="!canEditStatus()">
+                            {{ singleStatus }}
+                        </label>
+                    </div>
 
                 </div>
             </div>
@@ -21,7 +20,7 @@
             <div class="col-md-10">
                 <div class="form-group">
                     <label>{{ $t('deliveryDate') }}</label><br>
-                    <date-picker v-model="inner.confirmedDate" :is-range="false"/>
+                    <date-picker v-model="confirmedDate" :is-range="false" :date-only="false"/>
                 </div>
 
             </div>
@@ -31,7 +30,7 @@
             <div class="col-md-10">
                 <div class="form-group">
                     <label>{{ $t('orders.requirements') }}</label>
-                    <textarea class="form-control" cols="30" rows="7" v-model="inner.description"/>
+                    <textarea class="form-control" cols="30" rows="7" v-model="description"/>
                 </div>
 
             </div>
@@ -48,43 +47,44 @@
         props: ['value', 'statuses'],
         components: { DatePicker },
 
-        data() {
-            return {
-
-                inner: {
-                    status: 0,
-                    description: '',
-                    confirmedDate: '',
+        computed: {
+            status: {
+                get() {
+                    return parseInt(this.value.status);
                 },
 
-            }
-        },
-
-        watch: {
-            value: {
-                handler(val) {
-                    this.init(val);
-                },
-                deep: true
+                set(newVal) {
+                    this.emitter({status: parseInt(newVal)})
+                }
             },
 
-            inner: {
-                handler(val) {
-                    this.$emit('input', val);
+            description: {
+                get() {
+                    return this.value.description;
                 },
-                deep: true
-            }
-        },
 
-        mounted() {
-            this.init(this.value);
+                set(newVal) {
+                    this.emitter({description: newVal})
+                }
+            },
+
+            confirmedDate: {
+                get() {
+                    return this.value.confirmedDate;
+                },
+
+                set(newVal) {
+                    this.emitter({confirmedDate: newVal})
+                }
+            }
         },
 
         methods: {
-            init(src) {
-                this.inner.status = src.status;
-                this.inner.description = src.description;
-                this.inner.confirmedDate = src.confirmedDate;
+            emitter(val) {
+                this.$emit('input', {
+                    ...this.value,
+                    ...val
+                })
             },
 
             canEditStatus() {
