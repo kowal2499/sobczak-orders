@@ -20,7 +20,7 @@
             <div class="col-md-10">
                 <div class="form-group">
                     <label>{{ $t('deliveryDate') }}</label><br>
-                    <date-picker v-model="confirmedDate" :is-range="false"/>
+                    <date-picker v-model="confirmedDate" :is-range="false" :date-only="false"/>
                 </div>
 
             </div>

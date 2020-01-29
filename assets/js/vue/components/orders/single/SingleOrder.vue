@@ -70,6 +70,7 @@
     import ProductWidget from "./ProductWidget";
     import CustomerWidget from "./CustomerWidget";
     import AttachmentsWidget from "./AttachmentsWidget";
+    import _ from 'lodash';
 
     export default {
         name: "SingleOrder",
@@ -86,11 +87,12 @@
         methods: {
             save() {
                 this.locked = true;
-
-                ordersApi.updateOrder(this.lineId, this.orderData.productions, {
+                ordersApi.updateOrder(this.lineId, {
+                    status: this.orderData.status,
                     confirmedDate: this.orderData.confirmedDate,
                     description: this.orderData.description,
-                    status: this.orderData.status,
+                    factor: this.orderData.factor,
+                    productions: this.prodToSave,
                 })
                     .then(({data}) => {
                         if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
@@ -139,6 +141,20 @@
                 .finally(() => {
                     this.locked = false;
                 })
+        },
+
+        computed: {
+            prodToSave() {
+                let toSave = _.cloneDeep(this.orderData.productions);
+                for (let prod of toSave) {
+                    if (prod.statusLogs) {
+                        for (let statusLog of prod.statusLogs) {
+                            statusLog.user = statusLog.user.id;
+                        }
+                    }
+                }
+                return toSave;
+            }
         }
     }
 </script>

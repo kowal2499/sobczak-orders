@@ -39,8 +39,8 @@ export default {
         return axios.post(Routing.get('agreement_line_delete') + '/' + agreementLineId);
     },
 
-    updateOrder(lineId, productionData, agreementLineData) {
-        return axios.post(Routing.get('agreement_line_update') + '/' + lineId, { productionData, agreementLineData });
+    updateOrder(lineId, payload) {
+        return axios.put(Routing.get('agreement_line_update') + '/' + lineId, payload);
     },
 
     /**

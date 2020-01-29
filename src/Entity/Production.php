@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -16,41 +17,43 @@ class Production
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $departmentSlug;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $dateStart;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $dateEnd;
 
     /**
      * @ORM\Column(type="string", length=64)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
      */
     private $updatedAt;
 
@@ -61,20 +64,20 @@ class Production
     private $agreementLine;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", orphanRemoval=true)
-     * @Groups("_main")
+     * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $statusLogs;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $title;
 
@@ -105,7 +108,7 @@ class Production
         return $this->dateStart;
     }
 
-    public function setDateStart(\DateTimeInterface $dateStart): self
+    public function setDateStart(?\DateTimeInterface $dateStart): self
     {
         $this->dateStart = $dateStart;
 
@@ -117,7 +120,7 @@ class Production
         return $this->dateEnd;
     }
 
-    public function setDateEnd(\DateTimeInterface $dateEnd): self
+    public function setDateEnd(?\DateTimeInterface $dateEnd): self
     {
         $this->dateEnd = $dateEnd;
 

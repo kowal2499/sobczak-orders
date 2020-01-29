@@ -22,13 +22,13 @@ class AgreementLine
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $confirmedDate;
 
@@ -47,8 +47,8 @@ class AgreementLine
     private $Agreement;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Production", mappedBy="agreementLine", orphanRemoval=true)
-     * @Groups("_main")
+     * @ORM\OneToMany(targetEntity="App\Entity\Production", cascade={"persist", "remove"}, mappedBy="agreementLine", orphanRemoval=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $productions;
 
@@ -59,7 +59,7 @@ class AgreementLine
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $status;
 
@@ -70,13 +70,13 @@ class AgreementLine
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups("_main")
+     * @Groups({"_main", "_linePanel"})
      */
     private $factor;
 

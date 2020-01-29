@@ -47,7 +47,7 @@
                                 <div class="col-sm-8">
                                     <div class="form-group">
                                         <label>{{ $t('orders.status') }}</label>
-                                        <select class="form-control" v-model="task.status" :style="getStatusStyle(task.status)" :disabled="!canEditLine()">
+                                        <select class="form-control" @change.prevent="setNewTaskStatus(task, $event)" :style="getStatusStyle(task.status)" :disabled="!canEditLine()">
                                             <option
                                                     v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
                                                     :value="status.value"
@@ -65,14 +65,14 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>{{ $t('orders.realizationFrom') }}</label><br>
-                                        <date-picker v-model="task.dateStart" :is-range="false" style="width: 100%"/>
+                                        <date-picker v-model="task.dateStart" :is-range="false" :date-only="false" style="width: 100%"/>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6" v-if="canEditLine()">
                                     <div class="form-group">
                                         <label>{{ $t('orders.realizationTo') }}</label><br>
-                                        <date-picker v-model="task.dateEnd" :is-range="false" style="width: 100%"/>
+                                        <date-picker v-model="task.dateEnd" :is-range="false" :date-only="false" style="width: 100%"/>
                                     </div>
                                 </div>
                             </div>
@@ -151,6 +151,7 @@
     import DatePicker from "../../base/DatePicker";
     import Helpers from "../../../helpers";
     import ConfirmationModal from "../../base/ConfirmationModal";
+    import moment from "moment";
 
     export default {
         name: "ProductionWidget",
@@ -189,6 +190,7 @@
         watch: {
             tasks: {
                 handler(val) {
+                    console.log('zmiana')
                     this.$emit('input', val)
                 },
                 deep: true
@@ -252,7 +254,19 @@
                     description: null,
                     id: null,
                     title: this.$t('orders.newTask'),
-                    status: 10
+                    status: "10",
+                    statusLogs: [
+                        {
+                            id: null,
+                            currentStatus: "10",
+                            createdAt: (new moment()).format('YYYY-MM-DD HH:mm:ss'),
+                            user: {
+                                id: this.$user.getId(),
+                                userFullName: this.$user.getName(),
+                            }
+                        }
+                    ],
+
                 });
 
                 this.selectedIndex = this.getFirstItemIndex();
@@ -284,6 +298,36 @@
 
             canEditLine() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            },
+
+            setNewTaskStatus(task, event) {
+
+                // zmień status
+                task.status = event.target.value;
+
+                // aktualizacja loga statusów
+                // znajdź niezapisany log i go usuń
+                if (task.statusLogs) {
+                    let notSavedIdx = task.statusLogs.findIndex(log => log.id === null);
+                    if (notSavedIdx !== -1) {
+                        task.statusLogs.splice(notSavedIdx, 1);
+                    }
+                } else {
+                    task.statusLogs = [];
+                }
+
+                // dodaj nowy i ustaw mu id na null.
+                // Jeśli przed dokonaniem zapisu status zmieni się raz jeszcze
+                // to ten log zostanie usunięty.
+                task.statusLogs.push({
+                    id: null,
+                    currentStatus: event.currentTarget.value,
+                    createdAt: (new moment()).format('YYYY-MM-DD HH:mm:ss'),
+                    user: {
+                        id: this.$user.getId(),
+                        userFullName: this.$user.getName(),
+                    }
+                });
             }
 
         }

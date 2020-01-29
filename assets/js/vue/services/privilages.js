@@ -60,9 +60,17 @@ class User {
 
     getName() {
         if (this.user) {
-            return user.firstName + ' ' + user.lastName;
+            return this.user.firstName + ' ' + this.user.lastName;
         } else {
             return '';
+        }
+    }
+
+    getId() {
+        if (this.user) {
+            return this.user.id;
+        } else {
+            return null;
         }
     }
 

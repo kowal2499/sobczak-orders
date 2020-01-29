@@ -1,33 +1,31 @@
 <?php
 
-
 namespace App\Form;
 
-use App\Entity\Agreement;
+use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AgreementsType extends AbstractType
+class StatusLogUserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('customer', CustomerType::class)
-            ->add('products', CollectionType::class, [
-                'entry_type'
+            ->add('id', EntityType::class, [
+                'class' => User::class
             ])
-            ->add('orderNumber')
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Agreement::class,
+            'data_class' => User::class,
             'csrf_protection' => false,
+            'allow_extra_fields' => true,
         ]);
     }
-
 }
