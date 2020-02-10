@@ -99,7 +99,7 @@
                                 <tr v-for="status in task.statusLogs">
                                     <td>{{ getStatusName(status.currentStatus) }}</td>
                                     <td>{{ status.createdAt | formatDate() }}</td>
-                                    <td>{{ status.user.userFullName }}</td>
+                                    <td>{{ status.user ? status.user.userFullName : '' }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -190,7 +190,6 @@
         watch: {
             tasks: {
                 handler(val) {
-                    console.log('zmiana')
                     this.$emit('input', val)
                 },
                 deep: true

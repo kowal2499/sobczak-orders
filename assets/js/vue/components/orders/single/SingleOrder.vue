@@ -149,7 +149,7 @@
                 for (let prod of toSave) {
                     if (prod.statusLogs) {
                         for (let statusLog of prod.statusLogs) {
-                            statusLog.user = statusLog.user.id;
+                            statusLog.user = statusLog.user ? statusLog.user.id : null;
                         }
                     }
                 }
