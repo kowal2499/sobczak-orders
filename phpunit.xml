@@ -1,0 +1,13 @@
+<!-- http://phpunit.de/manual/6.0/en/appendixes.configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.0/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+>
+
+    <testsuites>
+        <testsuite name="Sobczak Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>
