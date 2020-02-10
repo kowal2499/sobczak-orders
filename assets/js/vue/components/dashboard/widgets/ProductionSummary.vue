@@ -6,19 +6,28 @@
             <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
         </div>
 
-        <div class="row" v-else>
+        <div v-else>
 
-                <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" text-class="text-primary" :value="summary.ordersInProduction"></Badge>
+            <div class="row">
+                <Badge border-class="border-left-primary" :title="$t('Ilość dni roboczych')" text-class="text-primary" :value="calendar.workingDays"></Badge>
+                <Badge border-class="border-left-primary" :title="$t('Limit współczynników w miesiącu')" text-class="text-primary" :value="calendar.factorLimit"></Badge>
+            </div>
 
-                <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="summary.ordersFinished"></Badge>
+            <div class="row">
 
-                <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="summary.factorsInProduction | toFixed(2)"></Badge>
+                    <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" text-class="text-primary" :value="production.ordersInProduction"></Badge>
 
-                <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="summary.factorsFinished | toFixed(2)"></Badge>
+                    <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="production.ordersFinished"></Badge>
 
-                <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(summary.factorsFinished + summary.factorsInProduction) | toFixed(2)"></Badge>
+                    <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="production.factorsInProduction | toFixed(2)"></Badge>
 
-                <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="estimateFirstFreeDay()"></Badge>
+                    <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="production.factorsFinished | toFixed(2)"></Badge>
+
+                    <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(production.factorsFinished + production.factorsInProduction) | toFixed(2)"></Badge>
+
+                    <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="calendar.firstFreeDay"></Badge>
+
+            </div>
 
         </div>
 
@@ -42,11 +51,17 @@
             return {
                 busy: true,
 
-                summary: {
+                production: {
                     ordersInProduction: 0,
                     ordersFinished: 0,
                     factorsInProduction: 0,
-                    factorsFinished: 0
+                    factorsFinished: 0,
+                },
+
+                calendar: {
+                    workingDays: null,
+                    factorLimit: null,
+                    firstFreeDay: null,
                 }
             }
         },
@@ -72,33 +87,39 @@
 
                 Api.productionSummary(this.month, this.year)
                     .then(({data}) => {
-                        this.summary = data.production;
+                        this.production = {
+                            ...this.production,
+                            ...data.production
+                        };
+                        this.calendar = {
+                            workingDays: data.workingDays,
+                            factorLimit: data.factorLimit,
+                            firstFreeDay: data.firstFreeDay,
+                        };
                     })
                     .finally(() => { this.busy = false; })
                 ;
             },
 
             estimateFirstFreeDay() {
-                if (this.summary.ordersInProduction === 0) {
-                    return null;
-                }
-
-                let daysNum = moment().daysInMonth();
-                // let factorPerDay = 30 / daysNum;
-                let factorPerDay = 1.4;
-                let daysToComplete = Math.ceil(this.summary.factorsInProduction * factorPerDay);
-                let endDate = moment();
-                let index = 0;
-
-                while (index < daysToComplete) {
-                    endDate = endDate.add(1, 'day');
-                    if ([6, 7].indexOf(endDate.isoWeekday()) === -1) {
-                        index++;
-                    }
-                }
-
-                return endDate.format('YYYY-MM-DD');
-
+                // if (this.summary.ordersInProduction === 0) {
+                //     return null;
+                // }
+                //
+                // let daysNum = moment().daysInMonth();
+                // // let factorPerDay = 30 / daysNum;
+                // let factorPerDay = 1.4;
+                // let daysToComplete = Math.ceil(this.summary.factorsInProduction * factorPerDay);
+                // let endDate = moment();
+                // let index = 0;
+                //
+                // while (index < daysToComplete) {
+                //     endDate = endDate.add(1, 'day');
+                //     if ([6, 7].indexOf(endDate.isoWeekday()) === -1) {
+                //         index++;
+                //     }
+                // }
+                // return endDate.format('YYYY-MM-DD');
             },
 
             canSeeProduction() {

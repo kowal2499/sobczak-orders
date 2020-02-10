@@ -70,13 +70,6 @@
                     </a>
                 </span>
 
-<!--                <a class="dropdown-item" href="#"-->
-<!--                   @click.prevent="isModalConfirmDeleteProductionVisible = true"-->
-<!--                   v-if="canDeleteProduction()"-->
-<!--                >-->
-<!--                    <i class="fa fa-trash text-danger" aria-hidden="true"></i> <span class="text-danger">{{ $t('deleteProduction') }}</span>-->
-<!--                </a>-->
-
             </template>
         </dropdown>
 
@@ -142,35 +135,6 @@
             </div>
 
         </confirmation-modal>
-
-        <!-- Modal usuwania produkcji -->
-
-<!--        <confirmation-modal-->
-<!--                :show="isModalConfirmDeleteProductionVisible"-->
-<!--                @answerYes="deleteProduction()"-->
-<!--                @closeModal="isModalConfirmDeleteProductionVisible = false"-->
-<!--                v-if="isModalConfirmDeleteProductionVisible"-->
-<!--        >-->
-<!--            <div>-->
-<!--                <p><strong>{{ $t('areYouSureToDeleteProduction') }}</strong></p>-->
-
-<!--                <ul class="list-unstyled">-->
-<!--                    <li>{{ $t('id') }}: {{ line.header.orderNumber}}</li>-->
-<!--                    <li>{{ $t('product') }}: {{ line.product.name }}</li>-->
-<!--                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>-->
-<!--                </ul>-->
-
-<!--                <div class="alert alert-danger">-->
-<!--                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>-->
-<!--                    {{ $t('willRemoveProductionData') }}-->
-<!--                </div>-->
-
-<!--                <div class="alert alert-info">-->
-<!--                    {{ $t('deleteNotification') }}-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--        </confirmation-modal>-->
 
         <!-- Modal dla magazynowania zamówienia -->
         <confirmation-modal
