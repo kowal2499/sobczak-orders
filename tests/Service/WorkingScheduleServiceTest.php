@@ -4,10 +4,26 @@
 namespace App\Tests\Service;
 use App\Entity\WorkingSchedule;
 use App\Service\WorkingScheduleService;
+use App\Test\KernelTestCase;
 use PHPUnit\Framework\TestCase;
 
-class WorkingScheduleServiceTest extends TestCase
+class WorkingScheduleServiceTest extends KernelTestCase
 {
+    protected function setUp(): void
+    {
+
+        $this->getDBConnection()->beginTransaction();
+
+        $em = $this->getManager();
+        $day = new WorkingSchedule();
+        $day->setDate(new \DateTime('2020-05-11'))
+            ->setIsWorking(true);
+
+        $em->persist($day);
+        $em->flush();
+
+    }
+
     public function testShouldGetBeginningAndEndingOfTheMonthByGivenDay(): void
     {
         $date = new \DateTimeImmutable('2020-02-09');
