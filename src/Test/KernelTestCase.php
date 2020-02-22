@@ -12,6 +12,18 @@ class KernelTestCase extends SymfonyKernelTestCase
 {
     protected static $entityManagerWasCleared = false;
 
+    protected function assertException(string $expectClass, callable $callback)
+    {
+        try {
+            $callback();
+        } catch (\Throwable $exception) {
+            $this->assertInstanceOf($expectClass, $exception, 'An invalid exception was thrown');
+            return;
+        }
+
+        $this->fail('No exception was thrown');
+    }
+
     /**
      * @param $serviceId
      * @return object|null

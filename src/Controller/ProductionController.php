@@ -219,13 +219,10 @@ class ProductionController extends BaseController
              * Wyznaczanie ilości dni roboczych
              */
             $workingScheduleService->initialize("${argYear}-${argMonth}-01");
-            if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                $workingScheduleService->initializeHolidays();
-            }
             $summary['workingDays'] = $workingScheduleService->getWorkingDaysCount();
 
             /**
-             * Miesięczna norma produkcji to 32 współczynniki. W miesiący jest średnio 21 dni roboczoch,
+             * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczoch,
              * co daje 1,5238 współczynnika na dzień.
              */
 
@@ -286,9 +283,6 @@ class ProductionController extends BaseController
                 $endDate->modify('+1 day');
                 if ($cachedMonth !== $endDate->format('m')) {
                     $workingScheduleService->initialize($endDate->format('Y-m') . '-01');
-                    if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                        $workingScheduleService->initializeHolidays();
-                    }
                 }
                 if ($workingScheduleService->isWorkingDay($endDate->format('Y-m-d'))) {
                     $index++;

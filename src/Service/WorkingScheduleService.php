@@ -27,11 +27,15 @@ class WorkingScheduleService
     /**
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(?EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @param String $day 'Y-m-d'
+     * @throws \Exception
+     */
     public function initialize($day)
     {
         $date = \DateTimeImmutable::createFromFormat('Y-m-d', $day);
@@ -40,16 +44,18 @@ class WorkingScheduleService
             throw new \Exception('Nieprawidłowy format daty');
         }
 
-        $range = self::getTimeRange($date);
-        $this->start = $range['start'];
-        $this->end = $range['end'];
-    }
+        // ustalenie granic miesiąca
+        $this->start = $date->modify('first day of this month')->setTime(0, 0, 0);
+        $this->end = $date->modify('last day of this month')->setTime(23, 59, 59, 999999);
 
-    public static function getTimeRange(\DateTimeImmutable $date) {
-        return [
-            'start' => $date->modify('first day of this month'),
-            'end' => $date->modify('last day of this month'),
-        ];
+        // załadowanie dni z bazy
+        $this->loadDays();
+
+        // przygotowanie miesiąca jeśli w bazie nic nie ma
+        if (count($this->scheduledDays) === 0) {
+            $this->initializeHolidays();
+            $this->loadDays();
+        }
     }
 
     private function loadDays()
@@ -63,7 +69,11 @@ class WorkingScheduleService
         }
     }
 
-    public function initializeHolidays()
+    /**
+     * Zapisuje w bazie danych domyślne wolne dni
+     * @throws \Exception
+     */
+    private function initializeHolidays()
     {
         foreach ($this->getDefaultNotWorkingDays() as $date) {
             $holiday = new WorkingSchedule();
@@ -74,7 +84,7 @@ class WorkingScheduleService
         $this->entityManager->flush();
     }
 
-    public function getDefaultNotWorkingDays()
+    private function getDefaultNotWorkingDays()
     {
         $holidays = [];
         $walk = new \DateTime($this->start->format('Y-m-d'));
@@ -100,19 +110,8 @@ class WorkingScheduleService
         return array_values(array_unique($holidays));
     }
 
-    public function hasHolidaysInitialized(): bool
-    {
-        if (!$this->scheduledDays) {
-            $this->loadDays();
-        }
-        return count($this->scheduledDays) > 0;
-    }
-
     public function getWorkingDaysCount()
     {
-        if (!$this->scheduledDays) {
-            $this->loadDays();
-        }
         $totalDays = $this->end->diff($this->start)->format("%a");
 
         $notWorkingDays = array_filter($this->scheduledDays, function(WorkingSchedule $day) {
@@ -126,14 +125,57 @@ class WorkingScheduleService
 
     public function isWorkingDay($date)
     {
-        if (!$this->scheduledDays) {
-            $this->loadDays();
-        }
-
         if (false === isset($this->scheduledDaysByDate[$date])) {
             return true;
         }
 
         return $this->scheduledDaysByDate[$date]->getIsWorking();
+    }
+
+    public function getNotWorkingDays()
+    {
+        $notWorkingDays = array_filter($this->scheduledDays, function(WorkingSchedule $day) {
+            return $day->getIsWorking() === false;
+        });
+
+        return array_map(function ($day) {
+            return $day->getDate()->format('Y-m-d');
+        }, $notWorkingDays);
+    }
+
+    /**
+     * Zapisuje dzień jako wolny od pracy
+     * @param $date
+     * @throws \Exception
+     */
+    public function setNotWorkingDay($date) {
+        if (true === isset($this->scheduledDaysByDate[$date])) {
+            $this->scheduledDaysByDate[$date]->setIsWorking(false);
+            $this->entityManager->persist($this->scheduledDaysByDate[$date]);
+            $this->entityManager->flush();
+            return;
+        }
+
+        $holiday = new WorkingSchedule();
+        $holiday->setIsWorking(false);
+        $holiday->setDate(new \DateTime($date));
+        $this->entityManager->persist($holiday);
+        $this->entityManager->flush();
+
+        $this->loadDays();
+    }
+
+    /**
+     * Zapisuje dzień jako pracujący
+     * @param $date
+     */
+    public function setWorkingDay($date) {
+        if (false === isset($this->scheduledDaysByDate[$date])) {
+            return;
+        }
+
+        $this->scheduledDaysByDate[$date]->setIsWorking(true);
+        $this->entityManager->persist($this->scheduledDaysByDate[$date]);
+        $this->entityManager->flush();
     }
 }
