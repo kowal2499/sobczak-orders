@@ -32,6 +32,10 @@ class AgreementLineType extends AbstractType
                 'widget' => 'single_text',
                 'format' => 'yyyy-MM-dd HH:mm:ss'
             ])
+            ->add('factorBindDate', DateTimeType::class, [
+                'widget' => 'single_text',
+                'format' => 'yyyy-MM-dd HH:mm:ss'
+            ])
         ;
     }
 

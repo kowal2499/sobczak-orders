@@ -39,6 +39,14 @@
                 </div>
             </div>
 
+            <div class="row mt-3" v-if="userCanProduction()">
+                <label class="col-2 col-form-label">{{ $t('orders.resourceAssignment') }}</label>
+                <div class="col">
+                    <date-picker v-model="factorBindDate" :is-range="false"></date-picker>
+                    <small class="form-text text-muted">{{ $t('orders.resourceAssignmentDesc') }}</small>
+                </div>
+            </div>
+
 
             <div class="row mt-3">
                 <div class="col text-right">
@@ -86,6 +94,14 @@
                             <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                             <div class="col">
                                 <date-picker v-model="product.requiredDate" :isRange="false"></date-picker>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3" v-if="userCanProduction()">
+                            <label class="col-2 col-form-label">{{ $t('orders.resourceAssignment') }}</label>
+                            <div class="col">
+                                <date-picker v-model="product.factorBindDate" :is-range="false"></date-picker>
+                                <small class="form-text text-muted">{{ $t('orders.resourceAssignmentDesc') }}</small>
                             </div>
                         </div>
 
@@ -140,6 +156,7 @@
                 orderDate: '',
                 orderProduct: '',
                 orderDescription: '',
+                factorBindDate: '',
                 orderFactor: 0,
 
                 productDefinitions: [],
@@ -152,12 +169,14 @@
                     productId: this.orderProduct,
                     description: this.orderDescription,
                     requiredDate: this.orderDate,
+                    factorBindDate: this.factorBindDate,
                     factor: this.orderFactor / 100
                 });
 
                 this.orderProduct = '';
                 this.orderDescription = '';
                 this.orderDate = '';
+                this.factorBindDate = '';
                 this.orderFactor = 0;
 
                 this.$emit('orderSave');

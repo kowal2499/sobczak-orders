@@ -17,12 +17,18 @@
         </div>
 
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-4">
                 <div class="form-group">
                     <label>{{ $t('deliveryDate') }}</label><br>
                     <date-picker v-model="confirmedDate" :is-range="false" :date-only="false"/>
                 </div>
-
+            </div>
+            <div class="col-md-8" v-if="canEditStatus()">
+                <div class="form-group">
+                    <label>{{ $t('orders.resourceAssignment') }}</label><br>
+                    <date-picker v-model="factorBindDate" :is-range="false" :date-only="false"/>
+                    <small class="form-text text-muted">{{ $t('orders.resourceAssignmentDesc') }}</small>
+                </div>
             </div>
         </div>
 
@@ -76,7 +82,17 @@
                 set(newVal) {
                     this.emitter({confirmedDate: newVal})
                 }
-            }
+            },
+
+            factorBindDate: {
+                get() {
+                    return this.value.factorBindDate;
+                },
+
+                set(newVal) {
+                    this.emitter({factorBindDate: newVal})
+                }
+            },
         },
 
         methods: {

@@ -20,11 +20,11 @@
                 <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
                 <td>{{ line.Product.name }}
-                    <tooltip v-if="line.description.length > 0">
+                    <tooltip v-if="line.description && line.description.length > 0">
                         <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
                         <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(line.description)"></div>
                     </tooltip>
-                    <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
+                    <span v-if="line.Agreement.attachments && line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
                 </td>
                 <td><span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span></td>
                 <td>

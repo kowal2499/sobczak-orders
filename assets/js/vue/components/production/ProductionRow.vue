@@ -16,13 +16,19 @@
 
         <td>
             {{ order.Product.name }}
-            <tooltip v-if="order.description.length > 0">
+            <tooltip v-if="order.description && order.description.length > 0">
                 <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
                 <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.description)"></div>
             </tooltip>
         </td>
 
-        <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
+        <td class="text-center" v-if="userCanProduction()">
+            <span>{{ order.factor }}</span>
+            <tooltip v-if="!order.factorBindDate">
+                <i slot="visible-content" class="fa fa-exclamation-circle hasTooltip text-danger"/>
+                <div slot="tooltip-content" class="text-left" v-html="$t('orders.resourceAssignmentNone')"></div>
+            </tooltip>
+        </td>
 
         <td class="tasks" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
             <div class="task">
@@ -48,7 +54,7 @@
         <td>
             <button class="btn btn-light" style="padding: 0 0.5rem" v-if="hasDetails" @click.prevent="$emit('expandToggle', order.id)">
 
-                <span v-if="order.Agreement.attachments.length > 0">
+                <span v-if="order.Agreement.attachments && order.Agreement.attachments.length > 0">
                     <i class="fa fa-paperclip sb-color"/>
                     <span class="badge badge-pill">{{ order.Agreement.attachments.length }}</span>
                 </span>
@@ -125,7 +131,7 @@
         },
         computed: {
             hasDetails() {
-                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
+                return (this.order.Agreement.attachments && this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
             }
         }
     }

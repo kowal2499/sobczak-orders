@@ -85,6 +85,7 @@ class AgreementsController extends AbstractController
                 'description' => $line->getDescription(),
                 'productId' => $line->getProduct()->getId(),
                 'requiredDate' => $line->getConfirmedDate()->format('Y-m-d'),
+                'factorBindDate' => $line->getFactorBindDate() ? $line->getFactorBindDate()->format('Y-m-d') : null,
                 'factor' => (float) $line->getFactor()
             ];
         }
@@ -154,6 +155,9 @@ class AgreementsController extends AbstractController
                 ->setDeleted(false)
                 ->setArchived(false)
             ;
+            if ($productData['factorBindDate']) {
+                $agreementLine->setFactorBindDate(new \DateTime($productData['factorBindDate']));
+            }
             $em->persist($agreementLine);
         }
 
@@ -265,6 +269,10 @@ class AgreementsController extends AbstractController
                 $line->setProduct($productRepository->find($incomingLine['productId']));
                 $line->setFactor($incomingLine['factor']);
                 $line->setDescription($incomingLine['description']);
+
+                if ($incomingLine['factorBindDate']) {
+                    $line->setFactorBindDate(new \DateTime($incomingLine['factorBindDate']));
+                }
 
                 $em->persist($line);
 

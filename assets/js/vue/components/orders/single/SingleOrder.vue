@@ -92,6 +92,7 @@
                     confirmedDate: this.orderData.confirmedDate,
                     description: this.orderData.description,
                     factor: this.orderData.factor,
+                    factorBindDate: this.orderData.factorBindDate,
                     productions: this.prodToSave,
                 })
                     .then(({data}) => {

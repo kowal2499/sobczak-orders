@@ -91,6 +91,9 @@ export default {
             user: 'User',
             list: 'Orders list',
             productionSchedule: 'Production schedule',
+            resourceAssignment: 'Resource assignment date',
+            resourceAssignmentDesc: 'Binds the order with month for the purposes of production capacity estimation using factor method.',
+            resourceAssignmentNone: 'Production capacity estimation does not count this order.',
         }
 
 
@@ -187,6 +190,9 @@ export default {
             user: 'Użytkownik',
             list: 'Lista zamówień',
             productionSchedule: 'Harmonogram produkcji',
+            resourceAssignment: 'Data przydzielenia zasobów',
+            resourceAssignmentDesc: 'Wiąże zamówienie z miesiącem w celu oszacowania zdolności produkcyjnych metodą współczynnikową.',
+            resourceAssignmentNone: 'Szacowanie zasobów nie uwzględnia tego zamówienia.',
         }
 
     }

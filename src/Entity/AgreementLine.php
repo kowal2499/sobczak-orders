@@ -80,6 +80,12 @@ class AgreementLine
      */
     private $factor;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"_main", "_linePanel"})
+     */
+    private $factorBindDate;
+
     public function __construct()
     {
         $this->productions = new ArrayCollection();
@@ -224,6 +230,18 @@ class AgreementLine
     public function setStatus(?int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getFactorBindDate(): ?\DateTimeInterface
+    {
+        return $this->factorBindDate;
+    }
+
+    public function setFactorBindDate(?\DateTimeInterface $factorBindDate): self
+    {
+        $this->factorBindDate = $factorBindDate;
 
         return $this;
     }
