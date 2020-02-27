@@ -2,10 +2,8 @@
 
 
 namespace App\Tests\Service;
-use App\Entity\WorkingSchedule;
 use App\Service\WorkingScheduleService;
 use App\Test\KernelTestCase;
-use PHPUnit\Framework\TestCase;
 
 class WorkingScheduleServiceTest extends KernelTestCase
 {

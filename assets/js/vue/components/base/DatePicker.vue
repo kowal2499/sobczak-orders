@@ -7,6 +7,7 @@
         :width="width"
         use-utc="true"
         :show-week-number="true"
+        style="width: 100%"
         >
     </vueDP>
 </template>
@@ -95,9 +96,13 @@
 
                 set(newValue) {
                     if (this.isRange) {
+
+                        let start = moment(newValue[0]);
+                        let end = moment(newValue[1]);
+
                         this.$emit('input', {
-                            start: moment(newValue[0]).format('YYYY-MM-DD'),
-                            end: moment(newValue[1]).format('YYYY-MM-DD'),
+                            start: start.isValid() ? moment(newValue[0]).format('YYYY-MM-DD') : null,
+                            end: end.isValid() ? moment(newValue[1]).format('YYYY-MM-DD') : null,
                         });
                     } else {
                         if (this.dateOnly) {

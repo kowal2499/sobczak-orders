@@ -1,36 +1,19 @@
 <template>
-
     <div>
-
         <div class="text-center" v-if="busy">
             <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
         </div>
 
         <div v-else>
-
-            <div class="row">
-                <Badge border-class="border-left-primary" :title="$t('Ilość dni roboczych')" text-class="text-primary" :value="calendar.workingDays"></Badge>
-                <Badge border-class="border-left-primary" :title="$t('Limit współczynników w miesiącu')" text-class="text-primary" :value="calendar.factorLimit"></Badge>
+            <div class="d-flex flex-wrap">
+                <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" :width="150" :value="production.ordersInProduction"></Badge>
+                <Badge border-class="border-left-success" :title="$t('ordersFinished')" :width="150" :value="production.ordersFinished"></Badge>
+                <Badge v-if="canSeeProduction()" border-class="border-left-info" :width="150" :title="$t('totalFactorsInRealisation')" :value="production.factorsInProduction | toFixed(2)"></Badge>
+                <Badge v-if="canSeeProduction()" border-class="border-left-warning" :width="150" :title="$t('totalFactorsFinished')" :value="production.factorsFinished | toFixed(2)"></Badge>
+                <Badge v-if="canSeeProduction()" border-class="border-left-primary" :width="150" :title="$t('totalFactors')" :value="(production.factorsFinished + production.factorsInProduction) | toFixed(2)"></Badge>
+                <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :width="150" :title="$t('estimatedFinishAllOrdersDay')" :value="calendar.firstFreeDay"></Badge>
             </div>
-
-            <div class="row">
-
-                    <Badge border-class="border-left-primary" :title="$t('ordersInRealisation')" text-class="text-primary" :value="production.ordersInProduction"></Badge>
-
-                    <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="production.ordersFinished"></Badge>
-
-                    <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="production.factorsInProduction | toFixed(2)"></Badge>
-
-                    <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="production.factorsFinished | toFixed(2)"></Badge>
-
-                    <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(production.factorsFinished + production.factorsInProduction) | toFixed(2)"></Badge>
-
-                    <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="calendar.firstFreeDay"></Badge>
-
-            </div>
-
         </div>
-
     </div>
 </template>
 
@@ -38,7 +21,6 @@
 
     import Badge from "./Badge";
     import Api from '../../../api/widgets';
-    import moment from 'moment';
 
     export default {
         name: "ProductionSummary",
@@ -59,8 +41,6 @@
                 },
 
                 calendar: {
-                    workingDays: null,
-                    factorLimit: null,
                     firstFreeDay: null,
                 }
             }

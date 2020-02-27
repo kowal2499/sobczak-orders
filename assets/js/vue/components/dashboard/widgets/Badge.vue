@@ -1,13 +1,13 @@
 <template>
 
-    <div class="card shadow py-2 m-2" :class="borderClass">
+    <div class="card shadow mr-3 my-1" :class="borderClass" :style="getWidth">
         <div class="card-body">
-            <div class="row no-gutters align-items-center">
-                <div class="col">
+            <slot name="body">
+                <div class="align-items-center">
                     <div class="text-title font-weight-bold text-primary text-uppercase mb-1">{{ title }}</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{{ value }}</div>
                 </div>
-            </div>
+            </slot>
         </div>
     </div>
 
@@ -17,16 +17,24 @@
     export default {
         name: "Badge",
 
-        props: ['borderClass', 'textClass', 'title', 'value']
+        props: ['borderClass', 'textClass', 'width', 'title', 'value'],
+
+        computed: {
+            getWidth() {
+                if (this.width) {
+                    return `width: ${this.width}px`;
+                } else {
+                    return `width: auto;`
+                }
+            }
+        }
     }
 </script>
 
 <style scoped lang="scss">
 
     .card {
-        width: 180px;
-        min-height: 150px;
-        margin-right: 20px;
+        display: inline-block;
     }
 
     .border-left-success {

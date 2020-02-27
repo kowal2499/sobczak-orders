@@ -10,6 +10,13 @@
             {{ order.confirmedDate | formatDate('YYYY-MM-DD') }}
         </td>
 
+        <td v-if="userCanProduction()">
+            <span v-if="order.factorBindDate">{{ order.factorBindDate | formatDate('YYYY-MM') }}</span>
+            <span v-else class="badge badge-pill badge-danger">
+                <i class="fa fa-exclamation-circle"></i> {{ $t('orders.resourceAssignmentNotSpecified') }}
+            </span>
+        </td>
+
         <td>
             {{ __mixin_customerName(order.Agreement.Customer) }}
         </td>

@@ -32,6 +32,7 @@ export default {
         search: 'Search',
         receiveDate: 'Receive date',
         deliveryDate: 'Delivery date',
+        factorsDate: 'Resource assignment date',
         customer: 'Customer',
         product: 'Product',
         orderStatus: 'Order status',
@@ -94,6 +95,8 @@ export default {
             resourceAssignment: 'Resource assignment date',
             resourceAssignmentDesc: 'Binds the order with month for the purposes of production capacity estimation using factor method.',
             resourceAssignmentNone: 'Production capacity estimation does not count this order.',
+            searchPlaceholder: 'Order no., customer data, product name',
+            resourceAssignmentNotSpecified: 'Not specified',
         }
 
 
@@ -131,6 +134,7 @@ export default {
         search: 'Szukaj',
         receiveDate: 'Data otrzymania',
         deliveryDate: 'Data dostawy',
+        factorsDate: 'Data przydzielenia zasobów',
         customer: 'Klient',
         product: 'Produkt',
         orderStatus: 'Status zamówienia',
@@ -193,6 +197,8 @@ export default {
             resourceAssignment: 'Data przydzielenia zasobów',
             resourceAssignmentDesc: 'Wiąże zamówienie z miesiącem w celu oszacowania zdolności produkcyjnych metodą współczynnikową.',
             resourceAssignmentNone: 'Szacowanie zasobów nie uwzględnia tego zamówienia.',
+            resourceAssignmentNotSpecified: 'Nieokreślone',
+            searchPlaceholder: 'Nr zamówienia, dane klienta, nazwa produktu',
         }
 
     }

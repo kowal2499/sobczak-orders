@@ -2,7 +2,7 @@
     <collapsible-card :title="$t('orders.productionSchedule')">
 
         <template v-slot:filters>
-            <filters :filters-collection="args.filters"/>
+            <filters v-model="args.filters"/>
         </template>
 
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
@@ -82,6 +82,10 @@
                             start: null,
                             end: null
                         },
+                        dateFactors: {
+                            start: null,
+                            end: null
+                        },
                         hideArchive: true,
                         q: '',
                     },
@@ -123,6 +127,12 @@
                     moment1: moment(query.dateDelivery1 || null),
                     store0: 'args.filters.dateDelivery.start',
                     store1: 'args.filters.dateDelivery.end',
+                },
+                {
+                    moment0: moment(query.dateFactors0 || null),
+                    moment1: moment(query.dateFactors1 || null),
+                    store0: 'args.filters.dateFactors.start',
+                    store1: 'args.filters.dateFactors.end',
                 },
             ]) {
 
@@ -257,10 +267,14 @@
                 let headers = [
                     [
                         { name: this.$t('ID'), sortKey: 'id', rowspan: 2 },
-                        { name: this.$t('orders.date'), sortKey: 'dateConfirmed', rowspan: 2 },
+                        { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed', rowspan: 2 },
+                        { name: this.$t('factorsDate'), sortKey: 'dateFactors', rowspan: 2},
                         { name: this.$t('customer'), sortKey: 'customer', rowspan: 2},
                         { name: this.$t('product'), sortKey: 'product', rowspan: 2 },
+                        { name: this.$t('orders.fctr'), sortKey: 'factor', rowspan: 2 },
                         { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
+                        { name: this.$t('orders.additionalOrders'), rowspan: 2},
+                        { name: this.$t('actions'), rowspan: 2 },
                     ],
                     [
                         { name: this.$t('Klejenie'), classCell: 'text-center'},
@@ -272,12 +286,11 @@
 
                 ];
 
-                if (this.userCanProduction) {
-                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'factor', rowspan: 2 });
-                    headers[0].push({ name: this.$t('orders.additionalOrders'), rowspan: 2});
+                if (false === this.userCanProduction) {
+                    headers[0].splice(7, 1);
+                    headers[0].splice(5, 1);
+                    headers[0].splice(2, 1);
                 }
-
-                headers[0].push({ name: this.$t('actions'), rowspan: 2 });
 
                 return headers;
             },
@@ -311,6 +324,12 @@
                 }
                 if (this.args.filters.dateDelivery.end) {
                     query.dateDelivery1 = this.args.filters.dateDelivery.end;
+                }
+                if (this.args.filters.dateFactors.start) {
+                    query.dateFactors0 = this.args.filters.dateFactors.start;
+                }
+                if (this.args.filters.dateFactors.end) {
+                    query.dateFactors1 = this.args.filters.dateFactors.end;
                 }
                 if (this.args.filters.q && this.args.filters.q.length > 0) {
                     query.q = this.args.filters.q;

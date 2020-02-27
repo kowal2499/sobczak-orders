@@ -48,4 +48,17 @@ label.required:before {
     .btn-i {
         padding-right: 4px;
     }
+
+    .form-group {
+        .mx-input {
+            height: 38px;
+            font-size: 12px;
+        }
+
+        label {
+            white-space: nowrap;
+        }
+
+    }
+
 }

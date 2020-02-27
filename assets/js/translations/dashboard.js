@@ -8,6 +8,11 @@ export default {
         'estimatedFinishAllOrdersDay': 'Estimated date to complete all the orders',
         'Ilość dni roboczych': 'Number of working days',
         'Limit współczynników w miesiącu': 'Monthly factors limit',
+        'Wykorzystane moce produkcyjne': 'Used production capacity',
+        'Okres analizy': 'Analyzed period',
+        'Analiza współczynnikowa': 'Factors analysis',
+        'Quantity': 'Quantity',
+        'Factors summary': 'Factors summary',
     },
     'pl': {
         'ordersInRealisation': 'Zamówienia w realizacji',
@@ -18,5 +23,10 @@ export default {
         'estimatedFinishAllOrdersDay': 'Planowany dzień zrealizowania wszystkich zamówień',
         'Ilość dni roboczych': 'Ilość dni roboczych',
         'Limit współczynników w miesiącu': 'Limit współczynników w miesiącu',
+        'Wykorzystane moce produkcyjne': 'Wykorzystane moce produkcyjne',
+        'Okres analizy': 'Okres analizy',
+        'Analiza współczynnikowa': 'Analiza współczynnikowa',
+        'Quantity': 'Ilość',
+        'Factors summary': 'Suma współczynników',
     }
 }

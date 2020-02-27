@@ -7,6 +7,10 @@ export default {
         return axios.post(Routing.get('production_summary'), {month, year});
     },
 
+    factorsSummary(month, year) {
+        return axios.post(Routing.get('factors_summary') + `/${year}-${month}`);
+    },
+
     /**
      * Zwraca liczbę zamówień według statusów
      *

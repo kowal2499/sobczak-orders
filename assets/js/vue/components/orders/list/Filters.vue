@@ -1,26 +1,36 @@
 <template>
 
     <div class="form-row">
-
-        <div class="form-group col-md-3">
-            <label>{{ $t('search') }}</label><br>
-            <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
+        <div class="form-group col-md-3 col-sm-12">
+            <label>{{ $t('search') }}</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <i class="fa fa-search"></i>
+                    </div>
+                </div>
+                <input type="text" class="form-control" v-model="form.q" :placeholder="$t('orders.searchPlaceholder')">
+            </div>
         </div>
 
-        <div class="form-group col-md-3">
-            <label>{{ $t('receiveDate') }}</label><br>
-            <date-picker v-model="filtersCollection.dateStart" style="width: 100%"/>
+        <div class="form-group col-md-3 col-sm-4">
+            <label>{{ $t('receiveDate') }}</label>
+            <date-picker v-model="form.dateStart"/>
         </div>
 
-        <div class="form-group col-md-3">
-            <label>{{ $t('deliveryDate') }}</label><br>
-            <date-picker v-model="filtersCollection.dateDelivery" style="width: 100%"/>
+        <div class="form-group col-md-3 col-sm-4">
+            <label>{{ $t('deliveryDate') }}</label>
+            <date-picker v-model="form.dateDelivery"/>
+        </div>
+
+        <div class="form-group col-md-3 col-sm-4" v-if="userCanProduction">
+            <label>{{ $t('factorsDate') }}</label>
+            <date-picker v-model="form.dateFactors"/>
         </div>
 
         <div class="col">
             <slot></slot>
         </div>
-
     </div>
 
 </template>
@@ -31,25 +41,42 @@
 
     export default {
         name: "filters",
-        props: {
-            filtersCollection: {
-                type: Object,
-                default: () => {}
-            }
-        },
+        props: ['value'],
 
         components: { DatePicker },
 
+        watch: {
+            input: {
+                deep: true,
+                immediate: true,
+                handler() {
+                    this.form = {...this.value}
+                }
+            },
+
+            form: {
+                deep: true,
+                handler() {
+                    this.$emit('input', {...this.form})
+                }
+            }
+        },
+
+        computed: {
+            userCanProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            }
+        },
+
         data() {
-            return {}
+            return {
+                form: {}
+            }
         },
     }
 </script>
 
 <style scoped lang="scss">
-    .form-group + .form-group {
-        margin-left: 10px;
-    }
 
     .form-group {
         label {

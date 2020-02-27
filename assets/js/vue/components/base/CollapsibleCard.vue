@@ -8,10 +8,12 @@
                 <slot name="header" v-if="!collapsed">
 
                 </slot>
-                <i class="fa fa-chevron-down" aria-hidden="true"
-                   :class="{'fa-rotate-180': collapsed}"
-                   @click="collapsed = !collapsed"
-                ></i>
+                <button class="btn btn-i px-2" @click="collapsed = !collapsed">
+                    <i class="fa fa-chevron-down" aria-hidden="true"
+                       :class="{'fa-rotate-180': collapsed}"
+
+                    ></i>
+                </button>
             </div>
         </div>
 
@@ -47,6 +49,9 @@
 
 <style lang="scss" scoped>
 
-
+    button.btn:focus {
+        outline: none;
+        box-shadow: none !important;
+    }
 
 </style>

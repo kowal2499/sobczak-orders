@@ -23,7 +23,7 @@
                     <date-picker v-model="confirmedDate" :is-range="false" :date-only="false"/>
                 </div>
             </div>
-            <div class="col-md-8" v-if="canEditStatus()">
+            <div class="col-md-4" v-if="canEditStatus()">
                 <div class="form-group">
                     <label>{{ $t('orders.resourceAssignment') }}</label><br>
                     <date-picker v-model="factorBindDate" :is-range="false" :date-only="false"/>

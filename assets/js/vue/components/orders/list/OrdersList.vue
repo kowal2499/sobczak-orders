@@ -8,7 +8,7 @@
         </template>
 
         <template v-slot:filters>
-            <filters :filters-collection="args.filters"/>
+            <filters v-model="args.filters"/>
         </template>
 
         <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
@@ -18,6 +18,13 @@
                 <td>{{ line.Agreement.orderNumber || line.Agreement.id }}</td>
                 <td>{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
+                <td v-if="userCanProduction">
+                    <span v-if="line.factorBindDate">{{ line.factorBindDate | formatDate('YYYY-MM') }}</span>
+                    <span v-else class="badge badge-pill badge-danger">
+                        <i class="fa fa-exclamation-circle"></i> {{ $t('orders.resourceAssignmentNotSpecified') }}
+                    </span>
+
+                </td>
                 <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
                 <td>{{ line.Product.name }}
                     <tooltip v-if="line.description && line.description.length > 0">
@@ -26,7 +33,7 @@
                     </tooltip>
                     <span v-if="line.Agreement.attachments && line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
                 </td>
-                <td><span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span></td>
+                <td><span class="badge badge-pill" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span></td>
                 <td>
                     <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
                         {{ $t(getProductionStatusData(line.productions)['title']) }}
@@ -89,6 +96,10 @@
                             start: null,
                             end: null
                         },
+                        dateFactors: {
+                            start: null,
+                            end: null
+                        },
                         q: '',
                     },
 
@@ -100,23 +111,7 @@
                 },
 
                 agreementLines: [],
-                // departments: [],
-                // production: [],
-
                 newOrderLink: routing.get('orders_view_new'),
-
-                // showProductionPlan: false,
-                // selectedOrder: null,
-                // selectedProduction: [],
-
-                // confirmations: {
-                //     delete: {
-                //         show: false,
-                //         context: false,
-                //         busy: false
-                //     }
-                // },
-
                 loading: false,
             }
         },
@@ -141,8 +136,13 @@
                         store0: 'args.filters.dateDelivery.start',
                         store1: 'args.filters.dateDelivery.end',
                     },
+                    {
+                        moment0: moment(query.dateFactors0 || null),
+                        moment1: moment(query.dateFactors1 || null),
+                        store0: 'args.filters.dateFactors.start',
+                        store1: 'args.filters.dateFactors.end',
+                    },
             ]) {
-
                 // both dates need to be set and valid
                 if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
                     _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
@@ -201,6 +201,12 @@
                 if (this.args.filters.dateDelivery.end) {
                     query.dateDelivery1 = this.args.filters.dateDelivery.end;
                 }
+                if (this.args.filters.dateFactors.start) {
+                    query.dateFactors0 = this.args.filters.dateFactors.start;
+                }
+                if (this.args.filters.dateFactors.end) {
+                    query.dateFactors1 = this.args.filters.dateFactors.end;
+                }
                 if (this.args.filters.q && this.args.filters.q.length > 0) {
                     query.q = this.args.filters.q;
                 }
@@ -216,19 +222,29 @@
             },
 
             tableHeaders() {
-                return [
-                    [
-                        { name: this.$t('id'), sortKey: 'id' },
-                        { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
-                        { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
-                        { name: this.$t('customer'), sortKey: 'customer'},
-                        { name: this.$t('product'), sortKey: 'product' },
-                        { name: this.$t('orderStatus') },
-                        { name: this.$t('productionStatus') },
-                        { name: this.$t('actions') },
-                    ]
+
+                let headers = [
+                    { name: this.$t('id'), sortKey: 'id' },
+                    { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
+                    { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
+                    { name: this.$t('factorsDate'), sortKey: 'dateFactors'},
+                    { name: this.$t('customer'), sortKey: 'customer'},
+                    { name: this.$t('product'), sortKey: 'product' },
+                    { name: this.$t('orderStatus') },
+                    { name: this.$t('productionStatus') },
+                    { name: this.$t('actions') },
                 ];
+
+                if (false === this.userCanProduction) {
+                    headers.splice(3, 1);
+                }
+
+                return [headers];
             },
+
+            userCanProduction() {
+                return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            }
         },
 
 

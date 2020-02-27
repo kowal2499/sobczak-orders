@@ -54,7 +54,6 @@ class AgreementLineRepository extends ServiceEntityRepository
             foreach ($term['search'] as $key => $value) {
                 switch ($key) {
                     case 'dateStart':
-
                         if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("a.createDate >= :dateStart0");
                             $qb->setParameter('dateStart0', new \DateTime($value['start'] . ' 23:59:59'));
@@ -64,9 +63,7 @@ class AgreementLineRepository extends ServiceEntityRepository
                             $qb->setParameter('dateStart1', new \DateTime($value['end'] . ' 23:59:59'));
                         }
                         break;
-
                     case 'dateDelivery':
-
                         if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("l.confirmedDate >= :dateConfirmed0");
                             $qb->setParameter('dateConfirmed0', (new \DateTime($value['start'])));
@@ -76,7 +73,16 @@ class AgreementLineRepository extends ServiceEntityRepository
                             $qb->setParameter('dateConfirmed1', (new \DateTime($value['end'] . ' 23:59:59')));
                         }
                         break;
-
+                    case 'dateFactors':
+                        if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
+                            $qb->andWhere("l.factorBindDate >= :dateFactor0");
+                            $qb->setParameter('dateFactor0', (new \DateTime($value['start'])));
+                        }
+                        if (isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)) {
+                            $qb->andWhere("l.factorBindDate <= :dateFactor1");
+                            $qb->setParameter('dateFactor1', (new \DateTime($value['end'] . ' 23:59:59')));
+                        }
+                        break;
                     case 'archived':
                         $qb->andWhere("l.archived = :{$key}");
                         $qb->setParameter($key, $value);
@@ -128,6 +134,7 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'id': $qb->orderBy('a.orderNumber', $order); break;
                     case 'dateReceive': $qb->orderBy('a.createDate', $order); break;
                     case 'dateConfirmed': $qb->orderBy('l.confirmedDate', $order); break;
+                    case 'dateFactors': $qb->orderBy('l.factorBindDate', $order); break;
                     case 'customer': $qb->orderBy('c.name', $order); break;
                     case 'product': $qb->orderBy('p.name', $order); break;
                     case 'factor': $qb->orderBy('l.factor', $order); break;
@@ -146,7 +153,6 @@ class AgreementLineRepository extends ServiceEntityRepository
      */
     public function getSummary()
     {
-
         $qb = $this->createQueryBuilder('l')
             ->andWhere('l.deleted = 0')
             ->select('l.status as statusId, COUNT(l.id) as ordersCount')
@@ -168,32 +174,60 @@ class AgreementLineRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    // /**
-    //  * @return AgreementLine[] Returns an array of AgreementLine objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    private function byFactor($dateStart, $dateEnd)
     {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('o.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.deleted = 0')
+            ->andWhere('l.factorBindDate IS NOT NULL')
+            ->andWhere('l.factorBindDate >= :dateStart')
+            ->andWhere('l.factorBindDate <= :dateEnd')
+            ->setParameter('dateStart', $dateStart)
+            ->setParameter('dateEnd', $dateEnd)
         ;
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?AgreementLine
+    private function byFactorCompleted($dateStart, $dateEnd) {
+        return $this->byFactor($dateStart, $dateEnd)
+            ->join('l.productions', 'pr')
+            ->andWhere('pr.status = \'3\'')
+            ->andWhere('pr.departmentSlug = \'dpt05\'');
+    }
+
+    public function getAllOrdersFactorsSummaryByFactorMethod($dateStart, $dateEnd)
     {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->byFactor($dateStart, $dateEnd)
+            ->select('SUM(l.factor)')
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getSingleScalarResult()
         ;
     }
-    */
+
+    public function getAllOrdersByFactorMethod($dateStart, $dateEnd)
+    {
+        return $this->byFactor($dateStart, $dateEnd)
+            ->select('COUNT(l.id)')
+            ->getQuery()
+            ->getSingleScalarResult()
+            ;
+    }
+
+    public function getCompletedOrdersByFactorMethod($dateStart, $dateEnd)
+    {
+        return $this->byFactorCompleted($dateStart, $dateEnd)
+            ->select('COUNT(l.id)')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    public function getCompletedOrdersFactorsSummaryByFactorMethod($dateStart, $dateEnd)
+    {
+        return $this->byFactorCompleted($dateStart, $dateEnd)
+            ->select('SUM(l.factor)')
+            ->getQuery()
+            ->getSingleScalarResult()
+            ;
+    }
+
+
 }
