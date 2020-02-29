@@ -11,6 +11,7 @@ export default {
         'Wykorzystane moce produkcyjne': 'Used production capacity',
         'Okres analizy': 'Analyzed period',
         'Analiza współczynnikowa': 'Factors analysis',
+        'Analiza domyślna': 'Default analysis',
         'Quantity': 'Quantity',
         'Factors summary': 'Factors summary',
     },
@@ -26,6 +27,7 @@ export default {
         'Wykorzystane moce produkcyjne': 'Wykorzystane moce produkcyjne',
         'Okres analizy': 'Okres analizy',
         'Analiza współczynnikowa': 'Analiza współczynnikowa',
+        'Analiza domyślna': 'Analiza domyślna',
         'Quantity': 'Ilość',
         'Factors summary': 'Suma współczynników',
     }

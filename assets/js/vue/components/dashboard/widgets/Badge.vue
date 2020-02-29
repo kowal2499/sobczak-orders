@@ -22,7 +22,7 @@
         computed: {
             getWidth() {
                 if (this.width) {
-                    return `width: ${this.width}px`;
+                    return `width: ${this.width}`;
                 } else {
                     return `width: auto;`
                 }

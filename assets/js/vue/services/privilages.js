@@ -1,6 +1,8 @@
 import Tasks from "../definitions/userTasks";
 import Roles from "../definitions/userRoles";
 
+import {GRANTS, ROLES_GRANTS} from "../definitions/userGrants";
+
 class Privilages {
 
     constructor(roles) {
@@ -54,8 +56,20 @@ class User {
             ROLE_USER: [Roles.CAN_CUSTOMERS, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_ORDERS_ADD, Roles.CAN_PRODUCTS],
             ROLE_CUSTOMER: [Roles.CAN_CUSTOMERS_OWNED_ONLY, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_ORDERS_ADD],
             ROLE_PRODUCTION: [Roles.CAN_PRODUCTION, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_PRODUCTS]
-        }
+        };
 
+        this.grants = [];
+
+        if (this.user.roles.length > 0) {
+            // tablica wszystkich grantów użytkownika
+            this.grants = [];
+            for (let role of this.user.roles) {
+                this.grants = [...new Set([
+                    ...this.grants,
+                    ...ROLES_GRANTS[role]
+                ])];
+            }
+        }
     }
 
     getName() {
@@ -95,6 +109,14 @@ class User {
         }
 
         return false;
+    }
+
+    hasRole(role) {
+        return this.user.roles.indexOf(role) !== -1;
+    }
+
+    isGranted(grant) {
+        return this.grants.indexOf(GRANTS[grant]) !== -1;
     }
 }
 

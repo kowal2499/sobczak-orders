@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // inicjalizacja vue
-    Vue.prototype.$access = access;
     Vue.prototype.$user = new access.User(user);
     Vue.prototype.$privilages = access.Roles;
     Vue.prototype.$helpers = helpers;

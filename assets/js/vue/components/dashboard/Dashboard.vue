@@ -1,14 +1,11 @@
 <template>
-
     <div>
-
         <badge :border-class="'border-left-primary'" class="mb-3">
             <template v-slot:body>
                 <div class="align-items-center">
                     <div class="text-title font-weight-bold text-primary text-uppercase mb-1">{{ $t('Okres analizy') }}</div>
 
                     <div class="form-inline">
-
                         <div>
                             <select class="form-control" v-model="filters.month">
                                 <option v-for="month in months" :value="month.number" v-text="$t(month.name)"></option>
@@ -17,20 +14,16 @@
 
                         <div class="ml-2">
                             <select class="form-control" v-model="filters.year">
-                                <option value="2018">2018</option>
-                                <option value="2019">2019</option>
-                                <option value="2020">2020</option>
+                                <option v-for="year of years" :value="year">{{ year }}</option>
                             </select>
                         </div>
-
                     </div>
-
                 </div>
 
             </template>
         </badge>
 
-        <collapsible-card :title="$t('Analiza współczynnikowa')">
+        <collapsible-card :title="$t('Analiza współczynnikowa')" v-if="$user.isGranted('reports.factorAnalysis')">
             <div class="row">
                 <div class="col mt-3">
                     <factors-summary
@@ -41,7 +34,7 @@
             </div>
         </collapsible-card>
 
-        <collapsible-card :title="'Analiza tradycyjna'">
+        <collapsible-card :title="$t('Analiza domyślna')" v-if="$user.isGranted('reports.defaultAnalysis')">
             <div class="row">
                 <div class="col mt-3">
                     <production-summary
@@ -64,6 +57,7 @@
     import Badge from "./widgets/Badge";
 
     import moment from 'moment';
+    import _ from 'lodash';
 
     export default {
 
@@ -84,6 +78,12 @@
         computed: {
             months() {
                 return Months.all();
+            },
+
+            years() {
+                const startYear = 2019;
+                const endYear = parseInt(moment().format('YYYY')) + 2;
+                return _.range(startYear, endYear, 1)
             }
         },
 

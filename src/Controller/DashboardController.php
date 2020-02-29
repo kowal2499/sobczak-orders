@@ -41,6 +41,9 @@ class DashboardController extends BaseController
 
     /**
      * @Route("/dashboard/factors/{time}", name="factors_summary", options={"expose"=true})
+     * @param $time
+     * @param CockpitIndicatorsService $cockpitIndicatorsService
+     * @param TranslatorInterface $t
      * @return JsonResponse
      */
     public function ApiFetchFactorsSummary($time, CockpitIndicatorsService $cockpitIndicatorsService, TranslatorInterface $t)

@@ -31,10 +31,6 @@
 
         <td class="text-center" v-if="userCanProduction()">
             <span>{{ order.factor }}</span>
-            <tooltip v-if="!order.factorBindDate">
-                <i slot="visible-content" class="fa fa-exclamation-circle hasTooltip text-danger"/>
-                <div slot="tooltip-content" class="text-left" v-html="$t('orders.resourceAssignmentNone')"></div>
-            </tooltip>
         </td>
 
         <td class="tasks" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
