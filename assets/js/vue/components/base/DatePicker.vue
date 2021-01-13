@@ -7,6 +7,7 @@
         :width="width"
         use-utc="true"
         :show-week-number="true"
+        :formatter="formatter"
         >
     </vueDP>
 </template>
@@ -72,6 +73,10 @@
             getTranslations() {
                 return this.lang[this.$user.user.locale] || this.lang['en'];
             },
+
+            formatter: () => ({
+                getWeek: date => moment(date).isoWeek()
+            }),
 
             innerDate: {
                 get() {

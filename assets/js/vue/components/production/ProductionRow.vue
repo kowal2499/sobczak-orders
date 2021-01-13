@@ -16,7 +16,7 @@
 
         <td>
             {{ order.Product.name }}
-            <tooltip v-if="order.description.length > 0">
+            <tooltip v-if="order.description">
                 <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
                 <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(order.description)"></div>
             </tooltip>

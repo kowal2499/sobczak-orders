@@ -15,9 +15,7 @@
 
                         <div class="ml-2">
                             <select class="form-control" v-model="filters.year">
-                                <option value="2018">2018</option>
-                                <option value="2019">2019</option>
-                                <option value="2020">2020</option>
+                                <option v-for="year in years" :value="year">{{ year }}</option>
                             </select>
                         </div>
 
@@ -63,6 +61,14 @@
         computed: {
             months() {
                 return Months.all();
+            },
+            years() {
+                const endYear = Number((new moment).format('YYYY')) + 1;
+                const years = [];
+                for (let year = 2018; year <= endYear; year++) {
+                    years.push(year);
+                }
+                return years;
             }
         },
 

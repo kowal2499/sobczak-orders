@@ -15,6 +15,8 @@ class DashboardController extends AbstractController
 {
     /**
      * @Route("/", name="dashboard_show")
+     * @param TranslatorInterface $t
+     * @return Response
      */
     public function index(TranslatorInterface $t)
     {
