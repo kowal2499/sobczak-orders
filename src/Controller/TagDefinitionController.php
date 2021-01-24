@@ -9,6 +9,7 @@ use App\Form\TagDefinitionDTOType;
 use App\Message\CreateTagDefinition;
 use App\Message\DeleteTagDefinition;
 use App\Message\UpdateTagDefinition;
+use App\Repository\TagDefinitionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,8 +19,27 @@ use Symfony\Component\Routing\Annotation\Route;
 class TagDefinitionController extends BaseController
 {
     /**
+     * @Route("/tag-definition", name="tags", methods={"GET"})
+     */
+    public function index()
+    {
+        return $this->render('configuration/tags.html.twig');
+    }
+
+    /**
+     * @Route("/api/tag-definition", methods={"GET"})
+     * @param TagDefinitionRepository $repository
+     * @return JsonResponse
+     */
+    public function findAll(TagDefinitionRepository $repository): JsonResponse
+    {
+        return $this->json($repository->notDeleted()->getResult());
+    }
+
+    /**
      * @Route("/api/tag-definition", methods={"POST"})
      * @param Request $request
+     * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */
     public function create(Request $request, MessageBusInterface $messageBus): JsonResponse

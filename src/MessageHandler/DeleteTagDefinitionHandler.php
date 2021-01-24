@@ -34,7 +34,7 @@ class DeleteTagDefinitionHandler implements MessageHandlerInterface
             throw new \Exception('Given tag definition not exists.');
         }
 
-        $this->manager->remove($tagDefinition);
+        $tagDefinition->setIsDeleted(true);
         $this->manager->flush();
     }
 }

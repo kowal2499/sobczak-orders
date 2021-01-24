@@ -5,10 +5,8 @@
             <h6 class="m-0 font-weight-bold text-primary" v-text="title"
             ></h6>
             <div class="d-flex flex-wrap align-items-center justify-content-between">
-                <slot name="header" v-if="!collapsed">
-
-                </slot>
-                <i class="fa fa-chevron-down" aria-hidden="true"
+                <slot name="header" v-if="!collapsed"></slot>
+                <i class="fa fa-chevron-down ml-3" aria-hidden="true"
                    :class="{'fa-rotate-180': collapsed}"
                    @click="collapsed = !collapsed"
                 ></i>

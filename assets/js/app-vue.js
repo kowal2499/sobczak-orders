@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import _ from 'lodash';
 import moment from "moment";
-import BootstrapVue from 'bootstrap-vue'
+import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import '../css/app-vue.scss';
 import components from './vue/components/root-components';
 import access from "./vue/services/privilages";
@@ -14,6 +14,7 @@ import translationsGeneral from './translations/general';
 import translationsDashboard from './translations/dashboard';
 import translationsOrders from './translations/orders';
 import translationsProduction from './translations/production';
+import translationsTags from './translations/tags';
 
 window.EventBus = new Vue();
 
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     Vue.use(VueI18n);
     Vue.use(BootstrapVue);
+    Vue.use(BootstrapVueIcons);
 
     const i18n = new VueI18n({locale: user.locale, fallbackLocale: 'pl',
         messages: {
@@ -51,12 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...translationsGeneral.pl,
                 ...translationsOrders.pl,
                 ...translationsProduction.pl,
+                ...translationsTags.pl
             },
             en: {
                 ...translationsDashboard.en,
                 ...translationsGeneral.en,
                 ...translationsOrders.en,
                 ...translationsProduction.en,
+                ...translationsTags.en
             }
         }
     });

@@ -13,4 +13,14 @@ class TagDefinitionRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TagDefinition::class);
     }
+
+    /**
+     * @return \Doctrine\ORM\Query
+     */
+    public function notDeleted(): \Doctrine\ORM\Query
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.isDeleted = false')
+            ->getQuery();
+    }
 }

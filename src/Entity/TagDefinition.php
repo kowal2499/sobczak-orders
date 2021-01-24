@@ -36,24 +36,30 @@ class TagDefinition
     private $icon;
 
     /**
-     * @ORM\Column(type="string", length=6, nullable=true)
+     * @ORM\Column(type="string", length=7, nullable=true)
      */
     private $color;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isDeleted;
+
+    /**
      * TagDefinition constructor.
-     * @param $id
      * @param $name
      * @param $module
      * @param $icon
      * @param $color
+     * @param bool $isDeleted
      */
-    public function __construct($name, $module, $icon, $color)
+    public function __construct($name, $module, $icon, $color, $isDeleted=false)
     {
         $this->name = $name;
         $this->module = $module;
         $this->icon = $icon;
         $this->color = $color;
+        $this->isDeleted = $isDeleted;
     }
 
 
@@ -135,5 +141,21 @@ class TagDefinition
     public function setColor($color): void
     {
         $this->color = $color;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     */
+    public function setIsDeleted(bool $isDeleted): void
+    {
+        $this->isDeleted = $isDeleted;
     }
 }
