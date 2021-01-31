@@ -3,7 +3,6 @@ import {cloneDeep} from 'lodash';
 export default {
     props: {
         value: {
-            type: Object,
             default: () => ({})
         }
     },
