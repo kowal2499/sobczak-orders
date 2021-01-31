@@ -11,7 +11,7 @@ import Dropdown from './base/Dropdown';
 import MenuItem from './base/MenuItem';
 import NavOrders from './navigation/NavOrders';
 
-import Tag from "../modules/tags/Tag";
+import TagsModule from "../modules/tags";
 
 export default {
     NewOrder,
@@ -25,5 +25,5 @@ export default {
     MenuItem,
     Notifications,
     NavOrders,
-    Tag
+    ...TagsModule
 }

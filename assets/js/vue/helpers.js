@@ -84,6 +84,11 @@ export default {
         return departments;
     },
 
+    getStatusStyle(statusId) {
+        const status = statuses.find(item => item.value === parseInt(statusId));
+        return status ? `background-color: ${status.color};` : '';
+    },
+
     statuses,
 
     roles

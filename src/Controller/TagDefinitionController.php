@@ -10,6 +10,7 @@ use App\Message\CreateTagDefinition;
 use App\Message\DeleteTagDefinition;
 use App\Message\UpdateTagDefinition;
 use App\Repository\TagDefinitionRepository;
+use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,24 @@ class TagDefinitionController extends BaseController
     public function findAll(TagDefinitionRepository $repository): JsonResponse
     {
         return $this->json($repository->notDeleted()->getResult());
+    }
+
+    /**
+     * @Route("/api/tag-definition/search", methods={"GET"})
+     * @param TagDefinitionRepository $repository
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function search(Request $request, TagDefinitionRepository $repository): JsonResponse
+    {
+        $module = $request->query->getAlpha('module');
+        if (!$module) {
+            throw new \Exception('Module name is required.');
+        }
+        return $this->json($repository
+            ->findByModule($module)
+            ->getResult()
+        );
     }
 
     /**

@@ -20,7 +20,9 @@ export default {
             'newTagTitle': 'New tag',
             'editTagTitle': 'Edit tag',
             'addNew': 'Add',
-            'confirmRemove': 'This tag will be deleted'
+            'confirmRemove': 'This tag will be deleted',
+            'noDefinitions': 'No tag definitions for module: "{moduleName}".',
+            'moduleDefinitionsFetching': 'Fetching tag definitions for module "{moduleName}".'
         }
     },
     'pl': {
@@ -44,7 +46,10 @@ export default {
             'newTagTitle': 'Nowy tag',
             'editTagTitle': 'Edycja taga',
             'addNew': 'Dodaj',
-            'confirmRemove': 'Czy usunąć ten tag?'
+            'confirmRemove': 'Czy usunąć ten tag?',
+            'noDefinitions': 'Brak definicji tagów dla modułu "{moduleName}".',
+            'moduleDefinitionsFetching': 'Pobieram definicje tagów dla modułu "{moduleName}".'
+
         }
     }
 }

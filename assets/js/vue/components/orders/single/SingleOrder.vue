@@ -1,7 +1,5 @@
 <template>
-
     <div>
-
         <button
             @click.prevent="save"
             :disabled="locked"
@@ -14,11 +12,13 @@
 
         <div class="row">
             <div class="col-md-8">
-                <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions && orderData.productions.length !== 0">
-                    <production-widget
-                            v-model="orderData.productions"
-                            :task-types="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05']"
-                    />
+                <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
+                    <template #header v-if="canEditLine()">
+                        <b-button size="sm" variant="success" :disabled="locked" @click="addCustomTask()">
+                            {{ $t('orders.newTask') }}
+                        </b-button>
+                    </template>
+                    <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderDetails')" :locked="locked">
@@ -27,15 +27,6 @@
                         :statuses="statuses"
                     ></details-widget>
                 </collapsible-card>
-
-                <collapsible-card :title="$t('orders.additionalOrders')" :locked="locked" v-if="orderData.productions && orderData.productions.length !== 0 && canEditLine()">
-                    <production-widget
-                            v-model="orderData.productions"
-                            :task-types="['custom_task']"
-                            :can-add="true"
-                    />
-                </collapsible-card>
-
             </div>
 
             <div class="col-md-4">
@@ -71,6 +62,7 @@
     import CustomerWidget from "./CustomerWidget";
     import AttachmentsWidget from "./AttachmentsWidget";
     import _ from 'lodash';
+    import moment from "moment";
 
     export default {
         name: "SingleOrder",
@@ -80,7 +72,18 @@
         data() {
             return {
                 locked: false,
-                orderData: {},
+                orderData: {
+                    confirmedDate: '',
+                    description: '',
+                    factor: 0,
+                    status: 0,
+                    productions: {
+                        tasks: [],
+                        tags: []
+                    },
+                    Product: {},
+                    Agreement: {}
+                },
             }
         },
 
@@ -98,7 +101,7 @@
                         if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
 
                             data.newStatuses.forEach(newStatus => {
-                                let production = this.orderData.productions.find(prod => { return prod.id === newStatus.productionId; });
+                                let production = this.orderData.productions.tasks.find(prod => { return prod.id === newStatus.productionId; });
                                 if (production && production.statusLogs) {
                                     production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
                                 }
@@ -123,6 +126,27 @@
                     .finally(() => { this.locked = false;})
             },
 
+            addCustomTask() {
+                this.orderData.productions.tasks.push({
+                    dateStart: null,
+                    dateEnd: null,
+                    departmentSlug: 'custom_task',
+                    description: null,
+                    id: null,
+                    title: this.$t('orders.newTask'),
+                    status: "10",
+                    statusLogs: [{
+                            id: null,
+                            currentStatus: "10",
+                            createdAt: (new moment()).format('YYYY-MM-DD HH:mm:ss'),
+                            user: {
+                                id: this.$user.getId(),
+                                userFullName: this.$user.getName(),
+                            }
+                    }],
+                });
+            },
+
             canEditLine() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
@@ -134,7 +158,19 @@
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
                 .then(({data}) => {
                     if (data.data && Array.isArray(data.data) && data.data.length === 1) {
-                        this.orderData = data.data[0];
+                        const src = data.data[0];
+                        this.orderData = {
+                            confirmedDate: src.confirmedDate,
+                            factor: src.factor,
+                            status: src.status,
+                            Product: src.Product,
+                            Agreement: src.Agreement,
+                            description: src.description,
+                            productions: {
+                                tasks: src.productions,
+                                tags: []
+                            }
+                        }
                     }
                 })
                 .catch(() => {})
@@ -145,7 +181,7 @@
 
         computed: {
             prodToSave() {
-                let toSave = _.cloneDeep(this.orderData.productions);
+                let toSave = _.cloneDeep(this.orderData.productions.tasks);
                 for (let prod of toSave) {
                     if (prod.statusLogs) {
                         for (let statusLog of prod.statusLogs) {
@@ -165,5 +201,4 @@
             padding: 0;
         }
     }
-
 </style>

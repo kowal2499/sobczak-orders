@@ -20,7 +20,7 @@ class TagDefinition
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=25, nullable=false)
+     * @ORM\Column(type="string", length=128, nullable=false)
      * @Assert\NotBlank()
      */
     private $name;

@@ -1,6 +1,5 @@
 <template>
-    <div class="card shadow mb-4 overflow-hidden">
-
+    <div class="card shadow mb-4">
         <div class="card-header py-2 d-flex flex-wrap align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary" v-text="title"
             ></h6>
@@ -13,17 +12,12 @@
             </div>
         </div>
 
-
         <div class="card-body" v-show="collapsed === false">
-
             <div class="card-filters">
                 <slot name="filters"></slot>
             </div>
-
             <slot></slot>
-
         </div>
-
     </div>
 </template>
 

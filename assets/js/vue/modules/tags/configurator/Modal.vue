@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import {create, update} from "./repository";
+import {create, update} from "../repository";
 
 export default {
     name: "Modal",
@@ -124,7 +124,7 @@ export default {
             this.onSubmit();
         },
         onCancel() {
-            console.log('cancel')
+
         },
         onSubmit() {
             if (!this.checkFormValidity()) {

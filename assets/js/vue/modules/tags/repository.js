@@ -4,6 +4,10 @@ export function fetchAll() {
     return axios.get(`/api/tag-definition`);
 }
 
+export function search(module) {
+    return axios.get(`/api/tag-definition/search`, {params: {module}});
+}
+
 export function update(id, payload) {
     return axios.put(`/api/tag-definition/${id}`, payload);
 }

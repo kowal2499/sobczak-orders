@@ -33,13 +33,13 @@
 </template>
 
 <script>
-import CollapsibleCard from "../../components/base/CollapsibleCard";
+import CollapsibleCard from "../../../components/base/CollapsibleCard";
 import Modal from "./Modal";
-import ConfirmationModal from "../../components/base/ConfirmationModal";
-import {fetchAll, deleteTag} from "./repository";
+import ConfirmationModal from "../../../components/base/ConfirmationModal";
+import {fetchAll, deleteTag} from "../repository";
 
 export default {
-    name: "Tag",
+    name: "TagsConfig",
     components: {Modal, ConfirmationModal, CollapsibleCard},
     mounted() {
         this.fetch();

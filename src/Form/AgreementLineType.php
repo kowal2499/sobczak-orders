@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -24,7 +25,7 @@ class AgreementLineType extends AbstractType
                 'allow_delete' => true,
             ])
             ->add('status', IntegerType::class)
-            ->add('description')
+            ->add('description', TextType::class)
             ->add('factor', NumberType::class, [
                 'scale' => 2
             ])
