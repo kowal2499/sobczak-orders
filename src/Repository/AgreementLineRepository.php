@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\AgreementLine;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Expr;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -35,6 +36,9 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->leftJoin('l.productions', 'pr')
             ->leftJoin('pr.statusLogs', 's')
             ->leftJoin('s.user', 'u')
+//            ->leftJoin('l.tags', 't')
+//            ->leftJoin('t.tagDefinition', 'td', Expr\Join::WITH, 'td.id = t.tag_definition_id AND td.module = :module')
+//            ->addSelect('t')
             ->addSelect('a')
             ->addSelect('c')
             ->addSelect('p')
@@ -42,6 +46,7 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->addSelect('s')
             ->addSelect('u')
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
+//            ->setParameter('module', 'customer')
         ;
 
         if (isset($term['search']) && is_array($term['search'])) {

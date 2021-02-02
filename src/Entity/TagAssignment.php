@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Class TagAssignment
@@ -18,27 +19,32 @@ class TagAssignment
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     *
      */
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TagDefinition")
+     * @ORM\ManyToOne(targetEntity="App\Entity\TagDefinition", inversedBy="tagAssignments")
+     * @Groups({"_main", "_linePanel"})
      */
     private $tagDefinition;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @Groups({"_main", "_linePanel"})
      */
     private $user;
 
     /**
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\AgreementLine", inversedBy="tags")
+     * @ORM\JoinColumn(name="context_id")
      */
     private $contextId;
 
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
+     * @Groups({"_main", "_linePanel"})
      */
     private $createdAt;
 
@@ -73,4 +79,38 @@ class TagAssignment
     {
         $this->contextId = $contextId;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getContextId()
+    {
+        return $this->contextId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+
 }

@@ -80,9 +80,24 @@ class AgreementLine
      */
     private $factor;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TagAssignment", mappedBy="contextId")
+     * @Groups({"_main", "_linePanel"})
+     */
+    private $tags;
+
     public function __construct()
     {
         $this->productions = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection|TagAssignment[]
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
     }
 
     public function getId(): ?int

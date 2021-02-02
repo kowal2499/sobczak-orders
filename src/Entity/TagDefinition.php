@@ -3,8 +3,10 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
@@ -16,12 +18,14 @@ class TagDefinition
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"_main", "_linePanel"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=false)
      * @Assert\NotBlank()
+     * @Groups({"_main", "_linePanel"})
      */
     private $name;
 
@@ -46,6 +50,19 @@ class TagDefinition
     private $isDeleted;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\TagAssignment", mappedBy="tagDefinition")
+     */
+    private $tagAssignments;
+
+    /**
+     * @return mixed
+     */
+    public function getTagAssignments()
+    {
+        return $this->tagAssignments;
+    }
+
+    /**
      * TagDefinition constructor.
      * @param $name
      * @param $module
@@ -60,6 +77,7 @@ class TagDefinition
         $this->icon = $icon;
         $this->color = $color;
         $this->isDeleted = $isDeleted;
+        $this->tagAssignments = new ArrayCollection();
     }
 
 
