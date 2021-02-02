@@ -32,9 +32,19 @@ class TagDefinitionRepository extends ServiceEntityRepository
     public function findByModule($module): Query
     {
         return $this->createQueryBuilder('t')
-            ->where('t.isDeleted = false')
-            ->where('t.module = :m')
+            ->andWhere('t.isDeleted = false')
+            ->andWhere('t.module = :m')
             ->setParameter('m', $module)
             ->getQuery();
+    }
+
+    public function findAllById(array $ids)
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.isDeleted = false')
+            ->andWhere('t.id IN (:idarray)')
+            ->setParameter('idarray', $ids)
+            ->getQuery()
+            ->getResult();
     }
 }

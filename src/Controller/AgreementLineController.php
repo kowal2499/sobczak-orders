@@ -5,7 +5,10 @@ namespace App\Controller;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
 use App\Entity\StatusLog;
+use App\Entity\User;
 use App\Form\AgreementLineType;
+use App\Message\AssignTags;
+use App\Message\GetAssignedTags;
 use App\Repository\AgreementRepository;
 use App\Service\DateTimeHelper;
 use App\Service\UploaderHelper;
@@ -15,11 +18,13 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -56,16 +61,19 @@ class AgreementLineController extends BaseController
      * @Route("/agreement/fetch", name="agreements_fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLineRepository $repository
+     * @param MessageBusInterface $messageBus
      * @param PaginatorInterface $paginator
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator)
+    public function fetch(Request $request, AgreementLineRepository $repository, MessageBusInterface $messageBus, PaginatorInterface $paginator)
     {
         $search = $request->request->all();
 
         if ($this->isGranted('ROLE_CUSTOMER')) {
             $search['search']['ownedBy'] = $this->getUser();
         }
+
+//        $messageBus->dispatch(new GetAssignedTags())
 
         $agreements = $paginator->paginate(
             $repository->getFiltered($search),
@@ -96,12 +104,20 @@ class AgreementLineController extends BaseController
      * @param Request $request
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
+     * @param MessageBusInterface $messageBus
      * @return JsonResponse
-     * @throws \Exception
      */
-    public function update(Request $request, AgreementLine $agreementLine, EntityManagerInterface $em): JsonResponse
+    public function update(
+        Request $request,
+        AgreementLine $agreementLine,
+        EntityManagerInterface $em,
+        MessageBusInterface $messageBus
+    ): JsonResponse
     {
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
+
+        /** @var User $user */
+        $user = $this->getUser();
 
         try {
             $this->processForm($request, $form);
@@ -109,6 +125,14 @@ class AgreementLineController extends BaseController
 
             $em->persist($agreementLine);
             $em->flush();
+
+            $messageBus->dispatch(new AssignTags(
+                $request->request->get('tags') ?? [],
+                $agreementLine->getId(),
+                'production',
+                $user->getId()
+            ));
+
         } catch (\Exception $e) {
             return $this->composeErrorResponse($e);
         }

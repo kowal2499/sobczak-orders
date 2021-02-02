@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-tabs pills card vertical nav-wrapper-class="w-25">
+        <b-tabs pills card vertical nav-wrapper-class="production-tab-panel">
             <b-tab
                 v-for="tab in tabs"
                 :key="tab.index"
@@ -72,6 +72,11 @@
 </script>
 
 <style scoped lang="scss">
+    /deep/.production-tab-panel {
+        width: 25%;
+        min-width: 200px;
+    }
+
     .statusNotify {
         display: inline-block;
         width: 12px;

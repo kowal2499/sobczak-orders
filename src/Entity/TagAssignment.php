@@ -29,7 +29,7 @@ class TagAssignment
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      */
-    private $createdBy;
+    private $user;
 
     /**
      * @ORM\Column(type="integer", nullable=false)
@@ -41,4 +41,36 @@ class TagAssignment
      * @Gedmo\Timestampable(on="create")
      */
     private $createdAt;
+
+    /**
+     * @return TagDefinition
+     */
+    public function getTagDefinition(): TagDefinition
+    {
+        return $this->tagDefinition;
+    }
+
+    /**
+     * @param mixed $tagDefinition
+     */
+    public function setTagDefinition($tagDefinition): void
+    {
+        $this->tagDefinition = $tagDefinition;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @param mixed $contextId
+     */
+    public function setContextId($contextId): void
+    {
+        $this->contextId = $contextId;
+    }
 }

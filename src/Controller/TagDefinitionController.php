@@ -39,6 +39,7 @@ class TagDefinitionController extends BaseController
 
     /**
      * @Route("/api/tag-definition/search", methods={"GET"})
+     * @param Request $request
      * @param TagDefinitionRepository $repository
      * @return JsonResponse
      * @throws \Exception

@@ -95,7 +95,11 @@
                     confirmedDate: this.orderData.confirmedDate,
                     description: this.orderData.description,
                     factor: this.orderData.factor,
-                    productions: this.prodToSave,
+                    productions: this.orderData.productions.tasks.map(task => ({
+                        ...task,
+                        statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
+                    })),
+                    tags: this.orderData.productions.tags
                 })
                     .then(({data}) => {
                         if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
