@@ -29,7 +29,7 @@
                 :invalid-feedback="$t('tags.moduleInvalid')"
                 :disabled="isSaving"
             >
-                <b-form-select v-model="form.module" required>
+                <b-form-select v-model="form.module" required :disabled="true">
                     <b-form-select-option :value="null">
                         {{ $t('tags.modulePlaceholder') }}
                     </b-form-select-option>
@@ -148,7 +148,7 @@ export default {
         reset() {
             this.form = {
                 name: this.definitionData.name || '',
-                module: this.definitionData.module || null,
+                module: 'production',
                 icon: this.definitionData.icon || null,
                 color: this.definitionData.color || '#ffffff'
             };

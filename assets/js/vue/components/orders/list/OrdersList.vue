@@ -15,7 +15,10 @@
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(line, key) in agreementLines" :key="key">
-                <td>{{ line.Agreement.orderNumber || line.Agreement.id }}</td>
+                <td>
+                    {{ line.Agreement.orderNumber || line.Agreement.id }}
+                    <tags-indicator :logs="line.tags"/>
+                </td>
                 <td>{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
@@ -58,11 +61,13 @@
     import LineActions from '../../common/LineActions';
     import Pagination from '../../base/Pagination';
     import CollapsibleCard from '../../base/CollapsibleCard';
+    import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, Dropdown, ConfirmationModal, TablePlus, Tooltip, LineActions, Pagination, CollapsibleCard },
+        components: { Filters, Dropdown, ConfirmationModal, TablePlus,
+            Tooltip, LineActions, Pagination, CollapsibleCard, TagsIndicator },
 
         props: {
             statuses: {

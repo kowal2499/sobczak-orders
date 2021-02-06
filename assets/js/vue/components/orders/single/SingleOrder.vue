@@ -171,8 +171,13 @@
                             Agreement: src.Agreement,
                             description: src.description,
                             productions: {
-                                tasks: src.productions,
-                                tags: []
+                                tasks: src.productions, 
+                                tags: src.tags.map(tag => tag.tagDefinition.id),
+                                tagsData: src.tags.map(tag => ({
+                                  definitionId: tag.tagDefinition.id,
+                                  createdAt: tag.createdAt,
+                                  userName: tag.user.userFullName
+                                }))
                             }
                         }
                     }

@@ -23,7 +23,9 @@ export default {
             'confirmRemove': 'This tag will be deleted',
             'noDefinitions': 'No tag definitions for module: "{moduleName}".',
             'moduleDefinitionsFetching': 'Fetching tag definitions for module "{moduleName}".',
-            'productionTags': 'Production tags'
+            'productionTags': 'Production tags',
+            'addedBy': 'Added by:',
+            'addedAt': 'Added at:'
         }
     },
     'pl': {
@@ -50,7 +52,9 @@ export default {
             'confirmRemove': 'Czy usunąć ten tag?',
             'noDefinitions': 'Brak definicji tagów dla modułu "{moduleName}".',
             'moduleDefinitionsFetching': 'Pobieram definicje tagów dla modułu "{moduleName}".',
-            'productionTags': 'Tagi produkcji'
+            'productionTags': 'Tagi produkcji',
+            'addedBy': 'Dodane przez:',
+            'addedAt': 'Data dodania:'
 
         }
     }

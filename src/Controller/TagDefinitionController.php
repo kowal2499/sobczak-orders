@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TagDefinitionController extends BaseController
 {
@@ -34,7 +35,10 @@ class TagDefinitionController extends BaseController
      */
     public function findAll(TagDefinitionRepository $repository): JsonResponse
     {
-        return $this->json($repository->notDeleted()->getResult());
+        return $this->json(
+            $repository->notDeleted()->getResult(),
+            Response::HTTP_OK, [], [AbstractNormalizer::GROUPS => ['_main']]
+        );
     }
 
     /**
@@ -52,7 +56,7 @@ class TagDefinitionController extends BaseController
         }
         return $this->json($repository
             ->findByModule($module)
-            ->getResult()
+            ->getResult(), Response::HTTP_OK, [], [AbstractNormalizer::GROUPS => ['_main']]
         );
     }
 

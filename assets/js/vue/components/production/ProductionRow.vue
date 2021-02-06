@@ -3,6 +3,7 @@
     <tr>
         <td>
             {{ order.Agreement.orderNumber || order.id }}
+            <tags-indicator :logs="order.tags"/>
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
         </td>
 
@@ -74,6 +75,7 @@
     import ProductionRowBase from "./ProductionRowBase";
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
+    import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
     import helpers from "../../helpers";
 
     export default {
@@ -81,7 +83,7 @@
 
         extends: ProductionRowBase,
 
-        components: { Tooltip, LineActions },
+        components: { Tooltip, LineActions, TagsIndicator },
 
         data() {
             return {}

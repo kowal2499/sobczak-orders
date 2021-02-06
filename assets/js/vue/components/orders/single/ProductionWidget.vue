@@ -21,7 +21,7 @@
             </b-tab>
         </b-tabs>
         <hr>
-        <TagsWidget module-name="production" v-model="proxyData.tags"></TagsWidget>
+        <TagsWidget module-name="production" v-model="proxyData.tags" :logs="proxyData.tagsData"></TagsWidget>
     </div>
 </template>
 

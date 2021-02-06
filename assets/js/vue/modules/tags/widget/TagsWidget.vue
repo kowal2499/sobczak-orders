@@ -18,10 +18,16 @@
                 :placeholder="$t('tags.productionTags')"
             >
                 <template #selected-option="option">
-                    <div class="tag-badge">
+                    <div class="tag-badge" :id="`tooltip-log-${option.value}`">
                         <b-icon :icon="option.icon" :style="{color: option.color}"></b-icon>
                         {{ option.label }}
                     </div>
+                    <b-tooltip v-if=hasTooltip(option.value)
+                               :v-html="getTooltipContent(option.value)"
+                               :target="`tooltip-log-${option.value}`"
+                               variant="info">
+                        <span v-html="getTooltipContent(option.value)"/>
+                    </b-tooltip>
                 </template>
             </vue-select>
         </div>
@@ -33,6 +39,7 @@ import {tagModules} from "../definitions";
 import {search} from "../repository";
 import VueSelect from 'vue-select';
 import proxyValue from "../../../mixins/proxyValue";
+import moment from "moment";
 
 export default {
     name: "TagsWidget",
@@ -43,6 +50,10 @@ export default {
             validator: value => {
                 return tagModules.includes(value);
             }
+        },
+        logs: {
+            type: Array,
+            default: () => ([])
         }
     },
     mixins: [proxyValue],
@@ -69,6 +80,16 @@ export default {
                 this.definitions = data;
             })
             .finally(() => this.fetchingDefinitions = false)
+    },
+    methods: {
+        hasTooltip(id) {
+            return undefined !== this.logs.find(log => log.definitionId === id);
+        },
+        getTooltipContent(id) {
+            const log = this.logs.find(log => log.definitionId === id);
+            const dateTime = moment(log.createdAt).format('YYYY-MM-DD HH:mm')
+            return `${this.$t('tags.addedBy')} ${log.userName}<br> ${this.$t('tags.addedAt')} ${dateTime}`
+        }
     },
 
     data: () => ({

@@ -3,6 +3,7 @@
 
 namespace App\Entity;
 
+use App\Repository\AgreementLineRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -73,9 +74,9 @@ class TagAssignment
     }
 
     /**
-     * @param mixed $contextId
+     * @param AgreementLine $contextId
      */
-    public function setContextId($contextId): void
+    public function setContextId(AgreementLine $contextId): void
     {
         $this->contextId = $contextId;
     }
@@ -97,9 +98,9 @@ class TagAssignment
     }
 
     /**
-     * @return mixed
+     * @return AgreementLine
      */
-    public function getContextId()
+    public function getContextId(): AgreementLine
     {
         return $this->contextId;
     }
