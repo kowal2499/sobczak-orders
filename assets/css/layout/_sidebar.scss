@@ -1,11 +1,20 @@
 div#wrapper nav.sidebar {
 
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: flex-start;
+    overflow-y: auto;
 
-    @media (min-width: 768px) {
-        width: 17rem!important;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: $sidebar-mobile-width !important;
+
+    img {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        width: 100%;
     }
 
 
@@ -45,16 +54,10 @@ div#wrapper nav.sidebar {
                 text-decoration: none;
                 background-color: transparent;
                 transition: all 0.4s;
+                padding-left: 0.5rem;
 
-                @media (min-width: 768px) {
-                    display: block;
-                    width: 100%;
-                    text-align: left;
-                    padding: 1rem;
-                    width: 14rem;
-                }
-
-                i {
+                i:not(.expander) {
+                    display: none;
                     margin-right: .35rem;
                 }
 
@@ -118,6 +121,25 @@ div#wrapper nav.sidebar {
 
         .sidebar-divider {
             width: 60%;
+        }
+    }
+
+    @media (min-width: 768px) {
+        width: $sidebar-default-width !important;
+
+        img {
+            width: 80%;
+        }
+
+        ul li.nav-item a.nav-link {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+
+            i:not(.expander) {
+                display: inline-block;
+            }
         }
     }
 }

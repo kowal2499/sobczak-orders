@@ -9,7 +9,7 @@
                     <span>{{ title }}</span>
                 </span>
 
-                <i class="fa fa-chevron-right mr-3" aria-hidden="true" :class="{'fa-rotate-90': expanded}"></i>
+                <i class="fa fa-chevron-right mr-3 expander" aria-hidden="true" :class="{'fa-rotate-90': expanded}"></i>
             </a>
 
             <slot></slot>

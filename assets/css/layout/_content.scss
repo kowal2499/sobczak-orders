@@ -2,6 +2,11 @@ div#content-wrapper {
 
     position: relative;
 
+    margin-left: $sidebar-mobile-width !important;
+    @media (min-width: 768px) {
+        margin-left: $sidebar-default-width !important;
+    }
+
     width: 100%;
     overflow-x: hidden;
 
