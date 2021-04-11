@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Product;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class ProductFixtures extends BaseFixture
 {

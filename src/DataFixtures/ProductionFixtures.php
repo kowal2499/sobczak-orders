@@ -5,9 +5,12 @@ namespace App\DataFixtures;
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
+use App\Entity\TagAssignment;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
+
 
 class ProductionFixtures extends BaseFixture implements DependentFixtureInterface
 {
@@ -30,7 +33,7 @@ class ProductionFixtures extends BaseFixture implements DependentFixtureInterfac
                              ['slug' => 'dpt02', 'name' => 'CNC'],
                              ['slug' => 'dpt03', 'name' => 'Szlifowanie'],
                              ['slug' => 'dpt04', 'name' => 'Lakierowanie'],
-                             ['slug' => 'dpt05', 'name' => 'Lakierowanie']] as $stage) {
+                             ['slug' => 'dpt05', 'name' => 'Pakowanie']] as $stage) {
                     $production = new Production();
                     $production
                         ->setAgreementLine($agreementLine)
@@ -41,6 +44,17 @@ class ProductionFixtures extends BaseFixture implements DependentFixtureInterfac
                         ->setTitle($stage['name']);
 
                     $manager->persist($production);
+
+                    if ($this->faker->numberBetween(0, 9) === 5) {
+                        /** @var User $user */
+                        $user = $this->getReference(self::REF_USER);
+
+                        $tagAssignment = new TagAssignment();
+                        $tagAssignment->setContextId($agreementLine);
+                        $tagAssignment->setTagDefinition($this->getReference(self::REF_TAG_PRODUCTION_DOCUMENTATION));
+                        $tagAssignment->setUser($user);
+                        $manager->persist($tagAssignment);
+                    }
 
                 }
 
@@ -75,7 +89,9 @@ class ProductionFixtures extends BaseFixture implements DependentFixtureInterfac
     public function getDependencies()
     {
         return [
-            AgreementFixtures::class
+            AgreementFixtures::class,
+            TagFixtures::class,
+            UserFixtures::class
         ];
     }
 }

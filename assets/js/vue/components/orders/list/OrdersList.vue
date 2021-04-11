@@ -11,7 +11,14 @@
             <filters :filters-collection="args.filters"/>
         </template>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
+        <b-pagination
+						v-if="args.meta.pages > 1"
+						align="right"
+						v-model="args.meta.page"
+						:total-rows="args.meta.totalCount"
+						:per-page="args.meta.pageSize"
+						first-number last-number size="sm"
+        />
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(line, key) in agreementLines" :key="key">
@@ -43,7 +50,14 @@
             </tr>
         </table-plus>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
+				<b-pagination
+						v-if="args.meta.pages > 1"
+						align="right"
+						v-model="args.meta.page"
+						:total-rows="args.meta.totalCount"
+						:per-page="args.meta.pageSize"
+						first-number last-number size="sm"
+				/>
 
     </collapsible-card>
 </template>
@@ -59,7 +73,6 @@
     import TablePlus from '../../base/TablePlus';
     import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
-    import Pagination from '../../base/Pagination';
     import CollapsibleCard from '../../base/CollapsibleCard';
     import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
 
@@ -67,7 +80,7 @@
         name: "OrdersList",
 
         components: { Filters, Dropdown, ConfirmationModal, TablePlus,
-            Tooltip, LineActions, Pagination, CollapsibleCard, TagsIndicator },
+            Tooltip, LineActions, CollapsibleCard, TagsIndicator },
 
         props: {
             statuses: {
@@ -100,7 +113,9 @@
                     meta: {
                         page: 0,
                         pages: 0,
-                        sort: ''
+                        sort: '',
+												totalCount: 0,
+												pageSize: 0
                     },
                 },
 
@@ -253,6 +268,8 @@
                     .then(({data}) => {
                         this.agreementLines = data.data || [];
                         this.args.meta.pages = data.meta.pages || 0;
+                        this.args.meta.totalCount = data.meta.totalCount || 0;
+												this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
                     .catch(data => {})
                     .finally(() => {
@@ -321,11 +338,7 @@
             userCanAddOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
             }
-
         },
-
-
-
     }
 </script>
 

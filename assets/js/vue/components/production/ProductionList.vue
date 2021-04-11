@@ -5,7 +5,14 @@
             <filters :filters-collection="args.filters"/>
         </template>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
+				<b-pagination
+						v-if="args.meta.pages > 1"
+						align="right"
+						v-model="args.meta.page"
+						:total-rows="args.meta.totalCount"
+						:per-page="args.meta.pageSize"
+						first-number last-number size="sm"
+				/>
 
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
             <template v-for="(order, key) in orders">
@@ -31,7 +38,14 @@
             </template>
         </table-plus>
 
-        <pagination :current="args.meta.page" :pages="args.meta.pages" @switchPage="args.meta.page = $event"/>
+				<b-pagination
+						v-if="args.meta.pages > 1"
+						align="right"
+						v-model="args.meta.page"
+						:total-rows="args.meta.totalCount"
+						:per-page="args.meta.pageSize"
+						first-number last-number size="sm"
+				/>
 
     </collapsible-card>
 </template>
@@ -47,14 +61,13 @@
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
     import CollapsibleCard from "../base/CollapsibleCard";
-    import Pagination from "../base/Pagination";
     import ProductionRow from "./ProductionRow";
     import ProductionRowDetails from "./ProductionRowDetails";
 
     export default {
         name: "ProductionList",
 
-        components: {Filters, TablePlus, CollapsibleCard, Pagination, ProductionRow, ProductionRowDetails},
+        components: {Filters, TablePlus, CollapsibleCard, ProductionRow, ProductionRowDetails},
 
         props: {
             statuses: {
@@ -89,6 +102,8 @@
                     meta: {
                         page: 0,
                         pages: 0,
+												totalCount: 0,
+												pageSize: 0,
                         sort: ''
                     },
                 },
@@ -192,6 +207,8 @@
                             this.orders = [];
                         }
                         this.args.meta.pages = data.meta.pages || 0;
+												this.args.meta.totalCount = data.meta.totalCount || 0;
+												this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
                     .catch(data => {})
                     .finally(() => { this.loading = false; })

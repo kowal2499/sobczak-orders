@@ -1,11 +1,10 @@
 <?php
 
-
 namespace App\DataFixtures;
 
-
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
+
 use Faker\Factory;
 use Faker\Generator;
 
@@ -17,9 +16,13 @@ abstract class BaseFixture extends Fixture
     /** @var Generator */
     protected $faker;
 
+    const REF_TAG_PRODUCTION_DOCUMENTATION = 'production_documentation';
+    const REF_TAG_BUG = 'bug';
+    const REF_USER = 'user';
+
     private $referencesIndex = [];
 
-    protected $agreementsNumber = 12;
+    protected $agreementsNumber = 600;
 
     abstract protected function loadData(ObjectManager $manager);
 
