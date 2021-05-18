@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\DTO\Production\ProductionTaskDTO;
 use App\Entity\StatusLog;
 use App\Repository\StatusLogRepository;
+use App\Service\Production\DefaultTaskCreateService;
 use App\Service\WorkingScheduleService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,51 +43,52 @@ class ProductionController extends BaseController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function save(Request $request, ProductionRepository $repository, EntityManagerInterface $em)
+    public function save(
+        Request $request,
+        ProductionRepository $repository,
+        EntityManagerInterface $em,
+        DefaultTaskCreateService $taskCreateService
+    )
     {
-
         $plans = $request->request->get('plan');
         $lineId = $request->request->get('orderLineId');
 
         $response = [];
         $prodStack = [];
 
+        /** @var AgreementLine $agreementLine */
         $agreementLine = $em->getRepository(AgreementLine::class)->find($lineId);
-
         foreach ($plans as $plan) {
+
+            $taskDTO = new ProductionTaskDTO(
+                $plan['slug'],
+                $plan['name'],
+                $plan['status'],
+                $plan['dateFrom'],
+                $plan['dateTo']
+            );
+
             $production = $repository->findOneBy([
-                'agreementLine' => $agreementLine,
-                'departmentSlug' => $plan['slug']]
+                    'agreementLine' => $agreementLine,
+                    'departmentSlug' => $taskDTO->getTaskSlug()]
             );
 
             // jeżeli produkcja jeszcze nie istnieje
             if (!($production)) {
-                $production = new Production();
-
-                $production
-                    ->setAgreementLine($agreementLine)
-                    ->setDepartmentSlug($plan['slug'])
-                    ->setStatus((int) $plan['status'])
-                    ->setTitle($plan['name'])
-                    ->setCreatedAt(new \DateTime())
-                ;
+                $production = $taskCreateService->create(
+                    $taskDTO,
+                    $agreementLine
+                );
 
                 // zmiana statusu na "w produkcji"
                 $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
                 $em->persist($agreementLine);
-            }
-
-            $production
-                ->setStatus((int) $plan['status'])
-                ->setUpdatedAt(new \DateTime())
-            ;
-
-            if ($plan['dateFrom']) {
-                $production->setDateStart(new \DateTime($plan['dateFrom']));
-            }
-
-            if ($plan['dateTo']) {
-                $production->setDateEnd(new \DateTime($plan['dateTo']));
+            } else {
+                $production
+                    ->setStatus($taskDTO->getStatus())
+                    ->setDateStart($taskDTO->getDateFrom())
+                    ->setDateEnd($taskDTO->getDateTo())
+                    ->setUpdatedAt(new \DateTime());
             }
 
             $em->persist($production);
