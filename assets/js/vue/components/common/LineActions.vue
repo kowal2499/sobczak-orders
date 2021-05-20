@@ -237,17 +237,8 @@
             },
 
             startProduction(line) {
-                let production = this.$helpers.getDepartments().map(department => {
-                    return {
-                        slug: department.slug,
-                        name: department.name,
-                        status: 0,
-                        dateFrom: null,
-                        dateTo: null
-                    };
-                });
 
-                ApiNewOrder.storeProductionPlan(production, line.id)
+                ApiNewOrder.startProduction(line.id)
                     .then(({data}) => {
                         line.productions = Array.isArray(data) ? data[0] : [];
                         EventBus.$emit('message', {

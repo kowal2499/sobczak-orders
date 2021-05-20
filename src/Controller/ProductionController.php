@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\Production\ProductionTaskDTO;
+use App\Entity\Department;
 use App\Entity\StatusLog;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\DefaultTaskCreateService;
@@ -19,6 +20,7 @@ use App\Entity\Production;
 use App\Entity\AgreementLine;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductionController extends BaseController
@@ -39,119 +41,59 @@ class ProductionController extends BaseController
 
     /**
      * @isGranted({"ROLE_ADMIN", "ROLE_PRODUCTION"})
-     * @Route ("/production/save", name="production_save", methods={"POST"}, options={"expose"=true})
-     * @param Request $request
-     * @param ProductionRepository $repository
-     * @param EntityManagerInterface $em
+     * @Route ("/production/start/{agreementLine}", methods={"POST"})
+     * @param AgreementLine $agreementLine
      * @param ProductionTaskDatesResolver $datesResolver
+     * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function save(
-        Request $request,
-        ProductionRepository $repository,
-        EntityManagerInterface $em,
-        ProductionTaskDatesResolver $datesResolver
-    )
+    public function startProduction(
+        AgreementLine $agreementLine,
+        ProductionTaskDatesResolver $datesResolver,
+        EntityManagerInterface $em
+    ): JsonResponse
     {
-        $plans = $request->request->get('plan');
-        $lineId = $request->request->get('orderLineId');
-
-        $response = [];
         $prodStack = [];
 
-        /** @var AgreementLine $agreementLine */
-        $agreementLine = $em->getRepository(AgreementLine::class)->find($lineId);
-        foreach ($plans as $plan) {
-
-            $taskDTO = new ProductionTaskDTO(
-                $plan['slug'],
-                $plan['name'],
-                $plan['status'],
-                $plan['dateFrom'],
-                $plan['dateTo']
-            );
-
-            $production = $repository->findOneBy([
-                    'agreementLine' => $agreementLine,
-                    'departmentSlug' => $taskDTO->getTaskSlug()]
-            );
-            if (!$production) {
-                $production = new Production();
-            }
-
+        foreach (Department::names() as $task) {
+            $production = new Production();
+            $resolvedDateFrom = $datesResolver->resolveDateFrom();
             $production
-                ->setDepartmentSlug($plan['slug'])
-                ->setTitle($plan['name'])
-                ->setStatus($plan['status'])
-                ->setDateStart($plan['dateFrom'])
-                ->setDateEnd($plan['dateTo'])
-                ->setUpdatedAt(new \DateTime());
-
-            // if production task did not exist previously
-            if (!$production->getId()) {
-                $production->setDateStart(
-                    $datesResolver->resolveDateFrom()
-                );
-                $production->setDateEnd(
-                    $datesResolver->resolveDateTo($production)
-                );
-                $production->setCreatedAt(new \DateTime());
-                // update agreementLine status
-                // todo: make a service for this
-                $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
-                $em->persist($agreementLine);
-            }
+                ->setAgreementLine($agreementLine)
+                ->setTitle($task['name'])
+                ->setDepartmentSlug($task['slug'])
+                ->setStatus(0)
+                ->setCreatedAt(new \DateTime())
+                ->setUpdatedAt(new \DateTime())
+                ->setDateStart($datesResolver->resolveDateFrom())
+                ->setDateEnd(
+                    $datesResolver->resolveDateTo(
+                        $task['slug'], $resolvedDateFrom, $agreementLine->getConfirmedDate()
+                    ));
 
             $em->persist($production);
+
+            $user = $this->getUser();
+            $newStatus = new StatusLog();
+            $newStatus
+                ->setCurrentStatus($production->getStatus())
+                ->setCreatedAt(new \DateTime())
+                ->setProduction($production)
+                ->setUser($user);
+            $em->persist($newStatus);
+
             $prodStack[] = $production;
         }
+
+        // update agreementLine status
+        // todo: make a service for this
+        $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
+        $em->persist($agreementLine);
         $em->flush();
 
-
-        // dodaj statusy
-        foreach ($prodStack as $idx => $prod) {
-
-            $lastStatus = $em
-                ->getRepository(StatusLog::class)
-                ->findLast($prod);
-
-            // zapis tylko gdy status się zmienił lub gdy nie ma powiązanego statusu
-            if (!$lastStatus || ($lastStatus->getCurrentStatus() != $plans[$idx]['status'])) {
-                $newStatus = new StatusLog();
-                $newStatus
-                    ->setCurrentStatus($plans[$idx]['status'])
-                    ->setCreatedAt(new \DateTime())
-                    ->setProduction($prod)
-                    ->setUser($this->getUser());
-                $em->persist($newStatus);
-            }
-        }
-
-        $em->flush();
-
-
-        foreach ($prodStack as $prod) {
-
-            $statuses = $em->getRepository(StatusLog::class)->findBy(['production' => $prod]);
-
-            $response[] = [
-                'id' => $prod->getId(),
-                'status' => (int) $prod->getStatus(),
-                'departmentSlug' => $prod->getDepartmentSlug(),
-                'dateStart' => $prod->getDateStart() ? ($prod->getDateStart()->format('Y-m-d')) : null,
-                'dateEnd' => $prod->getDateEnd() ? ($prod->getDateEnd()->format('Y-m-d')) : null,
-                'statusLog' => array_map(function($status) {
-                    return [
-                        'currentStatus' => (int) $status->getCurrentStatus(),
-                        'createdAt' => $status->getCreatedAt()->format('Y-m-d H:m:s')
-                    ];
-                }, $statuses)
-
-            ];
-        }
-
-
-        return new JsonResponse([$response]);
+        return $this->json($prodStack, Response::HTTP_OK, [], [
+            ObjectNormalizer::GROUPS => ['_linePanel']
+        ]);
     }
 
     /**

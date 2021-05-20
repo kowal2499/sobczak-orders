@@ -1,30 +1,40 @@
 <?php
 
 namespace App\Service\Production;
-use App\Entity\Production;
 
 class ProductionTaskDatesResolver
 {
+    /**
+     * @return \DateTimeInterface
+     */
     public function resolveDateFrom(): \DateTimeInterface
     {
         return new \DateTime();
     }
 
-    public function resolveDateTo(Production $production): \DateTimeInterface
+    /**
+     * @param string $taskSlug
+     * @param \DateTimeInterface $dateFrom
+     * @param \DateTimeInterface $deadlineDate
+     * @return \DateTimeInterface
+     */
+    public function resolveDateTo(
+        string $taskSlug,
+        \DateTimeInterface $dateFrom,
+        \DateTimeInterface $deadlineDate
+    ): \DateTimeInterface
     {
-        $agreementLine = $production->getAgreementLine();
-        if (!$agreementLine) {
-            throw new \LogicException('Agreement line must exists.');
-        }
-
-        $to = clone($agreementLine->getConfirmedDate());
-        switch ($production->getDepartmentSlug()) {
+        $to = clone $deadlineDate;
+        switch ($taskSlug) {
             case 'dpt01':
                 $to->modify('-7 days');
-                if ($to < $production->getDateStart()) {
-                    $to = clone($production->getDateStart());
-                }
                 break;
+            default:
+                $to = clone $deadlineDate;
+        }
+
+        if ($to < $dateFrom) {
+            $to = clone $dateFrom;
         }
         return $to;
     }
