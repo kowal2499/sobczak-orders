@@ -6,6 +6,7 @@ use App\DTO\Production\ProductionTaskDTO;
 use App\Entity\StatusLog;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\DefaultTaskCreateService;
+use App\Service\Production\ProductionTaskDatesResolver;
 use App\Service\WorkingScheduleService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,14 +41,16 @@ class ProductionController extends BaseController
      * @isGranted({"ROLE_ADMIN", "ROLE_PRODUCTION"})
      * @Route ("/production/save", name="production_save", methods={"POST"}, options={"expose"=true})
      * @param Request $request
+     * @param ProductionRepository $repository
+     * @param EntityManagerInterface $em
+     * @param ProductionTaskDatesResolver $datesResolver
      * @return JsonResponse
-     * @throws \Exception
      */
     public function save(
         Request $request,
         ProductionRepository $repository,
         EntityManagerInterface $em,
-        DefaultTaskCreateService $taskCreateService
+        ProductionTaskDatesResolver $datesResolver
     )
     {
         $plans = $request->request->get('plan');
@@ -72,23 +75,31 @@ class ProductionController extends BaseController
                     'agreementLine' => $agreementLine,
                     'departmentSlug' => $taskDTO->getTaskSlug()]
             );
+            if (!$production) {
+                $production = new Production();
+            }
 
-            // jeżeli produkcja jeszcze nie istnieje
-            if (!($production)) {
-                $production = $taskCreateService->create(
-                    $taskDTO,
-                    $agreementLine
+            $production
+                ->setDepartmentSlug($plan['slug'])
+                ->setTitle($plan['name'])
+                ->setStatus($plan['status'])
+                ->setDateStart($plan['dateFrom'])
+                ->setDateEnd($plan['dateTo'])
+                ->setUpdatedAt(new \DateTime());
+
+            // if production task did not exist previously
+            if (!$production->getId()) {
+                $production->setDateStart(
+                    $datesResolver->resolveDateFrom()
                 );
-
-                // zmiana statusu na "w produkcji"
+                $production->setDateEnd(
+                    $datesResolver->resolveDateTo($production)
+                );
+                $production->setCreatedAt(new \DateTime());
+                // update agreementLine status
+                // todo: make a service for this
                 $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
                 $em->persist($agreementLine);
-            } else {
-                $production
-                    ->setStatus($taskDTO->getStatus())
-                    ->setDateStart($taskDTO->getDateFrom())
-                    ->setDateEnd($taskDTO->getDateTo())
-                    ->setUpdatedAt(new \DateTime());
             }
 
             $em->persist($production);
