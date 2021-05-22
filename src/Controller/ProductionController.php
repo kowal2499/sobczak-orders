@@ -63,13 +63,13 @@ class ProductionController extends BaseController
                 ->setTitle($task['name'])
                 ->setDepartmentSlug($task['slug'])
                 ->setStatus(0)
-                ->setCreatedAt(new \DateTime())
-                ->setUpdatedAt(new \DateTime())
                 ->setDateStart($datesResolver->resolveDateFrom())
                 ->setDateEnd(
                     $datesResolver->resolveDateTo(
                         $task['slug'], $resolvedDateFrom, $agreementLine->getConfirmedDate()
-                    ));
+                    ))
+                ->setCreatedAt(new \DateTime())
+                ->setUpdatedAt(new \DateTime());
 
             $em->persist($production);
 

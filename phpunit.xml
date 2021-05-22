@@ -4,6 +4,10 @@
          bootstrap="vendor/autoload.php"
 >
 
+    <php>
+        <server name="KERNEL_CLASS" value="App\Kernel" />
+    </php>
+
     <testsuites>
         <testsuite name="Sobczak Test Suite">
             <directory>tests</directory>
