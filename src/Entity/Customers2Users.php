@@ -8,6 +8,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Customers2UsersRepository")
+ * @ORM\Table(name="user_customer")
  */
 class Customers2Users
 {
