@@ -34,4 +34,11 @@ class Department
 
         ];
     }
+
+    public static function getSlugs()
+    {
+        return array_map(function ($dpt) {
+            return $dpt['slug'];
+        }, self::names());
+    }
 }

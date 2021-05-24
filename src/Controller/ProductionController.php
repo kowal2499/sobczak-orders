@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\Production\ProductionTaskDTO;
 use App\Entity\Department;
 use App\Entity\StatusLog;
+use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\DefaultTaskCreateService;
 use App\Service\Production\ProductionTaskDatesResolver;
@@ -46,6 +47,7 @@ class ProductionController extends BaseController
      * @param ProductionTaskDatesResolver $datesResolver
      * @param EntityManagerInterface $em
      * @return JsonResponse
+     * @throws ProductionAlreadyExistsException
      */
     public function startProduction(
         AgreementLine $agreementLine,
@@ -53,23 +55,31 @@ class ProductionController extends BaseController
         EntityManagerInterface $em
     ): JsonResponse
     {
-        $prodStack = [];
+        $repository = $em->getRepository(Production::class);
+        if ($repository->findBy([
+            'agreementLine' => $agreementLine,
+            'departmentSlug' => Department::getSlugs()
+        ])) {
+            throw new ProductionAlreadyExistsException();
+        }
 
+        $response = [];
         foreach (Department::names() as $task) {
             $production = new Production();
-            $resolvedDateFrom = $datesResolver->resolveDateFrom();
             $production
                 ->setAgreementLine($agreementLine)
                 ->setTitle($task['name'])
                 ->setDepartmentSlug($task['slug'])
                 ->setStatus(0)
-                ->setDateStart($datesResolver->resolveDateFrom())
-                ->setDateEnd(
-                    $datesResolver->resolveDateTo(
-                        $task['slug'], $resolvedDateFrom, $agreementLine->getConfirmedDate()
-                    ))
                 ->setCreatedAt(new \DateTime())
                 ->setUpdatedAt(new \DateTime());
+
+            $production->setDateStart(
+                $datesResolver->resolveDateFrom($production, $agreementLine->getConfirmedDate())
+            );
+            $production->setDateEnd(
+                $datesResolver->resolveDateTo($production, $agreementLine->getConfirmedDate())
+            );
 
             $em->persist($production);
 
@@ -82,7 +92,7 @@ class ProductionController extends BaseController
                 ->setUser($user);
             $em->persist($newStatus);
 
-            $prodStack[] = $production;
+            $response[] = $production;
         }
 
         // update agreementLine status
@@ -91,7 +101,7 @@ class ProductionController extends BaseController
         $em->persist($agreementLine);
         $em->flush();
 
-        return $this->json($prodStack, Response::HTTP_OK, [], [
+        return $this->json($response, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel']
         ]);
     }

@@ -43,9 +43,8 @@
 </script>
 
 <style lang="scss">
-    .tasks {
+    td.prod {
         .task {
-            width: 80px;
             label {
                 font-size: 0.75rem;
                 margin-bottom: 2px;

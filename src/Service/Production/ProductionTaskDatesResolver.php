@@ -2,40 +2,35 @@
 
 namespace App\Service\Production;
 
+use App\Entity\Production;
+use DateTime;
+use DateTimeInterface;
+
 class ProductionTaskDatesResolver
 {
     /**
-     * @return \DateTimeInterface
+     * @param Production $production
+     * @param DateTime $deadline
+     * @return DateTimeInterface|null
      */
-    public function resolveDateFrom(): \DateTimeInterface
+    public function resolveDateFrom(Production $production, DateTimeInterface $deadline): ?DateTimeInterface
     {
-        return new \DateTime();
+        if ($production->getDepartmentSlug() !== 'dpt01')
+        {
+            return null;
+        }
+        return (clone $deadline)->modify('-7 days')->setTime(7, 0);
     }
 
     /**
-     * @param string $taskSlug
-     * @param \DateTimeInterface $dateFrom
-     * @param \DateTimeInterface $deadlineDate
-     * @return \DateTimeInterface
+     * @param Production $production
+     * @param DateTimeInterface $deadline
+     * @return DateTimeInterface
      */
     public function resolveDateTo(
-        string $taskSlug,
-        \DateTimeInterface $dateFrom,
-        \DateTimeInterface $deadlineDate
-    ): \DateTimeInterface
+        Production $production, DateTimeInterface $deadline
+    ): DateTimeInterface
     {
-        $to = clone $deadlineDate;
-        switch ($taskSlug) {
-            case 'dpt01':
-                $to->modify('-7 days');
-                break;
-            default:
-                $to = clone $deadlineDate;
-        }
-
-        if ($to < $dateFrom) {
-            $to = clone $dateFrom;
-        }
-        return $to;
+        return $deadline;
     }
 }

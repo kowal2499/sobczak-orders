@@ -26,47 +26,83 @@ class ProductionTaskDatesResolverTest extends TestCase
         $this->agreementLine->setConfirmedDate(new \DateTime('2021-05-30'));
     }
 
-    public function testShouldSetDateStartAtToday()
+    public function testShouldReturnDateStartAsNullForAllTasksExceptDpt01()
     {
         // Given
-        $today = (new \DateTime())->format('Y-m-d');
-        // When
-        $resolvedDate = $this->serviceUnderTest->resolveDateFrom();
-        // Then
-        $this->assertEquals($today, $resolvedDate->format('Y-m-d'));
+        $production = new Production();
+        $production->setDateStart(null);
+        $production->setDateEnd(null);
+
+        $deadline = new \DateTime('2021-06-30');
+
+        // When & Then
+        $production->setDepartmentSlug('dpt01');
+        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($production, $deadline);
+        $this->assertNotEquals(null, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt02');
+        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($production, $deadline);
+        $this->assertEquals(null, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt03');
+        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($production, $deadline);
+        $this->assertEquals(null, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt04');
+        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($production, $deadline);
+        $this->assertEquals(null, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt05');
+        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($production, $deadline);
+        $this->assertEquals(null, $resolvedDate);
     }
 
-    public function testShouldNotChangeDateStartWhenItIsProvided()
+    public function testShouldReturnDateStartForDpt01WhichIs7daysEarlierThanDeadline()
     {
         // Given
-        $this->production->setDateStart(new \DateTime('2021-05-20'));
+        $deadline = new \DateTime('2021-06-30');
+        $production = new Production();
+        $production->setDepartmentSlug('dpt01');
+
         // When
-        $resolvedDate = $this->serviceUnderTest->resolveDateFrom($this->production);
+        $production->setDateStart($this->serviceUnderTest->resolveDateFrom($production, $deadline));
+
         // Then
         $this->assertEquals(
-            $resolvedDate->format('Y-m-d'),
-            (new \DateTime('2021-05-20'))->format('Y-m-d')
+            (new \DateTime('2021-06-23'))->setTime(7, 0),
+            $production->getDateStart()
         );
     }
 
-    public function testShouldSetDateEndForDpt01At7DaysBeforeDeadline()
+    public function testShouldReturnDateEndWhichIsEqualToDeadlineDateForEachTasks()
     {
         // Given
-        $this->production->setDepartmentSlug('dpt01');
-        // When
-        $resolvedDate = $this->serviceUnderTest->resolveDateTo($this->production);
-        // Then
-        $this->assertEquals($resolvedDate, new \DateTime('2021-05-23'));
+        $production = new Production();
+        $production->setDateStart(null);
+        $production->setDateEnd(null);
+
+        $deadline = new \DateTime('2021-06-30');
+
+        // When & Then
+        $production->setDepartmentSlug('dpt01');
+        $resolvedDate = $this->serviceUnderTest->resolveDateTo($production, $deadline);
+        $this->assertEquals($deadline, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt02');
+        $resolvedDate = $this->serviceUnderTest->resolveDateTo($production, $deadline);
+        $this->assertEquals($deadline, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt03');
+        $resolvedDate = $this->serviceUnderTest->resolveDateTo($production, $deadline);
+        $this->assertEquals($deadline, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt04');
+        $resolvedDate = $this->serviceUnderTest->resolveDateTo($production, $deadline);
+        $this->assertEquals($deadline, $resolvedDate);
+
+        $production->setDepartmentSlug('dpt05');
+        $resolvedDate = $this->serviceUnderTest->resolveDateTo($production, $deadline);
+        $this->assertEquals($deadline, $resolvedDate);
     }
 
-    public function testShouldSetDateEndForDpt01NotEarlierThanDateStart()
-    {
-        // Given
-        $this->production->setDepartmentSlug('dpt01');
-        $this->production->setDateStart(new \DateTime('2021-05-28'));
-        // When
-        $resolvedDate = $this->serviceUnderTest->resolveDateTo($this->production);
-        // Then
-        $this->assertEquals($resolvedDate, new \DateTime('2021-05-28'));
-    }
 }

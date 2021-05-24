@@ -25,14 +25,15 @@
 
         <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
 
-        <td class="tasks" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
+        <td class="prod" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
             <div class="task">
                 <b-dropdown
                         :text="$t(getStatusData(production.status).name)"
                         size="sm"
+                        class="w-100"
                         :class="getStatusData(production.status).className"
                         variant="light"
-
+                        split-variant=""
                 >
                     <b-dropdown-item
                             v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"

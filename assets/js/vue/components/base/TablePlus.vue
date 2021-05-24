@@ -144,6 +144,11 @@
                 }
             }
         }
+
+        th.prod {
+            width: 120px;
+            max-width: 120px;
+        }
     }
 
     .fade-enter-active, .fade-leave-active {

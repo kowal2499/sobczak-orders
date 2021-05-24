@@ -273,28 +273,33 @@
             tableHeaders() {
                 let headers = [
                     [
-                        { name: this.$t('ID'), sortKey: 'id', rowspan: 2 },
-                        { name: this.$t('orders.date'), sortKey: 'dateConfirmed', rowspan: 2 },
-                        { name: this.$t('customer'), sortKey: 'customer', rowspan: 2},
-                        { name: this.$t('product'), sortKey: 'product', rowspan: 2 },
-                        { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
+                        { name: this.$t('ID'), sortKey: 'id' },
+                        { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
+                        { name: this.$t('customer'), sortKey: 'customer' },
+                        { name: this.$t('product'), sortKey: 'product' },
+                        // { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
+                        { name: this.$t('Klejenie'), classCell: 'text-center', classHeader: 'prod'},
+                        { name: this.$t('CNC'), classCell: 'text-center', classHeader: 'prod'},
+                        { name: this.$t('Szlifowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        { name: this.$t('Lakierowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        { name: this.$t('Pakowanie'), classCell: 'text-center', classHeader: 'prod'},
                     ],
-                    [
-                        { name: this.$t('Klejenie'), classCell: 'text-center'},
-                        { name: this.$t('CNC'), classCell: 'text-center'},
-                        { name: this.$t('Szlifowanie'), classCell: 'text-center'},
-                        { name: this.$t('Lakierowanie'), classCell: 'text-center'},
-                        { name: this.$t('Pakowanie'), classCell: 'text-center'},
-                    ]
+                    // [
+                    //     { name: this.$t('Klejenie'), classCell: 'text-center'},
+                    //     { name: this.$t('CNC'), classCell: 'text-center'},
+                    //     { name: this.$t('Szlifowanie'), classCell: 'text-center'},
+                    //     { name: this.$t('Lakierowanie'), classCell: 'text-center'},
+                    //     { name: this.$t('Pakowanie'), classCell: 'text-center'},
+                    // ]
 
                 ];
 
                 if (this.userCanProduction) {
-                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'factor', rowspan: 2 });
-                    headers[0].push({ name: this.$t('orders.additionalOrders'), rowspan: 2});
+                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'factor'});
+                    headers[0].push({ name: this.$t('orders.additionalOrders')});
                 }
 
-                headers[0].push({ name: this.$t('actions'), rowspan: 2 });
+                headers[0].push({ name: this.$t('actions')});
 
                 return headers;
             },
