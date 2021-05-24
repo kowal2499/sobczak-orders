@@ -91,6 +91,7 @@ export default {
             user: 'User',
             list: 'Orders list',
             productionSchedule: 'Production schedule',
+            'notStarted': 'Not started'
         }
 
 
@@ -187,6 +188,7 @@ export default {
             user: 'Użytkownik',
             list: 'Lista zamówień',
             productionSchedule: 'Harmonogram produkcji',
+            'notStarted': 'Nie rozpoczęto'
         }
 
     }

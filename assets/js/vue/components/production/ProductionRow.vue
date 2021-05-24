@@ -43,7 +43,14 @@
                             @click="updateProduction(production, status.value)"
                     >{{ $t(status.name) }}</b-dropdown-item>
                 </b-dropdown>
-
+                <div>
+                    <production-task-notification
+                        :date-start="production.dateStart"
+                        :date-end="production.dateEnd"
+                        :status="production.status"
+                        :date-deadline="order.confirmedDate"
+                    />
+                </div>
             </div>
         </td>
 
@@ -78,13 +85,14 @@
     import LineActions from "../common/LineActions";
     import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
     import helpers from "../../helpers";
+    import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
         name: "ProductionRow",
 
         extends: ProductionRowBase,
 
-        components: { Tooltip, LineActions, TagsIndicator },
+        components: { Tooltip, LineActions, TagsIndicator, ProductionTaskNotification },
 
         data() {
             return {}
@@ -95,7 +103,7 @@
                 let className = '';
                 switch (parseInt(statusId)) {
                     case 5:
-                        className = 'badge-danger';
+                        className = 'badge-info';
                         break;
                     case 10:
                         className = 'badge-primary';

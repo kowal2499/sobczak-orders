@@ -44,6 +44,8 @@
 
 <style lang="scss">
     td.prod {
+
+
         .task {
             label {
                 font-size: 0.75rem;
@@ -58,8 +60,13 @@
         }
 
         .custom-task {
-            width: 130px;
+            width: 120px;
             margin-right: 20px;
         }
+    }
+
+    td.prod,
+    th.prod {
+        background-color: #fbfbfb;
     }
 </style>
