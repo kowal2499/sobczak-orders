@@ -240,7 +240,7 @@
 
                 ApiNewOrder.startProduction(line.id)
                     .then(({data}) => {
-                        line.productions = Array.isArray(data) ? data[0] : [];
+                        line.productions = Array.isArray(data) ? data : [];
                         EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('addedToSchedule')
