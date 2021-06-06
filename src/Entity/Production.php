@@ -83,11 +83,13 @@ class Production
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $isStartDelayed;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $isCompleted;
 

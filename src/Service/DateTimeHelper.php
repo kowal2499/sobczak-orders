@@ -10,4 +10,9 @@ class DateTimeHelper
     {
         return $dt instanceof \DateTime ? $dt->format($format) : '';
     }
+
+    public function today(): \DateTime
+    {
+        return (new \DateTime())->setTime(0, 0);
+    }
 }
