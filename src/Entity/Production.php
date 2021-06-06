@@ -81,6 +81,16 @@ class Production
      */
     private $title;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isStartDelayed;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isCompleted;
+
     public function __construct()
     {
         $this->statusLogs = new ArrayCollection();
@@ -226,6 +236,30 @@ class Production
     public function setTitle(?string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getIsStartDelayed(): ?bool
+    {
+        return $this->isStartDelayed;
+    }
+
+    public function setIsStartDelayed(?bool $isStartDelayed): self
+    {
+        $this->isStartDelayed = $isStartDelayed;
+
+        return $this;
+    }
+
+    public function getIsCompleted(): ?bool
+    {
+        return $this->isCompleted;
+    }
+
+    public function setIsCompleted(?bool $isCompleted): self
+    {
+        $this->isCompleted = $isCompleted;
 
         return $this;
     }

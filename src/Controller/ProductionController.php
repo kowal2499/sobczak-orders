@@ -6,10 +6,12 @@ use App\DTO\Production\ProductionTaskDTO;
 use App\Entity\Department;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
+use App\Message\Task\UpdateStatusCommand;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\DefaultTaskCreateService;
 use App\Service\Production\ProductionTaskDatesResolver;
 use App\Service\WorkingScheduleService;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -115,25 +117,17 @@ class ProductionController extends BaseController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function updateStatus(Request $request, ProductionRepository $repository, EntityManagerInterface $em)
+    public function updateStatus(
+        Request $request,
+        MessageBusInterface $messageBus
+    )
     {
+        $messageBus->dispatch(new UpdateStatusCommand(
+            $request->request->getInt('productionId'),
+            $request->request->getInt('newStatus')
+        ));
 
-        $production = $repository->findOneBy(['id' => $request->request->getInt('productionId')]);
-        $production->setStatus($request->request->getInt('newStatus'));
-
-        $statusLog = new StatusLog();
-        $statusLog
-            ->setProduction($production)
-            ->setCurrentStatus($request->request->getInt('newStatus'))
-            ->setCreatedAt(new \DateTime())
-            ->setUser($this->getUser())
-        ;
-
-        $em->persist($statusLog);
-
-        $em->flush();
-
-        return $this->json([]);
+        return $this->json(true);
     }
 
     /**
@@ -191,7 +185,7 @@ class ProductionController extends BaseController
             $summary['workingDays'] = $workingScheduleService->getWorkingDaysCount();
 
             /**
-             * Miesięczna norma produkcji to 32 współczynniki. W miesiący jest średnio 21 dni roboczoch,
+             * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczych,
              * co daje 1,5238 współczynnika na dzień.
              */
 
