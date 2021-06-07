@@ -40,7 +40,7 @@ class Production
     private $dateEnd;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=64, nullable=true)
      * @Groups({"_main", "_linePanel"})
      */
     private $status;

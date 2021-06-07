@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\Production\ProductionTaskDTO;
+use App\Entity\Definitions\TaskTypes;
 use App\Entity\Department;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
@@ -54,7 +55,8 @@ class ProductionController extends BaseController
     public function startProduction(
         AgreementLine $agreementLine,
         ProductionTaskDatesResolver $datesResolver,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        MessageBusInterface $messageBus
     ): JsonResponse
     {
         $repository = $em->getRepository(Production::class);
@@ -72,7 +74,6 @@ class ProductionController extends BaseController
                 ->setAgreementLine($agreementLine)
                 ->setTitle($task['name'])
                 ->setDepartmentSlug($task['slug'])
-                ->setStatus(0)
                 ->setCreatedAt(new \DateTime())
                 ->setUpdatedAt(new \DateTime());
 
@@ -84,16 +85,6 @@ class ProductionController extends BaseController
             );
 
             $em->persist($production);
-
-            $user = $this->getUser();
-            $newStatus = new StatusLog();
-            $newStatus
-                ->setCurrentStatus($production->getStatus())
-                ->setCreatedAt(new \DateTime())
-                ->setProduction($production)
-                ->setUser($user);
-            $em->persist($newStatus);
-
             $response[] = $production;
         }
 
@@ -102,6 +93,14 @@ class ProductionController extends BaseController
         $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
         $em->persist($agreementLine);
         $em->flush();
+
+        // set statuses
+        array_map(function (Production $production) use ($messageBus) {
+            $messageBus->dispatch(new UpdateStatusCommand(
+                $production->getId(),
+                TaskTypes::TYPE_DEFAULT_STATUS_AWAITS
+            ));
+        }, $response);
 
         return $this->json($response, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel']
@@ -119,15 +118,17 @@ class ProductionController extends BaseController
      */
     public function updateStatus(
         Request $request,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        ProductionRepository $taskRepository
     )
     {
         $messageBus->dispatch(new UpdateStatusCommand(
             $request->request->getInt('productionId'),
             $request->request->getInt('newStatus')
         ));
-
-        return $this->json(true);
+        return $this->json($taskRepository->find($request->request->getInt('productionId')), Response::HTTP_OK, [], [
+            ObjectNormalizer::GROUPS => ['_linePanel']
+        ]);
     }
 
     /**

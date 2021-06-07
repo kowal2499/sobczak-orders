@@ -33,6 +33,12 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
     public function __invoke(UpdateStatusCommand $command)
     {
         $task = $this->taskRepository->findOneBy(['id' => $command->getTaskId()]);
+
+        // return if status has not changed
+        if ($task->getStatus() && ((int)$task->getStatus() === $command->getTaskId())) {
+            return;
+        }
+
         $this->statusService->setStatus($task, $command->getNewStatus());
 
         $statusLog = new StatusLog();

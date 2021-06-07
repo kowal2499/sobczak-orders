@@ -48,6 +48,8 @@
                         :date-start="production.dateStart"
                         :date-end="production.dateEnd"
                         :status="production.status"
+                        :isStartDelayed="production.isStartDelayed"
+                        :isCompleted="production.isCompleted"
                         :date-deadline="order.confirmedDate"
                     />
                 </div>

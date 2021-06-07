@@ -64,10 +64,13 @@ class TaskStatusService
             throw new StatusNotMatchWithTaskTypeException();
         }
 
+        // set status
         $task->setStatus($newStatus);
 
+        // set isCompleted flag
         $task->setIsCompleted($this->isCompleted($task, $taskType));
 
+        // set isStartDelayed flag
         $task->setIsStartDelayed($this->isStartDelayed($task));
 
         return $task;
