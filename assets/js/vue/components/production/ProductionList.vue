@@ -15,14 +15,14 @@
 				/>
 
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
-            <template v-for="(order, key) in orders">
+            <template v-for="order in orders">
 
                 <production-row
                     v-if="order.productions.length > 0"
                     :order="order"
                     :statuses="statuses"
                     :key="order.id"
-                    @statusUpdated="updateStatus"
+                    @statusUpdated="updateStatus($event, order.id)"
                     @lineChanged="fetchData"
                     @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
                 />
@@ -32,7 +32,7 @@
                     :order="order"
                     :statuses="statuses"
                     :key="'details' + order.id"
-                    @statusUpdated="updateStatus"
+                    @statusUpdated="updateStatus($event, order.id)"
                 />
 
             </template>
@@ -214,15 +214,19 @@
                     .finally(() => { this.loading = false; })
             },
 
-            updateStatus(data) {
-                let productionId = data.id;
-                let newStatus = data.status;
-                productionApi.updateStatus(productionId, newStatus)
-                    .then(() => {
+            updateStatus(data, agreementLineId) {
+                const taskId = data.id;
+                const newStatus = data.status;
+                productionApi.updateStatus(taskId, newStatus)
+                    .then(({data}) => {
                         EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('statusChangeSaved')
                         });
+                        const updatedOrder = this.orders.find(order => order.id === agreementLineId)
+                        updatedOrder.productions = updatedOrder.productions.map(task => {
+                            return task.id !== data.id ? task : data
+                        })
                     })
                     .catch((error) => {
                         let msg = '';
@@ -241,8 +245,7 @@
                             type: 'error',
                             content: msg
                         });
-                    })
-                ;
+                    });
             },
 
             getStatusStyle(production) {

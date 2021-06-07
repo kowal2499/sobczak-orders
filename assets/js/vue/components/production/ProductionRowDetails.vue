@@ -29,6 +29,16 @@
                                 @click="updateTask(task, status.value)"
                         >{{ $t(status.name) }}</b-dropdown-item>
                     </b-dropdown>
+                    <div>
+                        <production-task-notification
+                            :date-start="task.dateStart"
+                            :date-end="task.dateEnd"
+                            :status="task.status"
+                            :isStartDelayed="task.isStartDelayed"
+                            :isCompleted="task.isCompleted"
+                            :date-deadline="order.confirmedDate"
+                        />
+                    </div>
 
                 </div>
             </div>
@@ -41,13 +51,14 @@
     import ProductionRowBase from "./ProductionRowBase";
     import AttachmentsWidget from "../orders/single/AttachmentsWidget";
     import helpers from "../../helpers";
+    import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
         name: "ProductionRowDetails",
 
         extends: ProductionRowBase,
 
-        components: {AttachmentsWidget},
+        components: {AttachmentsWidget, ProductionTaskNotification},
 
         props: {
             order: {

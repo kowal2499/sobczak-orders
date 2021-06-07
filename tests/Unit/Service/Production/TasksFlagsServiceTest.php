@@ -163,14 +163,13 @@ class TasksFlagsServiceTest extends TestCase
     /**
      * @dataProvider keepFlagConditions
      */
-    public function testShouldNotChangeFlagIfTaskStatusIsDifferentThanStarting(
-        $taskSlug, $newStatus
-    )
+    public function testShouldNotChangeFlagIfTaskStatusIsDifferentThanWaiting($taskSlug, $newStatus)
     {
         // Given
         $production = new Production();
         $production->setDepartmentSlug($taskSlug);
         $production->setDateStart(new \DateTime('2021-05-15'));
+        $production->setStatus(TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
         $production->setIsStartDelayed(true);
 
         $this->dateTimeHelperMock
@@ -196,7 +195,7 @@ class TasksFlagsServiceTest extends TestCase
     public function keepFlagConditions(): array
     {
         return [
-            [TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_STATUS_AWAITS],
+            [TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_STATUS_STARTED],
             [TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_STATUS_PENDING],
         ];
     }

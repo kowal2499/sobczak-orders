@@ -28,33 +28,42 @@ class TaskStatusService
         return false;
     }
 
-    private function isStartDelayed(Production $task): ?bool
+    private function isStartDelayed(Production $task, ?int $initialStatus): ?bool
     {
         // if dateStart is not specified do not make changes
         if (null === $task->getDateStart()) {
             return $task->getIsStartDelayed();
         }
 
-        // if task status is not applicable or completed, then return false
+        // if task status is not started, not applicable or completed, then start is not delayed
         if (true === in_array(
             (int) $task->getStatus(),
-            [TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE, TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED, TaskTypes::TYPE_CUSTOM_STATUS_COMPLETED])
+            [
+                TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
+                TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE,
+                TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+                TaskTypes::TYPE_CUSTOM_STATUS_COMPLETED,
+                TaskTypes::TYPE_CUSTOM_STATUS_AWAITS
+            ])
         ) {
             return false;
         }
 
-        // if task status is something else than beginning of the process, then do not make changes
-        if (false === in_array(
-                (int) $task->getStatus(),
-                [TaskTypes::TYPE_DEFAULT_STATUS_STARTED, TaskTypes::TYPE_CUSTOM_STATUS_PENDING]
-            )
-        ) {
-            return $task->getIsStartDelayed();
+        if (true === in_array($initialStatus, [
+                null,
+                TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
+                TaskTypes::TYPE_CUSTOM_STATUS_AWAITS,
+                TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE,
+                TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+                TaskTypes::TYPE_CUSTOM_STATUS_COMPLETED,
+            ])) {
+            $taskStartDate = new \DateTime($task->getDateStart()->format('Y-m-d'));
+            $result = $this->dateTimeHelper->today() > $taskStartDate;
+        } else {
+            $result = $task->getIsStartDelayed();
         }
 
-        $taskStartDate = new \DateTime($task->getDateStart()->format('Y-m-d'));
-
-        return $this->dateTimeHelper->today() > $taskStartDate;
+        return $result;
     }
 
     public function setStatus(Production $task, int $newStatus): Production
@@ -64,6 +73,8 @@ class TaskStatusService
             throw new StatusNotMatchWithTaskTypeException();
         }
 
+        $initialStatus = $task->getStatus();
+
         // set status
         $task->setStatus($newStatus);
 
@@ -71,7 +82,7 @@ class TaskStatusService
         $task->setIsCompleted($this->isCompleted($task, $taskType));
 
         // set isStartDelayed flag
-        $task->setIsStartDelayed($this->isStartDelayed($task));
+        $task->setIsStartDelayed($this->isStartDelayed($task, $initialStatus));
 
         return $task;
     }
