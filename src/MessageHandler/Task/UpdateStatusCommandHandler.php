@@ -34,8 +34,8 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
     {
         $task = $this->taskRepository->findOneBy(['id' => $command->getTaskId()]);
 
-        // return if status has not changed
-        if ($task->getStatus() && ((int)$task->getStatus() === $command->getTaskId())) {
+        // quit if status is set but has not changed
+        if (null !== $task->getStatus() && ((int)$task->getStatus() === $command->getNewStatus())) {
             return;
         }
 

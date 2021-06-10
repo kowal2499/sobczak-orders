@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\GetAssignedTags;
+use App\Message\Task\UpdateStatusCommand;
 use App\Repository\AgreementRepository;
 use App\Service\DateTimeHelper;
 use App\Service\UploaderHelper;
@@ -31,6 +32,7 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function foo\func;
 
 
 class AgreementLineController extends BaseController
@@ -111,7 +113,8 @@ class AgreementLineController extends BaseController
         Request $request,
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        AgreementLineRepository $agreementLineRepository
     ): JsonResponse
     {
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
@@ -121,10 +124,15 @@ class AgreementLineController extends BaseController
 
         try {
             $this->processForm($request, $form);
+            /** @var AgreementLine $agreementLine */
             $agreementLine = $form->getData();
 
             $em->persist($agreementLine);
             $em->flush();
+
+            foreach ($request->request->get('productions') as $taskData) {
+                $messageBus->dispatch(new UpdateStatusCommand($taskData['id'], $taskData['status']));
+            }
 
             $messageBus->dispatch(new AssignTags(
                 $request->request->get('tags') ?? [],
@@ -137,7 +145,7 @@ class AgreementLineController extends BaseController
             return $this->composeErrorResponse($e);
         }
 
-        return $this->json($agreementLine, Response::HTTP_OK, [], [
+        return $this->json($agreementLineRepository->find($agreementLine->getId()), Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel'],
             DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s',
         ]);

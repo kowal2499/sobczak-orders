@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\DTO\Production\ProductionTaskDTO;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Department;
 use App\Entity\StatusLog;

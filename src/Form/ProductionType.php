@@ -13,6 +13,7 @@ class ProductionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        // aktualizacja statusu i logów nie jest juz dokonywana za pośrednictwem formularzy symfony
         $builder
             ->add('departmentSlug')
             ->add('dateStart', DateTimeType::class, [
@@ -23,15 +24,8 @@ class ProductionType extends AbstractType
                 'widget' => 'single_text',
                 'format' => 'yyyy-MM-dd HH:mm:ss'
             ])
-            ->add('status')
             ->add('description')
             ->add('title')
-            ->add('statusLogs', CollectionType::class, [
-                'entry_type' => StatusLogType::class,
-                'by_reference' => false,
-                'allow_add' => true,
-                'allow_delete' => true,
-            ])
         ;
     }
 
