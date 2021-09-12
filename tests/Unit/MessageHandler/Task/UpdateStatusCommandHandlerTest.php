@@ -4,6 +4,7 @@ namespace App\Tests\Unit\MessageHandler\Task;
 
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
+use App\Message\AgreementLine\UpdateCompletionFlagCommand;
 use App\Message\Task\UpdateStatusCommand;
 use App\MessageHandler\Task\UpdateStatusCommandHandler;
 use App\Repository\ProductionRepository;
@@ -11,6 +12,8 @@ use App\Service\Production\TaskStatusService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 
 class UpdateStatusCommandHandlerTest extends TestCase
@@ -22,6 +25,8 @@ class UpdateStatusCommandHandlerTest extends TestCase
     private $handerUnderTest;
     /** @var TaskStatusService|MockObject */
     private $statusService;
+    /** @var Production|MockObject */
+    private $taskUnderTest;
 
     protected function setUp(): void
     {
@@ -29,27 +34,39 @@ class UpdateStatusCommandHandlerTest extends TestCase
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->security = $this->createMock(Security::class);
         $this->statusService = $this->createMock(TaskStatusService::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
+        $this->messageBus->method('dispatch')->willReturnCallback(function ($command) {
+            return new Envelope($command);
+        });
 
         $this->handerUnderTest = new UpdateStatusCommandHandler(
             $this->taskRepository,
             $this->em,
             $this->security,
-            $this->statusService
+            $this->statusService,
+            $this->messageBus
         );
+
+        $this->taskUnderTest = $this->createMock(Production::class);
+        $this->taskUnderTest->method('getId')->willReturn(12);
+        $this->taskUnderTest->method('getStatus')
+            ->willReturn((string)TaskTypes::TYPE_DEFAULT_STATUS_AWAITS);
     }
 
     public function testShouldNotUpdateStatusWhenStatusHasNotChanged()
     {
         // Given
-        $task = new Production();
-        $task->setStatus(TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
+        $task = $this->createMock(Production::class);
+        $task->method('getId')->willReturn(12);
+        $task->method('getStatus')
+            ->willReturn((string)TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
         $handler = $this->handerUnderTest;
-        $command = new UpdateStatusCommand(12, TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
+        $command = new UpdateStatusCommand($task->getId(), TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
 
         $this->taskRepository
             ->expects($this->once())
             ->method('findOneBy')
-            ->with(['id' => 12])
+            ->with(['id' => $task->getId()])
             ->willReturn($task);
 
         $this->statusService->expects($this->never())->method('setStatus');
@@ -61,17 +78,42 @@ class UpdateStatusCommandHandlerTest extends TestCase
     public function testShouldUpdateStatusWhenStatusIsNull()
     {
         // Given
-        $task = new Production();
         $handler = $this->handerUnderTest;
-        $command = new UpdateStatusCommand(12, TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
+        $command = new UpdateStatusCommand($this->taskUnderTest->getId(), TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
+
+        $this->taskRepository
+            ->expects($this->once())
+            ->method('findOneBy')
+            ->with(['id' => $this->taskUnderTest->getId()])
+            ->willReturn($this->taskUnderTest);
+
+        $this->statusService->expects($this->once())->method('setStatus');
+        // When
+        $handler($command);
+    }
+
+    public function testShouldDispatchUpdateCompletionFlagCommand()
+    {
+        // Given
+        $handler = $this->handerUnderTest;
+        $command = new UpdateStatusCommand($this->taskUnderTest->getId(), TaskTypes::TYPE_DEFAULT_STATUS_STARTED);
 
         $this->taskRepository
             ->expects($this->once())
             ->method('findOneBy')
             ->with(['id' => 12])
-            ->willReturn($task);
+            ->willReturn($this->taskUnderTest);
 
-        $this->statusService->expects($this->once())->method('setStatus');
+        $this->messageBus
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with($this->callback(function(UpdateCompletionFlagCommand $updateCompletionFlagCommand) {
+                return $updateCompletionFlagCommand->getAgreementLineId() === $this->taskUnderTest->getId();
+            }))
+            ->willReturnCallback(function ($command) {
+                return new Envelope($command);
+            })
+        ;
         // When
         $handler($command);
     }

@@ -92,6 +92,11 @@ class TaskTypes
         }, self::getAll()[$type]);
     }
 
+    public static function getDefaultSlugs(): array
+    {
+        return self::getSlugs(self::TYPE_DEFAULT);
+    }
+
     /**
      * @param string $slug
      * @return string|null

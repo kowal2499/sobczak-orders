@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\GetAssignedTags;
-use App\Message\Task\UpdateStatusCommand;
+use App\Message\AgreementLine\UpdateStatusCommand;
 use App\Repository\AgreementRepository;
 use App\Service\DateTimeHelper;
 use App\Service\UploaderHelper;

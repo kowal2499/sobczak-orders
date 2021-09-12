@@ -173,32 +173,26 @@ class AgreementLineRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    // /**
-    //  * @return AgreementLine[] Returns an array of AgreementLine objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findWithProductionAndStatuses(int $id)
     {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('o.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $manager = $this->getEntityManager();
+        $query = $manager->createQuery('
+            SELECT l, pr 
+            FROM 
+                App\Entity\AgreementLine l 
+                LEFT JOIN l.productions pr
+                LEFT JOIN pr.statusLogs log
+            WHERE l.id = :id
+            ORDER BY log.createdAt DESC
+        ')->setParameter('id', $id);
 
-    /*
-    public function findOneBySomeField($value): ?AgreementLine
-    {
-        return $this->createQueryBuilder('o')
-            ->andWhere('o.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+//        $qb = $this->createQueryBuilder('l')
+//            ->leftJoin('l.productions', 'pr')
+//            ->andWhere('l.id = :id')
+//            ->setParameter('id', $id)
+//            ->addSelect('l')
+//            ->addSelect('pr');
+
+        return $query->getOneOrNullResult();
     }
-    */
 }

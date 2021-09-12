@@ -86,6 +86,11 @@ class AgreementLine
      */
     private $tags;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $productionCompletionDate;
+
     public function __construct()
     {
         $this->productions = new ArrayCollection();
@@ -239,6 +244,18 @@ class AgreementLine
     public function setStatus(?int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getProductionCompletionDate(): ?\DateTimeInterface
+    {
+        return $this->productionCompletionDate;
+    }
+
+    public function setProductionCompletionDate(?\DateTimeInterface $productionCompletionDate): self
+    {
+        $this->productionCompletionDate = $productionCompletionDate;
 
         return $this;
     }

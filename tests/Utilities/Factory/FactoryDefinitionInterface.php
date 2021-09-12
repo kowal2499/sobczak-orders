@@ -9,11 +9,9 @@ interface FactoryDefinitionInterface
 {
     /**
      * @param Generator $faker
-     * @param callable|null $callback
-     * @return mixed
+     * @return array
      */
-    public function define(Generator $faker, callable $callback = null);
-
+    public function defaultProperties(Generator $faker): array;
     /**
      * @return string
      */

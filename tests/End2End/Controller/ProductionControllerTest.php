@@ -8,7 +8,6 @@ use App\Entity\Customer;
 use App\Entity\Product;
 use App\Entity\Production;
 use App\Entity\User;
-use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\EntityFactory;
 
@@ -26,18 +25,13 @@ class ProductionControllerTest extends ApiTestCase
         parent::setUp();
         $factory = new EntityFactory($this->getManager());
         $customer = $factory->make(Customer::class);
-
-        $this->user = $factory->make(User::class);
-        $this->user->setRoles(['ROLE_ADMIN']);
-
+        $this->user = $factory->make(User::class, [
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $this->product = $factory->make(Product::class);
-
-        $this->agreement = $factory->make(
-            Agreement::class,
-            function(Agreement $agreement) use ($customer) {
-                $agreement->setCustomer($customer);
-            }
-        );
+        $this->agreement = $factory->make(Agreement::class, [
+            'customer' => $customer
+        ]);
         $this->getManager()->flush();
     }
 

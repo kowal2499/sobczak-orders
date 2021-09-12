@@ -8,7 +8,6 @@ use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\Task\UpdateStatusCommand;
 use App\Repository\StatusLogRepository;
-use App\Service\Production\DefaultTaskCreateService;
 use App\Service\Production\ProductionTaskDatesResolver;
 use App\Service\WorkingScheduleService;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -208,7 +207,7 @@ class ProductionController extends BaseController
              *
              * 2. Produkcja zakończona
              * Bierzemy produkcje zakończone, które zostały zakończone w zadanym okresie
-             * Decycydująca jest data kiedy produkcja otrzyma status 3 przy 'dpt05'
+             * Decydująca jest data kiedy produkcja otrzyma status 3 przy 'dpt05'
              */
 
             $linesFinished = $repository->getCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));

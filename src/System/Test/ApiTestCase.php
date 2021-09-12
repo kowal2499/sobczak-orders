@@ -29,9 +29,15 @@ class ApiTestCase extends WebTestCase
 
     protected function setUp(): void
     {
-        $purger = new ORMPurger($this->getManager());
-        $purger->purge();
         parent::setUp();
+        $this->getManager()->beginTransaction();
+
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getManager()->rollback();
+        parent::tearDown();
     }
 
     /**
@@ -75,7 +81,7 @@ class ApiTestCase extends WebTestCase
      * @param string $service
      * @return object|null
      */
-    private function get(string $service)
+    protected function get(string $service)
     {
         if (null === static::$kernel || null === static::$container) {
             // triggers bootKernel

@@ -9,23 +9,18 @@ use Faker\Generator;
 
 class AgreementFactory implements FactoryDefinitionInterface
 {
-    public function define(Generator $faker, callable $callback = null): Agreement
-    {
-        if (!$callback) {
-            throw new \Exception('Callback is required and has to set Customer object');
-        }
-        $agreement = new Agreement();
-        $callback($agreement);
-        $agreement
-            ->setUpdateDate(new \DateTime())
-            ->setCreateDate(new \DateTime())
-            ->setOrderNumber($faker->randomNumber(5))
-            ->setStatus(0);
-        return $agreement;
-    }
-
     public static function supports(): string
     {
         return Agreement::class;
+    }
+
+    public function defaultProperties(Generator $faker): array
+    {
+        return [
+            'createDate' => new \DateTime(),
+            'updateDate' => new \DateTime(),
+            'orderNumber' => $faker->randomNumber(5),
+            'status' => 0
+        ];
     }
 }
