@@ -30,16 +30,13 @@ class UpdateCompletionFlagCommandHandler
         foreach ($agreementLine->getProductions() as $production) {
             if ($production->getDepartmentSlug() === TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING) {
                 foreach ($production->getStatusLogs() as $log) {
-                    if ($log->getCurrentStatus() == TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED) {
-                        $completionDate = $log->getCreatedAt();
-                    }
+                    $completionDate = ($log->getCurrentStatus() == TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED)
+                        ? $log->getCreatedAt()
+                        : null;
                 }
             }
         }
-
-        if ($completionDate) {
-            $agreementLine->setProductionCompletionDate($completionDate);
-            $this->entityManager->persist($agreementLine);
-        }
+        $agreementLine->setProductionCompletionDate($completionDate);
+        $this->entityManager->persist($agreementLine);
     }
 }

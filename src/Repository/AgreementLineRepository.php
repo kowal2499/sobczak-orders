@@ -183,7 +183,6 @@ class AgreementLineRepository extends ServiceEntityRepository
                 LEFT JOIN l.productions pr
                 LEFT JOIN pr.statusLogs log
             WHERE l.id = :id
-            ORDER BY log.createdAt DESC
         ')->setParameter('id', $id);
 
 //        $qb = $this->createQueryBuilder('l')

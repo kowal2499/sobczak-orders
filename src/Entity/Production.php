@@ -5,8 +5,10 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OrderBy;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductionRepository")
@@ -65,6 +67,7 @@ class Production
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @OrderBy({"createdAt" = "ASC"})
      * @Groups({"_main", "_linePanel"})
      */
     private $statusLogs;

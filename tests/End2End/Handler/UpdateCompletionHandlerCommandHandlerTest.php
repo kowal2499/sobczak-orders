@@ -25,11 +25,17 @@ class UpdateCompletionHandlerCommandHandlerTest extends ApiTestCase
     private $handlerUnderTest;
     /** @var EntityFactory */
     private $factory;
+    /** @var \Doctrine\ORM\EntityRepository|\Doctrine\Persistence\ObjectRepository */
+    private $agreementLineRepository;
+    /** @var \Doctrine\ORM\EntityManager */
+    private $em;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->factory = new EntityFactory($this->getManager());
+        $this->em = $this->getManager();
+        $this->factory = new EntityFactory($this->em);
+        $this->agreementLineRepository = $this->em->getRepository(AgreementLine::class);
         $this->productionHelpers = new ProductionFixtureHelpers($this->factory);
         $this->agreementLineChanFactory = new AgreementLineChainFactory($this->factory);
 
@@ -37,46 +43,102 @@ class UpdateCompletionHandlerCommandHandlerTest extends ApiTestCase
             'roles' => ['ROLE_ADMIN']
         ]);
 
-        $this->handlerUnderTest = new UpdateCompletionFlagCommandHandler(
-            $this->getManager()
-        );
-        $this->getManager()->flush();
+        $this->handlerUnderTest = new UpdateCompletionFlagCommandHandler($this->em);
+        $this->em->flush();
     }
 
-    public function testShould()
+    public function testShouldNotUpdateCompletionDateIfThereIsNoProductionTasks()
     {
         // Given
-        $agreementLine1 = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_WAITING]);
-
-        $productions = $this->productionHelpers->makeProductionTasks(
-            $this->productionHelpers->getArrayOfProps($agreementLine1, ['createdAt' => new \DateTime('2021-09-10')])
-        );
-        $log = $this->factory->make(StatusLog::class, [
-            'production' => $productions[4],
-            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
-//            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-            'createdAt' => new \DateTime('2021-05-15'),
-            'user' => $this->user
-        ]);
-        $this->getManager()->persist($log);
-
-        $this->factory->flush();
-        $this->getManager()->clear();
-
-        $command = new UpdateCompletionFlagCommand($agreementLine1->getId());
+        $agreementLine = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_WAITING]);
+        $agreementLineId = $agreementLine->getId();
+        $command = new UpdateCompletionFlagCommand($agreementLineId);
         $handler = $this->handlerUnderTest;
+
+        // When & Then
         $handler($command);
 
-        // Then
-        $repository = $this->getManager()->getRepository(AgreementLine::class);
-        /** @var AgreementLine $newAgreement */
-        $newAgreement = $repository->find($agreementLine1->getId());
+        $agreementUnderTest = $this->agreementLineRepository->find($agreementLineId);
+        $this->assertNull($agreementUnderTest->getProductionCompletionDate());
+    }
 
-        $competionDate = $newAgreement->getProductionCompletionDate()
-            ? $newAgreement->getProductionCompletionDate()->format('Y-m-d')
+    public function testShouldSetCompletionDateAccordingToDpt05TaskCompletionDate()
+    {
+        // Given
+        $agreementLine = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_WAITING]);
+
+        $productions = $this->productionHelpers->makeProductionTasks(
+            $this->productionHelpers->getArrayOfProps($agreementLine, ['createdAt' => new \DateTime('2021-09-10')])
+        );
+        $log1 = $this->factory->make(StatusLog::class, [
+            'production' => $productions[4],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING,
+            'createdAt' => new \DateTime('2021-09-19 14:15:05'),
+            'user' => $this->user
+        ]);
+        $log2 = $this->factory->make(StatusLog::class, [
+            'production' => $productions[4],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            'createdAt' => new \DateTime('2021-09-20 14:15:05'),
+            'user' => $this->user
+        ]);
+        $this->em->persist($log1);
+        $this->em->persist($log2);
+        $this->em->flush();
+        $this->em->clear();
+
+        $command = new UpdateCompletionFlagCommand($agreementLine->getId());
+        $handler = $this->handlerUnderTest;
+
+        // When & Then
+        $handler($command);
+        /** @var AgreementLine $agreementUnderTest */
+        $agreementUnderTest = $this->agreementLineRepository->find($agreementLine->getId());
+
+        $completionDate = $agreementUnderTest->getProductionCompletionDate()
+            ? $agreementUnderTest->getProductionCompletionDate()->format('Y-m-d H:i:s')
             : null;
 
-        $this->assertEquals('2021-05-15', $competionDate);
+        $this->assertEquals('2021-09-20 14:15:05', $completionDate);
+    }
+
+    public function testShouldSetCompletionDateToNullIfStatusChangedBackToOtherThanCompleted()
+    {
+        // Given
+        $agreementLine = $this->agreementLineChanFactory->make([], [
+            'status' => AgreementLine::STATUS_WAITING,
+            'productionCompletionDate' => new \DateTime('2021-09-20 14:15:05')
+        ]);
+
+        $productions = $this->productionHelpers->makeProductionTasks(
+            $this->productionHelpers->getArrayOfProps($agreementLine, ['createdAt' => new \DateTime('2021-09-10')])
+        );
+        $log1 = $this->factory->make(StatusLog::class, [
+            'production' => $productions[4],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            'createdAt' => new \DateTime('2021-09-20 14:15:05'),
+            'user' => $this->user
+        ]);
+        $log2 = $this->factory->make(StatusLog::class, [
+            'production' => $productions[4],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING,
+            'createdAt' => new \DateTime('2021-09-21 12:15:05'),
+            'user' => $this->user
+        ]);
+        $this->em->persist($log1);
+        $this->em->persist($log2);
+        $this->em->flush();
+        $this->em->clear();
+
+        $command = new UpdateCompletionFlagCommand($agreementLine->getId());
+        $handler = $this->handlerUnderTest;
+
+        // When & Then
+        $handler($command);
+        /** @var AgreementLine $agreementUnderTest */
+        $agreementUnderTest = $this->agreementLineRepository->find($agreementLine->getId());
+
+        $this->assertNull($agreementUnderTest->getProductionCompletionDate());
 
     }
 
