@@ -4,7 +4,7 @@ namespace App\Tests\Unit\MessageHandler\Task;
 
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
-use App\Message\AgreementLine\UpdateCompletionFlagCommand;
+use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\Task\UpdateStatusCommand;
 use App\MessageHandler\Task\UpdateStatusCommandHandler;
 use App\Repository\ProductionRepository;
@@ -92,7 +92,7 @@ class UpdateStatusCommandHandlerTest extends TestCase
         $handler($command);
     }
 
-    public function testShouldDispatchUpdateCompletionFlagCommand()
+    public function testShouldDispatchUpdateProductionCompletionDateCommand()
     {
         // Given
         $handler = $this->handerUnderTest;
@@ -107,7 +107,7 @@ class UpdateStatusCommandHandlerTest extends TestCase
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->with($this->callback(function(UpdateCompletionFlagCommand $updateCompletionFlagCommand) {
+            ->with($this->callback(function(UpdateProductionCompletionDate $updateCompletionFlagCommand) {
                 return $updateCompletionFlagCommand->getAgreementLineId() === $this->taskUnderTest->getId();
             }))
             ->willReturnCallback(function ($command) {

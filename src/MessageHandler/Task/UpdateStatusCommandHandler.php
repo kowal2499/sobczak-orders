@@ -3,7 +3,7 @@
 namespace App\MessageHandler\Task;
 
 use App\Entity\StatusLog;
-use App\Message\AgreementLine\UpdateCompletionFlagCommand;
+use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\Task\UpdateStatusCommand;
 use App\Repository\ProductionRepository;
 use App\Service\Production\TaskStatusService;
@@ -56,6 +56,6 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
         $this->em->persist($statusLog);
         $this->em->flush();
 
-        $this->messageBus->dispatch(new UpdateCompletionFlagCommand($task->getId()));
+        $this->messageBus->dispatch(new UpdateProductionCompletionDate($task->getId()));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Message\AgreementLine;
 
-class UpdateCompletionFlagCommand
+class UpdateProductionCompletionDate
 {
     private $agreementLineId;
 
