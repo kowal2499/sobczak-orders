@@ -6,8 +6,9 @@ use App\Entity\AgreementLine;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Service\AgreementLine\ProductionCompletionDateResolverService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class UpdateProductionCompletionDateHandler
+class UpdateProductionCompletionDateHandler implements MessageHandlerInterface
 {
     private $lineRepository;
     private $entityManager;
@@ -27,11 +28,14 @@ class UpdateProductionCompletionDateHandler
         /** @var AgreementLine $agreementLine */
         $agreementLine = $this->lineRepository->findWithProductionAndStatuses($command->getAgreementLineId());
 
+        if (!$agreementLine) {
+            throw new \RuntimeException('AgreementLine not found');
+        }
         $completionDate = $this->dateResolverService->getCompletionDate($agreementLine->getProductions());
 
         if ($completionDate != $agreementLine->getProductionCompletionDate()) {
             $agreementLine->setProductionCompletionDate($completionDate);
-            $this->entityManager->persist($agreementLine);
+            $this->entityManager->flush();
         }
     }
 }

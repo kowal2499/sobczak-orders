@@ -74,4 +74,9 @@ class EntityFactory
     {
         $this->entityManager->flush();
     }
+
+    public function clear(): void
+    {
+        $this->entityManager->clear();
+    }
 }

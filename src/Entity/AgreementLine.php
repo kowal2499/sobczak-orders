@@ -89,6 +89,11 @@ class AgreementLine
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
+    private $productionStartDate;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
     private $productionCompletionDate;
 
     public function __construct()
@@ -258,5 +263,21 @@ class AgreementLine
         $this->productionCompletionDate = $productionCompletionDate;
 
         return $this;
+    }
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getProductionStartDate(): ?\DateTimeInterface
+    {
+        return $this->productionStartDate;
+    }
+
+    /**
+     * @param \DateTimeInterface|null $productionStartDate
+     */
+    public function setProductionStartDate(?\DateTimeInterface $productionStartDate): void
+    {
+        $this->productionStartDate = $productionStartDate;
     }
 }

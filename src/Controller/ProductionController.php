@@ -6,6 +6,8 @@ use App\Entity\Definitions\TaskTypes;
 use App\Entity\Department;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
+use App\Message\AgreementLine\UpdateProductionCompletionDate;
+use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
@@ -100,6 +102,10 @@ class ProductionController extends BaseController
             ));
         }, $response);
 
+        $messageBus->dispatch(new UpdateProductionStartDate(
+            $agreementLine->getId()
+        ));
+
         return $this->json($response, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel']
         ]);
@@ -135,8 +141,11 @@ class ProductionController extends BaseController
      * @param AgreementLine $agreementLine
      * @return JsonResponse
      */
-    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em)
-    {
+    public function delete(
+        AgreementLine $agreementLine,
+        EntityManagerInterface $em,
+        MessageBusInterface $messageBus
+    ) {
         // zaktualizuj status
         $agreementLine->setStatus(AgreementLine::STATUS_WAITING);
 
@@ -144,6 +153,10 @@ class ProductionController extends BaseController
             $em->remove($production);
         }
         $em->flush();
+
+        $messageBus->dispatch(new UpdateProductionStartDate($agreementLine->getId()));
+        $messageBus->dispatch(new UpdateProductionCompletionDate($agreementLine->getId()));
+
         return $this->json([]);
     }
 

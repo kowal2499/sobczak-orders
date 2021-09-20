@@ -131,4 +131,14 @@ class ProductionRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function getAgreementLinesFinishedRefactored(\DateTimeInterface $start, \DateTimeInterface $end)
+    {
+
+    }
+
+    public function getAgreementLinesPendingRefactored(\DateTimeInterface $start, \DateTimeInterface $end)
+    {
+
+    }
 }

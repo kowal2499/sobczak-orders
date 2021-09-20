@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\MessageHandler\Task;
 
+use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
@@ -47,10 +48,13 @@ class UpdateStatusCommandHandlerTest extends TestCase
             $this->messageBus
         );
 
+        $agreementLine = $this->createMock(AgreementLine::class);
+        $agreementLine->method('getId')->willReturn(123);
         $this->taskUnderTest = $this->createMock(Production::class);
         $this->taskUnderTest->method('getId')->willReturn(12);
         $this->taskUnderTest->method('getStatus')
             ->willReturn((string)TaskTypes::TYPE_DEFAULT_STATUS_AWAITS);
+        $this->taskUnderTest->method('getAgreementLine')->willReturn($agreementLine);
     }
 
     public function testShouldNotUpdateStatusWhenStatusHasNotChanged()
@@ -108,7 +112,7 @@ class UpdateStatusCommandHandlerTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with($this->callback(function(UpdateProductionCompletionDate $updateCompletionFlagCommand) {
-                return $updateCompletionFlagCommand->getAgreementLineId() === $this->taskUnderTest->getId();
+                return $updateCompletionFlagCommand->getAgreementLineId() === $this->taskUnderTest->getAgreementLine()->getId();
             }))
             ->willReturnCallback(function ($command) {
                 return new Envelope($command);

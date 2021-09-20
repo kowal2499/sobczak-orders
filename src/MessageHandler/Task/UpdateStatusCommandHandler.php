@@ -56,6 +56,6 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
         $this->em->persist($statusLog);
         $this->em->flush();
 
-        $this->messageBus->dispatch(new UpdateProductionCompletionDate($task->getId()));
+        $this->messageBus->dispatch(new UpdateProductionCompletionDate($task->getAgreementLine()->getId()));
     }
 }
