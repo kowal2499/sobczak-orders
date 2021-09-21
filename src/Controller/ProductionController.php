@@ -146,6 +146,9 @@ class ProductionController extends BaseController
         EntityManagerInterface $em,
         MessageBusInterface $messageBus
     ) {
+        // todo:
+        // most probably not used any more
+
         // zaktualizuj status
         $agreementLine->setStatus(AgreementLine::STATUS_WAITING);
 

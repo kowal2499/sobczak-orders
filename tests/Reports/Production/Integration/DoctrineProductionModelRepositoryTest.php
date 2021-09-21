@@ -11,6 +11,9 @@ use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
 
+/**
+ * @deprecated
+ */
 class DoctrineProductionModelRepositoryTest extends ApiTestCase
 {
     /** @var EntityFactory */

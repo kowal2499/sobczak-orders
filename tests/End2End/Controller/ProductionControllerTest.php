@@ -215,7 +215,7 @@ class ProductionControllerTest extends ApiTestCase
     {
         // Given
         $agreementLine = (new AgreementLineFixtureHelpers($this->factory, $this->chainFactory))
-            ->makeFinishedAgreementLine('2021-09-06');
+            ->makeAgreementLineWithProductionTasks(['productionCompletionDate' => new \DateTime('2021-09-06')]);
         $client = $this->login($this->user);
         // When
         $client->xmlHttpRequest('POST', '/production/delete/' . $agreementLine->getId());

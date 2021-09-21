@@ -21,15 +21,14 @@ class AgreementLineFixtureHelpers
         $this->productionFixtures = new ProductionFixtureHelpers($factory);
     }
 
-    public function makeFinishedAgreementLine(string $productionCompletionDate, $prodStatuses = [], bool $deleted = false): AgreementLine
+    public function makeAgreementLineWithProductionTasks(
+        $agreementLineProps = [],
+        $prodStatuses = []): AgreementLine
     {
-        $agreementLine = $this->agreementLineChainFactory->make([], [
-            'productionCompletionDate' => new \DateTime($productionCompletionDate),
-            'deleted' => $deleted
-        ]);
+        $agreementLine = $this->agreementLineChainFactory->make([], $agreementLineProps);
 
         $prodProps = [];
-        foreach ($this->productionFixtures->getArrayOfProps($agreementLine) as $idx => $prop) {
+        foreach ($this->productionFixtures->getArrayOfProps($agreementLine) as $prop) {
             $prop['status'] = $prodStatuses[$prop['departmentSlug']] ?? TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED;
             $prodProps[] = $prop;
         }

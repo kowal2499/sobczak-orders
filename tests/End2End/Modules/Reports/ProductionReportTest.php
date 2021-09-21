@@ -51,10 +51,18 @@ class ProductionReportTest extends ApiTestCase
         $dateStart = new \DateTime('2021-09-01');
         $dateEnd = new \DateTime('2021-09-30');
         $department = [];
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-08-30');
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-09-15');
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-09-20');
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-10-01');
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-08-30')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-09-15')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-09-20')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-10-01')
+        ]);
         // When
         $result = $this->reportUnderTest->calc($dateStart, $dateEnd, $department);
         // Then
@@ -80,9 +88,12 @@ class ProductionReportTest extends ApiTestCase
         $dateStart = new \DateTime('2021-09-01');
         $dateEnd = new \DateTime('2021-09-30');
         $department = [TaskTypes::TYPE_DEFAULT_SLUG_GLUING];
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-08-10');
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-09-10');
-        $this->agreementLineFixturesHelper->makeFinishedAgreementLine('2021-09-15', [
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-08-10')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-09-10')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime(), 'productionCompletionDate' => new \DateTime('2021-09-15')], [
             TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
         ]);
         // When
@@ -91,9 +102,103 @@ class ProductionReportTest extends ApiTestCase
         $this->assertCount(1, $result['orders_finished']['data']);
     }
 
-    private function createFinishedAgreementLine(string $startDate)
+    public function testShouldGetProductionPendingData()
     {
+        // Given
+        $dateStart = new \DateTime('2021-09-01');
+        $dateEnd = new \DateTime('2021-09-30');
+        $department = [];
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-08-30')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-15')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-20')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-20'),
+            'productionCompletionDate' => new \DateTime('2021-09-22'),
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-10-01')]);
+        // When
+        $result = $this->reportUnderTest->calc($dateStart, $dateEnd, $department);
+        // Then
+        $this->assertCount(2, $result['orders_pending']['data']);
+    }
 
+    public function testShouldGetProductionPendingInDepartmentContext()
+    {
+        // Given
+        $dateStart = new \DateTime('2021-09-01');
+        $dateEnd = new \DateTime('2021-09-30');
+        $departments = [TaskTypes::TYPE_DEFAULT_SLUG_GLUING];
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-08-30')
+        ], [TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE]);
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-15')
+        ], [TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE]);
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-20')
+        ], [TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED]);
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-10-01')]);
+        // When
+        $result = $this->reportUnderTest->calc($dateStart, $dateEnd, $departments);
+        // Then
+        $this->assertCount(1, $result['orders_pending']['data']);
+    }
+
+    public function testShouldGetProductionPendingForManyDepartments()
+    {
+        // Given
+        $dateStart = new \DateTime('2021-09-01');
+        $dateEnd = new \DateTime('2021-09-30');
+        $departments = [
+            TaskTypes::TYPE_DEFAULT_SLUG_GLUING,
+            TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,
+            TaskTypes::TYPE_DEFAULT_SLUG_GRINDING
+        ];
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-20')
+        ], [
+            TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            TaskTypes::TYPE_DEFAULT_SLUG_GRINDING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+        ]);
+
+        // When
+        $result = $this->reportUnderTest->calc($dateStart, $dateEnd, $departments);
+
+        // Then
+        $this->assertCount(1, $result['orders_pending']['data']);
+    }
+
+    public function testShouldGetProductionFinishedForManyDepartments()
+    {
+        // Given
+        $dateStart = new \DateTime('2021-09-01');
+        $dateEnd = new \DateTime('2021-09-30');
+        $departments = [
+            TaskTypes::TYPE_DEFAULT_SLUG_GLUING,
+            TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,
+            TaskTypes::TYPE_DEFAULT_SLUG_GRINDING
+        ];
+
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-20'),
+            'productionCompletionDate' => new \DateTime('2021-09-25'),
+        ], [
+            TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            TaskTypes::TYPE_DEFAULT_SLUG_GRINDING => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+        ]);
+
+        // When
+        $result = $this->reportUnderTest->calc($dateStart, $dateEnd, $departments);
+
+        // Then
+        $this->assertCount(1, $result['orders_finished']['data']);
     }
 
 

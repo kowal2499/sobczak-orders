@@ -197,6 +197,7 @@ class AgreementLineRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('al');
         $this->withinProductionFinishedDate($query, $start, $end)
             ->andWhere('al.deleted = 0')
+            ->andWhere('al.productionStartDate IS NOT NULL')
             ->addSelect('al')
         ;
         return $query->getQuery()->getArrayResult();
@@ -212,19 +213,44 @@ class AgreementLineRepository extends ServiceEntityRepository
         $this->withCompletedProductionTask($query, $departments)
             ->andWhere('al.deleted = 0')
             ->addSelect('al')
+            ->groupBy('al.id')
         ;
         return $query->getQuery()->getArrayResult();
     }
 
-    public function getWithProductionPending(\DateTimeInterface $start, \DateTimeInterface $end)
+    public function getWithProductionPending(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end)
     {
+        $query = $this->createQueryBuilder('al');
+        $this->withinProductionStartDate($query, $start, $end)
+        ->andWhere('al.deleted = 0')
+        ->andWhere('al.productionCompletionDate IS NULL')
+        ->addSelect('al')
+    ;
+        return $query->getQuery()->getArrayResult();
+    }
 
+    public function getWithProductionPendingByDepartment(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        array $departments
+    ): array
+    {
+        $query = $this->createQueryBuilder('al');
+        $this->withinProductionStartDate($query, $start, $end);
+        $this->withPendingProductionTask($query, $departments)
+            ->andWhere('al.deleted = 0')
+            ->addSelect('al')
+            ->groupBy('al.id')
+        ;
+        return $query->getQuery()->getArrayResult();
     }
 
     private function withinProductionFinishedDate(
         QueryBuilder $qb,
-        \DateTimeInterface $start = null,
-        \DateTimeInterface $end = null
+        ?\DateTimeInterface $start = null,
+        ?\DateTimeInterface $end = null
     ): QueryBuilder {
         if ($start) {
             $qb
@@ -245,6 +271,30 @@ class AgreementLineRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    private function withinProductionStartDate(
+        QueryBuilder $qb,
+        ?\DateTimeInterface $start = null,
+        ?\DateTimeInterface $end = null
+    ): QueryBuilder {
+        if ($start) {
+            $qb
+                ->andWhere('al.productionStartDate >= :dateStart')
+                ->setParameter(
+                    'dateStart',
+                    (new \DateTime())->setTimestamp($start->getTimestamp())->setTime(0, 0)
+                );
+        }
+        if ($end) {
+            $qb
+                ->andWhere('al.productionStartDate <= :dateEnd')
+                ->setParameter(
+                    'dateEnd',
+                    (new \DateTime())->setTimestamp($end->getTimestamp())->setTime(23, 59, 59)
+                );
+        }
+        return $qb;
+    }
+
     private function withCompletedProductionTask(QueryBuilder $qb, array $departments): QueryBuilder
     {
         return $qb
@@ -252,6 +302,17 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->andWhere('pr.departmentSlug IN (:departments)')
             ->andWhere('pr.status IN (:qualifiedStatuses)')
             ->setParameter('qualifiedStatuses', [TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED])
+            ->setParameter('departments', $departments)
+        ;
+    }
+
+    private function withPendingProductionTask(QueryBuilder $qb, array $departments): QueryBuilder
+    {
+        return $qb
+            ->join('al.productions', 'pr')
+            ->andWhere('pr.departmentSlug IN (:departments)')
+            ->andWhere('pr.status NOT IN (:qualifiedStatuses)')
+            ->setParameter('qualifiedStatuses', [TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE])
             ->setParameter('departments', $departments)
         ;
     }

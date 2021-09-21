@@ -19,7 +19,7 @@ class OrdersFinishedRecordSupplier implements RecordSupplierInterface
         return 'Zamówienia zrealizowane';
     }
 
-    public function getRecords(\DateTimeInterface $start, \DateTimeInterface $end, array $departments = []): array
+    public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
         if ($departments) {
             return $this->repository->getWithProductionFinishedByDepartment($start, $end, $departments);

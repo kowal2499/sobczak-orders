@@ -3,7 +3,7 @@
 namespace App\Modules\Reports\Production;
 
 use App\Modules\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
-use App\Modules\Reports\Production\RecordSuppliers\OrdersInProductionRecordSupplier;
+use App\Modules\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Repository\AgreementLineRepository;
 
 class ProductionReport
@@ -16,13 +16,13 @@ class ProductionReport
      */
     public function __construct(AgreementLineRepository $repository)
     {
-        $this->suppliers[] = new OrdersInProductionRecordSupplier($repository);
+        $this->suppliers[] = new OrdersPendingRecordSupplier($repository);
         $this->suppliers[] = new OrdersFinishedRecordSupplier($repository);
     }
 
     public function calc(
-        \DateTimeInterface $start,
-        \DateTimeInterface $end,
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
         array $departments = []
     ): array {
         $result = [];

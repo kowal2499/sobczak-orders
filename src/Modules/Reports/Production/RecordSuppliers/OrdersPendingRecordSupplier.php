@@ -6,7 +6,7 @@ use App\Modules\Reports\Production\RecordSupplierInterface;
 use App\Repository\AgreementLineRepository;
 use App\Repository\ProductionRepository;
 
-class OrdersInProductionRecordSupplier implements RecordSupplierInterface
+class OrdersPendingRecordSupplier implements RecordSupplierInterface
 {
     private $repository;
 
@@ -20,9 +20,12 @@ class OrdersInProductionRecordSupplier implements RecordSupplierInterface
         return 'Zamówienia w realizacji';
     }
 
-    public function getRecords(\DateTimeInterface $start, \DateTimeInterface $end, array $departments = []): array
+    public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
-        return [];
+        if ($departments) {
+            return $this->repository->getWithProductionPendingByDepartment($start, $end, $departments);
+        }
+        return $this->repository->getWithProductionPending($start, $end);
     }
 
     public function getId(): string

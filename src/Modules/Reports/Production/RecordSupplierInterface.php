@@ -7,8 +7,8 @@ interface RecordSupplierInterface
     public function getId(): string;
     public function getTitle(): string;
     public function getRecords(
-        \DateTimeInterface $start,
-        \DateTimeInterface $end,
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
         array $departments = []
     ): array;
 }
