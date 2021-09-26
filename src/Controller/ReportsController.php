@@ -13,13 +13,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class ReportsController extends BaseController
 {
     /**
-     * @Route("/agreement-line-production", methods={"POST"})
+     * @Route("/agreement-line-production", methods={"GET"})
+     * @deprecated
      */
     public function agreementLinesProduction(Request $request, ProductionReport $report): Response
     {
-        $start = $request->request->get('start');
-        $end = $request->request->get('end');
-        $departments = $request->request->get('departments', []);
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+        $departments = $request->query->get('departments', []);
 
         return $this->json($report->calc(
             $start ? new \DateTime($start) : null,
@@ -27,4 +28,42 @@ class ReportsController extends BaseController
             $departments
         ));
     }
+
+    /**
+     * @Route("/agreement-line-production-summary", methods={"GET"})
+     */
+    public function agreementLinesProductionSummary(Request $request, ProductionReport $report): Response
+    {
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        return $this->json($report->getSummary(
+            $start ? new \DateTime($start) : null,
+            $end ? new \DateTime($end) : null
+        ));
+    }
+
+    /**
+     * @Route("/production-completed-details", methods={"GET"})
+     */
+    public function productionCompletedDetails(Request $request): Response
+    {
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        return $this->json(['production-completed-details']);
+    }
+
+    /**
+     * @Route("/production-pending-details", methods={"GET"})
+     */
+    public function productionPendingDetails(Request $request): Response
+    {
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        return $this->json(['production-pending-details']);
+    }
+
+
 }

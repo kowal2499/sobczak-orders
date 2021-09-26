@@ -4,6 +4,8 @@ namespace App\Modules\Reports\Production;
 
 use App\Modules\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
+use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
+use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
 use App\Repository\AgreementLineRepository;
 
 class ProductionReport
@@ -12,12 +14,30 @@ class ProductionReport
     private $suppliers;
 
     /**
-     * @param string[] $suppliers
+     * @param DoctrineProductionPendingRepository $productionPendingRepository
+     * @param DoctrineProductionFinishedRepository $productionFinishedRepository
      */
-    public function __construct(AgreementLineRepository $repository)
+    public function __construct(
+        DoctrineProductionPendingRepository $productionPendingRepository,
+        DoctrineProductionFinishedRepository $productionFinishedRepository
+    )
     {
-        $this->suppliers[] = new OrdersPendingRecordSupplier($repository);
-        $this->suppliers[] = new OrdersFinishedRecordSupplier($repository);
+        $this->suppliers[] = new OrdersPendingRecordSupplier($productionPendingRepository);
+        $this->suppliers[] = new OrdersFinishedRecordSupplier($productionFinishedRepository);
+    }
+
+    public function getSummary(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end
+    ): array
+    {
+        $result = [];
+        foreach ($this->suppliers as $supplier) {
+            $result[$supplier->getId()] = [
+                $supplier->getSummary($start, $end)
+            ];
+        }
+        return $result;
     }
 
     public function calc(

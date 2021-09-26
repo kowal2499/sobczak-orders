@@ -6,12 +6,13 @@ import Dashboard from './dashboard/Dashboard';
 import UsersList from './users/UsersList';
 import UserSingle from './users/UserSingle';
 import Notifications from './base/Notifications';
-
 import Dropdown from './base/Dropdown';
+
 import MenuItem from './base/MenuItem';
 import NavOrders from './navigation/NavOrders';
 
 import TagsModule from "../modules/tags";
+import Dashboard2 from '../modules/dashboard/Dashboard';
 
 export default {
     NewOrder,
@@ -25,5 +26,6 @@ export default {
     MenuItem,
     Notifications,
     NavOrders,
-    ...TagsModule
+    ...TagsModule,
+    Dashboard2
 }

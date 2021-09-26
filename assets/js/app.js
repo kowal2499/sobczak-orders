@@ -11,21 +11,3 @@ import $ from 'jquery';
 import 'bootstrap';
 
 import '../css/app.scss';
-
-
-// uncomment to support legacy code
-// global.$ = $;
-
-
-
-// $(document).ready(function() {
-//     console.log('awaiting orders my master')
-// });
-
-
-import getNiceMessage from './get_message';
-
-// Need jQuery? Install it with "yarn add jquery", then uncomment to require it.
-// const $ = require('jquery');
-
-// console.log(getNiceMessage(5));

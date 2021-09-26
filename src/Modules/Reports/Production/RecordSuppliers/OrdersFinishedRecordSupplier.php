@@ -3,13 +3,13 @@
 namespace App\Modules\Reports\Production\RecordSuppliers;
 
 use App\Modules\Reports\Production\RecordSupplierInterface;
-use App\Repository\AgreementLineRepository;
+use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
 
 class OrdersFinishedRecordSupplier implements RecordSupplierInterface
 {
     private $repository;
 
-    public function __construct(AgreementLineRepository $repository)
+    public function __construct(DoctrineProductionFinishedRepository $repository)
     {
         $this->repository = $repository;
     }
@@ -21,10 +21,12 @@ class OrdersFinishedRecordSupplier implements RecordSupplierInterface
 
     public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
-        if ($departments) {
-            return $this->repository->getWithProductionFinishedByDepartment($start, $end, $departments);
-        }
-        return $this->repository->getWithProductionFinished($start, $end);
+        return $this->repository->getDetails($start, $end, $departments);
+    }
+
+    public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
+    {
+        return $this->repository->getSummary($start, $end);
     }
 
     public function getId(): string

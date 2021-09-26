@@ -71,8 +71,8 @@
     }
 </script>
 
-<style scoped lang="scss">
-    /deep/.production-tab-panel {
+<style lang="scss">
+    .production-tab-panel {
         width: 25%;
         min-width: 200px;
     }
