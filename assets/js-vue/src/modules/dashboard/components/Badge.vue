@@ -1,5 +1,5 @@
 <template>
-    <div class="card shadow py-2 m-2" :class="metric.className">
+    <div class="card shadow" :class="metric.className">
         <div class="card-body">
             <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                 {{ $t(metric.title) }}

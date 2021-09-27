@@ -32,12 +32,11 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
 
     public function getDetails(
         ?\DateTimeInterface $start,
-        ?\DateTimeInterface $end,
-        array $departments
+        ?\DateTimeInterface $end
     ): array
     {
         $query = $this->getQuery($start, $end);
-        $this->withPendingProductionTask($query, $departments)
+        $this->withPendingProductionTask($query)
             ->addSelect('al')
             ->groupBy('al.id');
         return $query->getQuery()->getArrayResult();
@@ -78,13 +77,22 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
         return $qb;
     }
 
-    private function withPendingProductionTask(QueryBuilder $qb, array $departments): QueryBuilder
+    private function withPendingProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
             ->join('al.productions', 'pr')
-            ->andWhere('pr.departmentSlug IN (:departments)')
-            ->andWhere('pr.status NOT IN (:qualifiedStatuses)')
+            ->addSelect('SUM(CASE WHEN (pr.departmentSlug = :dpt01 AND pr.status NOT IN (:qualifiedStatuses)) THEN 1 ELSE 0 END) AS involved_dpt01')
+            ->addSelect('SUM(CASE WHEN (pr.departmentSlug = :dpt02 AND pr.status NOT IN (:qualifiedStatuses)) THEN 1 ELSE 0 END) AS involved_dpt02')
+            ->addSelect('SUM(CASE WHEN (pr.departmentSlug = :dpt03 AND pr.status NOT IN (:qualifiedStatuses)) THEN 1 ELSE 0 END) AS involved_dpt03')
+            ->addSelect('SUM(CASE WHEN (pr.departmentSlug = :dpt04 AND pr.status NOT IN (:qualifiedStatuses)) THEN 1 ELSE 0 END) AS involved_dpt04')
+            ->addSelect('SUM(CASE WHEN (pr.departmentSlug = :dpt05 AND pr.status NOT IN (:qualifiedStatuses)) THEN 1 ELSE 0 END) AS involved_dpt05')
+
             ->setParameter('qualifiedStatuses', [TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE])
-            ->setParameter('departments', $departments);
+            ->setParameter('dpt01', TaskTypes::TYPE_DEFAULT_SLUG_GLUING)
+            ->setParameter('dpt02', TaskTypes::TYPE_DEFAULT_SLUG_CNC)
+            ->setParameter('dpt03', TaskTypes::TYPE_DEFAULT_SLUG_GRINDING)
+            ->setParameter('dpt04', TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING)
+            ->setParameter('dpt05', TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING)
+        ;
     }
 }

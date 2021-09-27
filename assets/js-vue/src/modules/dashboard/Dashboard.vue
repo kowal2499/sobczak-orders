@@ -1,16 +1,18 @@
 <template>
     <collapsible-card :title="$t('dashboard.title')">
-        <b-form inline>
+        <b-form inline class="mb-4">
             <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
             <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
         </b-form>
 
-        <badge
-            v-for="metric in metrics"
-            :key="metric.id"
-            :metric="metric"
-            @clicked="activeMetric = $event"
-        />
+        <div class="d-flex mb-4" v-for="group in metricsLayout">
+            <badge
+                v-for="metric in group"
+                :key="metric.id"
+                :metric="metric"
+                @clicked="activeMetric = $event"
+            />
+        </div>
 
         <details-modal v-model="showModal" :records-promise="modalRecordsPromise"/>
     </collapsible-card>
@@ -79,6 +81,17 @@ export default {
                 ? metric.fetchDetails(this.dateRangeStart, this.dateRangeEnd)
                 : Promise.resolve()
         },
+        metricsLayout() {
+            const grouped = {}
+            for (let metric of this.metrics) {
+                let groupId = metric.groupId
+                if (!grouped[groupId]) {
+                    grouped[groupId] = [];
+                }
+                grouped[groupId].push(metric)
+            }
+            return Object.values(grouped)
+        }
     },
     mounted() {
         const today = new Date();

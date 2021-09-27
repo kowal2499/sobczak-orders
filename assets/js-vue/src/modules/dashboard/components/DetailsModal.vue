@@ -17,7 +17,7 @@ export default {
             this.busy = true;
             this.recordsPromise
                 .then(() => {
-                    console.log('fulfilled')
+
                 })
                 .finally(() => this.busy = false)
         }

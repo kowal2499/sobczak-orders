@@ -22,6 +22,6 @@ export function getProductionPendingDetails(start, end) {
     return axios.get(`/api/reports/production-pending-details`, {params: {start, end}});
 }
 
-export function getProductionCompletedDetails(start, end) {
-    return axios.get(`/api/reports/production-completed-details`, {params: {start, end}});
+export function getProductionFinishedDetails(start, end) {
+    return axios.get(`/api/reports/production-finished-details`, {params: {start, end}});
 }

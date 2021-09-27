@@ -7,5 +7,7 @@ export default {
     'factors_pending': 'Factors summary for all orders in production',
     'factors_completed': 'Factors summary for all finished orders',
     'workingDays': 'Number of working days',
-    'factorLimit': 'Monthly factors limit'
+    'factorLimit': 'Monthly factors limit',
+    'totalFactors': 'Factors summary for all orders',
+    'firstFreeDay': 'Estimated date for the completion of all orders',
 }

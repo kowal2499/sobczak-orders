@@ -44,26 +44,30 @@ class ReportsController extends BaseController
     }
 
     /**
-     * @Route("/production-completed-details", methods={"GET"})
+     * @Route("/production-finished-details", methods={"GET"})
      */
-    public function productionCompletedDetails(Request $request): Response
+    public function productionFinishedDetails(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
         $end = $request->query->get('end');
 
-        return $this->json(['production-completed-details']);
+        return $this->json($report->getOrdersFinishedDetails(
+            $start ? new \DateTime($start) : null,
+            $end ? new \DateTime($end) : null
+        ));
     }
 
     /**
      * @Route("/production-pending-details", methods={"GET"})
      */
-    public function productionPendingDetails(Request $request): Response
+    public function productionPendingDetails(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
         $end = $request->query->get('end');
 
-        return $this->json(['production-pending-details']);
+        return $this->json($report->getOrdersPendingDetails(
+            $start ? new \DateTime($start) : null,
+            $end ? new \DateTime($end) : null
+        ));
     }
-
-
 }

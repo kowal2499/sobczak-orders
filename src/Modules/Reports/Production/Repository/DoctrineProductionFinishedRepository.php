@@ -31,12 +31,10 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
 
     public function getDetails(
         ?\DateTimeInterface $start,
-        ?\DateTimeInterface $end,
-        array $departments = []
+        ?\DateTimeInterface $end
     ) {
         $query = $this->getQuery($start, $end);
-        $this->withinProductionFinishedDate($query, $start, $end);
-        $this->withCompletedProductionTask($query, $departments)
+        $this->withCompletedProductionTask($query)
             ->andWhere('al.deleted = 0')
             ->addSelect('al')
             ->groupBy('al.id')
@@ -79,14 +77,14 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
         return $qb;
     }
 
-    private function withCompletedProductionTask(QueryBuilder $qb, array $departments): QueryBuilder
+    private function withCompletedProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
             ->join('al.productions', 'pr')
             ->andWhere('pr.departmentSlug IN (:departments)')
             ->andWhere('pr.status IN (:qualifiedStatuses)')
             ->setParameter('qualifiedStatuses', [TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED])
-            ->setParameter('departments', $departments)
-            ;
+            ->setParameter('departments', [TaskTypes::getDefaultSlugs()])
+        ;
     }
 }

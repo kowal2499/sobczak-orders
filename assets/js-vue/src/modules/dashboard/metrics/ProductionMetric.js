@@ -2,8 +2,8 @@ import Metric from "./DashboardMetric";
 
 export default class ProductionMetric extends Metric
 {
-    constructor(id, title, value, className, detailsPromise = null) {
-        super(id, title, value, className, detailsPromise);
+    constructor(id, title, value, className, groupId, detailsPromise = null) {
+        super(id, title, value, className, groupId, detailsPromise);
     }
 
     getValue() {
