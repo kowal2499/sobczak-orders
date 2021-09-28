@@ -11,4 +11,12 @@ export default {
     '_october': 'Październik',
     '_november': 'Listopad',
     '_december': 'Grudzień',
+    '_agreement_line_panel': 'Panel zamówienia',
+    '_agreement_line': 'Zamówienie',
+    '_factor': 'Współczynnik',
+    '_dpt01': 'Klejenie',
+    '_dpt02': 'CNC',
+    '_dpt03': 'Szlifowanie',
+    '_dpt04': 'Lakierowanie',
+    '_dpt05': 'Pakowanie',
 }

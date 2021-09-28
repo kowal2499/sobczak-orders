@@ -23,7 +23,7 @@
                 <!-- sekcja wspólna -->
 
                 <a class="dropdown-item" :href="__mixin_getRouting('agreement_line_details') + '/' + line.id">
-                    <i class="fa fa-tasks" aria-hidden="true"/> {{ $t('Panel') }}
+                    <i class="fa fa-tasks" aria-hidden="true"/> {{ $t('_agreement_line_panel') }}
                 </a>
 
                 <hr style="margin: 5px auto">

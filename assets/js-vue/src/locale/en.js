@@ -11,4 +11,12 @@ export default {
     '_october': 'October',
     '_november': 'November',
     '_december': 'December',
+    '_agreement_line_panel': 'Order panel',
+    '_agreement_line': 'Order',
+    '_factor': 'Factor',
+    '_dpt01': 'Glueing',
+    '_dpt02': 'CNC',
+    '_dpt03': 'Grinding',
+    '_dpt04': 'Lacquering',
+    '_dpt05': 'Packing',
 }

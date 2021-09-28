@@ -1,12 +1,9 @@
 <template>
-
     <div>
         <div class="row">
             <div class="col">
                 <div class="card border-0 mb-3">
-
                     <div class="form-inline">
-
                         <div>
                             <select class="form-control" v-model="filters.month">
                                 <option v-for="month in months" :value="month.number" v-text="$t(month.name)"></option>
@@ -18,9 +15,7 @@
                                 <option v-for="year in years" :value="year">{{ year }}</option>
                             </select>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
@@ -33,9 +28,7 @@
                 ></production-summary>
             </div>
         </div>
-
     </div>
-
 </template>
 
 <script>

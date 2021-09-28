@@ -10,9 +10,9 @@ import i18n from "./i18n";
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faSpinner)
+library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();
@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return value;
         }
     });
+
+    Vue.filter('roundFloat', value => {
+        return (Math.round(value * 100)/100).toFixed(2)
+    })
 
     new Vue({
         el: '#app',

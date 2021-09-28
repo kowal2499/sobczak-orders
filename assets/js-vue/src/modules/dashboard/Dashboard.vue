@@ -10,11 +10,11 @@
                 v-for="metric in group"
                 :key="metric.id"
                 :metric="metric"
-                @clicked="activeMetric = $event"
+                @clicked="activeMetricId = $event"
             />
         </div>
 
-        <details-modal v-model="showModal" :records-promise="modalRecordsPromise"/>
+        <details-modal v-model="showModal" :records-promise="modalRecordsPromise" :title="activeMetricTitle"/>
     </collapsible-card>
 </template>
 
@@ -69,14 +69,14 @@ export default {
         },
         showModal: {
             set(v) {
-                this.activeMetric = !!v;
+                this.activeMetricId = !!v;
             },
             get() {
-                return !!this.activeMetric;
+                return !!this.activeMetricId;
             }
         },
         modalRecordsPromise() {
-            const metric = this.metrics.find(metric => metric.id === this.activeMetric);
+            const metric = this.metrics.find(metric => metric.id === this.activeMetricId);
             return metric
                 ? metric.fetchDetails(this.dateRangeStart, this.dateRangeEnd)
                 : Promise.resolve()
@@ -91,6 +91,12 @@ export default {
                 grouped[groupId].push(metric)
             }
             return Object.values(grouped)
+        },
+        activeMetric() {
+            return this.metrics.find(metric => metric.id === this.activeMetricId)
+        },
+        activeMetricTitle() {
+            return this.activeMetric ? this.$t(this.activeMetric.title) : '';
         }
     },
     mounted() {
@@ -133,7 +139,7 @@ export default {
             year: null
         },
         agreementLinesSummaryData: {},
-        activeMetric: '',
+        activeMetricId: '',
         isModalOn: false,
         metrics: MetricsDefinitions
     }),
