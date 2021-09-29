@@ -231,6 +231,7 @@ class ProductionController extends BaseController
             foreach ($linesFinished as $line) {
                 $summary['production']['ordersFinished'] += 1;
                 $summary['production']['factorsFinished'] += (float) $line->getAgreementLine()->getFactor();
+                $summary['production']['finishedIds'][] = $line->getAgreementLine()->getId();
             }
 
             $query = $repository->getNotCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
@@ -240,6 +241,7 @@ class ProductionController extends BaseController
                          ->getQuery()
                          ->getResult() as $line) {
                 $summary['production']['ordersInProduction'] += 1;
+                $summary['production']['pendingIds'][] = $line->getAgreementLine()->getId();
             }
 
             // bez połączonych klientów
