@@ -6,8 +6,8 @@ import Metric, {
     METRIC_DAY_OF_COMPLETION,
     GROUP_ROW_1,
     GROUP_ROW_2,
-} from "./metrics/DashboardMetric";
-import ProductionMetric from "./metrics/ProductionMetric";
+} from "./model/DashboardMetric";
+import PRIVILEGES from "../../definitions/userRoles";
 import {getProductionFinishedDetails, getProductionPendingDetails} from "./repository";
 
 export default [
@@ -16,7 +16,7 @@ export default [
         `dashboard.${METRIC_WORKING_DAYS_COUNT}`,
         0,
         'border-left-primary',
-        GROUP_ROW_1
+        GROUP_ROW_1,
     ),
     new Metric(
         METRIC_FACTORS_MONTHLY_LIMIT,
@@ -25,20 +25,24 @@ export default [
         'border-left-primary',
         GROUP_ROW_1
     ),
-    new ProductionMetric(
+    new Metric(
         METRIC_ORDERS_PENDING,
         `dashboard.${METRIC_ORDERS_PENDING}`,
         0,
         'border-left-primary',
         GROUP_ROW_2,
+        [],
+        () => import('./components/ProductionBadge'),
         (start, end) => getProductionPendingDetails(null, end)
     ),
-    new ProductionMetric(
+    new Metric(
         METRIC_ORDERS_FINISHED,
         `dashboard.${METRIC_ORDERS_FINISHED}`,
         0,
         'border-left-success',
         GROUP_ROW_2,
+        [],
+        () => import('./components/ProductionBadge'),
         (start, end) => getProductionFinishedDetails(start, end)
     ),
     new Metric(

@@ -24,22 +24,23 @@ export default class Metric
         value,
         className,
         groupId,
-        detailsPromise = null) {
+        grants = [],
+        component = null,
+        detailsPromise = null)
+    {
         this.id = id;
         this.title = title;
         this.value = value;
         this.className = className;
+        this.grants = grants
         this.groupId = groupId;
+        this.component = component || (() => import('../components/BaseBadge'));
         this.detailsPromise = detailsPromise;
         this.busy = true;
     }
 
     getValue() {
         return this.value;
-    }
-
-    isClickable() {
-        return this.detailsPromise !== null;
     }
 
     fetchDetails(start, end) {

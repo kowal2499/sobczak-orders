@@ -26,6 +26,7 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
         $query = $this->getQuery($start, $end)
             ->select('SUM(al.factor) as factors_summary')
             ->addSelect('COUNT(al.id) as count');
+        $this->withConnectedCustomers($query);
         return $query->getQuery()->getSingleResult();
     }
 
@@ -46,7 +47,21 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
             ->addSelect('p.name as productName')
             ->addSelect('c.name as customerName')
             ->groupBy('al.id');
+        $this->withConnectedCustomers($query);
         return $query->getQuery()->getArrayResult();
+    }
+
+    private function withConnectedCustomers(QueryBuilder $qb)
+    {
+        if ($this->security->isGranted('ROLE_CUSTOMER')) {
+            $customers = $this->security->getUser()->getCustomers();
+            if (!empty($customers)) {
+                $qb
+                    ->andWhere('c.id IN (:ownedCustomers)')
+                    ->setParameter('ownedCustomers', $customers);
+            }
+        }
+        return $qb;
     }
 
     private function getQuery(

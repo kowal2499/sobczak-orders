@@ -19,11 +19,11 @@
 
                     <Badge border-class="border-left-success" :title="$t('ordersFinished')" text-class="text-success" :value="production.ordersFinished"></Badge>
 
-                    <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation')" text-class="text-info" :value="production.factorsInProduction | toFixed(2)"></Badge>
+                    <Badge v-if="canSeeProduction()" border-class="border-left-info" :title="$t('totalFactorsInRealisation') + 111" text-class="text-info" :value="production.factorsInProduction | toFixed(2)"></Badge>
 
-                    <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished')" text-class="text-warning" :value="production.factorsFinished | toFixed(2)"></Badge>
+                    <Badge v-if="canSeeProduction()" border-class="border-left-warning" :title="$t('totalFactorsFinished') + 111" text-class="text-warning" :value="production.factorsFinished | toFixed(2)"></Badge>
 
-                    <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors')" text-class="text-primary" :value="(production.factorsFinished + production.factorsInProduction) | toFixed(2)"></Badge>
+                    <Badge v-if="canSeeProduction()" border-class="border-left-primary" :title="$t('totalFactors') + 111" text-class="text-primary" :value="(production.factorsFinished + production.factorsInProduction) | toFixed(2)"></Badge>
 
                     <Badge v-if="estimateFirstFreeDay() !== null" border-class="border-left-success" :title="$t('estimatedFinishAllOrdersDay')" text-class="text-success" :value="calendar.firstFreeDay"></Badge>
 

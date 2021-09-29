@@ -2,19 +2,16 @@
     <div class="card shadow" :class="metric.className">
         <div class="card-body">
             <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
-                {{ $t(metric.title) }}
+                <slot name="title">
+                    {{ $t(metric.title) }}
+                </slot>
             </div>
 
             <div class="h5 mb-0 font-weight-bold text-gray-800">
                 <font-awesome-icon v-if="metric.busy" icon="spinner" spin/>
-                <template v-else>
-                    <a v-if="metric.isClickable()" href="#" @click.prevent="$emit('clicked', metric.id)">
-                        {{ metric.getValue() }}
-                    </a>
-                    <span v-else>
-                        {{ metric.getValue() }}
-                    </span>
-                </template>
+                <slot v-else>
+                    {{ metric.getValue() }}
+                </slot>
             </div>
         </div>
     </div>
@@ -22,9 +19,12 @@
 
 <script>
 export default {
-    name: "Badge",
+    name: "BaseBadge",
     props: {
-        metric: Object,
+        metric: {
+            type: Object,
+            required: true
+        },
     }
 }
 </script>

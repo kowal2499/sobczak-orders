@@ -6,10 +6,11 @@
         </b-form>
 
         <div class="d-flex mb-4" v-for="group in metricsLayout">
-            <badge
+            <component
                 v-for="metric in group"
                 :key="metric.id"
                 :metric="metric"
+                :is="metric.component"
                 @clicked="activeMetricId = $event"
             />
         </div>
@@ -25,7 +26,6 @@ import {
     getAgreementLinesSummary,
     getOldSummary
 } from "./repository";
-import Badge from './components/Badge';
 import DetailsModal from "./components/DetailsModal";
 import MetricsDefinitions from "./MetricsDefinitions";
 
@@ -35,7 +35,6 @@ export default {
     name: 'Dashboard2',
     components: {
         CollapsibleCard,
-        Badge,
         DetailsModal
     },
     computed: {
@@ -58,12 +57,12 @@ export default {
             ];
         },
         dateRangeStart() {
-            return this.filters.year && this.filters.month
+            return this.filters.year !== null && this.filters.month !== null
                 ? dateToString(firstDay(this.filters.year, this.filters.month))
                 : null
         },
         dateRangeEnd() {
-            return this.filters.year && this.filters.month
+            return this.filters.year !== null && this.filters.month !== null
                 ? dateToString(lastDay(this.filters.year, this.filters.month))
                 : null
         },
@@ -88,7 +87,9 @@ export default {
                 if (!grouped[groupId]) {
                     grouped[groupId] = [];
                 }
-                grouped[groupId].push(metric)
+                if (metric.grants.length === 0 || metric.grants.some(privilege => this.$user.can(privilege))) {
+                    grouped[groupId].push(metric)
+                }
             }
             return Object.values(grouped)
         },
