@@ -46,15 +46,15 @@ class ApiTestCase extends WebTestCase
      */
     public function login(User $user): KernelBrowser
     {
+        $client = $this->client ?? $this->initializeClient();
         $session = $this->get('session');
         $firewallName = $firewallContext = 'main';
         $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
+        $this->client->getContainer()->get('security.token_storage')->setToken($token);
         $session->set('_security_'.$firewallContext, serialize($token));
         $session->save();
 
         $cookie = new Cookie($session->getName(), $session->getId());
-
-        $client = $this->client ?? $this->initializeClient();
         $client->getCookieJar()->set($cookie);
         return $client;
     }
