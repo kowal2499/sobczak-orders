@@ -32,26 +32,24 @@ class AgreementLineRepository extends ServiceEntityRepository
     public function getFiltered(?array $term)
     {
         $qb = $this->createQueryBuilder('l')
-//            ->innerJoin('l.Agreement', 'a')
-//            ->innerJoin('a.Customer', 'c')
-//            ->innerJoin('l.Product', 'p')
-//            ->leftJoin('l.productions', 'pr')
-//            ->leftJoin('pr.statusLogs', 's')
-//            ->leftJoin('s.user', 'u')
+            ->innerJoin('l.Agreement', 'a')
+            ->innerJoin('a.Customer', 'c')
+            ->innerJoin('l.Product', 'p')
+            ->leftJoin('l.productions', 'pr')
+            ->leftJoin('pr.statusLogs', 's')
+            ->leftJoin('s.user', 'u')
 //            ->leftJoin('l.tags', 't')
 //            ->leftJoin('t.tagDefinition', 'td', Expr\Join::WITH, 'td.id = t.tag_definition_id AND td.module = :module')
 //            ->addSelect('t')
-//            ->addSelect('a')
-//            ->addSelect('c')
-//            ->addSelect('p')
-//            ->addSelect('pr')
-//            ->addSelect('s')
-//            ->addSelect('u')
+            ->addSelect('a')
+            ->addSelect('c')
+            ->addSelect('p')
+            ->addSelect('pr')
+            ->addSelect('s')
+            ->addSelect('u')
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
 //            ->setParameter('module', 'customer')
         ;
-
-
 
         if (isset($term['search']) && is_array($term['search'])) {
 
@@ -126,8 +124,6 @@ class AgreementLineRepository extends ServiceEntityRepository
             }
         
         }
-
-        dd($qb->getQuery()->getSQL());
 
         if (isset($term['search']['sort']) && !empty($term['search']['sort'])) {
 
