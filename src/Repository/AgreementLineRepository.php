@@ -146,6 +146,11 @@ class AgreementLineRepository extends ServiceEntityRepository
         return $qb->getQuery();
     }
 
+    public function getAllFiltered(array $term)
+    {
+        return $this->getFiltered($term)->getResult();
+    }
+
     /**
      * Licznik zamówień wg statusu
      *
@@ -184,8 +189,10 @@ class AgreementLineRepository extends ServiceEntityRepository
                 App\Entity\AgreementLine l 
                 LEFT JOIN l.productions pr
                 LEFT JOIN pr.statusLogs log
-            WHERE l.id = :id
-        ')->setParameter('id', $id);
+            WHERE l.id = :id AND (pr.id IS NULL OR pr.departmentSlug IN (:departmentTypes))
+        ')
+            ->setParameter('id', $id)
+            ->setParameter('departmentTypes', TaskTypes::getDefaultSlugs());
 
         return $query->getOneOrNullResult();
     }

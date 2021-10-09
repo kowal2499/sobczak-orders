@@ -32,8 +32,11 @@ class AgreementLineFixtureHelpers
             $prop['status'] = $prodStatuses[$prop['departmentSlug']] ?? TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED;
             $prodProps[] = $prop;
         }
-        $this->productionFixtures->makeProductionTasks($prodProps);
+        foreach ($this->productionFixtures->makeProductionTasks($prodProps) as $task) {
+            $agreementLine->addProduction($task);
+        }
 
+//        dd($tasks);
         $this->factory->flush();
         $this->factory->clear();
 

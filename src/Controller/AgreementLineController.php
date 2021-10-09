@@ -60,22 +60,20 @@ class AgreementLineController extends BaseController
     /**
      * @isGranted("ROLE_PRODUCTION_VIEW")
      *
-     * @Route("/agreement/fetch", name="agreements_fetch", methods={"POST"}, options={"expose"=true})
+     * @Route("/api/agreement-line/fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLineRepository $repository
      * @param MessageBusInterface $messageBus
      * @param PaginatorInterface $paginator
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, MessageBusInterface $messageBus, PaginatorInterface $paginator)
+    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator)
     {
         $search = $request->request->all();
 
         if ($this->isGranted('ROLE_CUSTOMER')) {
             $search['search']['ownedBy'] = $this->getUser();
         }
-
-//        $messageBus->dispatch(new GetAssignedTags())
 
         $agreements = $paginator->paginate(
             $repository->getFiltered($search),
@@ -100,6 +98,34 @@ class AgreementLineController extends BaseController
     }
 
     /**
+     * @isGranted("ROLE_PRODUCTION_VIEW")
+     *
+     * @Route("/api/agreement-line/fetch-single/{id}", methods={"GET"})
+     * @param int $id
+     * @param Request $request
+     * @param AgreementLineRepository $repository
+     * @return JsonResponse
+     */
+    public function fetchSingle(int $id, Request $request, AgreementLineRepository $repository)
+    {
+        $result = $repository->getAllFiltered([
+            'search' => [
+                'agreementLineId' => $id
+            ]
+        ]);
+
+        if (empty($result)) {
+            return $this->json(null, Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json(
+            $result[0], Response::HTTP_OK, [], [
+            AbstractNormalizer::GROUPS => ['_main', '_linePanel'],
+            DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s',
+        ]);
+    }
+
+    /**
      * @isGranted("ROLE_PRODUCTION")
      *
      * @Route("/agreement_line/update/{id}", name="agreement_line_update", methods={"PUT"}, options={"expose"=true})
@@ -107,6 +133,7 @@ class AgreementLineController extends BaseController
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
      * @param MessageBusInterface $messageBus
+     * @param AgreementLineRepository $agreementLineRepository
      * @return JsonResponse
      */
     public function update(
@@ -130,8 +157,11 @@ class AgreementLineController extends BaseController
             $em->persist($agreementLine);
             $em->flush();
 
-            foreach ($request->request->get('productions') as $taskData) {
-                $messageBus->dispatch(new UpdateStatusCommand($taskData['id'], $taskData['status']));
+            foreach ($agreementLine->getProductions() as $idx => $task) {
+                $messageBus->dispatch(new UpdateStatusCommand(
+                    $task->getId(),
+                    $request->request->get('productions')[$idx]['status'])
+                );
             }
 
             $messageBus->dispatch(new AssignTags(

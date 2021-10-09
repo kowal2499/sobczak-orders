@@ -10,6 +10,10 @@ export default {
         return axios.post(Routing.get('production_status_update'), {productionId, newStatus});
     },
 
+    fetchSingleLine(agreementLineId) {
+        return axios.get(`/api/agreement-line/fetch-single/${agreementLineId}`);
+    },
+
     delete(agreementLineId) {
         return axios.post(Routing.get('production_delete') + '/' + agreementLineId);
     }

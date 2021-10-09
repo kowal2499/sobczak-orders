@@ -140,13 +140,8 @@ export default {
             return this.$t(status ? status.name : 'nieznany');
         },
         handleDelete() {
-            // generate temporary id
-            this.proxyData.id = Date.now();
-            this.$nextTick(() => {
-                this.showDeleteModal = false;
-                this.$emit('delete', this.proxyData.id);
-            })
-
+            this.showDeleteModal = false;
+            this.$emit('delete', this.proxyData.id);
         }
     },
     data: () => ({

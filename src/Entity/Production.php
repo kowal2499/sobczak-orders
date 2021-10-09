@@ -147,7 +147,7 @@ class Production
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(?string $status): self
     {
         $this->status = $status;
 

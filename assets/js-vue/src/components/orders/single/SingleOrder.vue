@@ -11,10 +11,10 @@
         </button>
 
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
                     <template #header v-if="canEditLine()">
-                        <b-button size="sm" variant="success" :disabled="locked" @click="addCustomTask()">
+                        <b-button size="sm" variant="success" :disabled="false === canAddNewTask || locked" @click="addCustomTask()">
                             {{ $t('orders.newTask') }}
                         </b-button>
                     </template>
@@ -29,7 +29,7 @@
                 </collapsible-card>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-12 col-lg-4">
                 <collapsible-card :title="$t('product')" :locked="locked" v-if="orderData.Product">
                     <product-widget v-model="orderData.Product"/>
                 </collapsible-card>
@@ -199,6 +199,9 @@
                     }
                 }
                 return toSave;
+            },
+            canAddNewTask() {
+                return this.orderData && false === this.orderData.productions.tasks.some(task => task.id === null)
             }
         }
     }

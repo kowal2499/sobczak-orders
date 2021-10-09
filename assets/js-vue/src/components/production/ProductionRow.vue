@@ -1,6 +1,5 @@
 <template>
-
-    <tr>
+    <tr :class="{'is-disabled': disabled}">
         <td>
             {{ order.Agreement.orderNumber || order.id }}
             <tags-indicator :logs="order.tags"/>
@@ -34,6 +33,7 @@
                         :class="getStatusData(production.status).className"
                         variant="light"
                         split-variant=""
+                        :disabled="disabled"
                 >
                     <b-dropdown-item
                             v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
@@ -73,11 +73,9 @@
         </td>
 
         <td>
-            <line-actions :line="order" @lineChanged="$emit('lineChanged')"/>
+            <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
         </td>
-
     </tr>
-
 </template>
 
 <script>
@@ -145,6 +143,10 @@
 </script>
 
 <style lang="scss">
+
+    .is-disabled {
+        opacity: 0.5
+    }
 
     .b-dropdown, .b-dropdown.show {
 

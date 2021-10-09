@@ -3,13 +3,14 @@
 namespace App\Service\AgreementLine;
 
 use App\Entity\Definitions\TaskTypes;
+use App\Entity\Production;
 use App\Entity\StatusLog;
 use Doctrine\Common\Collections\Collection;
 
 class ProductionCompletionDateResolverService
 {
     /**
-     * @param Collection $productionTasks
+     * @param Collection|Production[] $productionTasks
      * @return \DateTime|null
      */
     public function getCompletionDate(Collection $productionTasks): ?\DateTimeInterface
@@ -17,22 +18,26 @@ class ProductionCompletionDateResolverService
         if (empty($productionTasks)) {
             return null;
         }
-
+        $isOnlyNA = true;
+        $completionLogs = [];
         foreach ($productionTasks as $task) {
-            if (
-                $task->getDepartmentSlug() === TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING
-                && $task->getStatus() == TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED
+            if (false === in_array(
+                $task->getStatus(),
+                    [TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE, TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED]
+                )
             ) {
-                $logs = $this->filterByStatus($task->getStatusLogs()->toArray(), TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED);
-
-                if (empty($logs)) {
-                    throw new \RuntimeException('No status logs of required type');
-                }
-
-                return $this->pickLatestDate($logs);
+                return null;
             }
+            $isOnlyNA = $isOnlyNA && ($task->getStatus() == TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE);
+            $completionLogs = array_merge(
+                $completionLogs,
+                $this->filterByStatus($task->getStatusLogs()->toArray(), TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED)
+            );
         }
-        return null;
+        if ($isOnlyNA || empty($completionLogs)) {
+            return null;
+        }
+        return $this->pickLatestDate($completionLogs);
     }
 
     /**

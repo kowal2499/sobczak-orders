@@ -88,11 +88,13 @@ class AgreementLine
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $productionStartDate;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"_main", "_linePanel"})
      */
     private $productionCompletionDate;
 

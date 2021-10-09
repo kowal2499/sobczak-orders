@@ -49,7 +49,7 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
         $this->em->flush();
     }
 
-    public function testShouldSetCompletionDateAccordingToDpt05TaskCompletionDate()
+    public function testShouldSetCompletionDateAccordingToLatestCompletionDateOfAnyTask()
     {
         // Given
         $agreementLine = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_WAITING]);
@@ -61,19 +61,26 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
             ])
         );
         $log1 = $this->factory->make(StatusLog::class, [
-            'production' => $productions[4],
-            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING,
+            'production' => $productions[0],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
             'createdAt' => new \DateTime('2021-09-19 14:15:05'),
             'user' => $this->user
         ]);
         $log2 = $this->factory->make(StatusLog::class, [
-            'production' => $productions[4],
+            'production' => $productions[1],
             'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
             'createdAt' => new \DateTime('2021-09-20 14:15:05'),
             'user' => $this->user
         ]);
+        $log3 = $this->factory->make(StatusLog::class, [
+            'production' => $productions[2],
+            'currentStatus' => TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+            'createdAt' => new \DateTime('2021-09-21 14:15:05'),
+            'user' => $this->user
+        ]);
         $this->em->persist($log1);
         $this->em->persist($log2);
+        $this->em->persist($log3);
         $this->em->flush();
         $this->em->clear();
 
@@ -89,7 +96,7 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
             ? $agreementUnderTest->getProductionCompletionDate()->format('Y-m-d H:i:s')
             : null;
 
-        $this->assertEquals('2021-09-20 14:15:05', $completionDate);
+        $this->assertEquals('2021-09-21 14:15:05', $completionDate);
     }
 
     public function testShouldSetCompletionDateToNull()

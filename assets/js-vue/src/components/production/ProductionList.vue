@@ -22,6 +22,7 @@
                     :order="order"
                     :statuses="statuses"
                     :key="order.id"
+                    :disabled="busyOrders.includes(order.id)"
                     @statusUpdated="updateStatus($event, order.id)"
                     @lineChanged="fetchData"
                     @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
@@ -32,6 +33,7 @@
                     :order="order"
                     :statuses="statuses"
                     :key="'details' + order.id"
+                    :disabled="busyOrders.includes(order.id)"
                     @statusUpdated="updateStatus($event, order.id)"
                 />
 
@@ -82,9 +84,7 @@
 
         data() {
             return {
-
                 syncQueryString: false,
-
                 args: {
                     filters: {
                         dateStart: {
@@ -98,7 +98,6 @@
                         hideArchive: true,
                         q: '',
                     },
-
                     meta: {
                         page: 0,
                         pages: 0,
@@ -107,15 +106,11 @@
                         sort: ''
                     },
                 },
-
                 helpers: Helpers,
-
                 orders: [],
-
                 prodExpanded: null,
-
                 loading: false,
-
+                busyOrders: [],
             }
         },
 
@@ -183,7 +178,6 @@
         },
 
         methods: {
-
             fetchData() {
                 this.loading = true;
 
@@ -217,16 +211,16 @@
             updateStatus(data, agreementLineId) {
                 const taskId = data.id;
                 const newStatus = data.status;
+                const lineId = agreementLineId
+                this.busyOrders.push(agreementLineId);
+
                 productionApi.updateStatus(taskId, newStatus)
-                    .then(({data}) => {
+                    .then(() => this.fetchSingleLine(lineId))
+                    .then(() => {
                         EventBus.$emit('message', {
                             type: 'success',
                             content: this.$t('statusChangeSaved')
                         });
-                        const updatedOrder = this.orders.find(order => order.id === agreementLineId)
-                        updatedOrder.productions = updatedOrder.productions.map(task => {
-                            return task.id !== data.id ? task : data
-                        })
                     })
                     .catch((error) => {
                         let msg = '';
@@ -237,15 +231,25 @@
                                     break;
                                 default:
                                     msg = this.$t('error');
-
                             }
                         }
-
                         EventBus.$emit('message', {
                             type: 'error',
                             content: msg
                         });
+                    })
+                    .finally(() => {
+                        this.busyOrders = this.busyOrders.filter(order => order !== lineId)
                     });
+            },
+
+            fetchSingleLine(agreementLineId) {
+                productionApi.fetchSingleLine(agreementLineId)
+                .then(({data}) => {
+                    this.orders = this.orders.map(order => {
+                        return order.id === data.id ? data : order
+                    })
+                })
             },
 
             getStatusStyle(production) {

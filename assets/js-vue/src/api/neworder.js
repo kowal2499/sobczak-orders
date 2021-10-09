@@ -28,7 +28,7 @@ export default {
     },
 
     fetchAgreements(search) {
-        return axios.post(Routing.get('agreements_fetch'), { search });
+        return axios.post('/api/agreement-line/fetch', { search });
     },
 
     setAgreementStatus(agreementId, statusId) {

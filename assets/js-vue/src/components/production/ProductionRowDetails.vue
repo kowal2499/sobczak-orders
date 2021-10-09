@@ -1,5 +1,5 @@
 <template>
-    <tr>
+    <tr :class="{'is-disabled': disabled}">
         <td colspan="5">
 
             <attachments-widget
@@ -19,6 +19,7 @@
                             :text="$t(getStatusData(task.status).name)"
                             size="sm"
                             :class="getStatusData(task.status).className"
+                            :disabled="disabled"
                             variant="light"
                     >
                         <b-dropdown-item
@@ -89,6 +90,11 @@
 </script>
 
 <style  lang="scss" scoped>
+
+    .is-disabled {
+        opacity: 0.5
+    }
+
     .custom-tasks {
         display: flex;
         flex-wrap: wrap;

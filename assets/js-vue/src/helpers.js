@@ -84,6 +84,10 @@ export default {
         return departments;
     },
 
+    getDepartmentsSlugs() {
+        return departments.map(d => d.slug);
+    },
+
     getStatusStyle(statusId) {
         const status = statuses.find(item => item.value === parseInt(statusId));
         return status ? `background-color: ${status.color};` : '';

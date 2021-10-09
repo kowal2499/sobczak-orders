@@ -3,7 +3,7 @@
         <b-tabs pills card vertical nav-wrapper-class="production-tab-panel">
             <b-tab
                 v-for="tab in tabs"
-                :key="tab.index"
+                :key="tab.id"
                 :disabled="false === tab.enabled"
             >
                 <template #title>
@@ -14,7 +14,7 @@
                 </template>
 
                 <task-content
-                    v-model="proxyData.tasks[tab.index]"
+                    v-model="proxyData.tasks[tasksIdToIndex[tab.id]]"
                     :can-edit="canEdit"
                     @delete="handleDelete"
                 />
@@ -39,25 +39,40 @@
         components: {TagsWidget, DatePicker, ConfirmationModal, TaskContent },
         computed: {
             tabs() {
-                const result = this.proxyData.tasks.map((task, index) => ({
-                    index,
-                    status: task.status,
-                    title: task.title.length > 15 ? task.title.substring(0, 15) + '...' : task.title,
-                    enabled: true,
-                    slug: task.departmentSlug
-                }));
-                const systemTasks = helpers.getDepartments().map(dpt => dpt.slug);
-                // add separator
-                const customIndex = result.findIndex(task => false === systemTasks.includes(task.slug))
-                if (customIndex !== -1) {
-                    result.splice(customIndex, 0, {
-                        enabled: false
-                    })
-                }
-                return result;
+                const systemTasks = [];
+                const customTasks = [];
+
+                this.proxyData.tasks.forEach(task => {
+                    let normalizedTask = {
+                        id: task.id,
+                        status: task.status,
+                        title: task.title.length > 15 ? task.title.substring(0, 15) + '...' : task.title,
+                        enabled: true,
+                        slug: task.departmentSlug
+                    }
+                    helpers.getDepartmentsSlugs().includes(normalizedTask.slug)
+                        ? systemTasks.push(normalizedTask)
+                        : customTasks.push(normalizedTask)
+                })
+
+                const separator = customTasks.length > 0 ? [{ enabled: false, id: 'separator' }] : []
+                systemTasks.sort((a, b) => a.slug.localeCompare(b.slug))
+
+                return [systemTasks, separator, customTasks]
+                    .filter(item => item.length > 0)
+                    .reduce((item, carry) => [...item, ...carry], [])
             },
             canEdit() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            },
+            tasksIdToIndex() {
+                const byId = {}
+                if (this.proxyData.tasks) {
+                    this.proxyData.tasks.forEach((task, index) => {
+                        byId[task.id] = index
+                    })
+                }
+                return byId
             }
         },
         methods: {

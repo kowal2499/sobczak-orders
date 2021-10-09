@@ -16,6 +16,10 @@
                 type: Object,
                 default: () => {}
             },
+            disabled: {
+                type: Boolean,
+                default: false
+            }
         },
         data() {
             return {
