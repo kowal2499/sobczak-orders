@@ -47,6 +47,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
             ->addSelect('al.confirmedDate')
             ->addSelect('p.name as productName')
             ->addSelect('c.name as customerName')
+            ->addSelect('a.orderNumber')
             ->groupBy('al.id');
         return $query->getQuery()->getArrayResult();
     }

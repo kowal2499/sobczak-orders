@@ -23,6 +23,10 @@
                         <span>{{ (item.context.product || '').trim() }}</span>
                     </div>
                     <div class="context-row">
+                        <font-awesome-icon size="sm" icon="hashtag" />
+                        <span>{{ (item.context.orderNumber || '').trim() }}</span>
+                    </div>
+                    <div class="context-row">
                         <a :href="panelUrl(item.context.id)" target="_blank">
                             <font-awesome-icon size="sm" icon="link" />
                             <span>{{ $t('_agreement_line_panel') }}</span>
@@ -114,6 +118,7 @@ export default {
                 return {
                     context: {
                         id: record.id,
+                        orderNumber: record.orderNumber,
                         customer: record.customerName,
                         product: record.productName
                     },

@@ -46,6 +46,7 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
             ->addSelect('al.confirmedDate')
             ->addSelect('p.name as productName')
             ->addSelect('c.name as customerName')
+            ->addSelect('a.orderNumber')
             ->groupBy('al.id');
         $this->withConnectedCustomers($query);
         return $query->getQuery()->getArrayResult();

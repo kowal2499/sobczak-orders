@@ -10,9 +10,9 @@ import i18n from "./i18n";
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart)
+library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();
