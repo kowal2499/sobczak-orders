@@ -2,10 +2,10 @@
 
 namespace App\ConsoleCommand;
 
-use App\Entity\AgreementLine;
-use App\Repository\AgreementLineRepository;
-use App\Service\AgreementLine\ProductionCompletionDateResolverService;
-use App\Service\AgreementLine\ProductionStartDateResolverService;
+use App\Entity\Definitions\TaskTypes;
+use App\Entity\StatusLog;
+use App\Repository\ProductionRepository;
+use App\Repository\StatusLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,83 +13,56 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateProductionCompletionDate extends Command
 {
-    protected static $defaultName = 'app:update-start-completion-date';
-    /** @var ProductionCompletionDateResolverService */
-    private $completionDateResolverService;
-    /** @var ProductionStartDateResolverService */
-    private $startDateResolverService;
-    /** @var AgreementLineRepository */
-    private $agreementLineRepository;
-    /** @var EntityManagerInterface */
+    protected static $defaultName = "app:production:update-completion-date";
+    private $productionRepository;
+    private $statusLogRepository;
     private $entityManager;
 
     public function __construct(
-        string $name = null,
-        ProductionStartDateResolverService $startDateResolverService,
-        ProductionCompletionDateResolverService $completionDateResolverService,
+        ProductionRepository $productionRepository,
+        StatusLogRepository $statusLogRepository,
         EntityManagerInterface $entityManager
     ) {
-        parent::__construct($name);
-        $this->completionDateResolverService = $completionDateResolverService;
-        $this->startDateResolverService = $startDateResolverService;
+        parent::__construct();
+        $this->productionRepository = $productionRepository;
+        $this->statusLogRepository = $statusLogRepository;
         $this->entityManager = $entityManager;
-        $this->agreementLineRepository = $entityManager->getRepository(AgreementLine::class);
     }
 
     protected function configure()
     {
         $this
-            ->setDescription('Updates `agreement_line.production_start_date` and `agreement_line.production_completion_date` for all rows.');
+            ->setDescription('Updates `production.completed_at` for all rows.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $lines = $this->fetchAgreementLines();
+        $productions = $this->getProductions();
         $output->writeln(['', 'ProductionCompletionDate Updater', '========================']);
-        $output->writeln(sprintf('agreementLines to verify: %d', count($lines)));
+        $output->writeln(sprintf('agreementLines to verify: %d', count($productions)));
 
-        $recordsStartDateUpdated = 0;
-        $recordsCompletionDateUpdated = 0;
-        foreach ($lines as $line) {
-            $startDate = $this->startDateResolverService->getStartDate($line->getProductions());
-            if ($startDate != $line->getProductionStartDate()) {
-                $this->saveNewStartDate($line, $startDate);
-                $recordsStartDateUpdated++;
-            }
+        $updatedCounter = 0;
+        foreach ($this->getProductions() as $production) {
+            $searchStatus = (TaskTypes::getTaskTypeBySlug($production->getDepartmentSlug()) === TaskTypes::TYPE_DEFAULT)
+                ? TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED
+                : TaskTypes::TYPE_CUSTOM_STATUS_COMPLETED;
 
-            $completionDate = $this->completionDateResolverService->getCompletionDate($line->getProductions());
-            if ($completionDate != $line->getProductionCompletionDate()) {
-                $this->saveNewCompletionDate($line, $completionDate);
-                $recordsCompletionDateUpdated++;
+            /** @var StatusLog $statusLog */
+            $statusLog = $this->statusLogRepository->findLast($production, $searchStatus);
+
+            if (!$statusLog) {
+                continue;
             }
+            $production->setCompletedAt($statusLog->getCreatedAt());
+            $updatedCounter++;
         }
-        if ($recordsStartDateUpdated || $recordsCompletionDateUpdated) {
-            $this->entityManager->flush();
-        }
-        $output->writeln([
-            'Finished!',
-            sprintf('agreementLines startDate updated: %d', $recordsStartDateUpdated),
-            sprintf('agreementLines completionDate updated: %d', $recordsCompletionDateUpdated),
-            '']
-        );
+        $this->entityManager->flush();
+        $output->writeln([ 'Finished!', sprintf('production is_compled updated: %d', $updatedCounter), '']);
         return 0;
     }
 
-    /**
-     * @return AgreementLine[]
-     */
-    private function fetchAgreementLines(): array
+    private function getProductions()
     {
-        return $this->agreementLineRepository->findAll();
-    }
-
-    private function saveNewCompletionDate(AgreementLine $agreementLine, ?\DateTimeInterface $date)
-    {
-        $agreementLine->setProductionCompletionDate($date);
-    }
-
-    private function saveNewStartDate(AgreementLine $agreementLine, ?\DateTimeInterface $date)
-    {
-        $agreementLine->setProductionStartDate($date);
+        return $this->productionRepository->findBy(['isCompleted' => 1, 'completedAt' => null]);
     }
 }

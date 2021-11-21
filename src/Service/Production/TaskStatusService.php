@@ -79,7 +79,9 @@ class TaskStatusService
         $task->setStatus($newStatus);
 
         // set isCompleted flag
-        $task->setIsCompleted($this->isCompleted($task, $taskType));
+        $isCompleted = $this->isCompleted($task, $taskType);
+        $task->setIsCompleted($isCompleted);
+        $task->setCompletedAt($isCompleted ? (new \DateTime()) : null);
 
         // set isStartDelayed flag
         $task->setIsStartDelayed($this->isStartDelayed($task, $initialStatus));

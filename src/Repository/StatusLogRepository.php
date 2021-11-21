@@ -20,9 +20,16 @@ class StatusLogRepository extends ServiceEntityRepository
         parent::__construct($registry, StatusLog::class);
     }
 
-    public function findLast(Production $production)
+    public function findLast(Production $production, int $status = null)
     {
-        return $this->createQueryBuilder('s')
+        $qb = $this->createQueryBuilder('s');
+        if ($status) {
+            $qb
+                ->andWhere('s.currentStatus = :valStatus')
+                ->setParameter('valStatus', $status)
+            ;
+        }
+        return $qb
             ->andWhere('s.production = :val')
             ->setParameter('val', $production)
             ->orderBy('s.id', 'DESC')

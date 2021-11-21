@@ -96,6 +96,12 @@ class Production
      */
     private $isCompleted;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"_main", "_linePanel"})
+     */
+    private $completedAt;
+
     public function __construct()
     {
         $this->statusLogs = new ArrayCollection();
@@ -267,5 +273,21 @@ class Production
         $this->isCompleted = $isCompleted;
 
         return $this;
+    }
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getCompletedAt()
+    {
+        return $this->completedAt;
+    }
+
+    /**
+     * @param \DateTimeInterface|null $completedAt
+     */
+    public function setCompletedAt(?\DateTimeInterface $completedAt): void
+    {
+        $this->completedAt = $completedAt;
     }
 }
