@@ -3,9 +3,11 @@ export const METRIC_FACTORS_MONTHLY_LIMIT = 'factorLimit';
 export const METRIC_ORDERS_FINISHED = 'orders_finished';
 export const METRIC_ORDERS_PENDING = 'orders_pending';
 export const METRIC_DAY_OF_COMPLETION = 'firstFreeDay';
+export const METRIC_TASKS_COMPLETED = 'tasksCompleted';
 
 export const GROUP_ROW_1 = 'row1';
 export const GROUP_ROW_2 = 'row2';
+export const GROUP_ROW_3 = 'row3';
 
 export default class Metric
 {
@@ -43,9 +45,9 @@ export default class Metric
         return this.value;
     }
 
-    fetchDetails(start, end) {
+    fetchDetails(start, end, value) {
         return this.detailsPromise !== null
-            ? this.detailsPromise(start, end)
+            ? this.detailsPromise(start, end, value)
             : Promise.resolve();
     }
 }

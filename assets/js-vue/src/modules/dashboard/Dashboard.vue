@@ -24,6 +24,7 @@ import CollapsibleCard from "../../components/base/CollapsibleCard";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
 import {
     getAgreementLinesSummary,
+    getProductionTasksCompletionSummary,
     getOldSummary
 } from "./repository";
 import DetailsModal from "./components/DetailsModal";
@@ -77,7 +78,7 @@ export default {
         modalRecordsPromise() {
             const metric = this.metrics.find(metric => metric.id === this.activeMetricId);
             return metric
-                ? metric.fetchDetails(this.dateRangeStart, this.dateRangeEnd)
+                ? metric.fetchDetails(this.dateRangeStart, this.dateRangeEnd, metric.value)
                 : Promise.resolve()
         },
         metricsLayout() {
@@ -127,6 +128,9 @@ export default {
                this.metrics.forEach(metric => metric.busy = true)
 
                 getAgreementLinesSummary(this.dateRangeStart, this.dateRangeEnd)
+                    .then(({data}) => this.setMetricsData(data))
+
+                getProductionTasksCompletionSummary(this.dateRangeStart, this.dateRangeEnd)
                     .then(({data}) => this.setMetricsData(data))
 
                 getOldSummary(this.dateRangeStart, this.dateRangeEnd)

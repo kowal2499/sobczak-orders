@@ -10,4 +10,5 @@ export default {
     'factorLimit': 'Limit współczynników w miesiącu',
     'totalFactors': 'Suma współczynników dla wszystkich zamówień',
     'firstFreeDay': 'Planowany dzień zrealizowania wszystkich zamówień',
+    'tasksCompleted': 'Ukończone zadania produkcyjne'
 }

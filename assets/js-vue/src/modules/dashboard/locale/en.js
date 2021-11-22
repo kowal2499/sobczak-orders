@@ -10,4 +10,5 @@ export default {
     'factorLimit': 'Monthly factors limit',
     'totalFactors': 'Factors summary for all orders',
     'firstFreeDay': 'Estimated date for the completion of all orders',
+    'tasksCompleted': 'Completed production tasks'
 }

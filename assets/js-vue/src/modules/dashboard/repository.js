@@ -11,6 +11,10 @@ export function getAgreementLinesSummary(start, end) {
     return axios.get(`/api/reports/agreement-line-production-summary`, {params: {start, end}});
 }
 
+export function getProductionTasksCompletionSummary(start, end) {
+    return axios.get(`/api/reports/production-tasks-completion-summary`, {params: {start, end}});
+}
+
 export function getOldSummary(start, end) {
     return axios.post(`production/summary`, {
         month: (new Date(start)).getMonth() + 1,

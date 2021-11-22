@@ -4,8 +4,10 @@ namespace App\Modules\Reports\Production;
 
 use App\Modules\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
+use App\Modules\Reports\Production\RecordSuppliers\TasksCompletedByDepartmentSupplier;
 use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
 use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
+use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
 
 class ProductionReport
 {
@@ -15,18 +17,23 @@ class ProductionReport
     private $ordersPendingSupplier;
     /** @var OrdersFinishedRecordSupplier */
     private $ordersFinishedSupplier;
+    /** @var TasksCompletedByDepartmentSupplier */
+    private $tasksSupplier;
 
     /**
      * @param DoctrineProductionPendingRepository $productionPendingRepository
      * @param DoctrineProductionFinishedRepository $productionFinishedRepository
+     * @param DoctrineProductionTasksRepository $productionTasksRepository
      */
     public function __construct(
         DoctrineProductionPendingRepository $productionPendingRepository,
-        DoctrineProductionFinishedRepository $productionFinishedRepository
+        DoctrineProductionFinishedRepository $productionFinishedRepository,
+        DoctrineProductionTasksRepository $productionTasksRepository
     )
     {
         $this->ordersPendingSupplier = new OrdersPendingRecordSupplier($productionPendingRepository);
         $this->ordersFinishedSupplier = new OrdersFinishedRecordSupplier($productionFinishedRepository);
+        $this->tasksSupplier = new TasksCompletedByDepartmentSupplier($productionTasksRepository);
         $this->suppliers = [$this->ordersPendingSupplier, $this->ordersFinishedSupplier];
     }
 
@@ -58,6 +65,14 @@ class ProductionReport
     ): array
     {
         return $this->ordersFinishedSupplier->getRecords($start, $end);
+    }
+
+    public function getCompletedProductionTasksSummary(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end
+    ): array
+    {
+        return $this->tasksSupplier->getSummary($start, $end);
     }
 
     /**

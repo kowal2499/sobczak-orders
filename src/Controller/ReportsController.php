@@ -70,4 +70,18 @@ class ReportsController extends BaseController
             $end ? new \DateTime($end) : null
         ));
     }
+
+    /**
+     * @Route("/production-tasks-completion-summary", methods={"GET"})
+     */
+    public function productionTasksCompletionSummary(Request $request, ProductionReport $report): Response
+    {
+        $start = $request->query->get('start', null);
+        $end = $request->query->get('end', null);
+
+        return $this->json($report->getCompletedProductionTasksSummary(
+            $start ? new \DateTime($start) : null,
+            $end ? new \DateTime($end) : null
+        ));
+    }
 }
