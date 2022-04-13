@@ -6,6 +6,7 @@ const CAN_PRODUCTION = 'roleProduction';
 const CAN_PRODUCTION_VIEW = 'roleProductionView';
 const CAN_ORDERS_ADD = 'roleOrdersAdd';
 const CAN_ORDERS_DELETE = 'roleOrdersDelete';
+const CAN_DASHBOARD_METRICS_VIEW = 'canDashboardMetricsView';
 
 
 export default {
@@ -15,5 +16,6 @@ export default {
     CAN_PRODUCTION_VIEW,
     CAN_CUSTOMERS_OWNED_ONLY,
     CAN_ORDERS_ADD,
-    CAN_ORDERS_DELETE
+    CAN_ORDERS_DELETE,
+    CAN_DASHBOARD_METRICS_VIEW
 }

@@ -33,7 +33,7 @@ export default [
         0,
         'border-left-primary',
         GROUP_ROW_2,
-        [],
+        [PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW],
         () => import('./components/ProductionBadge'),
         (start, end) => getProductionPendingDetails(null, end)
     ),
@@ -43,7 +43,7 @@ export default [
         0,
         'border-left-success',
         GROUP_ROW_2,
-        [],
+        [PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW],
         () => import('./components/ProductionBadge'),
         (start, end) => getProductionFinishedDetails(start, end)
     ),
@@ -52,7 +52,8 @@ export default [
         `dashboard.${METRIC_DAY_OF_COMPLETION}`,
         0,
         'border-left-warning',
-        GROUP_ROW_2
+        GROUP_ROW_2,
+        [PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW]
     ),
     new Metric(
         METRIC_TASKS_COMPLETED,
@@ -60,7 +61,7 @@ export default [
         0,
         'border-left-success',
         GROUP_ROW_3,
-        [PRIVILEGES.CAN_PRODUCTION, PRIVILEGES.CAN_PRODUCTION_VIEW],
+        [PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW],
         () => import('./components/TasksBadge'),
         (start, end, value) => Promise.resolve({
             data: value.perAgreement.map(row => {
