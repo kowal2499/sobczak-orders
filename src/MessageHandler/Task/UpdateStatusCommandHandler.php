@@ -43,7 +43,6 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
             return;
         }
 
-
         $this->statusService->setStatus($task, $command->getNewStatus());
 
         $statusLog = new StatusLog();

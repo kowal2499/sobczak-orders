@@ -5,9 +5,7 @@ namespace App\Tests\Utilities\Factory;
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
-use App\Entity\Department;
 use App\Entity\Product;
-use App\Entity\Production;
 
 class AgreementLineChainFactory
 {
