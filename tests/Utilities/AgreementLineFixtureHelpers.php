@@ -36,7 +36,6 @@ class AgreementLineFixtureHelpers
             $agreementLine->addProduction($task);
         }
 
-//        dd($tasks);
         $this->factory->flush();
         $this->factory->clear();
 

@@ -19,7 +19,8 @@ class StatusLogType extends AbstractType
             ->add('currentStatus')
             ->add('createdAt', DateTimeType::class, [
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd HH:mm:ss'
+                'format' => 'yyyy-MM-dd HH:mm:ss',
+                'html5' => false
             ])
             ->add('user', EntityType::class, [
                 'class' => User::class,

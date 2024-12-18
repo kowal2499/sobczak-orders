@@ -18,11 +18,13 @@ class ProductionType extends AbstractType
             ->add('departmentSlug')
             ->add('dateStart', DateTimeType::class, [
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd HH:mm:ss'
+                'format' => 'yyyy-MM-dd HH:mm:ss',
+                'html5' => false
             ])
             ->add('dateEnd', DateTimeType::class, [
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd HH:mm:ss'
+                'format' => 'yyyy-MM-dd HH:mm:ss',
+                'html5' => false
             ])
             ->add('description')
             ->add('title')
