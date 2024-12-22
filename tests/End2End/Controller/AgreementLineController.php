@@ -38,7 +38,7 @@ class AgreementLineController extends ApiTestCase
         $this->getManager()->flush();
     }
 
-    public function testShouldUpdateAgreementLine()
+    public function testShouldUpdateAgreementLineAndProductionTasks()
     {
         // Given
         $agreementLine = $this->fixtureHelper->makeAgreementLineWithProductionTasks([
@@ -149,6 +149,7 @@ class AgreementLineController extends ApiTestCase
         $this->assertEquals('2025-01-05 12:01:01', $updatedProd[4]->getDateStart()->format('Y-m-d H:i:s'));
         $this->assertEquals('2025-01-15 12:01:01', $updatedProd[4]->getDateEnd()->format('Y-m-d H:i:s'));
     }
+
     public function testShouldAddNewCustomTaskDuringAgreementLineUpdate()
     {
         // Given
@@ -171,7 +172,7 @@ class AgreementLineController extends ApiTestCase
             'description' => $agreementLine->getDescription(),
             'factor' => $agreementLine->getFactor(),
             'tags' => $agreementLine->getTags()->toArray(),
-            'productions' => array_map(function(Production $production) {
+            'productions' => array_map(function (Production $production) {
                 return [
                     'dateEnd' => $production->getDateEnd()->format('Y-m-d H:i:s'),
                     'dateStart' => $production->getDateStart()->format('Y-m-d H:i:s'),
@@ -209,40 +210,5 @@ class AgreementLineController extends ApiTestCase
             TaskTypes::TYPE_CUSTOM_STATUS_AWAITS,
             $agreementLineAfter->getProductions()[5]->getStatusLogs()[0]->getCurrentStatus()
         );
-    }
-
-    public function testShouldGetProductionsOrderedByIdAfterStatusUpdate()
-    {
-        // Given
-        $line = $this->fixtureHelper->makeAgreementLineWithProductionTasks([
-            'status' => AgreementLine::STATUS_MANUFACTURING,
-            'productionStartDate' => new \DateTime('2024-12-18 12:00:00'),
-            'confirmedDate' => new \DateTime('2025-03-04 12:00:00')
-        ], [
-            'dpt01' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-            'dpt02' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-            'dpt03' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-            'dpt04' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-            'dpt05' => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
-        ]);
-        $production01 = $line->getProductions()->first();
-
-        // When
-        $client = $this->login($this->user);
-        $client->xmlHttpRequest('POST', '/production/update_status', [
-            'productionId' => $production01->getId(),
-            'newStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING
-        ]);
-
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-
-        // Then
-        /** @var AgreementLine $storedLine */
-        $storedLine = $this->getManager()->getRepository(AgreementLine::class)->find($line->getId());
-
-        foreach ($storedLine->getProductions() as $production) {
-            dump($production->getDepartmentSlug() . ' - ' . $production->getStatus());
-        }
-        die;
     }
 }
