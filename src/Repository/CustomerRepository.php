@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Customer;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -31,7 +32,7 @@ class CustomerRepository extends ServiceEntityRepository
                     break;
                 case 'ownedBy':
                     $customers = $value->getCustomers();
-                    if (!empty($customers)) {
+                    if ($customers->count() > 0) {
                         $qb->andWhere("c.id IN (:{$key})");
                         $qb->setParameter($key, $customers);
                     }

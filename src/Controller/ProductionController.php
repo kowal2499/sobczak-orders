@@ -44,7 +44,7 @@ class ProductionController extends BaseController
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_PRODUCTION"})
+     * @IsGranted("ROLE_PRODUCTION")
      * @Route ("/production/start/{agreementLine}", methods={"POST"})
      * @param AgreementLine $agreementLine
      * @param ProductionTaskDatesResolver $datesResolver

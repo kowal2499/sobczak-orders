@@ -45,7 +45,8 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_CUSTOMERS or ROLE_CUSTOMERS_LIMITED")
+     * @IsGranted("ROLE_CUSTOMERS")
+     * @IsGranted("ROLE_CUSTOMERS_LIMITED")
      *
      * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
