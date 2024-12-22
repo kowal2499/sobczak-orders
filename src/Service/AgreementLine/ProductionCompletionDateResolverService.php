@@ -15,7 +15,7 @@ class ProductionCompletionDateResolverService
      */
     public function getCompletionDate(Collection $productionTasks): ?\DateTimeInterface
     {
-        if (empty($productionTasks)) {
+        if ($productionTasks->count() === 0) {
             return null;
         }
         $isOnlyNA = true;
