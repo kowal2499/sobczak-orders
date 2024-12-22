@@ -11,7 +11,7 @@ use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
 
-class AgreementLineController extends ApiTestCase
+class AgreementLineControllerTest extends ApiTestCase
 {
     /** @var User */
     private $user;

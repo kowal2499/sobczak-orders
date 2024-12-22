@@ -121,7 +121,6 @@ class AgreementsController extends AbstractController
      */
     public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, UploaderHelper $uploaderHelper, TranslatorInterface $t)
     {
-
         $data = $request->request->all();
 
         if (false === is_array($data['products'])) {

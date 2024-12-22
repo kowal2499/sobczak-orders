@@ -26,13 +26,13 @@ class ApiTestCase extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->getManager()->beginTransaction();
+//        $this->getManager()->beginTransaction();
 
     }
 
     protected function tearDown(): void
     {
-        $this->getManager()->rollback();
+//        $this->getManager()->rollback();
         parent::tearDown();
     }
 
