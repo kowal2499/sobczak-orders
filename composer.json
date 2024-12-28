@@ -1,4 +1,6 @@
 {
+    "name": "erla/sobczak-orders",
+    "description": "Manufacturing scheduler",
     "type": "project",
     "license": "proprietary",
     "require": {
