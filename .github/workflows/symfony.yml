@@ -41,14 +41,20 @@ jobs:
         run: |
           mkdir -p data
           touch data/database.sqlite
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
       - name: Create Database schema
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: ./bin/console doctrine:schema:create
+        run: sh ./bin/console doctrine:schema:create
       - name: Execute Database migrations
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: ./bin/console doctrine:migrations:migrate
+        run: sh ./bin/console doctrine:migrations:migrate
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
