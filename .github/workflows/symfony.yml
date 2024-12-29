@@ -78,8 +78,6 @@ jobs:
 
       - name: Debug MySQL connection
         run: |
-          echo "Testing MySQL connection to 'db'..."
-          mysql -hdb -uuser -ppass -e 'SHOW DATABASES;'
           echo "Testing MySQL connection to '127.0.0.1'..."
           mysql -h127.0.0.1 -uuser -ppass -e 'SHOW DATABASES;'
           
