@@ -47,10 +47,6 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Create Database schema
-        env:
-          DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-        run: php ./bin/console doctrine:schema:create
       - name: Execute Database migrations
         env:
           DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
