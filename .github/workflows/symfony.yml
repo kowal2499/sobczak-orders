@@ -48,7 +48,7 @@ jobs:
       - name: Copy .env.test.local
         run: |
           php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-          echo "DATABASE_URL=mysql://user:pass@db:3306/symfony_test" >> .env.test.local
+          echo "DATABASE_URL=mysql://user:pass@127.0.0.1:3306/symfony_test" >> .env.test.local
         
         
       - name: Cache Composer packages
@@ -78,8 +78,11 @@ jobs:
 
       - name: Debug MySQL connection
         run: |
-          echo "Testing MySQL connection..."
+          echo "Testing MySQL connection to 'db'..."
           mysql -hdb -uuser -ppass -e 'SHOW DATABASES;'
+          echo "Testing MySQL connection to '127.0.0.1'..."
+          mysql -h127.0.0.1 -uuser -ppass -e 'SHOW DATABASES;'
+          
           
       - name: Execute Database migrations
         run: php bin/console doctrine:migrations:migrate --no-interaction
