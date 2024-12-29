@@ -63,3 +63,24 @@ jobs:
       
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         run: vendor/bin/phpunit ./tests
+        
+
+      - name: Install JS Dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '10.19'
+      - name: Install NPM dependencies
+        run: |
+          cd assets
+          npm install
+
+      - name: Build JS and CSS
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build files as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-assets
+          path: assets/build/*  # Ścieżka do folderu z zbudowanymi plikami
