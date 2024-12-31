@@ -1,37 +1,31 @@
 <template>
     <div class="sb-info-card sb-attachments">
-        <div class="row">
-            <div class="col-sm-12">
+        <div v-if="attachments.length === 0" class="text-left">
+            <i class="fa fa-ban mr-2"></i> {{ $t('orders.noattachments') }}
+        </div>
 
-                <div v-if="attachments.length === 0" class="text-center">
-                    <i class="fa fa-ban"></i> {{ $t('orders.noattachments') }}
-                </div>
+        <ul v-else :style="horizontal ? 'display: flex' : ''">
+            <li v-for="attachment in attachments">
+                <a :href="attachment.path" target="_blank">
 
-                <ul v-else :style="horizontal ? 'display: flex' : ''">
-                    <li v-for="attachment in attachments">
-                        <a :href="attachment.path" target="_blank">
-
-                            <template v-if="tooltip">
-                                <tooltip>
-                                    <span slot="visible-content">
-                                        <img :src="attachment.thumbnail" :alt="attachment.name" v-if="attachment.thumbnail" >
-                                        <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
-                                    </span>
-                                    <span slot="tooltip-content">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
-                                </tooltip>
-                            </template>
-
-                            <template v-else>
+                    <template v-if="tooltip">
+                        <tooltip>
+                            <span slot="visible-content">
                                 <img :src="attachment.thumbnail" :alt="attachment.name" v-if="attachment.thumbnail" >
                                 <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
-                            </template>
+                            </span>
+                            <span slot="tooltip-content">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
+                        </tooltip>
+                    </template>
 
-                        </a>
-                    </li>
-                </ul>
+                    <template v-else>
+                        <img :src="attachment.thumbnail" :alt="attachment.name" v-if="attachment.thumbnail" >
+                        <span class="ml-1 link-txt" v-if="showName">{{ ''.concat(attachment.originalName, '.', attachment.extension) }}</span>
+                    </template>
 
-            </div>
-        </div>
+                </a>
+            </li>
+        </ul>
     </div>
 </template>
 

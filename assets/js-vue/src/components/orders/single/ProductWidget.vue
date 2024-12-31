@@ -1,25 +1,21 @@
 <template>
-    <div>
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <tr v-if="value.name">
-                    <th>{{ $t('name') }}</th>
-                    <td>{{ value.name }}</td>
-                </tr>
-                <tr v-if="value.factor && userCanProduction()" >
-                    <th>{{ $t('orders.factor') }}</th>
-                    <td>{{ value.factor }}</td>
-                </tr>
-                <tr v-if="value.description">
-                    <th>{{ $t('orders.description') }}</th>
-                    <td>{{ value.description }}</td>
-                </tr>
-            </table>
+    <div class="d-flex flex-row align-items-start">
+        <div class="order-spec-list">
+            <div v-if="product.name">
+                <div class="order-spec-list--item-title">{{ $t('name') }}</div>
+                <div>{{ product.name }}</div>
+            </div>
+            <div v-if="product.factor && userCanProduction()" >
+                <div class="order-spec-list--item-title">{{ $t('orders.factor') }}</div>
+                <div>{{ product.factor }}</div>
+            </div>
+            <div v-if="product.description">
+                <div class="order-spec-list--item-title">{{ $t('orders.description') }}</div>
+                <div>{{ product.description }}</div>
+            </div>
         </div>
-
-        <a :href="getEditLink" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mt-1 mb-1" v-if="userCan()">
+        <a :href="editLink" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-            {{ $t('orders.edit') }}
         </a>
     </div>
 </template>
@@ -30,11 +26,16 @@
 
     export default {
         name: "ProductWidget",
-        props: ['value'],
+        props: {
+            product: {
+                type: Object,
+                required: true
+            }
+        },
 
         computed: {
-            getEditLink() {
-                return routing.get('products_edit').concat('/' + String(this.value.id));
+            editLink() {
+                return routing.get('products_edit').concat('/' + String(this.product.id));
             }
         },
 

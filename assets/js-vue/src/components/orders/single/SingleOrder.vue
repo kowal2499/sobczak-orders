@@ -21,7 +21,7 @@
                     <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
-                <collapsible-card :title="$t('orders.orderDetails')" :locked="locked">
+                <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
                     <details-widget
                         v-model="orderData"
                         :statuses="statuses"
@@ -31,42 +31,39 @@
 
             <div class="col-12 col-lg-4">
                 <collapsible-card :title="$t('product')" :locked="locked" v-if="orderData.Product">
-                    <product-widget v-model="orderData.Product"/>
+                    <product-widget :product="orderData.Product"/>
                 </collapsible-card>
 
-                <collapsible-card :title="$t('customer')" :locked="locked" v-if="orderData.Agreement && orderData.Agreement.Customer">
-                    <customer-widget v-model="orderData.Agreement.Customer"/>
+                <collapsible-card :title="$t('orders.orderDetails')" :locked="locked" v-if="orderData.Agreement">
+                    <agreement-widget :agreement="orderData.Agreement" />
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.attachments')" :locked="locked" v-if="orderData.Agreement">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <attachments-widget :attachments="orderData.Agreement.attachments || []" :show-name="true"
-                                                :tooltip="false"/>
-                        </div>
-                    </div>
+                    <attachments-widget
+                        :attachments="orderData.Agreement.attachments || []"
+                        :show-name="true"
+                        :tooltip="false"
+                    />
                 </collapsible-card>
             </div>
         </div>
-
     </div>
 </template>
 
 <script>
-
     import CollapsibleCard from "../../base/CollapsibleCard";
     import ordersApi from "../../../api/neworder";
     import ProductionWidget from "./ProductionWidget";
     import DetailsWidget from "./DetailsWidget";
     import ProductWidget from "./ProductWidget";
-    import CustomerWidget from "./CustomerWidget";
     import AttachmentsWidget from "./AttachmentsWidget";
+    import AgreementWidget from "./AgreementWidget";
     import _ from 'lodash';
     import moment from "moment";
 
     export default {
         name: "SingleOrder",
-        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, CustomerWidget, AttachmentsWidget },
+        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget },
         props: ['lineId', 'statuses'],
 
         data() {

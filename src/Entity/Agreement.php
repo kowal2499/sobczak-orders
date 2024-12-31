@@ -65,6 +65,7 @@ class Agreement
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups("_main")
      */
     private $user = null;
 

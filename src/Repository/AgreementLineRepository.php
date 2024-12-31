@@ -38,12 +38,14 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->leftJoin('l.productions', 'pr')
             ->leftJoin('pr.statusLogs', 's')
             ->leftJoin('s.user', 'u')
+            ->leftJoin('a.user', 'au')
             ->addSelect('a')
             ->addSelect('c')
             ->addSelect('p')
             ->addSelect('pr')
             ->addSelect('s')
             ->addSelect('u')
+            ->addSelect('au')
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
