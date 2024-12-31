@@ -62,6 +62,12 @@ class Agreement
      */
     private $attachments;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $user = null;
+
     public function __construct()
     {
         $this->agreementLines = new ArrayCollection();
@@ -192,5 +198,10 @@ class Agreement
         }
 
         return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 }
