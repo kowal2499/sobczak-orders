@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Customers2UsersRepository")
@@ -20,13 +19,13 @@ class Customers2Users
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="customers")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="customers2Users")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $owner;
+    private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="customers2Users")
      * @ORM\JoinColumn(nullable=false)
      * @Groups("public_attr")
      */
@@ -37,14 +36,14 @@ class Customers2Users
         return $this->id;
     }
 
-    public function getOwner(): ?User
+    public function getUser(): ?User
     {
-        return $this->owner;
+        return $this->user;
     }
 
-    public function setOwner(?User $owner): self
+    public function setUser(?User $user): self
     {
-        $this->owner = $owner;
+        $this->user = $user;
 
         return $this;
     }
