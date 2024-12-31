@@ -13,6 +13,9 @@ use App\Tests\Utilities\Factory\EntityFactory;
 
 class AgreementControllerTest extends ApiTestCase
 {
+    /** @var User $user */
+    private $user;
+
     protected function setUp(): void
     {
         $this->factory = new EntityFactory($this->getManager());
@@ -63,6 +66,7 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertInstanceOf(Agreement::class, $order);
         $this->assertEquals(12123, $order->getOrderNumber());
         $this->assertEquals($customer->getId(), $order->getCustomer()->getId());
+        $this->assertEquals($this->user->getId(), $order->getUser()->getId());
         $this->assertNull($order->getStatus());
 
         $lines = $order->getAgreementLines();
