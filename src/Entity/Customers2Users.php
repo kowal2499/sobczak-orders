@@ -27,7 +27,7 @@ class Customers2Users
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="customers2Users")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("public_attr")
+     * @Groups({"public_attr", "user_main"})
      */
     private $customer;
 

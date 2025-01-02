@@ -7,8 +7,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -64,7 +62,7 @@ class User implements UserInterface
     private $statusLogs;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade="persist", fetch="EAGER")
      * @Groups("user_main")
      */
     private $customers2Users;
@@ -247,5 +245,10 @@ class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function getCustomers2Users(): Collection
+    {
+        return $this->customers2Users;
     }
 }

@@ -1,6 +1,5 @@
 <template>
     <div>
-
         <vue-select
             :options="selectOptions"
             :multiple="true"
@@ -76,8 +75,10 @@
         },
 
         mounted() {
-            this.fetch();
-            this.selection = this.selection.map(this.prepareOption);
+            this.fetch().then(() => {
+                this.selection = this.selectOptions.filter(opt => this.value.includes(opt.id));
+            });
+
         },
 
         watch: {
@@ -89,29 +90,16 @@
         methods: {
 
             fetch() {
-
-                return new Promise(((resolve, reject) => {
-
-                    CustomerAPI.findCustomers(this.q)
-                        .then(({data}) => {
-                            if (Array.isArray(data)) {
-                                this.selectOptions = data
-                                    .map(this.prepareOption)
-                                    .filter(option => {
-                                        return this.value.indexOf(option.id) === -1;
-                                    })
-                                ;
-                            } else {
-                                this.selectOptions = [];
-                            }
-                            this.initialized = true;
-                            resolve();
-                        })
-                        .catch(() => {
-                            reject();
-                        })
-
-                }));
+                return CustomerAPI.findCustomers(this.q)
+                    .then(({data}) => {
+                        if (Array.isArray(data)) {
+                            this.selectOptions = data.map(this.prepareOption)
+                        } else {
+                            this.selectOptions = [];
+                        }
+                        this.initialized = true;
+                    }
+                )
             },
 
             fetchOptionsWithSearch: _.debounce(function(search, loading) {

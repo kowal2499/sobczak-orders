@@ -176,6 +176,7 @@ class SecurityController extends BaseController
             $this->processForm($request, $form);
 
             $user = $form->getData();
+
             $user->setPassword($userPasswordEncoder->encodePassword(
                 $user,
                 $form['passwordPlain']->getData()

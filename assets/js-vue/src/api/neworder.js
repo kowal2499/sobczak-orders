@@ -5,11 +5,8 @@ import Routing from './routing';
 export default {
 
     findCustomers(q) {
-
         return axios.get(Routing.get('customers_search'), {
-                params: {
-                    q: q
-                }
+                params: { q }
             }
         );
     },
