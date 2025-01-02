@@ -1,6 +1,5 @@
 <template>
     <collapsible-card :title="$t('orders.list')">
-
         <template v-slot:header>
             <div v-if="userCanAddOrder()">
                 <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
@@ -28,6 +27,14 @@
                 </td>
                 <td>{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
+                <td>
+                    <span v-if="line.Agreement.user && line.Agreement.user.userFullName">
+                        {{ line.Agreement.user.userFullName }}
+                    </span>
+                    <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                        <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                    </span>
+                </td>
                 <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
                 <td>{{ line.Product.name }}
                     <tooltip v-if="line.description">
@@ -50,15 +57,14 @@
             </tr>
         </table-plus>
 
-				<b-pagination
-						v-if="args.meta.pages > 1"
-						align="right"
-						v-model="args.meta.page"
-						:total-rows="args.meta.totalCount"
-						:per-page="args.meta.pageSize"
-						first-number last-number size="sm"
-				/>
-
+        <b-pagination
+                v-if="args.meta.pages > 1"
+                align="right"
+                v-model="args.meta.page"
+                :total-rows="args.meta.totalCount"
+                :per-page="args.meta.pageSize"
+                first-number last-number size="sm"
+        />
     </collapsible-card>
 </template>
 
@@ -241,6 +247,7 @@
                         { name: this.$t('id'), sortKey: 'id' },
                         { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
                         { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
+                        { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                         { name: this.$t('customer'), sortKey: 'customer'},
                         { name: this.$t('product'), sortKey: 'product' },
                         { name: this.$t('orderStatus') },

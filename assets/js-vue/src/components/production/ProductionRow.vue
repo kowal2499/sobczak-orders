@@ -11,6 +11,15 @@
         </td>
 
         <td>
+            <span v-if="order.Agreement.user && order.Agreement.user.userFullName">
+                {{ order.Agreement.user.userFullName }}
+            </span>
+            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+            </span>
+        </td>
+
+        <td>
             {{ __mixin_customerName(order.Agreement.Customer) }}
         </td>
 

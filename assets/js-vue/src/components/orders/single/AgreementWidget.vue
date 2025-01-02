@@ -11,7 +11,7 @@
         </div>
 
         <div>
-            <div class="order-spec-list--item-title">{{ $t('createdBy') }}</div>
+            <div class="order-spec-list--item-title">{{ $t('orders.issuedBy') }}</div>
             <div v-if="agreement.user">{{ agreement.user.userFullName }}</div>
             <div v-else class="text-muted"><i class="fa fa-ban mr-2"></i> {{ $t('noData') }}</div>
         </div>

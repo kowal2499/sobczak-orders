@@ -46,6 +46,7 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->addSelect('s')
             ->addSelect('u')
             ->addSelect('au')
+            ->addSelect("LOWER(CONCAT(au.firstName, ' ', au.lastName)) AS HIDDEN userFullName")
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
@@ -135,6 +136,7 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'customer': $qb->orderBy('c.name', $order); break;
                     case 'product': $qb->orderBy('p.name', $order); break;
                     case 'factor': $qb->orderBy('l.factor', $order); break;
+                    case 'user': $qb->orderBy('userFullName', $order); break;
                 }
             }
         }
