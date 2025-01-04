@@ -43,14 +43,12 @@
 </template>
 
 <script>
-
     import VueSelect from 'vue-select'
     import CustomerAPI from '../../api/neworder';
     import Waiting from './Waiting';
     import _ from 'lodash';
 
     export default {
-
         name: "CustomerSelect",
 
         components: { VueSelect, Waiting },
@@ -61,34 +59,24 @@
             }
         },
 
-        data() {
-            return {
-                selectOptions: [],
-                selection: this.value,
-                q: '',
-
-                /**
-                 * Wymagane by nie tworzyć komponentu z pustymi opcjami. Gdy nie ma jeszcze opcji to nieprawidłowo ustawiają się wartości początkowe (selection)
-                 */
-                initialized: false
-            }
-        },
-
         mounted() {
-            this.fetch().then(() => {
-                this.selection = this.selectOptions.filter(opt => this.value.includes(opt.id));
-            });
-
+            this.fetch()
+                .then(() => this.selection = this.selectOptions.filter(opt => this.selectedCustomerIds.includes(opt.id)))
         },
 
         watch: {
             selection(val) {
-                this.$emit('input', val.map(v => v.id));
+                this.$emit('input', val.map(v => ({ customer: v.id })))
+            }
+        },
+
+        computed: {
+            selectedCustomerIds() {
+                return this.value.map(v => v.customer)
             }
         },
 
         methods: {
-
             fetch() {
                 return CustomerAPI.findCustomers(this.q)
                     .then(({data}) => {
@@ -105,9 +93,7 @@
             fetchOptionsWithSearch: _.debounce(function(search, loading) {
                 this.q = search;
                 loading(true);
-                this.fetch().then(data => {
-                    loading(false)
-                });
+                this.fetch().then(() => loading(false))
             }, 500),
 
             prepareOption(customer) {
@@ -118,8 +104,18 @@
                 customer.label = `${customer.name}${nameText}`;
                 return customer;
             }
+        },
 
-        }
+        data: () => ({
+            selectOptions: [],
+            selection: [],
+            q: '',
+
+            /**
+             * Wymagane by nie tworzyć komponentu z pustymi opcjami. Gdy nie ma jeszcze opcji to nieprawidłowo ustawiają się wartości początkowe (selection)
+             */
+            initialized: false
+        })
     }
 </script>
 

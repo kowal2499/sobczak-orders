@@ -62,7 +62,7 @@ class User implements UserInterface
     private $statusLogs;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade="persist", fetch="EAGER")
+     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
      * @Groups("user_main")
      */
     private $customers2Users;
@@ -250,5 +250,20 @@ class User implements UserInterface
     public function getCustomers2Users(): Collection
     {
         return $this->customers2Users;
+    }
+
+    public function addCustomers2User(Customers2Users $customers2Users): void
+    {
+        if (!$this->customers2Users->contains($customers2Users)) {
+            $this->customers2Users[] = $customers2Users;
+            $customers2Users->setUser($this);
+        }
+    }
+
+    public function removeCustomers2User(Customers2Users $customer2user): void
+    {
+        if ($this->customers2Users->contains($customer2user)) {
+            $this->customers2Users->removeElement($customer2user);
+        }
     }
 }

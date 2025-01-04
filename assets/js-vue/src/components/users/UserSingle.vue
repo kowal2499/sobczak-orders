@@ -176,7 +176,10 @@
 
                 users.fetchUser(this.userId)
                     .then(({data}) => {
-                        data.customers2Users = (data.customers2Users || []).map(item => item.customer.id)
+                        data.customers2Users = (data.customers2Users || []).map(item => ({
+                            id: item.id,
+                            customer: item.customer.id
+                        }))
                         this.user = data;
                         // this.roles.customers = data.customers;
                         this.title = helpers.userName(this.user);
@@ -199,7 +202,10 @@
                 this.locked = true;
 
                 const userData = { ...this.user };
-                userData.customers2Users = (userData.customers2Users || []).map(id => ({customer: { id }}))
+                userData.customers2Users = (userData.customers2Users || []).map(data => ({
+                    customer: data.customer,
+                    user: this.userId
+                }))
 
                 if (this.passwords.new) {
                     userData.passwordPlain = this.passwords.new;
