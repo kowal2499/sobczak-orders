@@ -97,7 +97,7 @@
                         Rola w systemie
                     </label>
                     <div class="col">
-                        <role-picker v-model="user"></role-picker>
+                        <role-picker v-model="user" />
                     </div>
                 </div>
 
@@ -201,11 +201,16 @@
             save() {
                 this.locked = true;
 
-                const userData = { ...this.user };
-                userData.customers2Users = (userData.customers2Users || []).map(data => ({
-                    customer: data.customer,
-                    user: this.userId
-                }))
+                const userData = {...this.user}
+                userData.customers2Users = (userData.customers2Users || []).map(data => {
+                    const item = {
+                        customer: data.customer,
+                    }
+                    if (this.userId) {
+                        item.user = this.userId
+                    }
+                    return item
+                })
 
                 if (this.passwords.new) {
                     userData.passwordPlain = this.passwords.new;

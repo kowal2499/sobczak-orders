@@ -1,7 +1,9 @@
 <template>
     <div>
+        <waiting description="Trwa pobieranie danych" class="mb-3" v-if="isBusy" />
+
         <vue-select
-            :options="selectOptions"
+            :options="filteredOptions"
             :multiple="true"
             :filterable="false"
             v-model="selection"
@@ -9,91 +11,85 @@
             label="label"
             placeholder="Wyszukaj klienta"
             class="style-chooser"
-            v-if="initialized"
         >
-            <template slot="option" slot-scope="option">
-
+            <template v-slot:option="option">
                 <div class="card-body d-flex p-1">
                     <div style="flex: 4">
                         <strong>{{ option.name }}</strong> {{ option.first_name }} {{ option.last_name }}
                         <div v-if="option.phone" class="text-secondary"><small>{{ option.phone }}</small></div>
                         <div v-if="option.email" class="text-secondary"><small>{{ option.email }}</small></div>
                     </div>
-
                     <div style="flex: 1">
                         {{ option.city }}
                     </div>
-
                     <div style="flex: 1">
                         {{ option.country }}
                     </div>
-
                 </div>
-
             </template>
 
-            <div slot="no-options">Nie znaleziono żadnego klienta</div>
-
+            <template v-slot:no-options>
+                Nie znaleziono żadnego klienta
+            </template>
         </vue-select>
-
-        <waiting :description="'Trwa pobieranie danych'" v-if="!initialized"></waiting>
-
     </div>
-
 </template>
 
 <script>
     import VueSelect from 'vue-select'
-    import CustomerAPI from '../../api/neworder';
-    import Waiting from './Waiting';
-    import _ from 'lodash';
+    import CustomerAPI from '../../api/neworder'
+    import Waiting from './Waiting'
+    import _ from 'lodash'
 
     export default {
-        name: "CustomerSelect",
+        name: 'CustomerSelect',
 
         components: { VueSelect, Waiting },
 
         props: {
             value: {
+                type: Array,
                 default: () => []
             }
         },
 
         mounted() {
-            this.fetch()
-                .then(() => this.selection = this.selectOptions.filter(opt => this.selectedCustomerIds.includes(opt.id)))
-        },
-
-        watch: {
-            selection(val) {
-                this.$emit('input', val.map(v => ({ customer: v.id })))
-            }
+            this.fetchOptions()
         },
 
         computed: {
-            selectedCustomerIds() {
+            selectedIds() {
                 return this.value.map(v => v.customer)
+            },
+
+            selection: {
+                get() {
+                    return this.options.filter(opt => this.selectedIds.includes(opt.id))
+                },
+                set(value) {
+                    this.$emit('input', value.map(v => ({ customer: v.id })))
+                }
+            },
+
+            filteredOptions() {
+                return this.options.filter(opt => !this.selectedIds.includes(opt.id))
             }
         },
 
         methods: {
-            fetch() {
+            fetchOptions() {
+                this.isBusy = true
                 return CustomerAPI.findCustomers(this.q)
                     .then(({data}) => {
-                        if (Array.isArray(data)) {
-                            this.selectOptions = data.map(this.prepareOption)
-                        } else {
-                            this.selectOptions = [];
-                        }
-                        this.initialized = true;
-                    }
-                )
+                        this.options = Array.isArray(data) ? data.map(this.prepareOption) : [];
+                    })
+                    .finally(() => this.isBusy = false)
             },
 
             fetchOptionsWithSearch: _.debounce(function(search, loading) {
                 this.q = search;
                 loading(true);
-                this.fetch().then(() => loading(false))
+                this.fetchOptions().then(() => loading(false))
             }, 500),
 
             prepareOption(customer) {
@@ -107,34 +103,24 @@
         },
 
         data: () => ({
-            selectOptions: [],
-            selection: [],
+            isBusy: false,
+            options: [],
             q: '',
-
-            /**
-             * Wymagane by nie tworzyć komponentu z pustymi opcjami. Gdy nie ma jeszcze opcji to nieprawidłowo ustawiają się wartości początkowe (selection)
-             */
-            initialized: false
         })
     }
 </script>
 
 <style lang="scss" >
-
     .style-chooser {
-
         .vs__search::placeholder {
             color: gray;
         }
-
         .vs__dropdown-option--highlight {
             background: #4E73DF;
             color: #fff !important;
         }
-
         .vs__dropdown-option--highlight .text-secondary {
             color: #d5d5d5 !important;
         }
     }
-
 </style>
