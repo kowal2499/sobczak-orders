@@ -45,8 +45,6 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_CUSTOMERS")
-     * @IsGranted("ROLE_CUSTOMERS_LIMITED")
      *
      * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
@@ -55,6 +53,10 @@ class CustomersController extends AbstractController
      */
     public function search(Request $request, CustomerRepository $repository)
     {
+        if (!$this->isGranted('ROLE_CUSTOMERS') && !$this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $search = $request->query->all();
 
         if ($this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
