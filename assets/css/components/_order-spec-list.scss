@@ -1,0 +1,15 @@
+.order-spec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    color: slategray;
+    a:not(.btn) {
+        color: slategray;
+    }
+
+    &--item-title {
+        font-weight: normal;
+        color: $mainBlue;
+        font-size: 0.95rem;
+    }
+}

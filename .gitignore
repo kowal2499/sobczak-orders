@@ -9,6 +9,7 @@
 /vendor/
 /web
 /bin
+!/bin/console
 ###< symfony/framework-bundle ###
 
 ###> symfony/webpack-encore-bundle ###

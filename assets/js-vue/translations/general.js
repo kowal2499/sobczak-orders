@@ -34,6 +34,7 @@ export default {
         'zrealizowane na stanie': 'finished on stock',
         'forbidden': 'No access',
         'error': 'An error occured',
+        'noData': 'No information',
     },
     'pl': {
         Styczeń: 'Styczeń',
@@ -70,5 +71,6 @@ export default {
         'zrealizowane na stanie': 'zrealizowane na stanie',
         'forbidden': 'Brak dostępu',
         'error': 'Wystąpił błąd',
+        'noData': 'Brak informacji',
     }
 }

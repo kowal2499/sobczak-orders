@@ -7,6 +7,7 @@ use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Entity\User;
 use App\Form\AgreementsType;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -116,12 +118,22 @@ class AgreementsController extends AbstractController
      * @param CustomerRepository $customerRepository
      * @param ProductRepository $productRepository
      * @param EntityManagerInterface $em
+     * @param UploaderHelper $uploaderHelper
+     * @param TranslatorInterface $t
+     * @param Security $security
      * @return JsonResponse
      * @throws \Exception
      */
-    public function save(Request $request, CustomerRepository $customerRepository, ProductRepository $productRepository, EntityManagerInterface $em, UploaderHelper $uploaderHelper, TranslatorInterface $t)
+    public function save(
+        Request $request,
+        CustomerRepository $customerRepository,
+        ProductRepository $productRepository,
+        EntityManagerInterface $em,
+        UploaderHelper $uploaderHelper,
+        TranslatorInterface $t,
+        Security $security
+    )
     {
-
         $data = $request->request->all();
 
         if (false === is_array($data['products'])) {
@@ -129,12 +141,12 @@ class AgreementsController extends AbstractController
         }
 
         $customer = $customerRepository->find($data['customerId']);
-
         $agreement = new Agreement();
         $agreement
             ->setCreateDate(new \DateTime())
             ->setUpdateDate(new \DateTime())
             ->setCustomer($customer)
+            ->setUser($security->getUser())
             ->setOrderNumber($data['orderNumber'])
         ;
 
@@ -206,10 +218,10 @@ class AgreementsController extends AbstractController
         /**
          * 1. operujemy na agreement_line_id
          * 2. aktualizujemy klienta i numer zamówienia
-         * 3. tworzymy zbiór wszystkich agreement line które należą do danego agreement
-         * 4. z tych agreement które otrzymaliśmy, aktualizujemy te które mają id i usuwamy je ze zbioru
-         * 5. z tych agreement które otrzymaliśmy i które nie mają id - dodajemy jako nowe
-         * 6. jeśli zbiór jest niepusty to znaczy że te które zostały trzeba usunąć. usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
+         * 3. tworzymy zbiór wszystkich agreement line, które należą do danego agreement
+         * 4. z tych agreement które otrzymaliśmy, aktualizujemy te, które mają id i usuwamy je ze zbioru
+         * 5. z tych agreement które otrzymaliśmy i które nie mają id-dodajemy jako nowe
+         * 6. jeśli zbiór jest niepusty, to znaczy, że te, które zostały trzeba usunąć. Usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
 
         $requestData = $request->request->all();

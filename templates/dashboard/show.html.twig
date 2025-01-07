@@ -3,20 +3,5 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-
     <dashboard2></dashboard2>
-
-    {% if app.user.id is same as(3) %}
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
-        </div>
-        <div class="card-body">
-            <dashboard></dashboard>
-        </div>
-    </div>
-
-    {% endif %}
-
 {% endblock %}

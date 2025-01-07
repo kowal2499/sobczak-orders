@@ -1,22 +1,20 @@
 <template>
     <collapsible-card :title="$t('orders.productionSchedule')">
-
         <template v-slot:filters>
             <filters :filters-collection="args.filters"/>
         </template>
 
-				<b-pagination
-						v-if="args.meta.pages > 1"
-						align="right"
-						v-model="args.meta.page"
-						:total-rows="args.meta.totalCount"
-						:per-page="args.meta.pageSize"
-						first-number last-number size="sm"
-				/>
+        <b-pagination
+            v-if="args.meta.pages > 1"
+            align="right"
+            v-model="args.meta.page"
+            :total-rows="args.meta.totalCount"
+            :per-page="args.meta.pageSize"
+            first-number last-number size="sm"
+        />
 
         <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
             <template v-for="order in orders">
-
                 <production-row
                     v-if="order.productions.length > 0"
                     :order="order"
@@ -36,18 +34,17 @@
                     :disabled="busyOrders.includes(order.id)"
                     @statusUpdated="updateStatus($event, order.id)"
                 />
-
             </template>
         </table-plus>
 
-				<b-pagination
-						v-if="args.meta.pages > 1"
-						align="right"
-						v-model="args.meta.page"
-						:total-rows="args.meta.totalCount"
-						:per-page="args.meta.pageSize"
-						first-number last-number size="sm"
-				/>
+        <b-pagination
+                v-if="args.meta.pages > 1"
+                align="right"
+                v-model="args.meta.page"
+                :total-rows="args.meta.totalCount"
+                :per-page="args.meta.pageSize"
+                first-number last-number size="sm"
+        />
 
     </collapsible-card>
 </template>
@@ -101,8 +98,8 @@
                     meta: {
                         page: 0,
                         pages: 0,
-												totalCount: 0,
-												pageSize: 0,
+                        totalCount: 0,
+                        pageSize: 0,
                         sort: ''
                     },
                 },
@@ -204,8 +201,8 @@
 												this.args.meta.totalCount = data.meta.totalCount || 0;
 												this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
-                    .catch(data => {})
-                    .finally(() => { this.loading = false; })
+                    .catch(() => {})
+                    .finally(() => this.loading = false)
             },
 
             updateStatus(data, agreementLineId) {
@@ -278,37 +275,23 @@
 
         computed: {
             tableHeaders() {
-                let headers = [
+                return [
                     [
                         { name: this.$t('ID'), sortKey: 'id' },
                         { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
+                        { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                         { name: this.$t('customer'), sortKey: 'customer' },
                         { name: this.$t('product'), sortKey: 'product' },
-                        // { name: this.$t('orders.production'), colspan: 5, classCell: 'text-center', classHeader: 'p-1 m-0'},
+                        this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
                         { name: this.$t('Klejenie'), classCell: 'text-center', classHeader: 'prod'},
                         { name: this.$t('CNC'), classCell: 'text-center', classHeader: 'prod'},
                         { name: this.$t('Szlifowanie'), classCell: 'text-center', classHeader: 'prod'},
                         { name: this.$t('Lakierowanie'), classCell: 'text-center', classHeader: 'prod'},
                         { name: this.$t('Pakowanie'), classCell: 'text-center', classHeader: 'prod'},
-                    ],
-                    // [
-                    //     { name: this.$t('Klejenie'), classCell: 'text-center'},
-                    //     { name: this.$t('CNC'), classCell: 'text-center'},
-                    //     { name: this.$t('Szlifowanie'), classCell: 'text-center'},
-                    //     { name: this.$t('Lakierowanie'), classCell: 'text-center'},
-                    //     { name: this.$t('Pakowanie'), classCell: 'text-center'},
-                    // ]
-
+                        this.userCanProduction && { name: this.$t('orders.additionalOrders')},
+                        { name: this.$t('actions')}
+                    ].filter(Boolean),
                 ];
-
-                if (this.userCanProduction) {
-                    headers[0].splice(4, 0, { name: this.$t('orders.fctr'), sortKey: 'factor'});
-                    headers[0].push({ name: this.$t('orders.additionalOrders')});
-                }
-
-                headers[0].push({ name: this.$t('actions')});
-
-                return headers;
             },
 
             productionSlugs() {

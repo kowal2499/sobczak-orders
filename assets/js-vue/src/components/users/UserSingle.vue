@@ -1,8 +1,6 @@
 <template>
-
     <div class="row">
         <div class="col-sm-12">
-
             <waiting :description="'Trwa pobieranie danych'" v-if="!dataFetched"></waiting>
 
             <collapsible-card
@@ -99,14 +97,12 @@
                         Rola w systemie
                     </label>
                     <div class="col">
-                        <role-picker v-model="user"></role-picker>
+                        <role-picker v-model="user" />
                     </div>
                 </div>
 
-
                 <div class="row">
                     <div class="col">
-
                         <button-plus
                             :button-class="'btn-primary float-right'"
                             :icon-class="'fa fa-floppy-o'"
@@ -116,7 +112,6 @@
                             @clicked="save"
                         >
                         </button-plus>
-
                     </div>
                 </div>
 
@@ -174,7 +169,6 @@
         },
 
         mounted() {
-
             // pobranie danych użytkownika
             if (this.userId > 0) {
                 this.dataFetched = false;
@@ -182,16 +176,14 @@
 
                 users.fetchUser(this.userId)
                     .then(({data}) => {
+                        data.customers2Users = (data.customers2Users || []).map(item => ({
+                            id: item.id,
+                            customer: item.customer.id
+                        }))
                         this.user = data;
                         // this.roles.customers = data.customers;
                         this.title = helpers.userName(this.user);
                         this.repeatedPassword = this.user.password;
-
-                        // this.roles.roles = data.roles;
-                        // if (data.roles && Array.isArray((data.roles)) && data.roles.length > 0) {
-                        //     this.roles.role = data.roles[0];
-                        // }
-
                         this.dataFetched = true;
                     })
                     .catch(() => {})
@@ -209,7 +201,16 @@
             save() {
                 this.locked = true;
 
-                let userData = { ... this.user };
+                const userData = {...this.user}
+                userData.customers2Users = (userData.customers2Users || []).map(data => {
+                    const item = {
+                        customer: data.customer,
+                    }
+                    if (this.userId) {
+                        item.user = this.userId
+                    }
+                    return item
+                })
 
                 if (this.passwords.new) {
                     userData.passwordPlain = this.passwords.new;

@@ -30,6 +30,7 @@ class AgreementLineController extends BaseController
      * @Route("/agreement/line/{id}", name="agreement_line_details", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
+     * @param TranslatorInterface $t
      * @return Response
      */
     public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t)

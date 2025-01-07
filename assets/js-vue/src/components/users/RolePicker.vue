@@ -12,15 +12,10 @@
                 </div>
 
                 <div class="card-body">
-                    <customer-select v-model="subject.customers"></customer-select>
+                    <customer-select v-model="subject.customers2Users" />
                 </div>
             </div>
-
-
         </div>
-
-
-
     </div>
 </template>
 
