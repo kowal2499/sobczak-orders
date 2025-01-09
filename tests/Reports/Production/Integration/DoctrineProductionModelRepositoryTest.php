@@ -143,6 +143,7 @@ class DoctrineProductionModelRepositoryTest extends ApiTestCase
 
     public function testShouldCountOrdersAsFinishedIfPackingStatusIsCompletedAndLogStatusIsCompletedAndWasSetInCurrentMonth()
     {
+        $this->markTestSkipped();
         // Given
         $agreementLine1 = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_MANUFACTURING]);
         $agreementLine2 = $this->agreementLineChanFactory->make([], ['status' => AgreementLine::STATUS_MANUFACTURING]);

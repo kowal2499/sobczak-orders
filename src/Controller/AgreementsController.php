@@ -170,21 +170,20 @@ class AgreementsController extends AbstractController
         }
 
         // file upload logic
-        $uploadedFiles = $request->files->get('file');
-        if (is_array($uploadedFiles) && !empty($uploadedFiles)) {
-
-            foreach ($uploadedFiles as $file) {
-                $fileNames = $uploaderHelper->uploadAttachment($file);
-                $attachment = new Attachment();
-                $attachment->setAgreement($agreement);
-                $attachment->setName($fileNames['newFileName']);
-                $attachment->setOriginalName($fileNames['originalFileName']);
-                $attachment->setExtension($fileNames['extension']);
-                $em->persist($attachment);
-            }
+        $rawFiles = $request->files->get('file');
+        if (!is_array($rawFiles)) {
+            $rawFiles = [$rawFiles];
         }
-
-
+        $files = $uploaderHelper->getUploadedFiles($rawFiles);
+        foreach ($files as $file) {
+            $fileNames = $uploaderHelper->uploadAttachment($file);
+            $attachment = new Attachment();
+            $attachment->setAgreement($agreement);
+            $attachment->setName($fileNames['newFileName']);
+            $attachment->setOriginalName($fileNames['originalFileName']);
+            $attachment->setExtension($fileNames['extension']);
+            $em->persist($attachment);
+        }
         $em->flush();
 
         if ($em->contains($agreement)) {
@@ -283,19 +282,20 @@ class AgreementsController extends AbstractController
             }
 
             // file upload logic
-            $uploadedFiles = $request->files->get('file');
-            if (is_array($uploadedFiles) && !empty($uploadedFiles)) {
+            $rawFiles = $request->files->get('file');
+            if (!is_array($rawFiles)) {
+                $rawFiles = [$rawFiles];
+            }
+            $files = $uploaderHelper->getUploadedFiles($rawFiles);
+            foreach ($files as $file) {
+                $fileNames = $uploaderHelper->uploadAttachment($file);
 
-                foreach ($uploadedFiles as $file) {
-                    $fileNames = $uploaderHelper->uploadAttachment($file);
-
-                    $attachment = new Attachment();
-                    $attachment->setAgreement($agreement);
-                    $attachment->setName($fileNames['newFileName']);
-                    $attachment->setOriginalName($fileNames['originalFileName']);
-                    $attachment->setExtension($fileNames['extension']);
-                    $em->persist($attachment);
-                }
+                $attachment = new Attachment();
+                $attachment->setAgreement($agreement);
+                $attachment->setName($fileNames['newFileName']);
+                $attachment->setOriginalName($fileNames['originalFileName']);
+                $attachment->setExtension($fileNames['extension']);
+                $em->persist($attachment);
             }
 
         } catch (Exception $e) {

@@ -76,4 +76,37 @@ class UploaderHelper
 
         return $resultPath;
     }
+
+    /**
+     * @param array $data
+     * @param int|null $error
+     * @return UploadedFile[]
+     */
+    public function getUploadedFiles(array $data, int $error = null): array
+    {
+        $filesCollection = [];
+        if (isset($data['name']) && isset($data['full_path'])) {
+            $values = array_values($data);
+            if (!isset($values[0])) {
+                return $filesCollection;
+            }
+            for ($i = 0; $i < count($values[0]); $i++) {
+                $file = new UploadedFile(
+                    $data['full_path'][$i],
+                    $data['name'][$i],
+                    $data['type'][$i] ?? null,
+                    $error
+                );
+                $filesCollection[] = $file;
+            }
+        } else {
+            foreach ($data as $file) {
+                if ($file instanceof UploadedFile) {
+                    $filesCollection[] = $file;
+                }
+            }
+        }
+
+        return $filesCollection;
+    }
 }

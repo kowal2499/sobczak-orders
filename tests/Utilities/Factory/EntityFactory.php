@@ -79,4 +79,9 @@ class EntityFactory
     {
         $this->entityManager->clear();
     }
+
+    public function getFaker(): \Faker\Generator
+    {
+        return $this->faker;
+    }
 }
