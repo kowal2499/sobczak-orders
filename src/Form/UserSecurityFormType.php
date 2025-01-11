@@ -2,9 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Customer;
 use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -31,14 +29,16 @@ class UserSecurityFormType extends AbstractType
             ->add('passwordOld', TextType::class, [
                 'mapped' => false,
             ])
-            ->add('customers', EntityType::class, [
-                'class' => Customer::class,
-                'multiple' => true
-            ])
             ->add('roles', CollectionType::class, [
                 'entry_type' => TextType::class,
                 'allow_add' => true,
                 'allow_delete' => true,
+            ])
+            ->add('customers2Users', CollectionType::class, [
+                'entry_type' => Customers2UsersType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
             ])
         ;
     }

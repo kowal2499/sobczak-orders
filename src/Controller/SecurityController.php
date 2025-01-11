@@ -126,7 +126,7 @@ class SecurityController extends BaseController
      *
      * Edytuje użytkownika
      */
-    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder, TranslatorInterface $t): JsonResponse
+    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder, TranslatorInterface $t): Response
     {
         $form = $this->createForm(UserSecurityFormType::class, $user);
 
@@ -153,9 +153,7 @@ class SecurityController extends BaseController
             return $this->composeErrorResponse($e);
         }
 
-        return $this->json($user, Response::HTTP_OK, [], [
-            ObjectNormalizer::GROUPS => ['user_main']
-        ]);
+        return new Response(null);
     }
 
     /**
@@ -176,6 +174,7 @@ class SecurityController extends BaseController
             $this->processForm($request, $form);
 
             $user = $form->getData();
+
             $user->setPassword($userPasswordEncoder->encodePassword(
                 $user,
                 $form['passwordPlain']->getData()

@@ -108,14 +108,14 @@ class Customer
     private $agreements;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="customers")
+     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="customer")
      */
-    private $users;
+    private $customers2Users;
 
     public function __construct()
     {
         $this->agreements = new ArrayCollection();
-        $this->users = new ArrayCollection();
+        $this->customers2Users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -315,14 +315,20 @@ class Customer
      */
     public function getUsers(): Collection
     {
-        return $this->users;
+        return $this->customers2Users->map(function (Customers2Users $element) {
+            return $element->getUser();
+        });
     }
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->addCustomer($this);
+        if (!$this->customers2Users->exists(function ($key, Customers2Users $element) use ($user) {
+            return $element->getUser()->getId() === $user->getId();
+        })) {
+            $c2u = new Customers2Users();
+            $c2u->setUser($user);
+            $c2u->setCustomer($this);
+            $this->customers2Users->add($c2u);
         }
 
         return $this;
@@ -330,9 +336,10 @@ class Customer
 
     public function removeUser(User $user): self
     {
-        if ($this->users->contains($user)) {
-            $this->users->removeElement($user);
-            $user->removeCustomer($this);
+        if ($this->customers2Users->exists(function ($key, Customers2Users $element) use ($user) {
+            return $element->getUser()->getId() === $user->getId();
+        })) {
+            $this->customers2Users->removeElement($user);
         }
 
         return $this;

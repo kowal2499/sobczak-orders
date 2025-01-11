@@ -7,8 +7,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -19,7 +17,7 @@ class User implements UserInterface
     public function __construct()
     {
         $this->statusLogs = new ArrayCollection();
-        $this->customers = new ArrayCollection();
+        $this->customers2Users = new ArrayCollection();
     }
     /**
      * @ORM\Id()
@@ -64,10 +62,10 @@ class User implements UserInterface
     private $statusLogs;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Customer", inversedBy="users")
+     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
      * @Groups("user_main")
      */
-    private $customers;
+    private $customers2Users;
 
     public function getId(): ?int
     {
@@ -219,13 +217,20 @@ class User implements UserInterface
      */
     public function getCustomers(): Collection
     {
-        return $this->customers;
+        return $this->customers2Users->map(function (Customers2Users $element) {
+            return $element->getCustomer();
+        });
     }
 
     public function addCustomer(Customer $customer): self
     {
-        if (!$this->customers->contains($customer)) {
-            $this->customers[] = $customer;
+        if (!$this->customers2Users->exists(function ($key, Customers2Users $element) use ($customer) {
+            return $element->getCustomer()->getId() === $customer->getId();
+        })) {
+            $c2u = new Customers2Users();
+            $c2u->setUser($this);
+            $c2u->setCustomer($customer);
+            $this->customers2Users->add($c2u);
         }
 
         return $this;
@@ -233,12 +238,32 @@ class User implements UserInterface
 
     public function removeCustomer(Customer $customer): self
     {
-        if ($this->customers->contains($customer)) {
-            $this->customers->removeElement($customer);
+        if ($this->customers2Users->exists(function ($key, Customers2Users $element) use ($customer) {
+            return $element->getCustomer()->getId() === $customer->getId();
+        })) {
+            $this->customers2Users->removeElement($customer);
         }
 
         return $this;
     }
 
+    public function getCustomers2Users(): Collection
+    {
+        return $this->customers2Users;
+    }
 
+    public function addCustomers2User(Customers2Users $customers2Users): void
+    {
+        if (!$this->customers2Users->contains($customers2Users)) {
+            $this->customers2Users[] = $customers2Users;
+            $customers2Users->setUser($this);
+        }
+    }
+
+    public function removeCustomers2User(Customers2Users $customer2user): void
+    {
+        if ($this->customers2Users->contains($customer2user)) {
+            $this->customers2Users->removeElement($customer2user);
+        }
+    }
 }

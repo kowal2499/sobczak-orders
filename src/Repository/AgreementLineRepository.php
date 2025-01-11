@@ -38,17 +38,16 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->leftJoin('l.productions', 'pr')
             ->leftJoin('pr.statusLogs', 's')
             ->leftJoin('s.user', 'u')
-//            ->leftJoin('l.tags', 't')
-//            ->leftJoin('t.tagDefinition', 'td', Expr\Join::WITH, 'td.id = t.tag_definition_id AND td.module = :module')
-//            ->addSelect('t')
+            ->leftJoin('a.user', 'au')
             ->addSelect('a')
             ->addSelect('c')
             ->addSelect('p')
             ->addSelect('pr')
             ->addSelect('s')
             ->addSelect('u')
+            ->addSelect('au')
+            ->addSelect("LOWER(CONCAT(au.firstName, ' ', au.lastName)) AS HIDDEN userFullName")
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
-//            ->setParameter('module', 'customer')
         ;
 
         if (isset($term['search']) && is_array($term['search'])) {
@@ -122,7 +121,6 @@ class AgreementLineRepository extends ServiceEntityRepository
                         break;
                 }
             }
-        
         }
 
         if (isset($term['search']['sort']) && !empty($term['search']['sort'])) {
@@ -138,9 +136,9 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'customer': $qb->orderBy('c.name', $order); break;
                     case 'product': $qb->orderBy('p.name', $order); break;
                     case 'factor': $qb->orderBy('l.factor', $order); break;
+                    case 'user': $qb->orderBy('userFullName', $order); break;
                 }
             }
-
         }
 
         return $qb->getQuery();

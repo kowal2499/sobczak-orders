@@ -48,6 +48,7 @@ class AgreementLine
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Production", cascade={"persist", "remove"}, mappedBy="agreementLine", orphanRemoval=true)
+     * @ORM\OrderBy({"id" = "ASC"})
      * @Groups({"_main", "_linePanel"})
      */
     private $productions;

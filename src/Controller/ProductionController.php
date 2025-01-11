@@ -44,7 +44,7 @@ class ProductionController extends BaseController
     }
 
     /**
-     * @isGranted({"ROLE_ADMIN", "ROLE_PRODUCTION"})
+     * @IsGranted("ROLE_PRODUCTION")
      * @Route ("/production/start/{agreementLine}", methods={"POST"})
      * @param AgreementLine $agreementLine
      * @param ProductionTaskDatesResolver $datesResolver
@@ -115,16 +115,15 @@ class ProductionController extends BaseController
      * @isGranted("ROLE_PRODUCTION")
      * @Route("/production/update_status", name="production_status_update", methods={"POST"}, options={"expose"=true})
      * @param Request $request
-     * @param ProductionRepository $repository
-     * @param EntityManagerInterface $em
+     * @param MessageBusInterface $messageBus
+     * @param ProductionRepository $taskRepository
      * @return JsonResponse
-     * @throws \Exception
      */
     public function updateStatus(
         Request $request,
         MessageBusInterface $messageBus,
         ProductionRepository $taskRepository
-    )
+    ): JsonResponse
     {
         $messageBus->dispatch(new UpdateStatusCommand(
             $request->request->getInt('productionId'),

@@ -4,7 +4,7 @@
 namespace App\Tests\Service;
 
 use \App\Service\NumberMultiplier;
-use \PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class NumberMultiplierTest extends TestCase
 {

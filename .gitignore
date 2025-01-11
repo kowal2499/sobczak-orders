@@ -1,7 +1,6 @@
 
 ###> symfony/framework-bundle ###
 .env
-*lock*
 /.env.local
 /.env.local.php
 /.env.*.local
@@ -10,6 +9,7 @@
 /vendor/
 /web
 /bin
+!/bin/console
 ###< symfony/framework-bundle ###
 
 ###> symfony/webpack-encore-bundle ###
@@ -42,3 +42,8 @@ testing.php
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###

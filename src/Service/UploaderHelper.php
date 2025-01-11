@@ -6,7 +6,6 @@ namespace App\Service;
 
 use Gedmo\Sluggable\Util\Urlizer;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
-use Liip\ImagineBundle\LiipImagineBundle;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -76,5 +75,38 @@ class UploaderHelper
         }
 
         return $resultPath;
+    }
+
+    /**
+     * @param array $data
+     * @param int|null $error
+     * @return UploadedFile[]
+     */
+    public function getUploadedFiles(array $data, int $error = null): array
+    {
+        $filesCollection = [];
+        if (isset($data['name']) && isset($data['tmp_name'])) {
+            $values = array_values($data);
+            if (!isset($values[0])) {
+                return $filesCollection;
+            }
+            for ($i = 0; $i < count($values[0]); $i++) {
+                $file = new UploadedFile(
+                    $data['tmp_name'][$i],
+                    $data['name'][$i],
+                    $data['type'][$i] ?? null,
+                    $error
+                );
+                $filesCollection[] = $file;
+            }
+        } else {
+            foreach ($data as $file) {
+                if ($file instanceof UploadedFile) {
+                    $filesCollection[] = $file;
+                }
+            }
+        }
+
+        return $filesCollection;
     }
 }

@@ -3,20 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\AgreementLine;
-use App\Entity\Production;
-use App\Entity\StatusLog;
 use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
-use App\Message\GetAssignedTags;
 use App\Message\Task\UpdateStatusCommand;
-use App\Repository\AgreementRepository;
-use App\Service\DateTimeHelper;
-use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -25,14 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\AgreementLineRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use function foo\func;
 
 
 class AgreementLineController extends BaseController
@@ -41,6 +30,7 @@ class AgreementLineController extends BaseController
      * @Route("/agreement/line/{id}", name="agreement_line_details", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
+     * @param TranslatorInterface $t
      * @return Response
      */
     public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t)
@@ -58,7 +48,7 @@ class AgreementLineController extends BaseController
     }
 
     /**
-     * @isGranted("ROLE_PRODUCTION_VIEW")
+     * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
      * @Route("/api/agreement-line/fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
@@ -98,7 +88,7 @@ class AgreementLineController extends BaseController
     }
 
     /**
-     * @isGranted("ROLE_PRODUCTION_VIEW")
+     * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
      * @Route("/api/agreement-line/fetch-single/{id}", methods={"GET"})
      * @param int $id
@@ -126,7 +116,7 @@ class AgreementLineController extends BaseController
     }
 
     /**
-     * @isGranted("ROLE_PRODUCTION")
+     * @IsGranted("ROLE_PRODUCTION")
      *
      * @Route("/agreement_line/update/{id}", name="agreement_line_update", methods={"PUT"}, options={"expose"=true})
      * @param Request $request

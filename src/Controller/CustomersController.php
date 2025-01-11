@@ -20,7 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class CustomersController extends AbstractController
 {
     /**
-     * @isGranted({"ROLE_CUSTOMERS"})
+     * @IsGranted("ROLE_CUSTOMERS")
      *
      * @Route("/customers", name="customers_show")
      * @param Request $request
@@ -45,7 +45,6 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @isGranted({"ROLE_CUSTOMERS", "ROLE_CUSTOMERS_LIMITED"})
      *
      * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
@@ -54,6 +53,10 @@ class CustomersController extends AbstractController
      */
     public function search(Request $request, CustomerRepository $repository)
     {
+        if (!$this->isGranted('ROLE_CUSTOMERS') && !$this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $search = $request->query->all();
 
         if ($this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
@@ -68,7 +71,7 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @isGranted("ASSIGNED_CUSTOMER", subject="customer")
+     * @IsGranted("ASSIGNED_CUSTOMER", subject="customer")
      *
      * @Route("/customers/single_fetch/{id}", name="customers_single_fetch", methods={"POST"}, options={"expose"=true})
      * @param Customer $customer
@@ -95,7 +98,7 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @isGranted({"ROLE_CUSTOMERS"})
+     * @IsGranted("ROLE_CUSTOMERS")
      *
      * @Route("/customers/new", name="customers_new", options={"expose"=true})
      * @param Request $request
@@ -127,12 +130,13 @@ class CustomersController extends AbstractController
     }
 
     /**
-     * @isGranted("ASSIGNED_CUSTOMER", subject="customer")
+     * @IsGranted("ASSIGNED_CUSTOMER", subject="customer")
      *
      * @Route("/customers/edit/{id}", name="customers_edit", options={"expose"=true})
      * @param Customer $customer
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param TranslatorInterface $t
      * @return Response
      */
     public function edit(Customer $customer, Request $request, EntityManagerInterface $em, TranslatorInterface $t)

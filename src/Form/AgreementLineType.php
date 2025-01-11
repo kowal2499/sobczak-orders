@@ -31,7 +31,8 @@ class AgreementLineType extends AbstractType
             ])
             ->add('confirmedDate', DateTimeType::class, [
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd HH:mm:ss'
+                'format' => 'yyyy-MM-dd HH:mm:ss',
+                'html5' => false
             ])
         ;
     }

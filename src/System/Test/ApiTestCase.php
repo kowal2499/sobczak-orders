@@ -22,21 +22,17 @@ class ApiTestCase extends WebTestCase
      * @param array $data
      * @param string $dataName
      */
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-    }
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->getManager()->beginTransaction();
+//        $this->getManager()->beginTransaction();
 
     }
 
     protected function tearDown(): void
     {
-        $this->getManager()->rollback();
+//        $this->getManager()->rollback();
         parent::tearDown();
     }
 
