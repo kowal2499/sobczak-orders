@@ -85,14 +85,14 @@ class UploaderHelper
     public function getUploadedFiles(array $data, int $error = null): array
     {
         $filesCollection = [];
-        if (isset($data['name']) && isset($data['full_path'])) {
+        if (isset($data['name']) && isset($data['tmp_name'])) {
             $values = array_values($data);
             if (!isset($values[0])) {
                 return $filesCollection;
             }
             for ($i = 0; $i < count($values[0]); $i++) {
                 $file = new UploadedFile(
-                    $data['full_path'][$i],
+                    $data['tmp_name'][$i],
                     $data['name'][$i],
                     $data['type'][$i] ?? null,
                     $error
