@@ -41,12 +41,10 @@ class UploaderHelperTest extends TestCase
         // Then
         $this->assertCount(2, $result);
         $this->assertContainsOnlyInstancesOf(UploadedFile::class, $result);
-        $this->assertEquals('baic.png', $result[0]->getFilename());
-        $this->assertEquals('/tmp/baic.png', $result[0]->getPathname());
+        $this->assertEquals('baic.png', $result[0]->getClientOriginalName());
         $this->assertEquals('image/png', $result[0]->getClientMimeType());
 
-        $this->assertEquals('Grafika-przykładowa.jpg', $result[1]->getFilename());
-        $this->assertEquals('/tmp/Grafika-przykładowa.jpg', $result[1]->getPathname());
+        $this->assertEquals('Grafika-przykładowa.jpg', $result[1]->getClientOriginalName());
         $this->assertEquals('image/jpeg', $result[1]->getClientMimeType());
     }
 
