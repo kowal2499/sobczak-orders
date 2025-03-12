@@ -5,7 +5,7 @@ namespace App\Security\Voter;
 use App\Entity\Customer;
 use App\Entity\User;
 use App\Repository\CustomerRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;

@@ -6,7 +6,8 @@ use App\Entity\Customers2Users;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr;
-use Doctrine\Common\Persistence\ManagerRegistry;
+//use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
