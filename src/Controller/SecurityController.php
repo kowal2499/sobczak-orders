@@ -10,8 +10,8 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -120,13 +120,13 @@ class SecurityController extends BaseController
      * @param Request $request
      * @param User $user
      * @param EntityManagerInterface $em
-     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     * @param UserPasswordHasherInterface $userPasswordHasher
      * @param TranslatorInterface $t
      * @return JsonResponse
      *
      * Edytuje użytkownika
      */
-    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder, TranslatorInterface $t): Response
+    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, TranslatorInterface $t): Response
     {
         $form = $this->createForm(UserSecurityFormType::class, $user);
 
@@ -138,10 +138,10 @@ class SecurityController extends BaseController
 
             // jeśli przesłano nowe hasło to zmieniamy
             if ($form['passwordPlain']->getData()) {
-                if (!$userPasswordEncoder->isPasswordValid($user, $form['passwordOld']->getData())) {
+                if (!$userPasswordHasher->isPasswordValid($user, $form['passwordOld']->getData())) {
                     throw new \Exception($t->trans('Stare hasło jest nieprawidłowe.', [], 'security'));
                 }
-                $user->setPassword($userPasswordEncoder->encodePassword(
+                $user->setPassword($userPasswordHasher->hashPassword(
                     $user,
                     $form['passwordPlain']->getData())
                 );
@@ -161,12 +161,12 @@ class SecurityController extends BaseController
      * @Route("/user", name="user_add", options={"expose"=true}, methods={"POST"})
      * @param Request $request
      * @param EntityManagerInterface $em
-     * @param UserPasswordEncoderInterface $userPasswordEncoder
+     * @param UserPasswordHasherInterface $userPasswordHasher
      * @return JsonResponse
      *
      * Tworzy nowego użytkownika
      */
-    public function addUser(Request $request, EntityManagerInterface $em, UserPasswordEncoderInterface $userPasswordEncoder)
+    public function addUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher)
     {
         $form = $this->createForm(UserSecurityFormType::class);
 
@@ -175,7 +175,7 @@ class SecurityController extends BaseController
 
             $user = $form->getData();
 
-            $user->setPassword($userPasswordEncoder->encodePassword(
+            $user->setPassword($userPasswordHasher->hashPassword(
                 $user,
                 $form['passwordPlain']->getData()
             ));
