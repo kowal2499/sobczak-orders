@@ -43,6 +43,7 @@
         "fzaninotto/faker": "^1.9",
         "guzzlehttp/guzzle": "^6.5",
         "phpunit/phpunit": "^8.5",
+        "rector/rector": "^1.2",
         "symfony/browser-kit": "5.4.*",
         "symfony/css-selector": "5.4.*",
         "symfony/debug-bundle": "5.4.*",

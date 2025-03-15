@@ -24,10 +24,10 @@ class UpdateAgreementLineDates extends Command
     private $entityManager;
 
     public function __construct(
-        string $name = null,
         ProductionStartDateResolverService $startDateResolverService,
         ProductionCompletionDateResolverService $completionDateResolverService,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        string $name = null
     ) {
         parent::__construct($name);
         $this->completionDateResolverService = $completionDateResolverService;
