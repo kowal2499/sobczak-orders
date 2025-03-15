@@ -28,7 +28,7 @@ class CustomersController extends AbstractController
      * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function customers(Request $request, CustomerRepository $repository, PaginatorInterface $paginator)
+    public function customers(Request $request, CustomerRepository $repository, PaginatorInterface $paginator): Response
     {
         $customers = $repository->getWithSearch(['q' => $request->query->get('q')]);
 
@@ -51,7 +51,7 @@ class CustomersController extends AbstractController
      * @param CustomerRepository $repository
      * @return JsonResponse
      */
-    public function search(Request $request, CustomerRepository $repository)
+    public function search(Request $request, CustomerRepository $repository): JsonResponse
     {
         if (!$this->isGranted('ROLE_CUSTOMERS') && !$this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
             throw $this->createAccessDeniedException();
@@ -77,7 +77,8 @@ class CustomersController extends AbstractController
      * @param Customer $customer
      * @return JsonResponse
      */
-    public function fetchSingle(Customer $customer) {
+    public function fetchSingle(Customer $customer): JsonResponse
+    {
 
 //        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $customer);
 

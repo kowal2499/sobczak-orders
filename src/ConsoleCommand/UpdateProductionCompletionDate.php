@@ -35,7 +35,7 @@ class UpdateProductionCompletionDate extends Command
             ->setDescription('Updates `production.completed_at` for all rows.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $productions = $this->getProductions();
         $output->writeln(['', 'ProductionCompletionDate Updater', '========================']);
@@ -58,7 +58,7 @@ class UpdateProductionCompletionDate extends Command
         }
         $this->entityManager->flush();
         $output->writeln([ 'Finished!', sprintf('production is_compled updated: %d', $updatedCounter), '']);
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getProductions()

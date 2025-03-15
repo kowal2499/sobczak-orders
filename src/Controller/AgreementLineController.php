@@ -33,7 +33,7 @@ class AgreementLineController extends BaseController
      * @param TranslatorInterface $t
      * @return Response
      */
-    public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t)
+    public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t): Response
     {
         $statuses = [];
         foreach (AgreementLine::getStatuses() as $key => $value) {
@@ -57,7 +57,7 @@ class AgreementLineController extends BaseController
      * @param PaginatorInterface $paginator
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator)
+    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $search = $request->request->all();
 
@@ -96,7 +96,7 @@ class AgreementLineController extends BaseController
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetchSingle(int $id, Request $request, AgreementLineRepository $repository)
+    public function fetchSingle(int $id, AgreementLineRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $result = $repository->getAllFiltered([
             'search' => [
@@ -200,7 +200,7 @@ class AgreementLineController extends BaseController
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function setStatus(Request $request, AgreementLine $agreementLine, $statusId, EntityManagerInterface $em)
+    public function setStatus(AgreementLine $agreementLine, $statusId, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $agreementLine->setStatus((int)$statusId);
         $em->flush();
@@ -216,7 +216,7 @@ class AgreementLineController extends BaseController
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em)
+    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $agreementLine->setDeleted(true);
         $em->flush();

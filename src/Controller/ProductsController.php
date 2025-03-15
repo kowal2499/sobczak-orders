@@ -27,7 +27,7 @@ class ProductsController extends AbstractController
      * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function products(Request $request, ProductRepository $repository, PaginatorInterface $paginator)
+    public function products(Request $request, ProductRepository $repository, PaginatorInterface $paginator): Response
     {
         $products = $repository->getWithSearch($request->query->get('q'));
 
@@ -110,7 +110,7 @@ class ProductsController extends AbstractController
      * @param ProductRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, ProductRepository $repository)
+    public function fetch(Request $request, ProductRepository $repository): JsonResponse
     {
         $response = [
             'products' => $repository->getByName()->getArrayResult(),

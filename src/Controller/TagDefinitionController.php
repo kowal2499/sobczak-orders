@@ -23,7 +23,7 @@ class TagDefinitionController extends BaseController
     /**
      * @Route("/tag-definition", name="tags", methods={"GET"})
      */
-    public function index()
+    public function index(): Response
     {
         return $this->render('configuration/tags.html.twig');
     }
@@ -102,7 +102,7 @@ class TagDefinitionController extends BaseController
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */
-    public function delete(TagDefinition $tagDefinition, Request $request, MessageBusInterface $messageBus): JsonResponse
+    public function delete(TagDefinition $tagDefinition, MessageBusInterface $messageBus): JsonResponse
     {
         $messageBus->dispatch(new DeleteTagDefinition($tagDefinition->getId()));
         return $this->json([]);

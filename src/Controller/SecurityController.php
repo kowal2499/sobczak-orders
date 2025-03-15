@@ -30,7 +30,7 @@ class SecurityController extends BaseController
      * @param AuthenticationUtils $authenticationUtils
      * @return Response
      */
-    public function login(AuthenticationUtils $authenticationUtils)
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -48,7 +48,7 @@ class SecurityController extends BaseController
      * @Route("/users", name="security_users", options={"expose"=true}, methods={"GET"})
      * @return Response
      */
-    public function users()
+    public function users(): Response
     {
         return $this->render('security/users.html.twig', []);
     }
@@ -65,7 +65,7 @@ class SecurityController extends BaseController
      * @param User $user
      * @return Response
      */
-    public function editUserView(User $user)
+    public function editUserView(User $user): Response
     {
         return $this->render('security/single_user.html.twig', [
             'user' => $user
@@ -77,7 +77,7 @@ class SecurityController extends BaseController
      * @Route("/users/add", name="view_security_user_new", options={"expose"=true})
      * @return Response
      */
-    public function viewAddUser()
+    public function viewAddUser(): Response
     {
         return $this->render('security/single_user.html.twig', [
             'user' => null
@@ -92,7 +92,7 @@ class SecurityController extends BaseController
      *
      * Zwraca wszystkich użytkowników
      */
-    public function fetchUsers(UserRepository $repository)
+    public function fetchUsers(UserRepository $repository): JsonResponse
     {
         return $this->json($repository->findAll(), Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['user_main']

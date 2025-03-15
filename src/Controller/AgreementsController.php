@@ -32,7 +32,7 @@ class AgreementsController extends AbstractController
     /**
      * @Route("/orders/add", name="orders_view_new", options={"expose"=true})
      */
-    public function viewNewAgreement(TranslatorInterface $t)
+    public function viewNewAgreement(TranslatorInterface $t): Response
     {
         return $this->render('orders/order_single.html.twig', [
             'title' => $t->trans('Nowe zamówienie', [], 'agreements'),
@@ -45,7 +45,7 @@ class AgreementsController extends AbstractController
      * @param $status
      * @return Response
      */
-    public function index(Request $request, $status, TranslatorInterface $t)
+    public function index($status, TranslatorInterface $t): Response
     {
         return $this->render('orders/orders_show.html.twig', [
             'title' => $t->trans('Lista zamówień', [], 'agreements'),
@@ -59,7 +59,7 @@ class AgreementsController extends AbstractController
      * @param Agreement $agreement
      * @return Response
      */
-    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t)
+    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t): Response
     {
             return $this->render('orders/order_single_edit.html.twig', [
             'title' => $t->trans('Edycja zamówienia', [], 'agreements'),
@@ -72,7 +72,7 @@ class AgreementsController extends AbstractController
      * @param Agreement $agreement
      * @return JsonResponse
      */
-    public function fetchSingle(Agreement $agreement)
+    public function fetchSingle(Agreement $agreement): JsonResponse
     {
         $returnData = [
             'customerId' => $agreement->getCustomer()->getId(),
@@ -98,7 +98,7 @@ class AgreementsController extends AbstractController
      * @param Request $request
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementRepository $repository)
+    public function fetch(Request $request, AgreementRepository $repository): JsonResponse
     {
         $agreements = $repository->getFiltered($request->request->all());
 
@@ -132,7 +132,7 @@ class AgreementsController extends AbstractController
         UploaderHelper $uploaderHelper,
         TranslatorInterface $t,
         Security $security
-    )
+    ): JsonResponse
     {
         $data = $request->request->all();
 
@@ -212,7 +212,7 @@ class AgreementsController extends AbstractController
                          ProductRepository $productRepository,
                          EntityManagerInterface $em,
                          UploaderHelper $uploaderHelper,
-                         TranslatorInterface $t)
+                         TranslatorInterface $t): JsonResponse
     {
         /**
          * 1. operujemy na agreement_line_id
@@ -327,7 +327,7 @@ class AgreementsController extends AbstractController
      * @param Agreement $agreement
      * @return JsonResponse
      */
-    public function delete(Agreement $agreement, EntityManagerInterface $em)
+    public function delete(Agreement $agreement, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($agreement);
         $em->flush();
@@ -340,7 +340,7 @@ class AgreementsController extends AbstractController
      * @param Customer $customer
      * @return JsonResponse
      */
-    public function orderNumber(Request $request, Customer $customer, EntityManagerInterface $em)
+    public function orderNumber(Customer $customer, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->getByCustomerPostalCode($customer->getPostalCode());
         $postalCode = preg_replace('/[^0-9]/', '', $customer->getPostalCode());
@@ -356,7 +356,7 @@ class AgreementsController extends AbstractController
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function validateNumber(Request $request, EntityManagerInterface $em)
+    public function validateNumber(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->findBy(['orderNumber' => $request->request->get('number')]);
 

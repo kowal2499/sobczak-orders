@@ -33,7 +33,7 @@ class ProductionController extends BaseController
      * @isGranted("ROLE_PRODUCTION_VIEW")
      * @Route("/production", name="production_show")
      */
-    public function index(TranslatorInterface $t)
+    public function index(TranslatorInterface $t): Response
     {
         return $this->render('production/production_show.html.twig', [
             'title' => $t->trans('Harmonogram produkcji', [], 'production'),
@@ -144,7 +144,8 @@ class ProductionController extends BaseController
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
         MessageBusInterface $messageBus
-    ) {
+    ): JsonResponse
+    {
         // todo:
         // most probably not used any more
 
