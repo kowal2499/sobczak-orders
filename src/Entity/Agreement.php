@@ -19,14 +19,14 @@ class Agreement
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $id;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $createDate;
 
     /**

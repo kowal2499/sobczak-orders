@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class TagDefinitionDTOType extends BaseType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class, [
@@ -26,7 +26,7 @@ class TagDefinitionDTOType extends BaseType
             ->add('color', TextType::class);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
         $resolver->setDefaults([
