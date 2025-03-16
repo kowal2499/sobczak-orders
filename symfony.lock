@@ -108,7 +108,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "4.7",
-            "ref": "db276258424d15e572d35a4eb834b8f815662b25"
+            "ref": "4eea8d6a476c8e9eb28c56725a4c0716df7d14c1"
         },
         "files": [
             ".env.test",
