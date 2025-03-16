@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class ResponseSubscriber implements EventSubscriberInterface
 {
-    public function onResponseEvent(ResponseEvent $event)
+    public function onResponseEvent(ResponseEvent $event): void
     {
         // save new cookie
         if ($event->getRequest()->query->get('locale')) {
@@ -17,7 +17,7 @@ class ResponseSubscriber implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ResponseEvent::class => 'onResponseEvent',

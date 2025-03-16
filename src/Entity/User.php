@@ -150,9 +150,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function getSalt()
+    public function getSalt(): ?string
     {
         // not needed when using bcrypt or argon
+        return null;
     }
 
     /**

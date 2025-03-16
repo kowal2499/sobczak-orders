@@ -13,20 +13,18 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CustomerVoter extends Voter
 {
-    private $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
+    public function __construct(
+        private readonly Security $security
+    ) {
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return in_array($attribute, ['ASSIGNED_CUSTOMER'])
             && $subject instanceof Customer;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         /** @var $user User */
         $user = $token->getUser();
@@ -43,7 +41,6 @@ class CustomerVoter extends Voter
                     return true;
                 }
                 return $user->getCustomers()->contains($subject);
-                break;
         }
 
         return false;
