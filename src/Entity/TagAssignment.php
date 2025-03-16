@@ -26,14 +26,14 @@ class TagAssignment
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\TagDefinition", inversedBy="tagAssignments")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $tagDefinition;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $user;
 
     /**
@@ -45,8 +45,8 @@ class TagAssignment
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $createdAt;
 
     /**

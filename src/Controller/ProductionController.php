@@ -31,8 +31,8 @@ class ProductionController extends BaseController
 {
     /**
      * @isGranted("ROLE_PRODUCTION_VIEW")
-     * @Route("/production", name="production_show")
      */
+    #[Route(path: '/production', name: 'production_show')]
     public function index(TranslatorInterface $t): Response
     {
         return $this->render('production/production_show.html.twig', [
@@ -45,13 +45,13 @@ class ProductionController extends BaseController
 
     /**
      * @IsGranted("ROLE_PRODUCTION")
-     * @Route ("/production/start/{agreementLine}", methods={"POST"})
      * @param AgreementLine $agreementLine
      * @param ProductionTaskDatesResolver $datesResolver
      * @param EntityManagerInterface $em
      * @return JsonResponse
      * @throws ProductionAlreadyExistsException
      */
+    #[Route(path: '/production/start/{agreementLine}', methods: ['POST'])]
     public function startProduction(
         AgreementLine $agreementLine,
         ProductionTaskDatesResolver $datesResolver,
@@ -113,12 +113,12 @@ class ProductionController extends BaseController
 
     /**
      * @isGranted("ROLE_PRODUCTION")
-     * @Route("/production/update_status", name="production_status_update", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param MessageBusInterface $messageBus
      * @param ProductionRepository $taskRepository
      * @return JsonResponse
      */
+    #[Route(path: '/production/update_status', name: 'production_status_update', methods: ['POST'], options: ['expose' => true])]
     public function updateStatus(
         Request $request,
         MessageBusInterface $messageBus,
@@ -136,10 +136,10 @@ class ProductionController extends BaseController
 
     /**
      * @isGranted("ROLE_PRODUCTION")
-     * @Route("/production/delete/{agreementLine}", name="production_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
      * @return JsonResponse
      */
+    #[Route(path: '/production/delete/{agreementLine}', name: 'production_delete', options: ['expose' => true], methods: ['POST'])]
     public function delete(
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
@@ -164,12 +164,12 @@ class ProductionController extends BaseController
     }
 
     /**
-     * @Route("/production/summary", name="production_summary", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param WorkingScheduleService $workingScheduleService
      * @param ProductionRepository $repository
      * @return JsonResponse
      */
+    #[Route(path: '/production/summary', name: 'production_summary', options: ['expose' => true], methods: ['POST'])]
     public function summary(Request $request, WorkingScheduleService $workingScheduleService, ProductionRepository $repository)
     {
         $argMonth = $request->request->getInt('month');

@@ -22,81 +22,81 @@ class AgreementLine
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"_main", "_linePanel"})
      */
-    private $id;
+    #[Groups(['_main', '_linePanel'])]
+    private int $id;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $confirmedDate;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="agreementLines")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $Product;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="agreementLines")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $Agreement;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Production", cascade={"persist", "remove"}, mappedBy="agreementLine", orphanRemoval=true)
      * @ORM\OrderBy({"id" = "ASC"})
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $productions;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $archived;
+    private bool $archived;
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
-    private $status;
+    #[Groups(['_main', '_linePanel'])]
+    private ?int $status;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $deleted;
+    private bool $deleted;
 
     /**
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $description;
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $factor;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\TagAssignment", mappedBy="contextId")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $tags;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $productionStartDate;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $productionCompletionDate;
 
     public function __construct()

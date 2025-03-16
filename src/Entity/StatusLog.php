@@ -16,8 +16,8 @@ class StatusLog
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"_linePanel"})
      */
+    #[Groups(['_linePanel'])]
     private $id;
 
     /**
@@ -28,21 +28,21 @@ class StatusLog
 
     /**
      * @ORM\Column(type="string", length=64)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $currentStatus;
 
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $createdAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="statusLogs")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $user;
 
     public function getId(): ?int

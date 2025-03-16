@@ -24,32 +24,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_main", "_linePanel"})
      */
+    #[Groups(['user_main', '_linePanel'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user_main", "_linePanel"})
      */
+    #[Groups(['user_main', '_linePanel'])]
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $roles = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $lastName;
 
     /**
@@ -64,8 +64,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $customers2Users;
 
     public function getId(): ?int
@@ -97,9 +97,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * Get user's full name string
-     * @Groups({"user_main", "_linePanel"})
      * @return string
      */
+    #[Groups(['user_main', '_linePanel'])]
     public function getUserFullName(): string
     {
         return implode(' ', [$this->getFirstName(), $this->getLastName()]);

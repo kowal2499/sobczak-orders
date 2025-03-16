@@ -14,10 +14,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DashboardController extends AbstractController
 {
     /**
-     * @Route("/", name="dashboard_show")
      * @param TranslatorInterface $t
      * @return Response
      */
+    #[Route(path: '/', name: 'dashboard_show')]
     public function index(TranslatorInterface $t): Response
     {
         return $this->render('dashboard/show.html.twig', [
@@ -26,10 +26,10 @@ class DashboardController extends AbstractController
     }
 
     /**
-     * @Route("/fetch_orders_count", name="api_fetch_orders_count", methods={"POST"}, options={"expose"=true})
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
+    #[Route(path: '/fetch_orders_count', name: 'api_fetch_orders_count', options: ['expose' => true], methods: ['POST'])]
     public function ApiFetchOrdersCount(AgreementLineRepository $repository): JsonResponse
     {
         return $this->json($repository->getSummary());

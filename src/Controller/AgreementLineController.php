@@ -8,6 +8,7 @@ use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\Task\UpdateStatusCommand;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -27,12 +28,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AgreementLineController extends BaseController
 {
     /**
-     * @Route("/agreement/line/{id}", name="agreement_line_details", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
      * @param TranslatorInterface $t
      * @return Response
      */
+    #[Route(path: '/agreement/line/{id}', name: 'agreement_line_details', options: ['expose' => true], methods: ['GET'])]
     public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t): Response
     {
         $statuses = [];
@@ -50,14 +51,13 @@ class AgreementLineController extends BaseController
     /**
      * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
-     * @Route("/api/agreement-line/fetch", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLineRepository $repository
-     * @param MessageBusInterface $messageBus
      * @param PaginatorInterface $paginator
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator): \Symfony\Component\HttpFoundation\JsonResponse
+    #[Route(path: '/api/agreement-line/fetch', options: ['expose' => true], methods: ['POST'])]
+    public function fetch(Request $request, AgreementLineRepository $repository, PaginatorInterface $paginator): JsonResponse
     {
         $search = $request->request->all();
 
@@ -90,13 +90,13 @@ class AgreementLineController extends BaseController
     /**
      * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
-     * @Route("/api/agreement-line/fetch-single/{id}", methods={"GET"})
      * @param int $id
      * @param Request $request
      * @param AgreementLineRepository $repository
      * @return JsonResponse
      */
-    public function fetchSingle(int $id, AgreementLineRepository $repository): \Symfony\Component\HttpFoundation\JsonResponse
+    #[Route(path: '/api/agreement-line/fetch-single/{id}', methods: ['GET'])]
+    public function fetchSingle(int $id, AgreementLineRepository $repository): JsonResponse
     {
         $result = $repository->getAllFiltered([
             'search' => [
@@ -118,7 +118,6 @@ class AgreementLineController extends BaseController
     /**
      * @IsGranted("ROLE_PRODUCTION")
      *
-     * @Route("/agreement_line/update/{id}", name="agreement_line_update", methods={"PUT"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
@@ -126,6 +125,7 @@ class AgreementLineController extends BaseController
      * @param AgreementLineRepository $agreementLineRepository
      * @return JsonResponse
      */
+    #[Route(path: '/agreement_line/update/{id}', name: 'agreement_line_update', options: ['expose' => true], methods: ['PUT'])]
     public function update(
         Request $request,
         AgreementLine $agreementLine,
@@ -161,7 +161,7 @@ class AgreementLineController extends BaseController
                 $user->getId()
             ));
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->composeErrorResponse($e);
         }
 
@@ -172,9 +172,9 @@ class AgreementLineController extends BaseController
     }
 
     /**
-     * @Route("/agreement_line/upload", name="agreement_line_upload", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      */
+    #[Route(path: '/agreement_line/upload', name: 'agreement_line_upload', options: ['expose' => true], methods: ['POST'])]
     public function uploadTest(Request $request)
     {
         /** @var UploadedFile $uploadedFile */
@@ -193,14 +193,14 @@ class AgreementLineController extends BaseController
     /**
      * @isGranted("ROLE_PRODUCTION")
      *
-     * @Route("/agreement_line/archive/{id}/{statusId}", name="agreement_line_archive", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param AgreementLine $agreementLine
      * @param $statusId
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function setStatus(AgreementLine $agreementLine, $statusId, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\JsonResponse
+    #[Route(path: '/agreement_line/archive/{id}/{statusId}', name: 'agreement_line_archive', options: ['expose' => true], methods: ['POST'])]
+    public function setStatus(AgreementLine $agreementLine, $statusId, EntityManagerInterface $em): JsonResponse
     {
         $agreementLine->setStatus((int)$statusId);
         $em->flush();
@@ -211,12 +211,12 @@ class AgreementLineController extends BaseController
     /**
      * @isGranted("ROLE_ADMIN")
      *
-     * @Route("/agreement_line/delete/{agreementLine}", name="agreement_line_delete", methods={"POST"}, options={"expose"=true})
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\JsonResponse
+    #[Route(path: '/agreement_line/delete/{agreementLine}', name: 'agreement_line_delete', options: ['expose' => true], methods: ['POST'])]
+    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em): JsonResponse
     {
         $agreementLine->setDeleted(true);
         $em->flush();

@@ -26,10 +26,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SecurityController extends BaseController
 {
     /**
-     * @Route("/login", name="security_login")
      * @param AuthenticationUtils $authenticationUtils
      * @return Response
      */
+    #[Route(path: '/login', name: 'security_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // get the login error if there is one
@@ -45,26 +45,24 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/users", name="security_users", options={"expose"=true}, methods={"GET"})
      * @return Response
      */
+    #[Route(path: '/users', name: 'security_users', options: ['expose' => true], methods: ['GET'])]
     public function users(): Response
     {
         return $this->render('security/users.html.twig', []);
     }
 
-    /**
-     * @Route("/logout", name="security_logout")
-     */
+    #[Route(path: '/logout', name: 'security_logout')]
     public function logout()
     {}
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/users/edit/{id}", name="security_user_edit", options={"expose"=true})
      * @param User $user
      * @return Response
      */
+    #[Route(path: '/users/edit/{id}', name: 'security_user_edit', options: ['expose' => true])]
     public function editUserView(User $user): Response
     {
         return $this->render('security/single_user.html.twig', [
@@ -74,9 +72,9 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/users/add", name="view_security_user_new", options={"expose"=true})
      * @return Response
      */
+    #[Route(path: '/users/add', name: 'view_security_user_new', options: ['expose' => true])]
     public function viewAddUser(): Response
     {
         return $this->render('security/single_user.html.twig', [
@@ -86,12 +84,12 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/users/fetch", name="users_fetch", options={"expose"=true}, methods={"GET"})
      * @param UserRepository $repository
      * @return JsonResponse
      *
      * Zwraca wszystkich użytkowników
      */
+    #[Route(path: '/users/fetch', name: 'users_fetch', options: ['expose' => true], methods: ['GET'])]
     public function fetchUsers(UserRepository $repository): JsonResponse
     {
         return $this->json($repository->findAll(), Response::HTTP_OK, [], [
@@ -101,12 +99,12 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/users/fetch/{id}", name="user_fetch", options={"expose"=true}, methods={"GET"})
      * @param User $user
      * @return JsonResponse
      *
      * Zwraca jednego użytkownika
      */
+    #[Route(path: '/users/fetch/{id}', name: 'user_fetch', options: ['expose' => true], methods: ['GET'])]
     public function fetchUser(User $user): JsonResponse
     {
         return $this->json($user, Response::HTTP_OK, [], [
@@ -116,7 +114,6 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/user/{id}", name="user_edit", options={"expose"=true}, methods={"PATCH"})
      * @param Request $request
      * @param User $user
      * @param EntityManagerInterface $em
@@ -126,6 +123,7 @@ class SecurityController extends BaseController
      *
      * Edytuje użytkownika
      */
+    #[Route(path: '/user/{id}', name: 'user_edit', options: ['expose' => true], methods: ['PATCH'])]
     public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, TranslatorInterface $t): Response
     {
         $form = $this->createForm(UserSecurityFormType::class, $user);
@@ -158,7 +156,6 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/user", name="user_add", options={"expose"=true}, methods={"POST"})
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param UserPasswordHasherInterface $userPasswordHasher
@@ -166,6 +163,7 @@ class SecurityController extends BaseController
      *
      * Tworzy nowego użytkownika
      */
+    #[Route(path: '/user', name: 'user_add', options: ['expose' => true], methods: ['POST'])]
     public function addUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher)
     {
         $form = $this->createForm(UserSecurityFormType::class);

@@ -17,89 +17,89 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="Pole nie może być puste")
-     * @Groups("_main")
      */
+    #[Assert\NotBlank(message: 'Pole nie może być puste')]
+    #[Groups('_main')]
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $first_name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $last_name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $street;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $street_number;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $apartment_number;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $city;
 
     /**
      * @ORM\Column(type="string", length=16, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $postal_code;
 
     /**
      * @ORM\Column(type="string", length=2, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $country;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $email;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
      */
     // todo: used to be 'createDate'
+    #[Groups('_main')]
     private $create_date;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("_main")
      */
     // todo: used to be 'updateDate'
+    #[Groups('_main')]
     private $update_date;
 
     /**

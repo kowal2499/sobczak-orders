@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -35,8 +37,8 @@ class Agreement
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="agreements")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $Customer;
 
     /**
@@ -46,27 +48,27 @@ class Agreement
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $orderNumber;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Attachment", mappedBy="Agreement", orphanRemoval=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $attachments;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User")
      * @ORM\JoinColumn(nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $user = null;
 
     public function __construct()

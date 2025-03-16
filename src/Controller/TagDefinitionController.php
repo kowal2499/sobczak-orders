@@ -10,7 +10,6 @@ use App\Message\CreateTagDefinition;
 use App\Message\DeleteTagDefinition;
 use App\Message\UpdateTagDefinition;
 use App\Repository\TagDefinitionRepository;
-use http\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,19 +19,17 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TagDefinitionController extends BaseController
 {
-    /**
-     * @Route("/tag-definition", name="tags", methods={"GET"})
-     */
+    #[Route(path: '/tag-definition', name: 'tags', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('configuration/tags.html.twig');
     }
 
     /**
-     * @Route("/api/tag-definition", methods={"GET"})
      * @param TagDefinitionRepository $repository
      * @return JsonResponse
      */
+    #[Route(path: '/api/tag-definition', methods: ['GET'])]
     public function findAll(TagDefinitionRepository $repository): JsonResponse
     {
         return $this->json(
@@ -42,12 +39,12 @@ class TagDefinitionController extends BaseController
     }
 
     /**
-     * @Route("/api/tag-definition/search", methods={"GET"})
      * @param Request $request
      * @param TagDefinitionRepository $repository
      * @return JsonResponse
      * @throws \Exception
      */
+    #[Route(path: '/api/tag-definition/search', methods: ['GET'])]
     public function search(Request $request, TagDefinitionRepository $repository): JsonResponse
     {
         $module = $request->query->getAlpha('module');
@@ -61,11 +58,11 @@ class TagDefinitionController extends BaseController
     }
 
     /**
-     * @Route("/api/tag-definition", methods={"POST"})
      * @param Request $request
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */
+    #[Route(path: '/api/tag-definition', methods: ['POST'])]
     public function create(Request $request, MessageBusInterface $messageBus): JsonResponse
     {
         $form = $this->createForm(TagDefinitionDTOType::class);
@@ -78,12 +75,12 @@ class TagDefinitionController extends BaseController
     }
 
     /**
-     * @Route("/api/tag-definition/{tagDefinition}", methods={"PUT"})
      * @param TagDefinition $tagDefinition
      * @param Request $request
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */
+    #[Route(path: '/api/tag-definition/{tagDefinition}', methods: ['PUT'])]
     public function update(TagDefinition $tagDefinition, Request $request, MessageBusInterface $messageBus): JsonResponse
     {
         $form = $this->createForm(TagDefinitionDTOType::class);
@@ -96,12 +93,12 @@ class TagDefinitionController extends BaseController
     }
 
     /**
-     * @Route("/api/tag-definition/{tagDefinition}", methods={"DELETE"})
      * @param TagDefinition $tagDefinition
      * @param Request $request
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */
+    #[Route(path: '/api/tag-definition/{tagDefinition}', methods: ['DELETE'])]
     public function delete(TagDefinition $tagDefinition, MessageBusInterface $messageBus): JsonResponse
     {
         $messageBus->dispatch(new DeleteTagDefinition($tagDefinition->getId()));

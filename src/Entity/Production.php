@@ -19,32 +19,32 @@ class Production
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $departmentSlug;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $dateStart;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $dateEnd;
 
     /**
      * @ORM\Column(type="string", length=64, nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $status;
 
     /**
@@ -68,38 +68,38 @@ class Production
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", cascade={"persist", "remove"}, orphanRemoval=true)
      * @OrderBy({"createdAt" = "ASC"})
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $statusLogs;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $title;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $isStartDelayed;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $isCompleted;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $completedAt;
 
     public function __construct()
