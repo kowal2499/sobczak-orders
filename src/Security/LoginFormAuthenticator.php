@@ -22,19 +22,11 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
 class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
 
-    public function __construct(UserRepository $userRepository, RouterInterface $router)
-    {
-        $this->userRepository = $userRepository;
-        $this->router = $router;
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly  RouterInterface $router
+    ) {
     }
 
     public function authenticate(Request $request): Passport

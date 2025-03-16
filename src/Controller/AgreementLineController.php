@@ -147,15 +147,18 @@ class AgreementLineController extends BaseController
             $em->persist($agreementLine);
             $em->flush();
 
+            $payload = json_decode($request->getContent(), true) ?? [];
+            $productions = $payload['productions'] ?? [];
             foreach ($agreementLine->getProductions() as $idx => $task) {
                 $messageBus->dispatch(new UpdateStatusCommand(
                     $task->getId(),
-                    $request->request->get('productions')[$idx]['status'])
+                    $productions[$idx]['status'])
                 );
             }
 
+            $tags = $payload['tags'] ?? [];
             $messageBus->dispatch(new AssignTags(
-                $request->request->get('tags') ?? [],
+                $tags,
                 $agreementLine->getId(),
                 'production',
                 $user->getId()
