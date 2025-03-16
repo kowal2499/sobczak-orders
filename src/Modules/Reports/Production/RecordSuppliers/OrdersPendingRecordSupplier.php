@@ -21,7 +21,7 @@ class OrdersPendingRecordSupplier implements RecordSupplierInterface
 
     public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
-        return $this->repository->getDetails(null, $end, $departments);
+        return $this->repository->getDetails(null, $end);
     }
 
     public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
