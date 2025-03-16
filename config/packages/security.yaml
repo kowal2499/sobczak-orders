@@ -1,57 +1,69 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
-    encoders:
-        App\Entity\User:
-            algorithm: auto
+  encoders:
+    App\Entity\User:
+      algorithm: auto
 
-    providers:
-        # used to reload user from session & other features (e.g. switch_user)
-        app_user_provider:
-            entity:
-                class: App\Entity\User
-                property: email
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-        main:
-            anonymous: true
-            guard:
-                authenticators:
-                    - App\Security\LoginFormAuthenticator
+  role_hierarchy:
+    ROLE_ADMIN: [ ROLE_SETTINGS, ROLE_PRODUCTION, ROLE_CUSTOMERS, ROLE_PRODUCTS, ROLE_CONFIG, ROLE_CUSTOMERS_LIMITED ]
+    ROLE_USER: [ ROLE_CUSTOMERS, ROLE_PRODUCTS, ROLE_PRODUCTION_VIEW ]
+    ROLE_CUSTOMER: [ ROLE_CUSTOMERS_LIMITED, ROLE_PRODUCTION_VIEW ]
+    ROLE_PRODUCTION: [ ROLE_PRODUCTION_VIEW, ROLE_PRODUCTS ]
 
-            logout:
-                path: security_logout
+  # Easy way to control access for large sections of your site
+  # Note: Only the *first* access control that matches will be used
+  access_control:
+    - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/touch_user$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 2592000
+  # activate different ways to authenticate
+  # https://symfony.com/doc/current/security.html#the-firewall
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
+  # https://symfony.com/doc/current/security/impersonating_user.html
+  # switch_user: true
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+  enable_authenticator_manager: false
+  # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+  # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
 
-    role_hierarchy:
-        ROLE_ADMIN: [ROLE_SETTINGS, ROLE_PRODUCTION, ROLE_CUSTOMERS, ROLE_PRODUCTS, ROLE_CONFIG, ROLE_CUSTOMERS_LIMITED]
-        ROLE_USER: [ROLE_CUSTOMERS, ROLE_PRODUCTS, ROLE_PRODUCTION_VIEW]
-        ROLE_CUSTOMER: [ROLE_CUSTOMERS_LIMITED, ROLE_PRODUCTION_VIEW]
+  providers:
+    # used to reload user from session & other features (e.g. switch_user)
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+        property: email
+    users_in_memory: { memory: null }
 
-        ROLE_PRODUCTION: [ROLE_PRODUCTION_VIEW, ROLE_PRODUCTS]
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+    main:
+      lazy: true
+      provider: users_in_memory
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
-    access_control:
-        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/touch_user$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+      guard:
+        authenticators:
+          - App\Security\LoginFormAuthenticator
 
+      logout:
+        path: security_logout
 
-#        - { path: ^/customers, roles: [ROLE_ADMIN, ROLE_USER] }
-#        - { path: ^/customers/api, roles: [ROLE_ADMIN, ROLE_USER] }
+      remember_me:
+        secret: '%kernel.secret%'
+        lifetime: 2592000
 
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
-
-
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+when@test:
+  security:
+    password_hashers:
+      # By default, password hashers are resource intensive and take time. This is
+      # important to generate secure password hashes. In tests however, secure hashes
+      # are not important, waste resources and increase test times. The following
+      # reduces the work factor to the lowest possible values.
+      Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+        algorithm: auto
+        cost: 4 # Lowest possible value for bcrypt
+        time_cost: 3 # Lowest possible value for argon
+        memory_cost: 10 # Lowest possible value for argon
