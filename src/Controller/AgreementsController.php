@@ -29,10 +29,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
 {
-    /**
-     * @Route("/orders/add", name="orders_view_new", options={"expose"=true})
-     */
-    public function viewNewAgreement(TranslatorInterface $t)
+    #[Route(path: '/orders/add', name: 'orders_view_new', options: ['expose' => true])]
+    public function viewNewAgreement(TranslatorInterface $t): Response
     {
         return $this->render('orders/order_single.html.twig', [
             'title' => $t->trans('Nowe zamówienie', [], 'agreements'),
@@ -40,12 +38,12 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/{status}", name="agreements_show", methods={"GET"}, options={"expose"=true}, defaults={"status" = 0})
      * @param Request $request
      * @param $status
      * @return Response
      */
-    public function index(Request $request, $status, TranslatorInterface $t)
+    #[Route(path: '/orders/{status}', name: 'agreements_show', options: ['expose' => true], defaults: ['status' => 0], methods: ['GET'])]
+    public function index($status, TranslatorInterface $t): Response
     {
         return $this->render('orders/orders_show.html.twig', [
             'title' => $t->trans('Lista zamówień', [], 'agreements'),
@@ -55,11 +53,12 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/edit/{id}", name="orders_edit", options={"expose"=true})
      * @param Agreement $agreement
+     * @param TranslatorInterface $t
      * @return Response
      */
-    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t)
+    #[Route(path: '/orders/edit/{id}', name: 'orders_edit', options: ['expose' => true])]
+    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t): Response
     {
             return $this->render('orders/order_single_edit.html.twig', [
             'title' => $t->trans('Edycja zamówienia', [], 'agreements'),
@@ -68,11 +67,11 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/fetch_single/{id}", name="orders_single_fetch", methods={"POST"}, options={"expose"=true})
      * @param Agreement $agreement
      * @return JsonResponse
      */
-    public function fetchSingle(Agreement $agreement)
+    #[Route(path: '/orders/fetch_single/{id}', name: 'orders_single_fetch', options: ['expose' => true], methods: ['POST'])]
+    public function fetchSingle(Agreement $agreement): JsonResponse
     {
         $returnData = [
             'customerId' => $agreement->getCustomer()->getId(),
@@ -94,11 +93,12 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/fetch", name="orders_fetch", methods={"POST"})
      * @param Request $request
+     * @param AgreementRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, AgreementRepository $repository)
+    #[Route(path: '/orders/fetch', name: 'orders_fetch', methods: ['POST'])]
+    public function fetch(Request $request, AgreementRepository $repository): JsonResponse
     {
         $agreements = $repository->getFiltered($request->request->all());
 
@@ -113,7 +113,6 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/save", name="orders_add", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $customerRepository
      * @param ProductRepository $productRepository
@@ -124,6 +123,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
+    #[Route(path: '/orders/save', name: 'orders_add', options: ['expose' => true], methods: ['POST'])]
     public function save(
         Request $request,
         CustomerRepository $customerRepository,
@@ -132,7 +132,7 @@ class AgreementsController extends AbstractController
         UploaderHelper $uploaderHelper,
         TranslatorInterface $t,
         Security $security
-    )
+    ): JsonResponse
     {
         $data = $request->request->all();
 
@@ -197,7 +197,6 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/patch/{agreement}", name="orders_patch", methods={"POST"}, options={"expose"=true})
      * @param Agreement $agreement
      * @param Request $request
      * @param CustomerRepository $customerRepository
@@ -206,13 +205,14 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      * @throws \Exception
      */
+    #[Route(path: '/orders/patch/{agreement}', name: 'orders_patch', options: ['expose' => true], methods: ['POST'])]
     public function edit(Agreement $agreement, Request $request,
                          CustomerRepository $customerRepository,
                          AgreementLineRepository $agreementLineRepository,
                          ProductRepository $productRepository,
                          EntityManagerInterface $em,
                          UploaderHelper $uploaderHelper,
-                         TranslatorInterface $t)
+                         TranslatorInterface $t): JsonResponse
     {
         /**
          * 1. operujemy na agreement_line_id
@@ -323,11 +323,11 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/delete/{agreement}", name="orders_delete", methods={"POST"}, options={"expose"=true})
      * @param Agreement $agreement
      * @return JsonResponse
      */
-    public function delete(Agreement $agreement, EntityManagerInterface $em)
+    #[Route(path: '/orders/delete/{agreement}', name: 'orders_delete', options: ['expose' => true], methods: ['POST'])]
+    public function delete(Agreement $agreement, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($agreement);
         $em->flush();
@@ -335,12 +335,12 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/number/{id}", name="orders_number", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param Customer $customer
      * @return JsonResponse
      */
-    public function orderNumber(Request $request, Customer $customer, EntityManagerInterface $em)
+    #[Route(path: '/orders/number/{id}', name: 'orders_number', options: ['expose' => true], methods: ['POST'])]
+    public function orderNumber(Customer $customer, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->getByCustomerPostalCode($customer->getPostalCode());
         $postalCode = preg_replace('/[^0-9]/', '', $customer->getPostalCode());
@@ -351,12 +351,12 @@ class AgreementsController extends AbstractController
     }
 
     /**
-     * @Route("/orders/number_validate/", name="validate_number", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param EntityManagerInterface $em
      * @return JsonResponse
      */
-    public function validateNumber(Request $request, EntityManagerInterface $em)
+    #[Route(path: '/orders/number_validate/', name: 'validate_number', options: ['expose' => true], methods: ['POST'])]
+    public function validateNumber(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->findBy(['orderNumber' => $request->request->get('number')]);
 

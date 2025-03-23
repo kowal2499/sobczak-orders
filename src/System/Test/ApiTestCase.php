@@ -4,17 +4,16 @@
 namespace App\System\Test;
 
 use App\Entity\User;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 class ApiTestCase extends WebTestCase
 {
     private static $entityManagerWasCleared = false;
     private $client = null;
+
+    protected static $container = null;
 
     /**
      * ApiTestCase constructor.
@@ -43,15 +42,16 @@ class ApiTestCase extends WebTestCase
     public function login(User $user): KernelBrowser
     {
         $client = $this->client ?? $this->initializeClient();
-        $session = $this->get('session');
-        $firewallName = $firewallContext = 'main';
-        $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
-        $this->client->getContainer()->get('security.token_storage')->setToken($token);
-        $session->set('_security_'.$firewallContext, serialize($token));
-        $session->save();
-
-        $cookie = new Cookie($session->getName(), $session->getId());
-        $client->getCookieJar()->set($cookie);
+        $client->loginUser($user);
+//        $session = $this->get('session');
+//        $firewallName = $firewallContext = 'main';
+//        $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
+//        $this->client->getContainer()->get('security.token_storage')->setToken($token);
+//        $session->set('_security_'.$firewallContext, serialize($token));
+//        $session->save();
+//
+//        $cookie = new Cookie($session->getName(), $session->getId());
+//        $client->getCookieJar()->set($cookie);
         return $client;
     }
 
@@ -79,10 +79,10 @@ class ApiTestCase extends WebTestCase
      */
     protected function get(string $service)
     {
-        if (null === static::$kernel || null === static::$container) {
+        if (null === static::$kernel) {
             // triggers bootKernel
             $this->initializeClient();
         }
-        return static::$container->get($service);
+        return static::getContainer()->get($service);
     }
 }

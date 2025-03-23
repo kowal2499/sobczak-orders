@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;

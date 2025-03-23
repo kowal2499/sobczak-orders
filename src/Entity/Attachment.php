@@ -21,16 +21,16 @@ class Attachment
 
     /**
      * @ORM\Column(type="string", length=1024)
-     * @Groups("_main")
      */
-    private $name;
+    #[Groups('_main')]
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=1024)
-     * @Groups("_main")
      */
     // todo: used to be 'original'
-    private $originalName;
+    #[Groups('_main')]
+    private string $originalName;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="attachments")
@@ -40,8 +40,8 @@ class Attachment
 
     /**
      * @ORM\Column(type="string", length=16, nullable=true)
-     * @Groups("_main")
      */
+    #[Groups('_main')]
     private $extension;
 
     public function getId(): ?int

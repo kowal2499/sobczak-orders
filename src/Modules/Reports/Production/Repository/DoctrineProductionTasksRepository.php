@@ -5,7 +5,7 @@ namespace App\Modules\Reports\Production\Repository;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 

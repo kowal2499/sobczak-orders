@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\Production;
 use App\Entity\StatusLog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method StatusLog|null find($id, $lockMode = null, $lockVersion = null)

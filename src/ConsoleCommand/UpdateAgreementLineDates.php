@@ -24,10 +24,10 @@ class UpdateAgreementLineDates extends Command
     private $entityManager;
 
     public function __construct(
-        string $name = null,
         ProductionStartDateResolverService $startDateResolverService,
         ProductionCompletionDateResolverService $completionDateResolverService,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        string $name = null
     ) {
         parent::__construct($name);
         $this->completionDateResolverService = $completionDateResolverService;
@@ -42,7 +42,7 @@ class UpdateAgreementLineDates extends Command
             ->setDescription('Updates `agreement_line.production_start_date` and `agreement_line.production_completion_date` for all rows.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lines = $this->fetchAgreementLines();
         $output->writeln(['', 'AgreementLine productionStartDate and productionCompletionDate Updater', '========================']);
@@ -72,7 +72,7 @@ class UpdateAgreementLineDates extends Command
             sprintf('agreementLines completionDate updated: %d', $recordsCompletionDateUpdated),
             '']
         );
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

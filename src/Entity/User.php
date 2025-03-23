@@ -2,16 +2,20 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements UserInterface
+//#[ORM\Entity(repositoryClass: UserRepository::class)]
+//#[ORM\Table(name: '`user`')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
     public function __construct()
@@ -23,32 +27,32 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"user_main", "_linePanel"})
      */
+    #[Groups(['user_main', '_linePanel'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user_main", "_linePanel"})
      */
+    #[Groups(['user_main', '_linePanel'])]
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $roles = [];
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $lastName;
 
     /**
@@ -63,8 +67,8 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
-     * @Groups("user_main")
      */
+    #[Groups('user_main')]
     private $customers2Users;
 
     public function getId(): ?int
@@ -95,11 +99,21 @@ class User implements UserInterface
     }
 
     /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
      * Get user's full name string
-     * @Groups({"user_main", "_linePanel"})
      * @return string
      */
-    public function getUserFullName()
+    #[Groups(['user_main', '_linePanel'])]
+    public function getUserFullName(): string
     {
         return implode(' ', [$this->getFirstName(), $this->getLastName()]);
     }
@@ -128,7 +142,7 @@ class User implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -136,9 +150,10 @@ class User implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getSalt()
+    public function getSalt(): ?string
     {
         // not needed when using bcrypt or argon
+        return null;
     }
 
     /**

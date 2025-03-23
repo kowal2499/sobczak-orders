@@ -11,12 +11,12 @@ class WorkingDaysController extends BaseController
 {
     /**
      * @isGranted("ROLE_ADMIN")
-     * @Route("/working_days/api/{day}", name="get_days_in_month", methods="GET", options={"expose"=true})
      * @param $day
      * @param WorkingScheduleService $workingScheduleService
      * @param EntityManagerInterface $em
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
+    #[Route(path: '/working_days/api/{day}', name: 'get_days_in_month', options: ['expose' => true], methods: 'GET')]
     public function getDaysInMonth($day, WorkingScheduleService $workingScheduleService)
     {
         try {
