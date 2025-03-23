@@ -2,7 +2,7 @@
 
 namespace App\Repository\Authorization;
 
-use App\Entity\Authorization\Module;
+use App\Entity\Module;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
