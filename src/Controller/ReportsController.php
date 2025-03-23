@@ -7,15 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/api/reports")
- */
+#[Route(path: '/api/reports')]
 class ReportsController extends BaseController
 {
     /**
-     * @Route("/agreement-line-production", methods={"GET"})
      * @deprecated
      */
+    #[Route(path: '/agreement-line-production', methods: ['GET'])]
     public function agreementLinesProduction(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
@@ -29,9 +27,7 @@ class ReportsController extends BaseController
         ));
     }
 
-    /**
-     * @Route("/agreement-line-production-summary", methods={"GET"})
-     */
+    #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
     public function agreementLinesProductionSummary(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
@@ -43,9 +39,7 @@ class ReportsController extends BaseController
         ));
     }
 
-    /**
-     * @Route("/production-finished-details", methods={"GET"})
-     */
+    #[Route(path: '/production-finished-details', methods: ['GET'])]
     public function productionFinishedDetails(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
@@ -57,9 +51,7 @@ class ReportsController extends BaseController
         ));
     }
 
-    /**
-     * @Route("/production-pending-details", methods={"GET"})
-     */
+    #[Route(path: '/production-pending-details', methods: ['GET'])]
     public function productionPendingDetails(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start');
@@ -71,9 +63,7 @@ class ReportsController extends BaseController
         ));
     }
 
-    /**
-     * @Route("/production-tasks-completion-summary", methods={"GET"})
-     */
+    #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
     public function productionTasksCompletionSummary(Request $request, ProductionReport $report): Response
     {
         $start = $request->query->get('start', null);

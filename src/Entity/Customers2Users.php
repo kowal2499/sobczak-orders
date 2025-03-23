@@ -27,8 +27,8 @@ class Customers2Users
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="customers2Users")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"public_attr", "_main"})
      */
+    #[Groups(['public_attr', '_main'])]
     private $customer;
 
     public function getId(): ?int

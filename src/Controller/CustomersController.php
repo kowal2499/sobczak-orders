@@ -22,13 +22,13 @@ class CustomersController extends AbstractController
     /**
      * @IsGranted("ROLE_CUSTOMERS")
      *
-     * @Route("/customers", name="customers_show")
      * @param Request $request
      * @param CustomerRepository $repository
      * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function customers(Request $request, CustomerRepository $repository, PaginatorInterface $paginator)
+    #[Route(path: '/customers', name: 'customers_show')]
+    public function customers(Request $request, CustomerRepository $repository, PaginatorInterface $paginator): Response
     {
         $customers = $repository->getWithSearch(['q' => $request->query->get('q')]);
 
@@ -46,12 +46,12 @@ class CustomersController extends AbstractController
 
     /**
      *
-     * @Route("/customers/search", name="customers_search", methods={"GET"}, options={"expose"=true})
      * @param Request $request
      * @param CustomerRepository $repository
      * @return JsonResponse
      */
-    public function search(Request $request, CustomerRepository $repository)
+    #[Route(path: '/customers/search', name: 'customers_search', options: ['expose' => true], methods: ['GET'])]
+    public function search(Request $request, CustomerRepository $repository): JsonResponse
     {
         if (!$this->isGranted('ROLE_CUSTOMERS') && !$this->isGranted('ROLE_CUSTOMERS_LIMITED')) {
             throw $this->createAccessDeniedException();
@@ -73,11 +73,12 @@ class CustomersController extends AbstractController
     /**
      * @IsGranted("ASSIGNED_CUSTOMER", subject="customer")
      *
-     * @Route("/customers/single_fetch/{id}", name="customers_single_fetch", methods={"POST"}, options={"expose"=true})
      * @param Customer $customer
      * @return JsonResponse
      */
-    public function fetchSingle(Customer $customer) {
+    #[Route(path: '/customers/single_fetch/{id}', name: 'customers_single_fetch', options: ['expose' => true], methods: ['POST'])]
+    public function fetchSingle(Customer $customer): JsonResponse
+    {
 
 //        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $customer);
 
@@ -100,12 +101,12 @@ class CustomersController extends AbstractController
     /**
      * @IsGranted("ROLE_CUSTOMERS")
      *
-     * @Route("/customers/new", name="customers_new", options={"expose"=true})
      * @param Request $request
      * @param EntityManagerInterface $em
      * @return Response
      * @throws \Exception
      */
+    #[Route(path: '/customers/new', name: 'customers_new', options: ['expose' => true])]
     public function add(Request $request, EntityManagerInterface $em, TranslatorInterface $t)
     {
         $customer = new Customer();
@@ -132,13 +133,13 @@ class CustomersController extends AbstractController
     /**
      * @IsGranted("ASSIGNED_CUSTOMER", subject="customer")
      *
-     * @Route("/customers/edit/{id}", name="customers_edit", options={"expose"=true})
      * @param Customer $customer
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $t
      * @return Response
      */
+    #[Route(path: '/customers/edit/{id}', name: 'customers_edit', options: ['expose' => true])]
     public function edit(Customer $customer, Request $request, EntityManagerInterface $em, TranslatorInterface $t)
     {
         $form = $this->createForm(CustomerType::class, $customer);

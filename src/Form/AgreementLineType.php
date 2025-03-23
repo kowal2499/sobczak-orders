@@ -15,7 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AgreementLineType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('productions', CollectionType::class, [
@@ -37,7 +37,7 @@ class AgreementLineType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
 

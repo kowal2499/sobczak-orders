@@ -26,7 +26,7 @@ class AttachmentNormalizer implements NormalizerInterface, CacheableSupportsMeth
      * @return array
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function normalize($object, $format = null, array $context = array()): array
+    public function normalize($object, $format = null, array $context = []): array
     {
 
         $data = $this->normalizer->normalize($object, $format, $context);

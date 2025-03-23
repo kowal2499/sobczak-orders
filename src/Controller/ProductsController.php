@@ -21,13 +21,13 @@ class ProductsController extends AbstractController
     /**
      * @isGranted("ROLE_PRODUCTS")
      *
-     * @Route("/products", name="products_show")
      * @param Request $request
      * @param ProductRepository $repository
      * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function products(Request $request, ProductRepository $repository, PaginatorInterface $paginator)
+    #[Route(path: '/products', name: 'products_show')]
+    public function products(Request $request, ProductRepository $repository, PaginatorInterface $paginator): Response
     {
         $products = $repository->getWithSearch($request->query->get('q'));
 
@@ -46,13 +46,13 @@ class ProductsController extends AbstractController
     /**
      * @isGranted("ROLE_PRODUCTS")
      *
-     * @Route("/products/new", name="products_new")
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
      * @return Response
      * @throws \Exception
      */
+    #[Route(path: '/products/new', name: 'products_new')]
     public function addNew(Request $request, EntityManagerInterface $em, TranslatorInterface $translator)
     {
 
@@ -80,13 +80,13 @@ class ProductsController extends AbstractController
     /**
      * @isGranted("ROLE_PRODUCTS")
      *
-     * @Route("/products/edit/{id}", name="products_edit", options={"expose"=true})
      * @param Product $product
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param TranslatorInterface $translator
      * @return Response
      */
+    #[Route(path: '/products/edit/{id}', name: 'products_edit', options: ['expose' => true])]
     public function edit(Product $product, Request $request, EntityManagerInterface $em, TranslatorInterface $translator)
     {
         $form = $this->createForm(ProductType::class, $product);
@@ -105,12 +105,12 @@ class ProductsController extends AbstractController
     }
 
     /**
-     * @Route("/products/fetch", name="products_fetch", options={"expose"=true})
      * @param Request $request
      * @param ProductRepository $repository
      * @return JsonResponse
      */
-    public function fetch(Request $request, ProductRepository $repository)
+    #[Route(path: '/products/fetch', name: 'products_fetch', options: ['expose' => true])]
+    public function fetch(Request $request, ProductRepository $repository): JsonResponse
     {
         $response = [
             'products' => $repository->getByName()->getArrayResult(),

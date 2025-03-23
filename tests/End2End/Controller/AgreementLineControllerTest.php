@@ -58,8 +58,7 @@ class AgreementLineControllerTest extends ApiTestCase
         $prods = $agreementLine->getProductions();
 
         // When
-        $client = $this->login($this->user);
-        $client->xmlHttpRequest('PUT', '/agreement_line/update/' . $agreementLine->getId(), [
+        $payload = [
             'status' => AgreementLine::STATUS_MANUFACTURING,
             'confirmedDate' => '2025-01-15 09:15:00',
             'description' => 'Lorem ipsum updated',
@@ -105,7 +104,16 @@ class AgreementLineControllerTest extends ApiTestCase
                     'dateEnd' => '2025-01-15 12:01:01',
                 ],
             ]
-        ]);
+        ];
+        $client = $this->login($this->user);
+        $client->xmlHttpRequest(
+            'PUT',
+            '/agreement_line/update/' . $agreementLine->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($payload)
+        );
 
         // Then
         $repository = $this->getManager()->getRepository(AgreementLine::class);
@@ -194,7 +202,14 @@ class AgreementLineControllerTest extends ApiTestCase
         ];
 
         // When
-        $client->xmlHttpRequest('PUT', '/agreement_line/update/' . $agreementLine->getId(), $payload);
+        $client->xmlHttpRequest(
+            'PUT',
+            '/agreement_line/update/' . $agreementLine->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($payload)
+        );
 
         $this->getManager()->clear();
         /** @var AgreementLine $agreementLineAfter */

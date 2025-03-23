@@ -18,33 +18,33 @@ class TagDefinition
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Groups(['_main', '_linePanel'])]
     private $id;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=false)
-     * @Assert\NotBlank()
-     * @Groups({"_main", "_linePanel"})
      */
+    #[Assert\NotBlank]
+    #[Groups(['_main', '_linePanel'])]
     private $name;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=false)
-     * @Groups({"_main"})
      */
+    #[Groups(['_main'])]
     private $module;
 
     /**
      * @ORM\Column(type="string", length=128, nullable=true)
-     * @Groups({"_main"})
      */
+    #[Groups(['_main'])]
     private $icon;
 
     /**
      * @ORM\Column(type="string", length=7, nullable=true)
-     * @Groups({"_main"})
      */
+    #[Groups(['_main'])]
     private $color;
 
     /**
