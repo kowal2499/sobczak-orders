@@ -19,7 +19,7 @@ class GrantTypeType extends StringType
         return $value instanceof GrantType ? $value->value : null;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'grant_type';
     }

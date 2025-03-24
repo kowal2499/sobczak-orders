@@ -4,36 +4,24 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\WorkingScheduleRepository")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\WorkingScheduleRepository::class)]
 class WorkingSchedule
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $date;
 
-    /**
-     * @ORM\Column(type="time", nullable=true)
-     */
+    #[ORM\Column(type: 'time', nullable: true)]
     private $timeStart;
 
-    /**
-     * @ORM\Column(type="time", nullable=true)
-     */
+    #[ORM\Column(type: 'time', nullable: true)]
     private $timeEnd;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $isWorking;
 
     public function getId(): ?int

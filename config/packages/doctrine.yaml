@@ -12,7 +12,7 @@ doctrine:
         types:
             # Authorization types
             grant_type: App\Doctrine\Type\Authorization\GrantTypeType
-            grant_options_type: App\Doctrine\Type\Authorization\GrantOptionsType
+            grant_options: App\Doctrine\Type\Authorization\GrantOptionsType
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware

@@ -11,41 +11,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Class TagAssignment
  * @package App\Entity
- * @ORM\Entity()
- * @ORM\Table(name="tag_assignment")
  */
+#[ORM\Table(name: 'tag_assignment')]
+#[ORM\Entity]
 class TagAssignment
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     *
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\TagDefinition", inversedBy="tagAssignments")
-     */
+    #[ORM\ManyToOne(targetEntity: TagDefinition::class, inversedBy: 'tagAssignments')]
     #[Groups(['_main', '_linePanel'])]
     private $tagDefinition;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[Groups(['_main', '_linePanel'])]
     private $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\AgreementLine", inversedBy="tags")
-     * @ORM\JoinColumn(name="context_id")
-     */
+    #[ORM\JoinColumn(name: 'context_id')]
+    #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'tags')]
     private $contextId;
 
     /**
-     * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime')]
     #[Groups(['_main', '_linePanel'])]
     private $createdAt;
 

@@ -10,11 +10,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- */
-//#[ORM\Entity(repositoryClass: UserRepository::class)]
-//#[ORM\Table(name: '`user`')]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
@@ -23,51 +19,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->statusLogs = new ArrayCollection();
         $this->customers2Users = new ArrayCollection();
     }
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups(['user_main', '_linePanel'])]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     #[Groups(['user_main', '_linePanel'])]
     private $email;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     #[Groups('user_main')]
     private $roles = [];
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     #[Groups('user_main')]
     private $firstName;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     #[Groups('user_main')]
     private $lastName;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $password;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: StatusLog::class, mappedBy: 'user')]
     private $statusLogs;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="user", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: Customers2Users::class, mappedBy: 'user', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
     #[Groups('user_main')]
     private $customers2Users;
 

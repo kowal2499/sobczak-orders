@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\ProductionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,95 +11,69 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductionRepository")
- */
+#[ORM\Entity(repositoryClass: ProductionRepository::class)]
 class Production
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups(['_main', '_linePanel'])]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['_main', '_linePanel'])]
     private $departmentSlug;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     #[Groups(['_main', '_linePanel'])]
     private $dateStart;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     #[Groups(['_main', '_linePanel'])]
     private $dateEnd;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $status;
 
     /**
-     * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
     /**
-     * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime')]
     private $updatedAt;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\AgreementLine", inversedBy="productions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'productions')]
     private $agreementLine;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\StatusLog", mappedBy="production", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @OrderBy({"createdAt" = "ASC"})
-     */
+    #[ORM\OneToMany(mappedBy: 'production', targetEntity: StatusLog::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[OrderBy(['createdAt' => 'ASC'])]
     #[Groups(['_main', '_linePanel'])]
     private $statusLogs;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $description;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $title;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $isStartDelayed;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $isCompleted;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $completedAt;
 

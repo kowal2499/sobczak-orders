@@ -7,41 +7,29 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\AttachmentRepository")
- */
+#[ORM\Entity(repositoryClass: \App\Repository\AttachmentRepository::class)]
 class Attachment
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=1024)
-     */
+    #[ORM\Column(type: 'string', length: 1024)]
     #[Groups('_main')]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=1024)
-     */
     // todo: used to be 'original'
+    #[ORM\Column(type: 'string', length: 1024)]
     #[Groups('_main')]
     private string $originalName;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="attachments")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Agreement::class, inversedBy: 'attachments')]
     private $Agreement;
 
-    /**
-     * @ORM\Column(type="string", length=16, nullable=true)
-     */
     #[Groups('_main')]
+    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     private $extension;
 
     public function getId(): ?int

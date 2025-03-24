@@ -10,11 +10,6 @@ use Doctrine\DBAL\Types\JsonType;
 
 class GrantOptionsType extends JsonType
 {
-    public function getName()
-    {
-        return 'grant_options';
-    }
-
     public function convertToPHPValue($value, AbstractPlatform $platform): GrantOptionsCollection
     {
         $optionsArray = parent::convertToPHPValue($value, $platform) ?? [];
@@ -26,7 +21,7 @@ class GrantOptionsType extends JsonType
         return new GrantOptionsCollection(...$grantOptionsArray);
     }
 
-    public function convertToDatabaseValue($options, AbstractPlatform $platform)
+    public function convertToDatabaseValue($options, AbstractPlatform $platform): ?string
     {
         if (is_null($options)) {
             return null;
@@ -45,5 +40,10 @@ class GrantOptionsType extends JsonType
         }
 
         return parent::convertToDatabaseValue($optionsArray, $platform);
+    }
+
+    public function getName(): string
+    {
+        return 'grant_options';
     }
 }

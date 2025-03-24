@@ -2,33 +2,26 @@
 
 namespace App\Entity;
 
+use App\Repository\Customers2UsersRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Customers2UsersRepository")
- * @ORM\Table(name="user_customer")
- */
+#[ORM\Table(name: 'user_customer')]
+#[ORM\Entity(repositoryClass: Customers2UsersRepository::class)]
 class Customers2Users
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="customers2Users")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'customers2Users')]
     private $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="customers2Users")
-     * @ORM\JoinColumn(nullable=false)
-     */
     #[Groups(['public_attr', '_main'])]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customers2Users')]
     private $customer;
 
     public function getId(): ?int

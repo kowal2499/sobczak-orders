@@ -4,70 +4,51 @@ namespace App\Entity;
 
 use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\AgreementRepository")
- */
+#[ORM\Entity(repositoryClass: AgreementRepository::class)]
 class Agreement
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups('_main')]
     private $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
     #[Groups('_main')]
+    #[ORM\Column(type: 'datetime')]
     private $createDate;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $updateDate;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="agreements")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'agreements')]
     #[Groups('_main')]
     private $Customer;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AgreementLine", mappedBy="Agreement", cascade={"remove"})
-     */
+    #[ORM\OneToMany(mappedBy: 'Agreement', targetEntity: AgreementLine::class, cascade: ['remove'])]
     private $agreementLines;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups('_main')]
     private $status;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $orderNumber;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Attachment", mappedBy="Agreement", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(mappedBy: 'Agreement', targetEntity: Attachment::class, orphanRemoval: true)]
     #[Groups('_main')]
     private $attachments;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[Groups('_main')]
     private $user = null;
 
@@ -82,23 +63,23 @@ class Agreement
         return $this->id;
     }
 
-    public function getCreateDate(): ?\DateTimeInterface
+    public function getCreateDate(): ?DateTimeInterface
     {
         return $this->createDate;
     }
 
-    public function setCreateDate(\DateTimeInterface $createDate): self
+    public function setCreateDate(DateTimeInterface $createDate): self
     {
         $this->createDate = $createDate;
         return $this;
     }
 
-    public function getUpdateDate(): ?\DateTimeInterface
+    public function getUpdateDate(): ?DateTimeInterface
     {
         return $this->updateDate;
     }
 
-    public function setUpdateDate(\DateTimeInterface $updateDate): self
+    public function setUpdateDate(DateTimeInterface $updateDate): self
     {
         $this->updateDate = $updateDate;
 
