@@ -23,22 +23,14 @@ class ModuleRepository extends ServiceEntityRepository
         parent::__construct($registry, Module::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Module $entity, bool $flush = true): void
+    public function save(Module $module, bool $flush = true): void
     {
-        $this->_em->persist($entity);
+        $this->_em->persist($module);
         if ($flush) {
             $this->_em->flush();
         }
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function remove(Module $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
@@ -64,15 +56,14 @@ class ModuleRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Module
+    public function findOneByNamespace(string $namespace): ?Module
     {
         return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('m.namespace = :val')
+            ->setParameter('val', $namespace)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+
 }

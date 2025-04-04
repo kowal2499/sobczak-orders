@@ -14,4 +14,19 @@ class GrantsResolver
     {
         return ['id' => $user->getId(), 'email' => $user->getEmail()];
     }
+
+    public function getGlobalGrants(): array
+    {
+        return [];
+    }
+
+    public function getLocalGrants(): array
+    {
+        return [];
+    }
+
+    public function mergeGrants($globalGrants, $localGrants): array
+    {
+        return $globalGrants;
+    }
 }

@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\Authorization\GrantRepository;
+use App\ValueObject\Authorization\GrantType;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: GrantRepository::class)]
-#[ORM\Table(name: "grant")]
+#[ORM\Table(name: "`grant`")]
 class Grant
 {
     #[ORM\Id]
@@ -14,8 +15,12 @@ class Grant
     #[ORM\Column(type: "integer")]
     private int $id;
 
-    #[ORM\Column(type: "string", length: 40)]
+    #[ORM\Column(type: "string", length: 40, unique: true)]
     private string $slug;
+
+    #[ORM\ManyToOne(targetEntity: Module::class, inversedBy: null)]
+    #[ORM\JoinColumn(nullable: false)]
+    private Module $module;
 
     #[ORM\Column(type: "string", length: 60)]
     private string $name;
@@ -24,7 +29,7 @@ class Grant
     private ?string $description;
 
     #[ORM\Column(type: "grant_type")]
-    private $type;
+    private GrantType $type;
 
     #[ORM\Column(type: "grant_options", nullable: true)]
     private $options;
@@ -68,5 +73,41 @@ class Grant
         $this->description = $description;
 
         return $this;
+    }
+
+    public function getModule(): Module
+    {
+        return $this->module;
+    }
+
+    public function setModule(Module $module): void
+    {
+        $this->module = $module;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param mixed $options
+     */
+    public function setOptions($options): void
+    {
+        $this->options = $options;
+    }
+
+    public function getType(): GrantType
+    {
+        return $this->type;
+    }
+
+    public function setType(GrantType $type): void
+    {
+        $this->type = $type;
     }
 }

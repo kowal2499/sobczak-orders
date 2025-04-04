@@ -6,6 +6,7 @@ use App\Repository\RoleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
+#[ORM\Table(name: "role")]
 class Role
 {
     #[ORM\Id]
@@ -13,7 +14,7 @@ class Role
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(length: 80)]
+    #[ORM\Column(length: 80, unique: true)]
     private ?string $name = null;
 
     public function getId(): ?int

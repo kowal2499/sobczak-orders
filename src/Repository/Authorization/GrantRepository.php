@@ -27,18 +27,6 @@ class GrantRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function add(Grant $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function remove(Grant $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
@@ -47,32 +35,21 @@ class GrantRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return Grant[] Returns an array of Grant objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function save(Grant $grant, bool $flush = true): void
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $this->_em->persist($grant);
+        if ($flush) {
+            $this->_em->flush();
+        }
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Grant
+    public function findOneBySlug(string $slug): ?Grant
     {
         return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('g.slug = :val')
+            ->setParameter('val', $slug)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
 }

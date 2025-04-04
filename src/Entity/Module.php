@@ -14,7 +14,7 @@ class Module
     #[ORM\Column(type: "integer")]
     private int $id;
 
-    #[ORM\Column(type: "string", length: 40)]
+    #[ORM\Column(type: "string", length: 40, unique: true)]
     private string $namespace;
 
     public function getId(): ?int
