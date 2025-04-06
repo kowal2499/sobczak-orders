@@ -10,12 +10,12 @@ use Doctrine\DBAL\Types\JsonType;
 
 class GrantOptionsType extends JsonType
 {
-    public function convertToPHPValue($value, AbstractPlatform $platform): GrantOptionsCollection
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?GrantOptionsCollection
     {
         $optionsArray = parent::convertToPHPValue($value, $platform) ?? [];
         $grantOptionsArray = [];
         foreach ($optionsArray as $option) {
-            $grantOptionsArray[] = new GrantOption($option['name'], $option['value']);
+            $grantOptionsArray[] = new GrantOption($option['label'], $option['value']);
         }
 
         return new GrantOptionsCollection(...$grantOptionsArray);
@@ -31,10 +31,10 @@ class GrantOptionsType extends JsonType
             throw ConversionException::conversionFailedSerialization($options, 'grant_options', 'Invalid argument');
         }
 
-        $optionsArray = 0;
+        $optionsArray = [];
         foreach ($options as $option) {
             $optionsArray[] = [
-                'name' => $option->getName(),
+                'label' => $option->getLabel(),
                 'value' => $option->getValue()
             ];
         }

@@ -4,6 +4,7 @@ namespace App\Module\Authorization\Entity;
 
 use App\Entity\Module;
 use App\Module\Authorization\Repository\AuthGrantRepository;
+use App\Module\Authorization\ValueObject\GrantOptionsCollection;
 use App\Module\Authorization\ValueObject\GrantType;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -33,7 +34,7 @@ class AuthGrant
     private GrantType $type;
 
     #[ORM\Column(type: "grant_options", nullable: true)]
-    private $options;
+    private ?GrantOptionsCollection $options;
 
     public function getId(): ?int
     {
@@ -86,10 +87,7 @@ class AuthGrant
         $this->module = $module;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getOptions()
+    public function getOptions(): ?GrantOptionsCollection
     {
         return $this->options;
     }
@@ -97,7 +95,7 @@ class AuthGrant
     /**
      * @param mixed $options
      */
-    public function setOptions($options): void
+    public function setOptions(?GrantOptionsCollection $options): void
     {
         $this->options = $options;
     }

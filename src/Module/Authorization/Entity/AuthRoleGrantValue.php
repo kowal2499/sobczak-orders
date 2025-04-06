@@ -2,10 +2,11 @@
 
 namespace App\Module\Authorization\Entity;
 
+use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\ValueObject\GrantValue;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AuthRoleGrantValueRepository::class)]
 #[ORM\Table(
     name: "auth_role_grant_value",
     uniqueConstraints: [

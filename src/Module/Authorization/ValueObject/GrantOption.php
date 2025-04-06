@@ -5,14 +5,14 @@ namespace App\Module\Authorization\ValueObject;
 class GrantOption
 {
     public function __construct(
-        private readonly string $name,
-        private readonly string $value
+        private readonly string $label,
+        private readonly string $value,
     ) {
     }
 
-    public function getName(): string
+    public function getLabel(): string
     {
-        return $this->name;
+        return $this->label;
     }
 
     public function getValue(): string
