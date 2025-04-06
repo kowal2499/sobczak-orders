@@ -1,28 +1,32 @@
 <?php
 
-namespace App\Tests\End2End\Security;
+namespace App\Tests\End2End\Modules\Authorization;
 
-use App\Entity\Grant;
 use App\Entity\Module;
-use App\Entity\Role;
-use App\Repository\Authorization\GrantRepository;
+use App\Entity\User;
+use App\Module\Authorization\Entity\AuthGrant;
+use App\Module\Authorization\Entity\AuthRole;
+use App\Module\Authorization\Repository\AuthGrantRepository;
+use App\Module\Authorization\Repository\AuthRoleRepository;
+use App\Module\Authorization\ValueObject\GrantType;
 use App\Repository\Authorization\ModuleRepository;
-use App\Repository\RoleRepository;
 use App\System\Test\ApiTestCase;
-use App\ValueObject\Authorization\GrantType;
+use App\Tests\Utilities\Factory\EntityFactory;
 
 class GrantsResolverTest extends ApiTestCase
 {
-
-    private RoleRepository $roleRepository;
+    private AuthRoleRepository $roleRepository;
     private ModuleRepository $moduleRepository;
-    private GrantRepository $grantRepository;
+    private AuthGrantRepository $grantRepository;
+    private EntityFactory $factory;
 
     protected function setUp(): void
     {
-        $this->roleRepository = $this->getContainer()->get(RoleRepository::class);
+        $this->factory = new EntityFactory($this->getManager());
+
+        $this->roleRepository = $this->getContainer()->get(AuthRoleRepository::class);
         $this->moduleRepository = $this->getContainer()->get(ModuleRepository::class);
-        $this->grantRepository = $this->getContainer()->get(GrantRepository::class);
+        $this->grantRepository = $this->getContainer()->get(AuthGrantRepository::class);
 
         $this->createRole('ROLE_USER');
         $this->createRole('ROLE_CUSTOMER');
@@ -31,13 +35,26 @@ class GrantsResolverTest extends ApiTestCase
         $this->createModule('orders');
         $moduleProduction = $this->createModule('production');
         $this->createModule('configuration');
+        $this->user = $this->factory->make(User::class, ['roles' => ['ROLE_ADMIN']]);
 
         $grantOrderPanel = $this->createGrant('production.order_panel', 'Panel produkcyjny', 'Określa dostęp do panelu produkcji', $moduleProduction, GrantType::Boolean);
     }
 
-    public function testShouldPass(): void
+    public function testShouldGetUserGrants(): void
     {
-        $this->assertEquals(true, true);
+        // given
+        $user = $this->factory->make(User::class, ['roles' => ['ROLE_USER']]);
+        $this->getManager()->flush();
+        $client = $this->login($user);
+
+        // when
+        $client->xmlHttpRequest('GET', '/authorization/grants');
+
+        // Then
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(['id' => $user->getId(), 'email' => $user->getEmail()], $content);
     }
 
     private function createModule(string $name): Module
@@ -51,24 +68,24 @@ class GrantsResolverTest extends ApiTestCase
         return $module;
     }
 
-    private function createRole(string $name): Role
+    private function createRole(string $name): AuthRole
     {
         $role = $this->roleRepository->findOneByName($name);
         if (!$role) {
-            $role = new Role();
+            $role = new AuthRole();
             $role->setName($name);
             $this->roleRepository->save($role);
         }
         return $role;
     }
 
-    private function createGrant(string $slug, string $name, string $description, Module $module, GrantType $type): Grant
+    private function createGrant(string $slug, string $name, string $description, Module $module, GrantType $type): AuthGrant
     {
         $grant = $this->grantRepository->findOneBySlug($slug);
         if ($grant) {
             return $grant;
         }
-        $grant = new Grant();
+        $grant = new AuthGrant();
         $grant->setSlug($slug);
         $grant->setName($name);
         $grant->setDescription($description);
@@ -78,5 +95,4 @@ class GrantsResolverTest extends ApiTestCase
         $this->grantRepository->save($grant);
         return $grant;
     }
-
 }

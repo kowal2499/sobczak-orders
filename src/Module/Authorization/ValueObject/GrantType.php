@@ -1,6 +1,6 @@
 <?php
 
-namespace App\ValueObject\Authorization;
+namespace App\Module\Authorization\ValueObject;
 
 enum GrantType: string
 {

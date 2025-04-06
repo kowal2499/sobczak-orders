@@ -29,6 +29,10 @@ services:
             - '../src/Kernel.php'
             - '../src/Migrations'
             - '../src/Tests'
+    App\Module\:
+        resource: '../src/Module/*'
+        exclude: '../src/Module/**/{DependencyInjection,Entity,Event,Command,DTO/*DTO}'
+
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

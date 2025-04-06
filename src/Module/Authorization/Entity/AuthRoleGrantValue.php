@@ -1,40 +1,40 @@
 <?php
 
-namespace App\Entity;
+namespace App\Module\Authorization\Entity;
 
-use App\ValueObject\Authorization\GrantValue;
+use App\Module\Authorization\ValueObject\GrantValue;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(
-    name: "role_grant_value",
+    name: "auth_role_grant_value",
     uniqueConstraints: [
         new ORM\UniqueConstraint(name: "unique_role_grant_value", columns: ["role_id", "grant_id"])
 ])]
-class RoleGrantValue
+class AuthRoleGrantValue
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: null)]
+    #[ORM\ManyToOne(targetEntity: AuthRole::class, inversedBy: null)]
     #[ORM\JoinColumn(nullable: false)]
-    private Role $role;
+    private AuthRole $role;
 
-    #[ORM\ManyToOne(targetEntity: Grant::class, inversedBy: null)]
+    #[ORM\ManyToOne(targetEntity: AuthGrant::class, inversedBy: null)]
     #[ORM\JoinColumn(nullable: false)]
-    private Grant $grant;
+    private AuthGrant $grant;
 
     #[ORM\Column(type: 'grant_value', nullable: false)]
     private GrantValue $value;
 
     /**
-     * @param Role $role
-     * @param Grant $grant
+     * @param AuthRole $role
+     * @param AuthGrant $grant
      * @param GrantValue $value
      */
-    public function __construct(Role $role, Grant $grant, GrantValue $value)
+    public function __construct(AuthRole $role, AuthGrant $grant, GrantValue $value)
     {
         $this->role = $role;
         $this->grant = $grant;

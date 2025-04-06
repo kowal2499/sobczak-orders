@@ -64,22 +64,4 @@ class SecurityControllerTest extends ApiTestCase
         $this->assertEquals($connection->getCustomer()->getId(), $this->customer->getId());
         $this->assertEquals($connection->getUser()->getId(), $newUserId);
     }
-
-    public function testShouldGetUserGrants(): void
-    {
-        // given
-        $factory = new EntityFactory($this->getManager());
-        $user = $factory->make(User::class, ['roles' => ['ROLE_USER']]);
-        $this->getManager()->flush();
-        $client = $this->login($user);
-
-        // when
-        $client->xmlHttpRequest('GET', '/user/grants');
-
-        // Then
-        $content = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertEquals(['id' => $user->getId(), 'email' => $user->getEmail()], $content);
-    }
-
 }

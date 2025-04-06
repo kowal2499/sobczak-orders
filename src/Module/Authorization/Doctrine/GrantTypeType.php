@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Doctrine\Type\Authorization;
+namespace App\Module\Authorization\Doctrine;
 
-use App\ValueObject\Authorization\GrantType;
+use App\Module\Authorization\ValueObject\GrantType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
 

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Entity;
+namespace App\Module\Authorization\Entity;
 
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(
-    name: "user_role",
+    name: "auth_user_role",
     uniqueConstraints: [
         new ORM\UniqueConstraint(name: "unique_user_role", columns: ["user_id", "role_id"])
 ])]
-class UserRole
+class AuthUserRole
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,15 +22,15 @@ class UserRole
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: null)]
+    #[ORM\ManyToOne(targetEntity: AuthRole::class, inversedBy: null)]
     #[ORM\JoinColumn(nullable: false)]
-    private Role $role;
+    private AuthRole $role;
 
     /**
      * @param User $user
-     * @param Role $role
+     * @param AuthRole $role
      */
-    public function __construct(User $user, Role $role)
+    public function __construct(User $user, AuthRole $role)
     {
         $this->user = $user;
         $this->role = $role;
@@ -40,7 +41,7 @@ class UserRole
         return $this->user;
     }
 
-    public function setRole(Role $role): UserRole
+    public function setRole(AuthRole $role): AuthUserRole
     {
         $this->role = $role;
         return $this;

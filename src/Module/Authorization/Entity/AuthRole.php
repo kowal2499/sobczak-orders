@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Entity;
+namespace App\Module\Authorization\Entity;
 
-use App\Repository\RoleRepository;
+use App\Module\Authorization\Repository\AuthRoleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RoleRepository::class)]
-#[ORM\Table(name: "role")]
-class Role
+#[ORM\Entity(repositoryClass: AuthRoleRepository::class)]
+#[ORM\Table(name: "auth_role")]
+class AuthRole
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

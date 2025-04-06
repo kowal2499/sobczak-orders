@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Entity;
+namespace App\Module\Authorization\Entity;
 
-use App\Repository\Authorization\GrantRepository;
-use App\ValueObject\Authorization\GrantType;
+use App\Entity\Module;
+use App\Module\Authorization\Repository\AuthGrantRepository;
+use App\Module\Authorization\ValueObject\GrantType;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: GrantRepository::class)]
-#[ORM\Table(name: "`grant`")]
-class Grant
+#[ORM\Entity(repositoryClass: AuthGrantRepository::class)]
+#[ORM\Table(name: "auth_grant")]
+class AuthGrant
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Repository;
+namespace App\Module\Authorization\Repository;
 
-use App\Entity\Role;
+use App\Module\Authorization\Entity\AuthRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Role>
+ * @extends ServiceEntityRepository<AuthRole>
  *
- * @method Role|null find($id, $lockMode = null, $lockVersion = null)
- * @method Role|null findOneBy(array $criteria, array $orderBy = null)
- * @method Role[]    findAll()
- * @method Role[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method AuthRole|null find($id, $lockMode = null, $lockVersion = null)
+ * @method AuthRole|null findOneBy(array $criteria, array $orderBy = null)
+ * @method AuthRole[]    findAll()
+ * @method AuthRole[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class RoleRepository extends ServiceEntityRepository
+class AuthRoleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Role::class);
+        parent::__construct($registry, AuthRole::class);
     }
 
-    public function save(Role $role, bool $flush = true): void
+    public function save(AuthRole $role, bool $flush = true): void
     {
         $this->_em->persist($role);
         if ($flush) {
@@ -30,7 +29,7 @@ class RoleRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByName(string $name): ?Role
+    public function findOneByName(string $name): ?AuthRole
     {
         return $this->createQueryBuilder('r')
             ->andWhere('r.name = :val')

@@ -1,33 +1,33 @@
 <?php
 
-namespace App\Repository\Authorization;
+namespace App\Module\Authorization\Repository;
 
-use App\Entity\Grant;
+use App\Module\Authorization\Entity\AuthGrant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Grant>
+ * @extends ServiceEntityRepository<AuthGrant>
  *
- * @method Grant|null find($id, $lockMode = null, $lockVersion = null)
- * @method Grant|null findOneBy(array $criteria, array $orderBy = null)
- * @method Grant[]    findAll()
- * @method Grant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method AuthGrant|null find($id, $lockMode = null, $lockVersion = null)
+ * @method AuthGrant|null findOneBy(array $criteria, array $orderBy = null)
+ * @method AuthGrant[]    findAll()
+ * @method AuthGrant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class GrantRepository extends ServiceEntityRepository
+class AuthGrantRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Grant::class);
+        parent::__construct($registry, AuthGrant::class);
     }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function remove(Grant $entity, bool $flush = true): void
+    public function remove(AuthGrant $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
         if ($flush) {
@@ -35,7 +35,7 @@ class GrantRepository extends ServiceEntityRepository
         }
     }
 
-    public function save(Grant $grant, bool $flush = true): void
+    public function save(AuthGrant $grant, bool $flush = true): void
     {
         $this->_em->persist($grant);
         if ($flush) {
@@ -43,7 +43,7 @@ class GrantRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneBySlug(string $slug): ?Grant
+    public function findOneBySlug(string $slug): ?AuthGrant
     {
         return $this->createQueryBuilder('g')
             ->andWhere('g.slug = :val')

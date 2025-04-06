@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Doctrine\Type\Authorization;
+namespace App\Module\Authorization\Doctrine;
 
-use App\ValueObject\Authorization\GrantOption;
-use App\ValueObject\Authorization\GrantOptionsCollection;
+use App\Module\Authorization\ValueObject\GrantOption;
+use App\Module\Authorization\ValueObject\GrantOptionsCollection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
