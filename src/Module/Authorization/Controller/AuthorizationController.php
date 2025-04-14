@@ -16,11 +16,9 @@ class AuthorizationController extends BaseController
     public function grants(Security $security, GrantsResolver $grantsResolver): JsonResponse
     {
         $user = $security->getUser();
-
         if (!$user instanceof User) {
             throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
         }
-
         return new JsonResponse($grantsResolver->resolve($user));
     }
 }

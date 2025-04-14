@@ -3,9 +3,10 @@
 namespace App\Module\Authorization\Entity;
 
 use App\Entity\User;
+use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AuthUserRoleRepository::class)]
 #[ORM\Table(
     name: "auth_user_role",
     uniqueConstraints: [
