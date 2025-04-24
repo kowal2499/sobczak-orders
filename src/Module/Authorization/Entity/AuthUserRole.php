@@ -47,4 +47,9 @@ class AuthUserRole
         $this->role = $role;
         return $this;
     }
+
+    public function getRole(): AuthRole
+    {
+        return $this->role;
+    }
 }

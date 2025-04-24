@@ -43,4 +43,17 @@ class AuthRoleGrantValueRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @param AuthRole $authRole
+     * @return AuthRoleGrantValue[]
+     */
+    public function findAllByRole(AuthRole $authRole): array
+    {
+        return $this->createQueryBuilder('argv')
+            ->andWhere('argv.role = :valRole')
+            ->setParameter('valRole', $authRole)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

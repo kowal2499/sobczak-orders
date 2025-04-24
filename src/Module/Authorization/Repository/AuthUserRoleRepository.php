@@ -30,6 +30,10 @@ class AuthUserRoleRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param User $user
+     * @return AuthUserRole[]
+     */
     public function findAllByUser(User $user): array
     {
         return $this->createQueryBuilder('ur')

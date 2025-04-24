@@ -36,6 +36,7 @@ class GrantsResolverTest extends ApiTestCase
         $this->authFactory->createModule('orders');
         $moduleProduction = $this->authFactory->createModule('production');
         $this->authFactory->createModule('configuration');
+
         $this->user = $this->factory->make(User::class, ['roles' => ['ROLE_ADMIN']]);
 
         $grantProductionPanel = $this->authFactory->createGrant(
@@ -72,8 +73,7 @@ class GrantsResolverTest extends ApiTestCase
     public function testShouldGetUserGrants(): void
     {
         // given
-        $user = $this->authFactory->createUser([], ['ROLE_USER']);
-//        $user = $this->factory->make(User::class, ['roles' => ['ROLE_USER']]);
+        $user = $this->authFactory->createUser([], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
         // when
@@ -83,6 +83,7 @@ class GrantsResolverTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        dd($content);
         $this->assertEquals(['id' => $user->getId(), 'email' => $user->getEmail()], $content);
     }
 }
