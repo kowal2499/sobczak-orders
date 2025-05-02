@@ -5,16 +5,24 @@ namespace App\Module\Authorization\ValueObject;
 class GrantValue
 {
 
-    /** @var string[]|boolean */
-    private mixed $value;
+    private GrantVO $grantVO;
+    private bool $value;
 
-    public function __construct($value)
+    public function __construct(GrantVO $grant, bool $value = true)
     {
+        $this->grantVO = $grant;
         $this->value = $value;
     }
 
-    public function getRawValue(): mixed
+    public function getGrantVO(): GrantVO
+    {
+        return $this->grantVO;
+    }
+
+    public function getValue(): bool
     {
         return $this->value;
     }
+
+
 }

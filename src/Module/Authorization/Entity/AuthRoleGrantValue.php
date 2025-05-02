@@ -3,15 +3,13 @@
 namespace App\Module\Authorization\Entity;
 
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
-use App\Module\Authorization\ValueObject\GrantType;
-use App\Module\Authorization\ValueObject\GrantValue;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AuthRoleGrantValueRepository::class)]
 #[ORM\Table(
     name: "auth_role_grant_value",
     uniqueConstraints: [
-        new ORM\UniqueConstraint(name: "unique_role_grant_value", columns: ["role_id", "grant_id"])
+        new ORM\UniqueConstraint(name: "unique_role_grant_value", columns: ["role_id", "grant_id", "grant_option_slug"])
 ])]
 class AuthRoleGrantValue
 {
@@ -28,19 +26,17 @@ class AuthRoleGrantValue
     #[ORM\JoinColumn(nullable: false)]
     private AuthGrant $grant;
 
-    #[ORM\Column(type: 'grant_value', nullable: false)]
-    private GrantValue $value;
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $grantOptionSlug;
 
-    /**
-     * @param AuthRole $role
-     * @param AuthGrant $grant
-     * @param GrantValue $value
-     */
-    public function __construct(AuthRole $role, AuthGrant $grant, GrantValue $value)
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $value = true;
+
+    public function __construct(AuthRole $role, AuthGrant $grant, ?string $grantOptionSlug = null)
     {
         $this->role = $role;
         $this->grant = $grant;
-        $this->setValue($value);
+        $this->grantOptionSlug = $grantOptionSlug;
     }
 
     public function getGrant(): AuthGrant
@@ -48,35 +44,23 @@ class AuthRoleGrantValue
         return $this->grant;
     }
 
-    public function getValue(): GrantValue
+    public function getValue(): ?bool
     {
         return $this->value;
     }
 
-    public function setValue(GrantValue $value): void
+    public function getRole(): AuthRole
     {
-        $rawValue = $value->getRawValue();
-        if ($this->grant->getType() === GrantType::Select) {
-            $supportedValues = [];
-            foreach ($this->grant->getOptions() as $option) {
-                $supportedValues[] = $option->getValue();
-            }
+        return $this->role;
+    }
 
-            if (false === is_array($rawValue)) {
-                throw new \RuntimeException("Only array values are accepted for Select type grants");
-            }
+    public function getGrantOptionSlug(): string
+    {
+        return $this->grantOptionSlug;
+    }
 
-            foreach ($rawValue as $item) {
-                if (false === in_array($item, $supportedValues)) {
-                    throw new \RuntimeException("Value '$item' not exists in options");
-                }
-            }
-        } elseif ($this->grant->getType() === GrantType::Boolean) {
-            if (false === is_bool($rawValue)) {
-                throw new \RuntimeException("Only boolean values are accepted for Boolean type grants");
-            }
-        }
-
+    public function setValue(?bool $value): void
+    {
         $this->value = $value;
     }
 }

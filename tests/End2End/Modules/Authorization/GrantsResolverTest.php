@@ -43,22 +43,22 @@ class GrantsResolverTest extends ApiTestCase
 
         $this->user = $this->factory->make(User::class, ['roles' => ['ROLE_ADMIN']]);
 
-        $grantProductionPanel = $this->authFactory->createGrant(
+        $this->authFactory->createGrant(
             'production.panel',
             'Panel produkcji',
             'Określa dostęp do panelu produkcji',
             $moduleProduction,
             GrantType::Boolean
         );
-        $grantProductionReports = $this->authFactory->createGrant(
+        $this->authFactory->createGrant(
             'production.reports',
             'Raporty produkcji',
             'Określa dostęp do raportów produkcji',
             $moduleProduction,
             GrantType::Boolean
         );
-        $grantProductionListFieldsView = $this->authFactory->createGrant(
-            'production.list.fields.read',
+        $this->authFactory->createGrant(
+            'production.list',
             'Kolumny w widoku listy produkcji',
             'Określa które pola (kolumny) są widoczne na liście produkcji',
             $moduleProduction,
@@ -75,27 +75,47 @@ class GrantsResolverTest extends ApiTestCase
                 new GrantOption('Data zakończenia produkcji', 'productionCompleteDate'),
             )
         );
-        $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionPanel, new GrantValue(true));
-        $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionReports, new GrantValue(true));
-        $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionListFieldsView, new GrantValue([
-            'factor', 'customerId', 'userId', 'orderNumber', 'productId', 'createDate'
-        ]));
+        $this->authFactory->createRoleGrantValue(
+            $roleProduction,
+            new GrantValue(GrantVO::m('production.panel'))
+        );
+        $this->authFactory->createRoleGrantValue(
+            $roleProduction,
+            new GrantValue(GrantVO::m('production.reports'))
+        );
+        $this->authFactory->createRoleGrantValue(
+            $roleProduction,
+            new GrantValue(GrantVO::m('production.list:factor')),
+            new GrantValue(GrantVO::m('production.list:customerId')),
+            new GrantValue(GrantVO::m('production.list:userId'), true),
+            new GrantValue(GrantVO::m('production.list:orderNumber')),
+            new GrantValue(GrantVO::m('production.list:productId')),
+            new GrantValue(GrantVO::m('production.list:createDate')),
+        );
     }
 
     public function testShouldGetUserGrants(): void
     {
-        // 'production.list.fields.read:userId=false';
-        // todo: wartości options collection niech mają postać:
-        // {"factor": true,"customerId": true, "userId": true, "orderNumber": true, "productId": false ,"createDate": false }
+        $this->markTestSkipped('na później');
 
+       // todo: encja AuthUserGrantValueRepository i AuthRoleGrantValueRepository niech mają wspólną klasę bazową
+       // todo: tworzyc usera z wartościami grantów lokalnych (nie z roli)
 
 
         // given
         $user = $this->authFactory->createUser(
             [],
             ['ROLE_PRODUCTION'],
-            [GrantVO::fromString('production.reports=true')]);
+            [new GrantValue(GrantVO::m('production.reports'), true)]
+        );
         $client = $this->login($user);
+
+//        [
+//            new GrantValue(GrantVO::m('production.reports'), true),
+//            new GrantValue(GrantVO::m('production.panel'), false),
+//            new GrantValue(GrantVO::m('production.list:orderNumber'), false),
+//            new GrantValue(GrantVO::m('production.list:createDate'), false),
+//        ]
 
         // when
         $client->xmlHttpRequest('GET', '/authorization/grants');

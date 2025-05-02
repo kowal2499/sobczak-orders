@@ -15,7 +15,7 @@ class GrantOptionsType extends JsonType
         $optionsArray = parent::convertToPHPValue($value, $platform) ?? [];
         $grantOptionsArray = [];
         foreach ($optionsArray as $option) {
-            $grantOptionsArray[] = new GrantOption($option['label'], $option['value']);
+            $grantOptionsArray[] = new GrantOption($option['label'], $option['optionSlug']);
         }
 
         return new GrantOptionsCollection(...$grantOptionsArray);
@@ -35,7 +35,7 @@ class GrantOptionsType extends JsonType
         foreach ($options as $option) {
             $optionsArray[] = [
                 'label' => $option->getLabel(),
-                'value' => $option->getValue()
+                'optionSlug' => $option->getOptionSlug()
             ];
         }
 

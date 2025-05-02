@@ -48,14 +48,14 @@ class AuthFactory
     /**
      * @param array $data
      * @param array $roleNames
-     * @param GrantVO[] $grants
+     * @param GrantValue[] $grantValues
      * @param bool $flush
      * @return User
      */
     public function createUser(
         array $data = [],
         array $roleNames = [],
-        array $grants = [],
+        array $grantValues = [],
         bool $flush = true,
     ): User
     {
@@ -81,7 +81,7 @@ class AuthFactory
         }
 
         // add grants
-        foreach ($grants as $grantVO) {
+        foreach ($grantValues as $grantVO) {
             $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
             if (!$grant) {
                 throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
@@ -120,14 +120,23 @@ class AuthFactory
         return $module;
     }
 
-    public function createRoleGrantValue(AuthRole $role, AuthGrant $grant, GrantValue $grantValue): AuthRoleGrantValue
+    public function createRoleGrantValue(AuthRole $role, GrantValue ...$grantValues): self
     {
-        $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant);
-        if (!$roleGrantValue) {
-            $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantValue);
+        foreach ($grantValues as $grantValue) {
+            $grantVO = $grantValue->getGrantVO();
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
+            if (!$grant) {
+                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
+            }
+            $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $grantVO->getOptionSlug());
+            if (!$roleGrantValue) {
+                $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantVO->getOptionSlug());
+            }
+            $roleGrantValue->setValue($grantValue->getValue());
             $this->roleGrantValueRepository->save($roleGrantValue);
         }
-        return $roleGrantValue;
+
+        return $this;
     }
 
     public function createUserGrantValue(User $user, AuthGrant $grant, GrantValue $grantValue): AuthUserGrantValue

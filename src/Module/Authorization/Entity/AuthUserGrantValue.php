@@ -4,7 +4,6 @@ namespace App\Module\Authorization\Entity;
 
 use App\Entity\User;
 use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
-use App\Module\Authorization\ValueObject\GrantValue;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AuthUserGrantValueRepository::class)]
@@ -28,22 +27,40 @@ class AuthUserGrantValue
     #[ORM\JoinColumn(nullable: false)]
     private AuthGrant $grant;
 
-    #[ORM\Column(type: 'grant_value', nullable: false)]
-    private GrantValue $value;
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $grantOptionSlug;
 
-    /**
-     * @param User $user
-     * @param AuthGrant $grant
-     * @param GrantValue $value
-     */
-    public function __construct(User $user, AuthGrant $grant, GrantValue $value)
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $value = true;
+
+    public function __construct(User $user, AuthGrant $grant, ?string $grantOptionSlug = null)
     {
         $this->user = $user;
         $this->grant = $grant;
-        $this->value = $value;
+        $this->grantOptionSlug = $grantOptionSlug;
     }
 
-    public function setValue(GrantValue $value): void
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function getGrant(): AuthGrant
+    {
+        return $this->grant;
+    }
+
+    public function getGrantOptionSlug(): ?string
+    {
+        return $this->grantOptionSlug;
+    }
+
+    public function getValue(): ?bool
+    {
+        return $this->value;
+    }
+
+    public function setValue(?bool $value): void
     {
         $this->value = $value;
     }

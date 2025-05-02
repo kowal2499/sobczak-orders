@@ -6,7 +6,7 @@ class GrantOption
 {
     public function __construct(
         private readonly string $label,
-        private readonly string $value,
+        private readonly string $optionSlug,
     ) {
     }
 
@@ -15,8 +15,8 @@ class GrantOption
         return $this->label;
     }
 
-    public function getValue(): string
+    public function getOptionSlug(): string
     {
-        return $this->value;
+        return $this->optionSlug;
     }
 }

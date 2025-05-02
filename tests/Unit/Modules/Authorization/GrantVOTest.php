@@ -10,52 +10,30 @@ class GrantVOTest extends TestCase
     public function testShouldGetSlug(): void
     {
         // Given
-        $grant01 = GrantVO::fromString('someGrant');
-        $grant02 = GrantVO::fromString('someGrant:=');
+        $grant01 = GrantVO::m('someGrant');
+        $grant02 = GrantVO::m('someGrant:');
 
         // Then
         $this->assertEquals('someGrant', $grant01->getSlug());
         $this->assertEquals('someGrant', $grant02->getSlug());
     }
 
-    public function testShouldThrowExpectionWhenGrantSlugCannotBeResolved(): void
+    public function testShouldThrowExceptionWhenGrantSlugCannotBeResolved(): void
     {
         // Expect
         $this->expectException(\Exception::class);
 
         // When
-        GrantVO::fromString('');
+        GrantVO::m('');
     }
 
-    public function testShouldGetOptionValue(): void
+    public function testShouldOptionSlug(): void
     {
         // Given
-        $grant01 = GrantVO::fromString('someGrant:someOptionValue');
-        $grant02 = GrantVO::fromString('someGrant:someOptionValue=true');
+        $grant01 = GrantVO::m('someGrant:someOptionValue');
 
         // Then
-        $this->assertEquals('someOptionValue', $grant01->getOptionValue());
-        $this->assertEquals('someOptionValue', $grant02->getOptionValue());
-    }
-
-    public function testShouldGetValue(): void
-    {
-        // Given
-        $grant01 = GrantVO::fromString('someGrant');
-        $grant02 = GrantVO::fromString('someGrant:someOptionValue');
-        $grant03 = GrantVO::fromString('someGrant:someOptionValue=true');
-        $grant04 = GrantVO::fromString('someGrant:someOptionValue=false');
-        $grant05 = GrantVO::fromString('someGrant:someOptionValue=lorem');
-        $grant06 = GrantVO::fromString('someGrant=true');
-        $grant07 = GrantVO::fromString('someGrant=false');
-
-        // Then
-        $this->assertTrue($grant01->getValue());
-        $this->assertTrue($grant02->getValue());
-        $this->assertTrue($grant03->getValue());
-        $this->assertFalse($grant04->getValue());
-        $this->assertFalse($grant05->getValue());
-        $this->assertTrue($grant06->getValue());
-        $this->assertFalse($grant07->getValue());
+        $this->assertEquals('someGrant', $grant01->getSlug());
+        $this->assertEquals('someOptionValue', $grant01->getOptionSlug());
     }
 }
