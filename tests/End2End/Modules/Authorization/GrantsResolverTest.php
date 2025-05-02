@@ -6,10 +6,13 @@ use App\Entity\User;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
+use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
+use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Module\Authorization\ValueObject\GrantOption;
 use App\Module\Authorization\ValueObject\GrantOptionsCollection;
 use App\Module\Authorization\ValueObject\GrantType;
 use App\Module\Authorization\ValueObject\GrantValue;
+use App\Module\Authorization\ValueObject\GrantVO;
 use App\Repository\Authorization\ModuleRepository;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\EntityFactory;
@@ -19,6 +22,7 @@ class GrantsResolverTest extends ApiTestCase
 {
     private EntityFactory $factory;
     private AuthFactory $authFactory;
+    private AuthUserGrantValueRepository $userGrantValueRepository;
 
     protected function setUp(): void
     {
@@ -46,6 +50,13 @@ class GrantsResolverTest extends ApiTestCase
             $moduleProduction,
             GrantType::Boolean
         );
+        $grantProductionReports = $this->authFactory->createGrant(
+            'production.reports',
+            'Raporty produkcji',
+            'Określa dostęp do raportów produkcji',
+            $moduleProduction,
+            GrantType::Boolean
+        );
         $grantProductionListFieldsView = $this->authFactory->createGrant(
             'production.list.fields.read',
             'Kolumny w widoku listy produkcji',
@@ -65,6 +76,7 @@ class GrantsResolverTest extends ApiTestCase
             )
         );
         $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionPanel, new GrantValue(true));
+        $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionReports, new GrantValue(true));
         $this->authFactory->createRoleGrantValue($roleProduction, $grantProductionListFieldsView, new GrantValue([
             'factor', 'customerId', 'userId', 'orderNumber', 'productId', 'createDate'
         ]));
@@ -72,8 +84,17 @@ class GrantsResolverTest extends ApiTestCase
 
     public function testShouldGetUserGrants(): void
     {
+        // 'production.list.fields.read:userId=false';
+        // todo: wartości options collection niech mają postać:
+        // {"factor": true,"customerId": true, "userId": true, "orderNumber": true, "productId": false ,"createDate": false }
+
+
+
         // given
-        $user = $this->authFactory->createUser([], ['ROLE_PRODUCTION']);
+        $user = $this->authFactory->createUser(
+            [],
+            ['ROLE_PRODUCTION'],
+            [GrantVO::fromString('production.reports=true')]);
         $client = $this->login($user);
 
         // when

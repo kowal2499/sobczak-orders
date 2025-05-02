@@ -7,13 +7,16 @@ use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
+use App\Module\Authorization\Entity\AuthUserGrantValue;
 use App\Module\Authorization\Entity\AuthUserRole;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
+use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
 use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Module\Authorization\ValueObject\GrantType;
 use App\Module\Authorization\ValueObject\GrantValue;
+use App\Module\Authorization\ValueObject\GrantVO;
 use App\Repository\Authorization\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
@@ -26,6 +29,7 @@ class AuthFactory
     private readonly AuthUserRoleRepository $userRoleRepository;
     private readonly ModuleRepository $moduleRepository;
     private readonly AuthRoleGrantValueRepository $roleGrantValueRepository;
+    private readonly AuthUserGrantValueRepository $userGrantValueRepository;
     private readonly AuthGrantRepository $grantRepository;
 
     public function __construct(
@@ -35,11 +39,19 @@ class AuthFactory
         $this->roleRepository = $em->getRepository(AuthRole::class);
         $this->moduleRepository = $em->getRepository(Module::class);
         $this->roleGrantValueRepository = $em->getRepository(AuthRoleGrantValue::class);
+        $this->userGrantValueRepository = $em->getRepository(AuthUserGrantValue::class);
         $this->grantRepository = $em->getRepository(AuthGrant::class);
 
         $this->faker = Factory::create('pl_PL');
     }
 
+    /**
+     * @param array $data
+     * @param array $roleNames
+     * @param GrantVO[] $grants
+     * @param bool $flush
+     * @return User
+     */
     public function createUser(
         array $data = [],
         array $roleNames = [],
@@ -66,6 +78,21 @@ class AuthFactory
 
         if ($flush) {
             $this->em->flush();
+        }
+
+        // add grants
+        foreach ($grants as $grantVO) {
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
+            if (!$grant) {
+                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
+            }
+            $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant);
+            if (!$userGrantValue) {
+                $userGrantValue = new AuthUserGrantValue($user, $grant, new GrantValue($grantVO->getValue()));
+            } else {
+                $userGrantValue->setValue(new GrantValue($grantVO->getValue()));
+            }
+            $this->userGrantValueRepository->save($userGrantValue);
         }
 
         return $user;
@@ -101,6 +128,16 @@ class AuthFactory
             $this->roleGrantValueRepository->save($roleGrantValue);
         }
         return $roleGrantValue;
+    }
+
+    public function createUserGrantValue(User $user, AuthGrant $grant, GrantValue $grantValue): AuthUserGrantValue
+    {
+        $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant);
+        if (!$userGrantValue) {
+            $userGrantValue = new AuthUserGrantValue($user, $grant, $grantValue);
+            $this->userGrantValueRepository->save($userGrantValue);
+        }
+        return $userGrantValue;
     }
 
     public function createGrant(string $slug, string $name, string $description, Module $module, GrantType $type, $options = null): AuthGrant

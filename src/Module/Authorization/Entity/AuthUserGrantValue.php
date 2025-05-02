@@ -3,10 +3,11 @@
 namespace App\Module\Authorization\Entity;
 
 use App\Entity\User;
+use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
 use App\Module\Authorization\ValueObject\GrantValue;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AuthUserGrantValueRepository::class)]
 #[ORM\Table(
     name: "auth_user_grant_value",
     uniqueConstraints: [
@@ -39,6 +40,11 @@ class AuthUserGrantValue
     {
         $this->user = $user;
         $this->grant = $grant;
+        $this->value = $value;
+    }
+
+    public function setValue(GrantValue $value): void
+    {
         $this->value = $value;
     }
 
