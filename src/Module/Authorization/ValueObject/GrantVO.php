@@ -23,7 +23,7 @@ class GrantVO
         return new self($grantString);
     }
 
-    public function getSlug(): string
+    public function getBaseSlug(): string
     {
         return $this->slug;
     }
@@ -31,5 +31,10 @@ class GrantVO
     public function getOptionSlug(): ?string
     {
         return $this->optionSlug;
+    }
+
+    public function toString(): string
+    {
+        return implode(':', array_filter([$this->getBaseSlug(), $this->getOptionSlug()]));
     }
 }

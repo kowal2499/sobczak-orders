@@ -96,26 +96,20 @@ class GrantsResolverTest extends ApiTestCase
 
     public function testShouldGetUserGrants(): void
     {
-        $this->markTestSkipped('na później');
-
-       // todo: encja AuthUserGrantValueRepository i AuthRoleGrantValueRepository niech mają wspólną klasę bazową
-       // todo: tworzyc usera z wartościami grantów lokalnych (nie z roli)
-
+        // todo: mergowanie zgód
 
         // given
         $user = $this->authFactory->createUser(
             [],
             ['ROLE_PRODUCTION'],
-            [new GrantValue(GrantVO::m('production.reports'), true)]
+            [
+                new GrantValue(GrantVO::m('production.list:productionStartDate'), true),
+                new GrantValue(GrantVO::m('production.list:productionCompleteDate'), true),
+                new GrantValue(GrantVO::m('production.list:productId'), false),
+                new GrantValue(GrantVO::m('production.reports'), false)
+            ]
         );
         $client = $this->login($user);
-
-//        [
-//            new GrantValue(GrantVO::m('production.reports'), true),
-//            new GrantValue(GrantVO::m('production.panel'), false),
-//            new GrantValue(GrantVO::m('production.list:orderNumber'), false),
-//            new GrantValue(GrantVO::m('production.list:createDate'), false),
-//        ]
 
         // when
         $client->xmlHttpRequest('GET', '/authorization/grants');

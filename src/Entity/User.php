@@ -14,11 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
-    public function __construct()
-    {
-        $this->statusLogs = new ArrayCollection();
-        $this->customers2Users = new ArrayCollection();
-    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -50,6 +46,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Customers2Users::class, mappedBy: 'user', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
     #[Groups('user_main')]
     private $customers2Users;
+
+    public function __construct()
+    {
+        $this->statusLogs = new ArrayCollection();
+        $this->customers2Users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {

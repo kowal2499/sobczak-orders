@@ -14,8 +14,8 @@ class GrantVOTest extends TestCase
         $grant02 = GrantVO::m('someGrant:');
 
         // Then
-        $this->assertEquals('someGrant', $grant01->getSlug());
-        $this->assertEquals('someGrant', $grant02->getSlug());
+        $this->assertEquals('someGrant', $grant01->getBaseSlug());
+        $this->assertEquals('someGrant', $grant02->getBaseSlug());
     }
 
     public function testShouldThrowExceptionWhenGrantSlugCannotBeResolved(): void
@@ -33,7 +33,7 @@ class GrantVOTest extends TestCase
         $grant01 = GrantVO::m('someGrant:someOptionValue');
 
         // Then
-        $this->assertEquals('someGrant', $grant01->getSlug());
+        $this->assertEquals('someGrant', $grant01->getBaseSlug());
         $this->assertEquals('someOptionValue', $grant01->getOptionSlug());
     }
 }

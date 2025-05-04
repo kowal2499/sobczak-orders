@@ -3,54 +3,60 @@
 namespace App\Module\Authorization\Service;
 
 use App\Entity\User;
-use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
-use App\Module\Authorization\Repository\AuthUserRoleRepository;
-use App\Module\Authorization\ValueObject\GrantType;
+use App\Module\Authorization\Entity\AuthUserRole;
+use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface;
+use App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface;
+use App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface;
 
 class GrantsResolver
 {
     public function __construct(
-        private readonly AuthRoleGrantValueRepository   $roleGrantValueRepository,
-        private readonly AuthUserRoleRepository         $userRoleRepository,
+        private readonly AuthRoleGrantValueRepositoryInterface   $roleGrantValueRepository,
+        private readonly AuthUserGrantValueRepositoryInterface   $userGrantValueRepository,
+        private readonly AuthUserRoleRepositoryInterface         $userRoleRepository,
     ) {
     }
 
     public function resolve(User $user): array
     {
-        return [
-            'id' => $user->getId(),
-            'email' => $user->getEmail(),
-            'global' => $this->getGlobalGrants($user)
-        ];
+        return [];
+//        return [
+//            'id' => $user->getId(),
+//            'email' => $user->getEmail(),
+//            'global' => $this->getRoleGrants($this->userRoleRepository->findAllByUser($user)),
+//            'local' => $this->getUserGrants($user),
+//        ];
     }
 
-    public function getGlobalGrants(User $user): array
+    /**
+     * @param AuthUserRole[] $roles
+     * @return array
+     */
+    public function getRoleGrants(array $roles): array
     {
         $result = [];
-
-        foreach ($this->userRoleRepository->findAllByUser($user) as $userRole) {
+        foreach ($roles as $userRole) {
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
-                $grant = $grantValue->getGrant();
-
-                if ($grant->getType() === GrantType::Boolean
-                    && $grantValue->getValue()->getRawValue() === true)
-                {
-                    $result[] = $grant->getSlug();
-                } elseif ($grant->getType() === GrantType::Select) {
-                    foreach ($grantValue->getValue()->getRawValue() as $val) {
-                        $result[] = $grant->getSlug() . ':' . $val;
-                    }
+                if ($grantValue->getValue() !== true) {
+                    continue;
                 }
+                $result[] = $grantValue->getGrantVO()->toString();
             }
         }
-
         return $result;
     }
 
-    public function getLocalGrants(): array
+    public function getUserGrants(User $user): array
     {
-        return [];
+        $result = [];
+        foreach ($this->userGrantValueRepository->findAllByUser($user) as $grantValue) {
+            if ($grantValue->getValue() !== true) {
+                continue;
+            }
+            $result[] = $grantValue->getGrantVO()->toString();
+        }
+        return $result;
     }
 
     public function mergeGrants($globalGrants, $localGrants): array

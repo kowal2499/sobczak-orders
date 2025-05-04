@@ -49,14 +49,12 @@ class AuthFactory
      * @param array $data
      * @param array $roleNames
      * @param GrantValue[] $grantValues
-     * @param bool $flush
      * @return User
      */
     public function createUser(
         array $data = [],
         array $roleNames = [],
         array $grantValues = [],
-        bool $flush = true,
     ): User
     {
         $user = new User();
@@ -70,83 +68,17 @@ class AuthFactory
         // add roles
         foreach ($roleNames as $roleName) {
             $role = $this->createRole($roleName);
-            $this->userRoleRepository->save(
+            $this->userRoleRepository->add(
                 new AuthUserRole($user, $role),
                 false
             );
         }
-
-        if ($flush) {
-            $this->em->flush();
-        }
+        $this->em->flush();
 
         // add grants
-        foreach ($grantValues as $grantVO) {
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
-            if (!$grant) {
-                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
-            }
-            $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant);
-            if (!$userGrantValue) {
-                $userGrantValue = new AuthUserGrantValue($user, $grant, new GrantValue($grantVO->getValue()));
-            } else {
-                $userGrantValue->setValue(new GrantValue($grantVO->getValue()));
-            }
-            $this->userGrantValueRepository->save($userGrantValue);
-        }
+        $this->createUserGrantValue($user, ...$grantValues);
 
         return $user;
-    }
-
-    public function createRole(string $name): AuthRole
-    {
-        $role = $this->roleRepository->findOneByName($name);
-        if (!$role) {
-            $role = new AuthRole();
-            $role->setName($name);
-            $this->roleRepository->save($role);
-        }
-        return $role;
-    }
-
-    public function createModule(string $name): Module
-    {
-        $module = $this->moduleRepository->findOneByNamespace($name);
-        if (!$module) {
-            $module = new Module();
-            $module->setNamespace($name);
-            $this->moduleRepository->save($module);
-        }
-        return $module;
-    }
-
-    public function createRoleGrantValue(AuthRole $role, GrantValue ...$grantValues): self
-    {
-        foreach ($grantValues as $grantValue) {
-            $grantVO = $grantValue->getGrantVO();
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
-            if (!$grant) {
-                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
-            }
-            $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $grantVO->getOptionSlug());
-            if (!$roleGrantValue) {
-                $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantVO->getOptionSlug());
-            }
-            $roleGrantValue->setValue($grantValue->getValue());
-            $this->roleGrantValueRepository->save($roleGrantValue);
-        }
-
-        return $this;
-    }
-
-    public function createUserGrantValue(User $user, AuthGrant $grant, GrantValue $grantValue): AuthUserGrantValue
-    {
-        $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant);
-        if (!$userGrantValue) {
-            $userGrantValue = new AuthUserGrantValue($user, $grant, $grantValue);
-            $this->userGrantValueRepository->save($userGrantValue);
-        }
-        return $userGrantValue;
     }
 
     public function createGrant(string $slug, string $name, string $description, Module $module, GrantType $type, $options = null): AuthGrant
@@ -166,4 +98,66 @@ class AuthFactory
         $this->grantRepository->save($grant);
         return $grant;
     }
+
+    public function createRole(string $name): AuthRole
+    {
+        $role = $this->roleRepository->findOneByName($name);
+        if (!$role) {
+            $role = new AuthRole();
+            $role->setName($name);
+            $this->roleRepository->add($role);
+        }
+        return $role;
+    }
+
+    public function createModule(string $name): Module
+    {
+        $module = $this->moduleRepository->findOneByNamespace($name);
+        if (!$module) {
+            $module = new Module();
+            $module->setNamespace($name);
+            $this->moduleRepository->save($module);
+        }
+        return $module;
+    }
+
+    public function createRoleGrantValue(AuthRole $role, GrantValue ...$grantValues): self
+    {
+        foreach ($grantValues as $grantValue) {
+            $grantVO = $grantValue->getGrantVO();
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getBaseSlug());
+            if (!$grant) {
+                throw new \RuntimeException("Grant '{$grantVO->getBaseSlug()}' not exists");
+            }
+            $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $grantVO->getOptionSlug());
+            if (!$roleGrantValue) {
+                $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantVO->getOptionSlug());
+            }
+            $roleGrantValue->setValue($grantValue->getValue());
+            $this->roleGrantValueRepository->save($roleGrantValue);
+        }
+
+        return $this;
+    }
+
+    public function createUserGrantValue(User $user, GrantValue ...$grantValues): self
+    {
+        foreach ($grantValues as $grantValue) {
+            $grantVO = $grantValue->getGrantVO();
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getBaseSlug());
+            if (!$grant) {
+                throw new \RuntimeException("Grant '{$grantVO->getBaseSlug()}' not exists");
+            }
+            $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant, $grantVO->getOptionSlug());
+            if (!$userGrantValue) {
+                $userGrantValue = new AuthUserGrantValue($user, $grant, $grantVO->getOptionSlug());
+            }
+            $userGrantValue->setValue($grantValue->getValue());
+            $this->userGrantValueRepository->save($userGrantValue);
+        }
+
+        return $this;
+    }
+
+
 }

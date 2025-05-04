@@ -4,6 +4,7 @@ namespace App\Module\Authorization\Repository;
 
 use App\Entity\User;
 use App\Module\Authorization\Entity\AuthUserRole;
+use App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,14 +16,14 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AuthUserRole[]    findAll()
  * @method AuthUserRole[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AuthUserRoleRepository extends ServiceEntityRepository
+class AuthUserRoleRepository extends ServiceEntityRepository implements AuthUserRoleRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AuthUserRole::class);
     }
 
-    public function save(AuthUserRole $userRole, bool $flush = true): void
+    public function add(AuthUserRole $userRole, bool $flush = true): void
     {
         $this->_em->persist($userRole);
         if ($flush) {

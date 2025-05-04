@@ -5,6 +5,7 @@ namespace App\Module\Authorization\Repository;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
+use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,14 +17,14 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AuthRoleGrantValue[]    findAll()
  * @method AuthRoleGrantValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AuthRoleGrantValueRepository extends ServiceEntityRepository
+class AuthRoleGrantValueRepository extends ServiceEntityRepository implements AuthRoleGrantValueRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AuthRoleGrantValue::class);
     }
 
-    public function save(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
+    public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
         $this->_em->persist($authRoleGrantValue);
         if ($flush) {

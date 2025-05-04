@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
 use App\Module\Authorization\Entity\AuthUserGrantValue;
+use App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,7 +18,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AuthUserGrantValue[]    findAll()
  * @method AuthUserGrantValue[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AuthUserGrantValueRepository extends ServiceEntityRepository
+class AuthUserGrantValueRepository extends ServiceEntityRepository implements AuthUserGrantValueRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -32,29 +33,30 @@ class AuthUserGrantValueRepository extends ServiceEntityRepository
         }
     }
 
-    public function findOneByUserAndGrant(User $user, AuthGrant $authGrant): ?AuthUserGrantValue
+    public function findOneByUserAndGrant(User $user, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthUserGrantValue
     {
-        return $this->createQueryBuilder('augv')
+        $qb = $this->createQueryBuilder('augv')
             ->andWhere('augv.user = :valUser')
             ->andWhere('augv.grant = :valGrant')
             ->setParameter('valUser', $user)
-            ->setParameter('valGrant', $authGrant)
-            ->getQuery()
-            ->getOneOrNullResult()
-            ;
-    }
-//
-//    /**
-//     * @param AuthRole $authRole
-//     * @return AuthRoleGrantValue[]
-//     */
-//    public function findAllByRole(AuthRole $authRole): array
-//    {
-//        return $this->createQueryBuilder('augv')
-//            ->andWhere('augv.role = :valRole')
-//            ->setParameter('valRole', $authRole)
-//            ->getQuery()
-//            ->getResult();
-//    }
+            ->setParameter('valGrant', $authGrant);
 
+        if ($grantOptionSlug === null) {
+            $qb->andWhere('augv.grantOptionSlug IS NULL');
+        } else {
+            $qb->andWhere('augv.grantOptionSlug = :valSlug')
+                ->setParameter('valSlug', $grantOptionSlug);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function findAllByUser(User $user): array
+    {
+        return $this->createQueryBuilder('augv')
+            ->andWhere('augv.user = :valUser')
+            ->setParameter('valUser', $user)
+            ->getQuery()
+            ->getResult();
+    }
 }
