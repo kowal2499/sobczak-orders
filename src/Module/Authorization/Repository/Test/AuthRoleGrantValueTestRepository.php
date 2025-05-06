@@ -9,6 +9,7 @@ use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryIn
 
 class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryInterface
 {
+    private array $valuesMap = [];
 
     public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue
     {
@@ -17,11 +18,16 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
     public function findAllByRole(AuthRole $authRole): array
     {
-        return [];
+        return $this->valuesMap[$authRole->getId()] ?? [];
     }
 
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
-        // TODO: Implement add() method.
+        $roleId = $authRoleGrantValue->getRole()->getId();
+        $grantFullSlug = $authRoleGrantValue->getGrantVO()->toString();
+        $identifier = $roleId . '-' . $grantFullSlug;
+        $this->valuesMap[$identifier] = $authRoleGrantValue;
+        // todo
+        // nie nie
     }
 }

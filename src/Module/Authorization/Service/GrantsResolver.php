@@ -19,13 +19,16 @@ class GrantsResolver
 
     public function resolve(User $user): array
     {
-        return [];
-//        return [
-//            'id' => $user->getId(),
-//            'email' => $user->getEmail(),
-//            'global' => $this->getRoleGrants($this->userRoleRepository->findAllByUser($user)),
-//            'local' => $this->getUserGrants($user),
-//        ];
+        $userRoles = $this->userRoleRepository->findAllByUser($user);
+        if (!$userRoles) {
+            return [];
+        }
+        $roleGrants = $this->getRoleGrants($userRoles);
+dd($roleGrants);
+        return array_map(
+            fn(string $roleFullSlug, bool $value) => $roleFullSlug,
+            array_filter($roleGrants, fn(string $roleFullSlug, bool $value) => $value)
+        );
     }
 
     /**
@@ -36,12 +39,13 @@ class GrantsResolver
     {
         $result = [];
         foreach ($roles as $userRole) {
+
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
-                if ($grantValue->getValue() !== true) {
-                    continue;
-                }
-                $result[] = $grantValue->getGrantVO()->toString();
+                $result[] = [
+                    $grantValue->getGrantVO()->toString(),
+                    (bool)$grantValue->getValue()
+                ];
             }
         }
         return $result;
@@ -59,7 +63,7 @@ class GrantsResolver
         return $result;
     }
 
-    public function mergeGrants($globalGrants, $localGrants): array
+    public function add($globalGrants, $localGrants): array
     {
         return $globalGrants;
     }

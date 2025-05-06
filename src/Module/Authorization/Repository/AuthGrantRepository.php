@@ -3,6 +3,7 @@
 namespace App\Module\Authorization\Repository;
 
 use App\Module\Authorization\Entity\AuthGrant;
+use App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -16,7 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AuthGrant[]    findAll()
  * @method AuthGrant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AuthGrantRepository extends ServiceEntityRepository
+class AuthGrantRepository extends ServiceEntityRepository implements AuthGrantRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
