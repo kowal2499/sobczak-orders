@@ -6,10 +6,12 @@ use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
+use App\Module\Authorization\Entity\AuthUserGrantValue;
 use App\Module\Authorization\Entity\AuthUserRole;
 use App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface;
 use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface;
 use App\Module\Authorization\Repository\Interface\AuthRoleRepositoryInterface;
+use App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface;
 use App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface;
 use App\Module\Authorization\Repository\Test\AuthGrantTestRepository;
 use App\Module\Authorization\Repository\Test\AuthRoleGrantValueTestRepository;
@@ -30,20 +32,22 @@ class GrantsResolverTest extends TestCase
     private AuthGrantRepositoryInterface $grantRepository;
     private AuthRoleGrantValueRepositoryInterface $roleGrantValueRepository;
     private AuthUserRoleRepositoryInterface $roleUserRepository;
+    private AuthUserGrantValueRepositoryInterface $userGrantValueRepository;
     private \Faker\Generator $faker;
-    private AuthUserGrantValueTestRepository $roleUserValueRepository;
 
     protected function setUp(): void
     {
         $this->faker = Factory::create('pl_PL');
         $this->roleRepository = new AuthRoleTestRepository();
         $this->grantRepository = new AuthGrantTestRepository();
+
         $this->roleGrantValueRepository = new AuthRoleGrantValueTestRepository();
-        $this->roleUserValueRepository = new AuthUserGrantValueTestRepository();
+        $this->userGrantValueRepository = new AuthUserGrantValueTestRepository();
+
         $this->roleUserRepository = new AuthUserRoleTestRepository();
         $this->rot = new GrantsResolver(
             $this->roleGrantValueRepository,
-            $this->roleUserValueRepository,
+            $this->userGrantValueRepository,
             $this->roleUserRepository
         );
     }
@@ -62,20 +66,29 @@ class GrantsResolverTest extends TestCase
     {
         // Given
         $grantProductionPanel = GrantVO::m('production.panel');
-        $grant = $this->createGrant($grantProductionPanel);
+        $this->createGrant($grantProductionPanel);
         $role = $this->createRole('ROLE_PRODUCTION', [new GrantValue($grantProductionPanel)]);
         $user = $this->createUser([], [$role]);
 
         // When
-        $roles = $this->rot->resolve($user);
+        $grants = $this->rot->resolve($user);
 
         // Then
-        $this->assertEquals(['production.panel'], $roles);
+        $this->assertEquals(['production.panel'], $grants);
     }
 
     public function testShouldGetUserGrants(): void
     {
-        $this->markTestIncomplete();
+        // Given
+        $grantProductionDate = GrantVO::m('production.dateComplete');
+        $this->createGrant($grantProductionDate);
+        $user = $this->createUser([], [], [new GrantValue($grantProductionDate)]);
+
+        // When
+        $grants = $this->rot->resolve($user);
+
+        // Then
+        $this->assertEquals(['production.dateComplete'], $grants);
     }
 
     public function testShouldSkipFalsyRoleGrants(): void
@@ -108,7 +121,13 @@ class GrantsResolverTest extends TestCase
         $this->markTestIncomplete();
     }
 
-    public function createUser(array $data = [], array $roles = []): User
+    /**
+     * @param array $data
+     * @param AuthRole[] $roles
+     * @param GrantValue[] $grants
+     * @return User
+     */
+    public function createUser(array $data = [], array $roles = [], array $grants = []): User
     {
         $user = new User();
         PrivateProperty::setId($user, $data['id'] ?? null);
@@ -116,6 +135,13 @@ class GrantsResolverTest extends TestCase
 
         foreach ($roles as $role) {
             $this->roleUserRepository->add(new AuthUserRole($user, $role));
+        }
+
+        foreach ($grants as $grantValueVO) {
+            $grant = $this->grantRepository->findOneBySlug($grantValueVO->getGrantVO()->getBaseSlug());
+            $val = new AuthUserGrantValue($user, $grant);
+            $val->setValue($grantValueVO->getValue());
+            $this->userGrantValueRepository->add($val);
         }
 
         return $user;

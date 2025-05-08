@@ -9,7 +9,8 @@ use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryIn
 
 class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryInterface
 {
-    private array $valuesMap = [];
+    /** @var AuthRoleGrantValue[]  */
+    private array $storage = [];
 
     public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue
     {
@@ -18,16 +19,27 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
     public function findAllByRole(AuthRole $authRole): array
     {
-        return $this->valuesMap[$authRole->getId()] ?? [];
+        return array_filter($this->storage, fn(AuthRoleGrantValue $item) => $item->getRole()->getId() === $authRole->getId());
     }
 
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
-        $roleId = $authRoleGrantValue->getRole()->getId();
-        $grantFullSlug = $authRoleGrantValue->getGrantVO()->toString();
-        $identifier = $roleId . '-' . $grantFullSlug;
-        $this->valuesMap[$identifier] = $authRoleGrantValue;
-        // todo
-        // nie nie
+        if (!$this->innerFind($authRoleGrantValue)) {
+            $this->storage[] = $authRoleGrantValue;
+        }
+    }
+
+    private function innerFind(AuthRoleGrantValue $roleGrantValue): ?AuthRoleGrantValue
+    {
+        foreach ($this->storage as $rgValue) {
+            if (
+                $rgValue->getRole()->getId() === $roleGrantValue->getRole()->getId()
+                && $rgValue->getGrant()->getId() === $roleGrantValue->getGrant()->getId()
+                && $rgValue->getGrantOptionSlug() === $roleGrantValue->getGrantOptionSlug()
+            ) {
+                return $rgValue;
+            }
+        }
+        return null;
     }
 }

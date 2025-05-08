@@ -20,14 +20,15 @@ class GrantsResolver
     public function resolve(User $user): array
     {
         $userRoles = $this->userRoleRepository->findAllByUser($user);
-        if (!$userRoles) {
+        $roleGrants = $this->getRoleGrants($userRoles);
+        $userGrants = $this->getUserGrants($user);
+        if (!$roleGrants && !$userGrants) {
             return [];
         }
-        $roleGrants = $this->getRoleGrants($userRoles);
-dd($roleGrants);
+
         return array_map(
-            fn(string $roleFullSlug, bool $value) => $roleFullSlug,
-            array_filter($roleGrants, fn(string $roleFullSlug, bool $value) => $value)
+            fn($roleSlugValue) => $roleSlugValue['slug'],
+            array_filter([...$roleGrants, ...$userGrants], fn($roleSlugValue) => $roleSlugValue['value'])
         );
     }
 
@@ -43,8 +44,8 @@ dd($roleGrants);
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
                 $result[] = [
-                    $grantValue->getGrantVO()->toString(),
-                    (bool)$grantValue->getValue()
+                    'slug' => $grantValue->getGrantVO()->toString(),
+                    'value' => (bool)$grantValue->getValue()
                 ];
             }
         }
@@ -55,10 +56,10 @@ dd($roleGrants);
     {
         $result = [];
         foreach ($this->userGrantValueRepository->findAllByUser($user) as $grantValue) {
-            if ($grantValue->getValue() !== true) {
-                continue;
-            }
-            $result[] = $grantValue->getGrantVO()->toString();
+            $result[] = [
+                'slug' => $grantValue->getGrantVO()->toString(),
+                'value' => (bool)$grantValue->getValue()
+            ];
         }
         return $result;
     }
