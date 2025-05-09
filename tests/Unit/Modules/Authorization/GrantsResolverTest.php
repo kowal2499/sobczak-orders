@@ -138,7 +138,7 @@ class GrantsResolverTest extends TestCase
         }
 
         foreach ($grants as $grantValueVO) {
-            $grant = $this->grantRepository->findOneBySlug($grantValueVO->getGrantVO()->getBaseSlug());
+            $grant = $this->grantRepository->findOneBySlug($grantValueVO->getGrantVO()->getSlug());
             $val = new AuthUserGrantValue($user, $grant);
             $val->setValue($grantValueVO->getValue());
             $this->userGrantValueRepository->add($val);
@@ -161,7 +161,7 @@ class GrantsResolverTest extends TestCase
 
         foreach ($grantValues as $grantValue) {
             $grantVO = $grantValue->getGrantVO();
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getBaseSlug());
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
             $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantVO->getOptionSlug());
             $roleGrantValue->setValue($grantValue->getValue());
             $this->roleGrantValueRepository->add($roleGrantValue);
@@ -173,7 +173,7 @@ class GrantsResolverTest extends TestCase
     {
         $grant = new AuthGrant();
         PrivateProperty::setId($grant);
-        $grant->setSlug($m->getBaseSlug());
+        $grant->setSlug($m->getSlug());
         $this->grantRepository->save($grant);
 
         return $grant;

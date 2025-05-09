@@ -6,10 +6,20 @@ class GrantVO
 {
     private string $slug;
     private ?string $optionSlug;
+    private bool $value;
 
     private function __construct(string $grantString)
     {
+        // get value and remove from it form string
+        $pattern = '/=(.*)$/';
+        if (preg_match($pattern, $grantString, $matches)) {
+            $this->value = ($matches[1] === 'true');
+            $grantString = preg_replace($pattern, '', $grantString);
+        } else {
+            $this->value = false;
+        }
 
+        // get grant slug parts
         $grantParts = explode(':', $grantString);
         if (!$grantParts[0]) {
             throw new \RuntimeException('Grant slug not found');
@@ -23,7 +33,7 @@ class GrantVO
         return new self($grantString);
     }
 
-    public function getBaseSlug(): string
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -33,8 +43,15 @@ class GrantVO
         return $this->optionSlug;
     }
 
+    public function getValue(): bool
+    {
+        return $this->value;
+    }
+
     public function toString(): string
     {
-        return implode(':', array_filter([$this->getBaseSlug(), $this->getOptionSlug()]));
+        return implode(':', array_filter([$this->getSlug(), $this->getOptionSlug()]));
     }
+
+
 }

@@ -125,9 +125,9 @@ class AuthFactory
     {
         foreach ($grantValues as $grantValue) {
             $grantVO = $grantValue->getGrantVO();
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getBaseSlug());
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
             if (!$grant) {
-                throw new \RuntimeException("Grant '{$grantVO->getBaseSlug()}' not exists");
+                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
             }
             $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $grantVO->getOptionSlug());
             if (!$roleGrantValue) {
@@ -144,9 +144,9 @@ class AuthFactory
     {
         foreach ($grantValues as $grantValue) {
             $grantVO = $grantValue->getGrantVO();
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getBaseSlug());
+            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
             if (!$grant) {
-                throw new \RuntimeException("Grant '{$grantVO->getBaseSlug()}' not exists");
+                throw new \RuntimeException("Grant '{$grantVO->getSlug()}' not exists");
             }
             $userGrantValue = $this->userGrantValueRepository->findOneByUserAndGrant($user, $grant, $grantVO->getOptionSlug());
             if (!$userGrantValue) {
