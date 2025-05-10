@@ -44,53 +44,38 @@ class GrantsResolverTest extends ApiTestCase
         $this->user = $this->factory->make(User::class, ['roles' => ['ROLE_ADMIN']]);
 
         $this->authFactory->createGrant(
-            'production.panel',
-            'Panel produkcji',
-            'Określa dostęp do panelu produkcji',
+            'grant01',
+            'Some name',
+            'Some desc',
             $moduleProduction,
             GrantType::Boolean
         );
         $this->authFactory->createGrant(
-            'production.reports',
-            'Raporty produkcji',
-            'Określa dostęp do raportów produkcji',
+            'grant02',
+            'Some other name',
+            'Some other desc',
             $moduleProduction,
             GrantType::Boolean
         );
         $this->authFactory->createGrant(
-            'production.list',
-            'Kolumny w widoku listy produkcji',
-            'Określa które pola (kolumny) są widoczne na liście produkcji',
+            'grant03',
+            'Some other other name',
+            'Some other other desc',
             $moduleProduction,
             GrantType::Select,
             new GrantOptionsCollection(
-                new GrantOption('Współczynnik', 'factor'),
-                new GrantOption('Klient', 'customerId'),
-                new GrantOption('Autor zamówienia', 'userId'),
-                new GrantOption('Numer zamówienia', 'orderNumber'),
-                new GrantOption('Produkt', 'productId'),
-                new GrantOption('Data wystawienia', 'createDate'),
-                new GrantOption('Data dostawy', 'confirmedDate'),
-                new GrantOption('Data rozpoczęcia produkcji', 'productionStartDate'),
-                new GrantOption('Data zakończenia produkcji', 'productionCompleteDate'),
+                new GrantOption('Option01', 'option01'),
+                new GrantOption('Option02', 'option02'),
+                new GrantOption('Option03', 'option03'),
             )
         );
         $this->authFactory->createRoleGrantValue(
             $roleProduction,
-            new GrantValue(GrantVO::m('production.panel'))
+            new GrantValue(GrantVO::m('grant01'))
         );
         $this->authFactory->createRoleGrantValue(
             $roleProduction,
-            new GrantValue(GrantVO::m('production.reports'))
-        );
-        $this->authFactory->createRoleGrantValue(
-            $roleProduction,
-            new GrantValue(GrantVO::m('production.list:factor')),
-            new GrantValue(GrantVO::m('production.list:customerId')),
-            new GrantValue(GrantVO::m('production.list:userId'), true),
-            new GrantValue(GrantVO::m('production.list:orderNumber')),
-            new GrantValue(GrantVO::m('production.list:productId')),
-            new GrantValue(GrantVO::m('production.list:createDate')),
+            new GrantValue(GrantVO::m('grant02'))
         );
     }
 
@@ -103,10 +88,9 @@ class GrantsResolverTest extends ApiTestCase
             [],
             ['ROLE_PRODUCTION'],
             [
-                new GrantValue(GrantVO::m('production.list:productionStartDate'), true),
-                new GrantValue(GrantVO::m('production.list:productionCompleteDate'), true),
-                new GrantValue(GrantVO::m('production.list:productId'), false),
-                new GrantValue(GrantVO::m('production.reports'), false)
+                new GrantValue(GrantVO::m('grant03:option01'), true),
+                new GrantValue(GrantVO::m('grant03:option02'), true),
+                new GrantValue(GrantVO::m('grant03:option03'), true),
             ]
         );
         $client = $this->login($user);
@@ -117,8 +101,9 @@ class GrantsResolverTest extends ApiTestCase
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
 
+        dd($client->getResponse()->getContent());
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        dd($content);
-        $this->assertEquals(['id' => $user->getId(), 'email' => $user->getEmail()], $content);
+//        dd($content);
+        $this->assertEquals(['grant01', 'grant02', 'grant03.option01', 'grant03.option02', 'grant03.option03' ], $content);
     }
 }

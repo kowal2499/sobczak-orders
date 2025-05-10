@@ -59,4 +59,12 @@ class AuthUserGrantValueRepository extends ServiceEntityRepository implements Au
             ->getQuery()
             ->getResult();
     }
+
+    public function add(AuthUserGrantValue $userGrantValue, bool $flush = true): void
+    {
+        $this->_em->persist($userGrantValue);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 }

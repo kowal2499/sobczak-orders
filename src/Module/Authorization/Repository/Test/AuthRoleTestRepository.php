@@ -13,13 +13,23 @@ class AuthRoleTestRepository implements AuthRoleRepositoryInterface
 
     public function add(AuthRole $role, bool $flush = true): void
     {
-        if (!$this->findOneByName($role->getName())) {
-            $this->rolesMap[$role->getName()] = $role;
+        if (!$this->findById($role->getId())) {
+            $this->rolesMap[$role->getId()] = $role;
         }
     }
 
     public function findOneByName(string $name): ?AuthRole
     {
-        return $this->rolesMap[$name] ?? null;
+        foreach ($this->rolesMap as $role) {
+            if ($role->getName() === $name) {
+                return $role;
+            }
+        }
+        return null;
+    }
+
+    private function findById(int $id): ?AuthRole
+    {
+        return $this->rolesMap[$id] ?? null;
     }
 }

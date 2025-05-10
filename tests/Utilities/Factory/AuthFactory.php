@@ -16,7 +16,6 @@ use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
 use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Module\Authorization\ValueObject\GrantType;
 use App\Module\Authorization\ValueObject\GrantValue;
-use App\Module\Authorization\ValueObject\GrantVO;
 use App\Repository\Authorization\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
@@ -134,7 +133,7 @@ class AuthFactory
                 $roleGrantValue = new AuthRoleGrantValue($role, $grant, $grantVO->getOptionSlug());
             }
             $roleGrantValue->setValue($grantValue->getValue());
-            $this->roleGrantValueRepository->save($roleGrantValue);
+            $this->roleGrantValueRepository->add($roleGrantValue);
         }
 
         return $this;

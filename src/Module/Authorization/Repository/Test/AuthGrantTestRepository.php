@@ -10,13 +10,23 @@ class AuthGrantTestRepository implements AuthGrantRepositoryInterface
     private array $grantsMap = [];
     public function save(AuthGrant $grant, bool $flush = true): void
     {
-        if (!$this->findOneBySlug($grant->getSlug())) {
-            $this->grantsMap[$grant->getSlug()] = $grant;
+        if (!$this->findById($grant->getId())) {
+            $this->grantsMap[$grant->getId()] = $grant;
         }
     }
 
     public function findOneBySlug(string $slug): ?AuthGrant
     {
-        return $this->grantsMap[$slug] ?? null;
+        foreach ($this->grantsMap as $grant) {
+            if ($grant->getSlug() === $slug) {
+                return $grant;
+            }
+        }
+        return null;
+    }
+
+    private function findById(int $id): ?AuthGrant
+    {
+        return $this->grantsMap[$id] ?? null;
     }
 }
