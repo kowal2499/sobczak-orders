@@ -14,6 +14,15 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
     public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue
     {
+        foreach ($this->storage as $rgValue) {
+            if (
+                $rgValue->getRole()->getId() === $authRole->getId()
+                && $rgValue->getGrant()->getId() === $authGrant->getId()
+                && $rgValue->getGrantOptionSlug() === $grantOptionSlug
+            ) {
+                return $rgValue;
+            }
+        }
         return null;
     }
 
@@ -24,22 +33,9 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
-        if (!$this->innerFind($authRoleGrantValue)) {
+        if (!$this->findOneByRoleAndGrant($authRoleGrantValue->getRole(), $authRoleGrantValue->getGrant(), $authRoleGrantValue->getGrantOptionSlug())) {
             $this->storage[] = $authRoleGrantValue;
         }
     }
 
-    private function innerFind(AuthRoleGrantValue $roleGrantValue): ?AuthRoleGrantValue
-    {
-        foreach ($this->storage as $rgValue) {
-            if (
-                $rgValue->getRole()->getId() === $roleGrantValue->getRole()->getId()
-                && $rgValue->getGrant()->getId() === $roleGrantValue->getGrant()->getId()
-                && $rgValue->getGrantOptionSlug() === $roleGrantValue->getGrantOptionSlug()
-            ) {
-                return $rgValue;
-            }
-        }
-        return null;
-    }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Module\ModuleRegistry\Entity;
 
-use App\Repository\Authorization\ModuleRepository;
+use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ModuleRepository::class)]
@@ -27,10 +27,8 @@ class Module
         return $this->namespace;
     }
 
-    public function setNamespace(string $namespace): self
+    public function setNamespace(string $namespace)
     {
         $this->namespace = $namespace;
-
-        return $this;
     }
 }

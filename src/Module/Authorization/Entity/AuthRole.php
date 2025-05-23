@@ -27,10 +27,13 @@ class AuthRole
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): void
     {
         $this->name = $name;
+    }
 
-        return $this;
+    public function __toString(): string
+    {
+        return "some clue " . $this->getName();
     }
 }

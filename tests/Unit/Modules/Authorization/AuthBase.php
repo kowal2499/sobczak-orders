@@ -92,7 +92,7 @@ abstract class AuthBase extends TestCase
         $grant = new AuthGrant();
         PrivateProperty::setId($grant);
         $grant->setSlug($grantVO->getSlug());
-        $this->grantRepository->save($grant);
+        $this->grantRepository->add($grant);
 
         return $grant;
     }

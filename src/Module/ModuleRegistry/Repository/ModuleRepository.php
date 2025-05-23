@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Repository\Authorization;
+namespace App\Module\ModuleRegistry\Repository;
 
-use App\Entity\Module;
+use App\Module\ModuleRegistry\Entity\Module;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +21,7 @@ class ModuleRepository extends ServiceEntityRepository
         parent::__construct($registry, Module::class);
     }
 
-    public function save(Module $module, bool $flush = true): void
+    public function add(Module $module, bool $flush = true): void
     {
         $this->_em->persist($module);
         if ($flush) {

@@ -8,7 +8,7 @@ use App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface;
 class AuthGrantTestRepository implements AuthGrantRepositoryInterface
 {
     private array $grantsMap = [];
-    public function save(AuthGrant $grant, bool $flush = true): void
+    public function add(AuthGrant $grant, bool $flush = true): void
     {
         if (!$this->findById($grant->getId())) {
             $this->grantsMap[$grant->getId()] = $grant;

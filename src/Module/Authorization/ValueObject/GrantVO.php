@@ -10,13 +10,13 @@ class GrantVO
 
     private function __construct(string $grantString)
     {
-        // get value and remove from it form string
+        // get value and remove from it from string
         $pattern = '/=(.*)$/';
         if (preg_match($pattern, $grantString, $matches)) {
             $this->value = ($matches[1] === 'true');
             $grantString = preg_replace($pattern, '', $grantString);
         } else {
-            $this->value = false;
+            $this->value = true; // default value if not provided
         }
 
         // get grant slug parts

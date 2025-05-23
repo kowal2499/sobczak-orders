@@ -5,13 +5,13 @@ use App\Module\Authorization\Service\GrantsResolver;
 
 class GrantsResolverTest extends AuthBase
 {
-    private GrantsResolver $rot;
+    private GrantsResolver $rut;
 
     protected function setUp(): void
     {
         $this->init();
 
-        $this->rot = new GrantsResolver(
+        $this->rut = new GrantsResolver(
             $this->roleGrantValueRepository,
             $this->userGrantValueRepository,
             $this->roleUserRepository
@@ -23,7 +23,7 @@ class GrantsResolverTest extends AuthBase
         // Given
         $user = $this->createUser();
         // When
-        $roles = $this->rot->resolve($user);
+        $roles = $this->rut->resolve($user);
         // Then
         $this->assertEmpty($roles);
     }
@@ -35,7 +35,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertEquals(['production.panel'], $grants);
@@ -47,7 +47,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], [], ['production.dateComplete=true']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertEquals(['production.dateComplete'], $grants);
@@ -60,7 +60,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertEquals(['production.grant01', 'production.grant03'], $grants);
@@ -72,7 +72,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], [], ['production.grant01=true', 'production.grant02=false', 'production.grant03=true']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertEquals(['production.grant01', 'production.grant03'], $grants);
@@ -85,7 +85,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertCount(3, $grants);
@@ -101,7 +101,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=true']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertCount(2, $grants);
@@ -116,7 +116,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'other.grant02=false']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertCount(2, $grants);
@@ -131,7 +131,7 @@ class GrantsResolverTest extends AuthBase
         $user = $this->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=false', 'production.grant02=true']);
 
         // When
-        $grants = $this->rot->resolve($user);
+        $grants = $this->rut->resolve($user);
 
         // Then
         $this->assertCount(1, $grants);

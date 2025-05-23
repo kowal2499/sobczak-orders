@@ -8,6 +8,10 @@ parameters:
     uploads_base_url: '%env(SITE_BASE_URL)%'
     fixture_admin_password: '%env(FIXTURE_ADMIN_PASSWORD)%'
 
+imports:
+    # Automatyczny import plików services.yaml z modułów
+    - { resource: '../src/Module/**/config.yaml' }
+
 services:
     # default configuration for services in *this* file
     _defaults:

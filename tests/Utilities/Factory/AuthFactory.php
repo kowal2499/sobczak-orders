@@ -2,7 +2,6 @@
 
 namespace App\Tests\Utilities\Factory;
 
-use App\Entity\Module;
 use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRole;
@@ -16,7 +15,8 @@ use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
 use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Module\Authorization\ValueObject\GrantType;
 use App\Module\Authorization\ValueObject\GrantValue;
-use App\Repository\Authorization\ModuleRepository;
+use App\Module\ModuleRegistry\Entity\Module;
+use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Faker\Generator;

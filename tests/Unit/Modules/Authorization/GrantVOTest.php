@@ -54,7 +54,7 @@ class GrantVOTest extends TestCase
         $grant05 = GrantVO::m('someGrant:someOptionValue=other');
 
         // Then
-        $this->assertFalse($grant01->getValue());
+        $this->assertTrue($grant01->getValue());
         $this->assertFalse($grant02->getValue());
         $this->assertFalse($grant03->getValue());
         $this->assertTrue($grant04->getValue());

@@ -36,7 +36,7 @@ class AuthGrantRepository extends ServiceEntityRepository implements AuthGrantRe
         }
     }
 
-    public function save(AuthGrant $grant, bool $flush = true): void
+    public function add(AuthGrant $grant, bool $flush = true): void
     {
         $this->_em->persist($grant);
         if ($flush) {

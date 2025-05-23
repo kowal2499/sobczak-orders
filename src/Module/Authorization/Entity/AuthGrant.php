@@ -2,10 +2,10 @@
 
 namespace App\Module\Authorization\Entity;
 
-use App\Entity\Module;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\ValueObject\GrantOptionsCollection;
 use App\Module\Authorization\ValueObject\GrantType;
+use App\Module\ModuleRegistry\Entity\Module;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AuthGrantRepository::class)]

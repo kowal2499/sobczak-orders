@@ -30,6 +30,12 @@ doctrine:
                 prefix: 'App\Module\Authorization\Entity'
                 alias: Authorization
                 type: attribute
+            ModuleRegistry:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/ModuleRegistry/Entity'
+                prefix: 'App\Module\ModuleRegistry\Entity'
+                alias: ModuleRegistry
+                type: attribute
 
 when@test:
     doctrine:
