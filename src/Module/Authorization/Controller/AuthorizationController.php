@@ -19,7 +19,6 @@ class AuthorizationController extends BaseController
         if (!$user instanceof User) {
             throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
         }
-        dd($grantsResolver->resolve($user));
         return new JsonResponse(
             $grantsResolver->resolve($user)
         );

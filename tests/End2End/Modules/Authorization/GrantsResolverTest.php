@@ -57,8 +57,6 @@ class GrantsResolverTest extends ApiTestCase
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertCount(3, $content);
-        $this->assertContains('grant01', $content);
-        $this->assertContains('grant02', $content);
-        $this->assertContains('grant04', $content);
+        $this->assertSame(['grant02', 'grant03', 'grant04'], $content);
     }
 }

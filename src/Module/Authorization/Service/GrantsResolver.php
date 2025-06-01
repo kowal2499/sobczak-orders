@@ -29,7 +29,7 @@ class GrantsResolver
         // remove falsy grants
         $grants = array_filter($grants, fn($value) => $value);
         // get only slugs
-        return array_values($grants);
+        return array_keys($grants);
     }
 
     /**

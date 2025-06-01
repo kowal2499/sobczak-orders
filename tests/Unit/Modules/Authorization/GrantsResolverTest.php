@@ -38,7 +38,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertEquals(['production.panel'], $grants);
+        $this->assertSame(['production.panel'], $grants);
     }
 
     public function testShouldGetUserGrants(): void
@@ -50,7 +50,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertEquals(['production.dateComplete'], $grants);
+        $this->assertSame(['production.dateComplete'], $grants);
     }
 
     public function testShouldSkipFalsyRoleGrants(): void
@@ -63,7 +63,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertEquals(['production.grant01', 'production.grant03'], $grants);
+        $this->assertSame(['production.grant01', 'production.grant03'], $grants);
     }
 
     public function testShouldSkipFalsyUserGrants(): void
@@ -75,7 +75,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertEquals(['production.grant01', 'production.grant03'], $grants);
+        $this->assertSame(['production.grant01', 'production.grant03'], $grants);
     }
 
     public function testShouldMergeRoleAndUserGrants(): void
@@ -104,9 +104,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertCount(2, $grants);
-        $this->assertContains('production.grant01', $grants);
-        $this->assertContains('production.grant02', $grants);
+        $this->assertSame(['production.grant01', 'production.grant02'], $grants);
     }
 
     public function testShouldSkipFalsyGrantsOnMerge(): void
@@ -119,9 +117,7 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertCount(2, $grants);
-        $this->assertContains('production.grant01', $grants);
-        $this->assertContains('other.grant01', $grants);
+        $this->assertSame(['production.grant01', 'other.grant01'], $grants);
     }
 
     public function testShouldOverrideExistingGrantWithNewValue(): void
@@ -134,7 +130,6 @@ class GrantsResolverTest extends AuthBase
         $grants = $this->rut->resolve($user);
 
         // Then
-        $this->assertCount(1, $grants);
-        $this->assertContains('production.grant02', $grants);
+        $this->assertSame(['production.grant02'], $grants);
     }
 }
