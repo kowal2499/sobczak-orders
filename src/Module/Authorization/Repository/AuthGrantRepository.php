@@ -4,6 +4,9 @@ namespace App\Module\Authorization\Repository;
 
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface;
+use App\Module\Authorization\ValueObject\GrantType;
+use App\Module\Authorization\ValueObject\GrantVO;
+use App\Tests\Utilities\PrivateProperty;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;

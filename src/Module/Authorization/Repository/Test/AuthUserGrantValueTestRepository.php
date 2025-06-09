@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthUserGrantValue;
 use App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface;
+use App\Tests\Utilities\PrivateProperty;
 
 class AuthUserGrantValueTestRepository implements AuthUserGrantValueRepositoryInterface
 {
@@ -25,6 +26,7 @@ class AuthUserGrantValueTestRepository implements AuthUserGrantValueRepositoryIn
     public function add(AuthUserGrantValue $userGrantValue): void
     {
         if (!$this->innerFind($userGrantValue)) {
+            PrivateProperty::setId($userGrantValue);
             $this->storage[] = $userGrantValue;
         }
     }

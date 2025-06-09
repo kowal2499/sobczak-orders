@@ -2,7 +2,6 @@
 
 namespace App\Tests\End2End\Modules\Authorization;
 
-use App\Entity\User;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
@@ -43,8 +42,7 @@ class GrantsResolverTest extends ApiTestCase
         $user = $this->authHelper->createUser(
             [],
             ['ROLE_PRODUCTION'],
-            ['grant04=true']
-//            ['grant03:option01=true', 'grant03:option02=true', 'grant03:option03=true']
+            ['grant04=true', 'grant05:option01=true']
         );
 
         $client = $this->login($user);
@@ -56,7 +54,7 @@ class GrantsResolverTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertCount(3, $content);
-        $this->assertSame(['grant02', 'grant03', 'grant04'], $content);
+        $this->assertCount(4, $content);
+        $this->assertSame(['grant02', 'grant03', 'grant04', 'grant05:option01'], $content);
     }
 }

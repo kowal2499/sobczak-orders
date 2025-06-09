@@ -4,6 +4,7 @@ namespace App\Module\Authorization\Repository\Test;
 
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Repository\Interface\AuthRoleRepositoryInterface;
+use App\Tests\Utilities\PrivateProperty;
 
 class AuthRoleTestRepository implements AuthRoleRepositoryInterface
 {
@@ -13,9 +14,8 @@ class AuthRoleTestRepository implements AuthRoleRepositoryInterface
 
     public function add(AuthRole $role, bool $flush = true): void
     {
-        if (!$this->findById($role->getId())) {
-            $this->rolesMap[$role->getId()] = $role;
-        }
+        PrivateProperty::setId($role);
+        $this->rolesMap[$role->getId()] = $role;
     }
 
     public function findOneByName(string $name): ?AuthRole

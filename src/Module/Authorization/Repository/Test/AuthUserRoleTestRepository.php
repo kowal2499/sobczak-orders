@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthUserRole;
 use App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface;
+use App\Tests\Utilities\PrivateProperty;
 
 class AuthUserRoleTestRepository implements AuthUserRoleRepositoryInterface
 {
@@ -21,6 +22,7 @@ class AuthUserRoleTestRepository implements AuthUserRoleRepositoryInterface
         if ($this->find($userRole->getUser(), $userRole->getRole())) {
             return;
         }
+        PrivateProperty::setId($userRole);
         $this->storage[] = $userRole;
     }
 

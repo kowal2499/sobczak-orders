@@ -53,11 +53,8 @@ class AuthHelper
 
         foreach ($grantNames as $grantName) {
             $grantVO = GrantVO::m($grantName);
-            $grant = $this->grantRepository->findOneBySlug($grantVO->getSlug());
-            if (!$grant) {
-                $grant = $this->createGrant($grantName);
-            }
-            $val = new AuthUserGrantValue($user, $grant);
+            $grantInstance = $this->getOrCreateGrant($grantName);
+            $val = new AuthUserGrantValue($user, $grantInstance, $grantVO->getOptionSlug());
             $val->setValue($grantVO->getValue());
             $this->userGrantValueRepository->add($val);
         }
@@ -74,12 +71,9 @@ class AuthHelper
             $this->roleRepository->add($role);
         }
 
-        foreach ($grantNames as $grant) {
-            $grantVO = GrantVO::m($grant);
-            $grantInstance = $this->grantRepository->findOneBySlug($grantVO->getSlug());
-            if (!$grantInstance) {
-                $grantInstance = $this->createGrant($grant);
-            }
+        foreach ($grantNames as $grantName) {
+            $grantVO = GrantVO::m($grantName);
+            $grantInstance = $this->getOrCreateGrant($grantName);
             $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grantInstance, $grantVO->getOptionSlug());
             if (!$roleGrantValue) {
                 $roleGrantValue = new AuthRoleGrantValue($role, $grantInstance, $grantVO->getOptionSlug());
@@ -90,25 +84,26 @@ class AuthHelper
         return $role;
     }
 
-    public function createGrant(string $grant, ?Module $module = null): AuthGrant
+    public function getOrCreateGrant(string $grant, ?Module $module = null): AuthGrant
     {
         $grantVO = GrantVO::m($grant);
-        $grant = new AuthGrant();
-        if (!$module) {
-            $module = $this->moduleRepository->findOneByNamespace('testmodule');
+        $grantInstance = $this->grantRepository->findOneBySlug($grantVO->getSlug());
+        if (!$grantInstance) {
+            $grantInstance = new AuthGrant();
             if (!$module) {
-                $module = new Module();
-                $module->setNamespace('testmodule');
-                $this->moduleRepository->add($module);
+                $module = $this->moduleRepository->findOneByNamespace('testmodule');
+                if (!$module) {
+                    $module = new Module();
+                    $module->setNamespace('testmodule');
+                    $this->moduleRepository->add($module);
+                }
             }
+            $grantInstance->setModule($module);
+            $grantInstance->setName($this->faker->name);
+            $grantInstance->setType($grantVO->getOptionSlug() ? GrantType::Select : GrantType::Boolean);
+            $grantInstance->setSlug($grantVO->getSlug());
+            $this->grantRepository->add($grantInstance);
         }
-        $grant->setModule($module);
-        $grant->setName($this->faker->name);
-        $grant->setType($grantVO->getOptionSlug() ? GrantType::Select : GrantType::Boolean);
-//        PrivateProperty::setId($grant);
-        $grant->setSlug($grantVO->getSlug());
-        $this->grantRepository->add($grant);
-
-        return $grant;
+        return $grantInstance;
     }
 }

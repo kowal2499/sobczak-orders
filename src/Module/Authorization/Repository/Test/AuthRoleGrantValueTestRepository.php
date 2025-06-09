@@ -6,6 +6,7 @@ use App\Module\Authorization\Entity\AuthGrant;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
 use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface;
+use App\Tests\Utilities\PrivateProperty;
 
 class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryInterface
 {
@@ -34,6 +35,7 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
         if (!$this->findOneByRoleAndGrant($authRoleGrantValue->getRole(), $authRoleGrantValue->getGrant(), $authRoleGrantValue->getGrantOptionSlug())) {
+            PrivateProperty::setId($authRoleGrantValue);
             $this->storage[] = $authRoleGrantValue;
         }
     }

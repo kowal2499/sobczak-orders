@@ -42,7 +42,12 @@ class GrantsResolver
         foreach ($userRoles as $userRole) {
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
-                $result[$grantValue->getGrantVO()->toString()] = (bool)$grantValue->getValue();
+                $key = $grantValue->getGrantVO()->toString();
+                if (isset($result[$key])) {
+                    $result[$key] = $result[$key] && $grantValue->getValue();
+                } else {
+                    $result[$key] = $grantValue->getValue();
+                }
             }
         }
         return $result;
