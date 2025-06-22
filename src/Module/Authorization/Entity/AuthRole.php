@@ -31,9 +31,4 @@ class AuthRole
     {
         $this->name = $name;
     }
-
-    public function __toString(): string
-    {
-        return "some clue " . $this->getName();
-    }
 }
