@@ -7,18 +7,25 @@ use App\Module\Authorization\Repository\Test\AuthRoleTestRepository;
 use App\Module\Authorization\Repository\Test\AuthUserGrantValueTestRepository;
 use App\Module\Authorization\Repository\Test\AuthUserRoleTestRepository;
 use App\Module\Authorization\Service\GrantsResolver;
+use App\Module\ModuleRegistry\Entity\Module;
 use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use App\Repository\UserRepository;
 use App\Tests\Utilities\AuthHelper;
+use App\Tests\Utilities\Cache\TestCacheWrapper;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Security;
 
 class GrantsResolverTest extends TestCase
 {
     private GrantsResolver $rut;
     private AuthHelper $authHelper;
+    private Security|MockObject $securityMock;
 
     protected function setUp(): void
     {
+        $this->securityMock = $this->createMock(Security::class);
+
         $roleRepository = new AuthRoleTestRepository();
         $grantRepository = new AuthGrantTestRepository();
 
@@ -39,8 +46,11 @@ class GrantsResolverTest extends TestCase
         $this->rut = new GrantsResolver(
             $roleGrantValueRepository,
             $userGrantValueRepository,
-            $roleUserRepository
+            $roleUserRepository,
+            $this->securityMock,
+            new TestCacheWrapper(),
         );
+
     }
 
     public function testShouldGetEmptyArrayWhenNoRoleAndUserGrants(): void
@@ -48,7 +58,7 @@ class GrantsResolverTest extends TestCase
         // Given
         $user = $this->authHelper->createUser();
         // When
-        $roles = $this->rut->resolve($user);
+        $roles = $this->rut->getGrants($user);
         // Then
         $this->assertEmpty($roles);
     }
@@ -60,7 +70,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['some_grant', 'namespace.grant:optionOne'], $grants);
@@ -74,7 +84,7 @@ class GrantsResolverTest extends TestCase
         ]);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.dateComplete', 'namespace.grant:optionOne', 'namespace.grant:optionTwo'], $grants);
@@ -88,7 +98,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.grant01', 'production.grant03'], $grants);
@@ -100,7 +110,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], [], ['production.grant01=true', 'production.grant02=false', 'production.grant03=true']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.grant01', 'production.grant03'], $grants);
@@ -113,7 +123,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'namespace.grant:optionTwo=true']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertCount(5, $grants);
@@ -131,7 +141,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=true', 'namespace.grant:optionOne=true']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.grant01', 'production.grant02', 'namespace.grant:optionOne'], $grants);
@@ -144,7 +154,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'other.grant02=false']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.grant01', 'other.grant01'], $grants);
@@ -157,7 +167,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=false', 'production.grant02=true', 'namespace.grant:optionOne=false']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['production.grant02', 'namespace.grant:optionTwo'], $grants);
@@ -171,7 +181,7 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION', 'ROLE_MARKETING']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertSame(['grant01', 'grant02', 'grant03'], $grants);
@@ -186,9 +196,53 @@ class GrantsResolverTest extends TestCase
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION', 'ROLE_MARKETING', 'ROLE_ANALYSIS']);
 
         // When
-        $grants = $this->rut->resolve($user);
+        $grants = $this->rut->getGrants($user);
 
         // Then
         $this->assertEmpty($grants);
+    }
+
+    public function testShouldDisableAllGrantsFromNotActiveModule(): void
+    {
+        // Given
+        $module = new Module();
+        $module->setNamespace('marketing');
+        $module->setDescription('Moduł marketingu');
+        $module->setActive(false);
+        $this->authHelper->getOrCreateGrant('marketing.grant01', $module);
+        $user = $this->authHelper->createUser([], [], ['marketing.grant01=true']);
+
+        // When
+        $grants = $this->rut->getGrants($user);
+
+        $this->assertNotContains('marketing.grant01', $grants);
+    }
+
+    public function testShouldHaveIsGrantedMethod(): void
+    {
+        // Given
+        $this->authHelper->createRole('ROLE_PRODUCTION', ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']);
+        $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'namespace.grant:optionTwo=true']);
+        $this->securityMock->method('getUser')->willReturn($user);
+
+        // When && Then
+        $this->assertTrue($this->rut->isGranted('production.grant01'));
+        $this->assertTrue($this->rut->isGranted('production.grant02'));
+        $this->assertTrue($this->rut->isGranted('namespace.grant:optionOne'));
+        $this->assertTrue($this->rut->isGranted('other.grant01'));
+        $this->assertTrue($this->rut->isGranted('namespace.grant:optionTwo'));
+        $this->assertFalse($this->rut->isGranted('other.grant02'));
+        $this->assertFalse($this->rut->isGranted('namespace.grant:optionNonExist'));
+    }
+
+    public function testShouldGrantAccessIsUserHasAdminRole(): void
+    {
+        // Given
+        $this->authHelper->createRole('ROLE_ADMINISTRATOR');
+        $user = $this->authHelper->createUser([], ['ROLE_ADMINISTRATOR']);
+        $this->securityMock->method('getUser')->willReturn($user);
+
+        // When && Then
+        $this->assertTrue($this->rut->isGranted('production.grant01'));
     }
 }

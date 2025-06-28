@@ -17,6 +17,12 @@ class Module
     #[ORM\Column(type: "string", length: 40, unique: true)]
     private string $namespace;
 
+    #[ORM\Column(type: "text", nullable: true)]
+    private ?string $description;
+
+    #[ORM\Column(name: 'active', type: 'boolean')]
+    private bool $active = true;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -30,5 +36,25 @@ class Module
     public function setNamespace(string $namespace)
     {
         $this->namespace = $namespace;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 }

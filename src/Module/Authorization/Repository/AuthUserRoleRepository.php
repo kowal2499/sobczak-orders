@@ -38,6 +38,8 @@ class AuthUserRoleRepository extends ServiceEntityRepository implements AuthUser
     public function findAllByUser(User $user): array
     {
         return $this->createQueryBuilder('ur')
+            ->addSelect('r') // add AuthRole
+            ->innerJoin('ur.role', 'r')
             ->andWhere('ur.user = :user')
             ->setParameter('user', $user)
             ->getQuery()
