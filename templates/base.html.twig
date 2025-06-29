@@ -13,16 +13,16 @@
         <title>{% block title %}{% endblock %}</title>
 
         {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-            {{ encore_entry_link_tags('app-vue') }}
+            {{ vite_entry_link_tags('app') }}
         {% endblock %}
 
     </head>
     <body id="page-top">
 
+        <h1>outside</h1>
         <div id="app">
+            <tester></tester>
             <div id="wrapper">
-
                 {% include('_sidebar.html.twig') %}
 
                 <div id="content-wrapper" class="d-flex flex-column">
@@ -73,8 +73,9 @@
         </div>
 
         {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-            {{ encore_entry_script_tags('app-vue') }}
+            {{ vite_entry_script_tags('app') }}
+{#            {{ encore_entry_script_tags('app') }}#}
+{#            {{ encore_entry_script_tags('app-vue') }}#}
         {% endblock %}
 
         {% set userInfo = {

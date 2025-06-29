@@ -1,0 +1,3 @@
+pentatrion_vite:
+    build_directory: assets/javascript/vite-project/public/build
+    public_directory: smerf
