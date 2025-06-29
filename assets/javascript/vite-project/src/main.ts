@@ -1,11 +1,11 @@
 import { createApp } from 'vue'
 import Tester from "./components/Tester.vue"
-
+import '../../../css/app.scss'
+import 'bootstrap/dist/css/bootstrap.css'
 const app = createApp({
     components: {
-        Tester
-    }
+        tester: Tester
+    },
 })
 
 app.mount('#app')
-console.log('test')

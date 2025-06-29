@@ -8,14 +8,24 @@ export default defineConfig({
         vue(),
         symfonyPlugin(),
     ],
+
+    // włącza kompilowanie szablonu w runtime, czyli zwróci istniejącą treść
+    // komponentu w którym osadzono aplikację i wyrenderuje znane komponenty vue
+    resolve: {
+        alias: {
+            'vue': 'vue/dist/vue.esm-bundler.js'
+        }
+    },
+
     build: {
-        outDir: '../../../public/build',
+        outDir: '../../../public',
+
+
 
         rollupOptions: {
             input: {
                 app: './src/main.ts',
             }
-
         },
     },
 })

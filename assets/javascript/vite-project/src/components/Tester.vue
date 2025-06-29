@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 
-    const name = ref('Sobczak')
-
-    onMounted(() => {
-        console.log('mounted')
-    })
+    const name: Ref<string> = ref('Sobczak')
 </script>
 
 <template>
-    <div>Wynik: {{ name }}</div>
+    <h1>
+        <div>Result: {{ name }}</div>
+    </h1>
 </template>
 
 <style scoped>

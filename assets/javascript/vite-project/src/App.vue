@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div>hello world {{ name }}</div>
+    <div>hello world !! {{ name }}</div>
 </template>
 
 <style scoped>
