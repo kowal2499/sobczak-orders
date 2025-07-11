@@ -3,51 +3,52 @@
 
 <!DOCTYPE html>
 <html lang="pl">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <link rel="icon" href="/imgs/sobczak.ico">
+    <link rel="icon" href="/imgs/sobczak.ico">
 
-        <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
 
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-            {{ encore_entry_link_tags('app-vue') }}
-{#            {{ vite_entry_link_tags('app') }}#}
-        {% endblock %}
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+        {{ encore_entry_link_tags('app-vue') }}
+    {% endblock %}
 
-    </head>
-    <body id="page-top">
-        <div id="app">
-            <div id="wrapper">
-                {% include('_sidebar.html.twig') %}
+</head>
+<body id="page-top">
 
-                <div id="content-wrapper" class="d-flex flex-column">
+<div id="app">
+    <div id="wrapper">
 
-                    <div class="topbar d-flex justify-content-between">
+        {% include('_sidebar.html.twig') %}
 
-                        <div class="p-1">
-                            {% include('_language_switcher.html.twig') %}
-                        </div>
+        <div id="content-wrapper" class="d-flex flex-column">
 
-                        <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
-                            <template>
-                                <a class="dropdown-item" href="{{ path('security_logout') }}">
-                                    <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
-                                </a>
-                            </template>
-                        </dropdown>
+            <div class="topbar d-flex justify-content-between">
+
+                <div class="p-1">
+                    {% include('_language_switcher.html.twig') %}
+                </div>
+
+                <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
+                    <template>
+                        <a class="dropdown-item" href="{{ path('security_logout') }}">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
+                        </a>
+                    </template>
+                </dropdown>
 
 
 
-                    </div>
+            </div>
 
-                    <!-- Main Content -->
-                    <div id="content">
+            <!-- Main Content -->
+            <div id="content">
 
-                        <notifications :bag="[
+                <notifications :bag="[
 
                             {% for message in app.flashes('success') %}
                                 {
@@ -59,33 +60,32 @@
                         ]"></notifications>
 
 
-                        <div class="container-fluid">
+                <div class="container-fluid">
 
-                            {% block body %}{% endblock %}
-                        </div>
-                    </div>
-
+                    {% block body %}{% endblock %}
                 </div>
-
-
             </div>
+
         </div>
 
-        {% block javascripts %}
-{#            {{ vite_entry_script_tags('app') }}#}
-            {{ encore_entry_script_tags('app') }}
-            {{ encore_entry_script_tags('app-vue') }}
-        {% endblock %}
 
-        {% set userInfo = {
-            id: app.user.id,
-            firstName: app.user.firstName,
-            lastName: app.user.lastName,
-            roles: app.user.roles,
-            locale: app.request.locale
-        } %}
+    </div>
+</div>
 
-        <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {{ encore_entry_script_tags('app-vue') }}
+{% endblock %}
 
-    </body>
+{% set userInfo = {
+    id: app.user.id,
+    firstName: app.user.firstName,
+    lastName: app.user.lastName,
+    roles: app.user.roles,
+    locale: app.request.locale
+} %}
+
+<div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>
+
+</body>
 </html>
