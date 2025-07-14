@@ -42,3 +42,7 @@ services:
     # please note that last definitions always *replace* previous ones
 
     Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'
+
+    App\Service\ModuleConfigurationLoader:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

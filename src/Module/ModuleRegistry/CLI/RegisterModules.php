@@ -2,8 +2,14 @@
 
 namespace App\Module\ModuleRegistry\CLI;
 
+use App\Module\Authorization\Entity\AuthGrant;
+use App\Module\Authorization\Repository\AuthGrantRepository;
+use App\Module\Authorization\ValueObject\GrantOption;
+use App\Module\Authorization\ValueObject\GrantOptionsCollection;
+use App\Module\Authorization\ValueObject\GrantType;
+use App\Module\ModuleRegistry\Entity\Module;
 use App\Module\ModuleRegistry\Repository\ModuleRepository;
-use App\Module\ModuleRegistry\Service\ModulesConfigurationLoader;
+use App\Service\ModuleConfigurationLoader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,8 +22,9 @@ class RegisterModules extends Command
 {
 
     public function __construct(
-        private readonly ModulesConfigurationLoader $configurationLoader,
+        private readonly ModuleConfigurationLoader $configurationLoader,
         private readonly ModuleRepository $moduleRepository,
+        private readonly AuthGrantRepository $grantRepository,
         private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
@@ -28,22 +35,47 @@ class RegisterModules extends Command
         $io = new SymfonyStyle($input, $output);
         $io->block('Rejestracja modułów na podstawie konfiguracji');
 
-        $modules = $this->configurationLoader->getModules();
-        $io->progressStart(count($modules));
+        $rawModules = $this->configurationLoader->load();
+        $io->progressStart(count($rawModules));
 
-        foreach ($modules as $incomingModule) {
-            $dbModule = $this->moduleRepository->findOneByNamespace($incomingModule->getNamespace());
+        foreach ($rawModules as $raw) {
+            $namespace = $raw['namespace'];
+            $dbModule = $this->moduleRepository->findOneByNamespace($namespace);
+
             if (null === $dbModule) {
-                $this->moduleRepository->add($incomingModule, false);
-            } else {
-                $dbModule->setDescription($incomingModule->getDescription());
-                $dbModule->setActive($incomingModule->isActive());
+                $dbModule = new Module();
+                $dbModule->setNamespace($namespace);
+                $this->moduleRepository->add($dbModule, false);
+            }
+
+            $dbModule->setDescription($raw['description'] ?? '');
+            $dbModule->setActive($raw['active'] ?? false);
+
+
+            foreach ($raw['grants'] ?? [] as $grantData) {
+                /** @var AuthGrant|null $dbGrant */
+                $dbGrant = $this->grantRepository->findOneBySlug($grantData['slug']);
+                if (null === $dbGrant) {
+                    $dbGrant = new AuthGrant($grantData['slug'], $dbModule);
+                    $this->grantRepository->add($dbGrant, false);
+                }
+
+                $dbGrant->setName($grantData['name'] ?? '');
+                $dbGrant->setDescription($grantData['description'] ?? '');
+                $dbGrant->setType(GrantType::from($grantData['type'] ?? 'boolean'));
+                $options = $grantData['options'] ?? [];
+                $grantOptions = new GrantOptionsCollection(...array_map(
+                    fn($opt) => new GrantOption($opt['label'], $opt['optionSlug']),
+                    $options
+                ));
+                $dbGrant->setOptions($grantOptions);
+
             }
             $io->progressAdvance();
         }
-        $io->progressFinish();
-
         $this->entityManager->flush();
+        $io->progressFinish();
+        
         $io->success('Zakończono rejestrację modułów');
         return self::SUCCESS;
     }

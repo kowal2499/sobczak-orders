@@ -1,0 +1,5 @@
+app_module:
+  namespace: customers
+  description: Moduł zarządzania klientami
+  active: true
+  grants:

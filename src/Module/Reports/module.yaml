@@ -1,0 +1,5 @@
+app_module:
+  namespace: reports
+  description: Moduł raportów
+  active: true
+      

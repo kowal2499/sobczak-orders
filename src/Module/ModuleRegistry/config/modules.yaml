@@ -5,9 +5,6 @@ app_modules:
     - namespace: production
       description: Moduł zarządzania produkcją
       active: true
-    - namespace: customers
-      description: Moduł zarządzania klientami
-      active: true
     - namespace: orders
       description: Moduł zarządzania zamówieniami
       active: true

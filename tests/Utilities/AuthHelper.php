@@ -36,7 +36,6 @@ class AuthHelper
         $this->faker = Factory::create('pl_PL');
     }
 
-
     public function createUser(array $data = [], array $roleNames = [], array $grantNames = []): User
     {
         $user = new User();
@@ -89,7 +88,6 @@ class AuthHelper
         $grantVO = GrantVO::m($grant);
         $grantInstance = $this->grantRepository->findOneBySlug($grantVO->getSlug());
         if (!$grantInstance) {
-            $grantInstance = new AuthGrant();
             if (!$module) {
                 $module = $this->moduleRepository->findOneByNamespace('testmodule');
                 if (!$module) {
@@ -98,10 +96,9 @@ class AuthHelper
                     $this->moduleRepository->add($module);
                 }
             }
-            $grantInstance->setModule($module);
+            $grantInstance = new AuthGrant($grantVO->getSlug(), $module);
             $grantInstance->setName($this->faker->name);
             $grantInstance->setType($grantVO->getOptionSlug() ? GrantType::Select : GrantType::Boolean);
-            $grantInstance->setSlug($grantVO->getSlug());
             $this->grantRepository->add($grantInstance);
         }
         return $grantInstance;

@@ -86,11 +86,9 @@ class AuthFactory
         if ($grant) {
             return $grant;
         }
-        $grant = new AuthGrant();
-        $grant->setSlug($slug);
+        $grant = new AuthGrant($slug, $module);
         $grant->setName($name);
         $grant->setDescription($description);
-        $grant->setModule($module);
         $grant->setType($type);
         $grant->setOptions($options);
 

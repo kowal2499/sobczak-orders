@@ -20,7 +20,7 @@ class AuthGrant
     #[ORM\Column(type: "string", length: 40, unique: true)]
     private string $slug;
 
-    #[ORM\ManyToOne(targetEntity: Module::class, inversedBy: null)]
+    #[ORM\ManyToOne(targetEntity: Module::class, cascade: ["persist"], inversedBy: null)]
     #[ORM\JoinColumn(nullable: false)]
     private Module $module;
 
@@ -36,6 +36,16 @@ class AuthGrant
     #[ORM\Column(type: "grant_options", nullable: true)]
     private ?GrantOptionsCollection $options;
 
+    /**
+     * @param string $slug
+     * @param Module $module
+     */
+    public function __construct(string $slug, Module $module)
+    {
+        $this->slug = $slug;
+        $this->module = $module;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,13 +54,6 @@ class AuthGrant
     public function getSlug(): ?string
     {
         return $this->slug;
-    }
-
-    public function setSlug(string $slug): self
-    {
-        $this->slug = $slug;
-
-        return $this;
     }
 
     public function getName(): ?string
@@ -80,11 +83,6 @@ class AuthGrant
     public function getModule(): Module
     {
         return $this->module;
-    }
-
-    public function setModule(Module $module): void
-    {
-        $this->module = $module;
     }
 
     public function getOptions(): ?GrantOptionsCollection

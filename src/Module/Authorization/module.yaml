@@ -1,0 +1,6 @@
+app_module:
+  namespace: authorization
+  description: Moduł zarządzania użytkownikami i ich uprawnieniami
+  active: true
+  grants:
+      
