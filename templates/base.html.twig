@@ -7,16 +7,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <link rel="icon" href="/imgs/sobczak.ico">
-
     <title>{% block title %}{% endblock %}</title>
-
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
         {{ encore_entry_link_tags('app-vue') }}
     {% endblock %}
-
 </head>
 <body id="page-top">
 
@@ -61,14 +57,10 @@
 
 
                 <div class="container-fluid">
-
                     {% block body %}{% endblock %}
                 </div>
             </div>
-
         </div>
-
-
     </div>
 </div>
 

@@ -73,4 +73,12 @@ class BaseController extends AbstractController
             ]
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
+
+    protected function apiResponse(array $data, int $status = 200): JsonResponse
+    {
+        return new JsonResponse([
+            'data' => $data,
+            'status' => $status,
+        ]);
+    }
 }
