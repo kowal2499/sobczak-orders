@@ -21,12 +21,12 @@
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(line, key) in agreementLines" :key="key">
-                <td>
-                    {{ line.Agreement.orderNumber || line.Agreement.id }}
+                <td class="d-flex flex-column">
+                    <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
                     <tags-indicator :logs="line.tags"/>
                 </td>
-                <td>{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
-                <td>{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
+                <td class="text-nowrap">{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
+                <td class="text-nowrap">{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
                 <td>
                     <span v-if="line.Agreement.user && line.Agreement.user.userFullName">
                         {{ line.Agreement.user.userFullName }}
@@ -126,22 +126,8 @@
                 },
 
                 agreementLines: [],
-                // departments: [],
-                // production: [],
 
                 newOrderLink: routing.get('orders_view_new'),
-
-                // showProductionPlan: false,
-                // selectedOrder: null,
-                // selectedProduction: [],
-
-                // confirmations: {
-                //     delete: {
-                //         show: false,
-                //         context: false,
-                //         busy: false
-                //     }
-                // },
 
                 loading: false,
             }

@@ -91,11 +91,7 @@
 
             <template v-if="canStartProduction">
                 <hr style="margin: 5px auto">
-                <!-- sekcja produkcja -->
-                <a class="dropdown-item" href="#"
-                   @click.prevent="startProduction()">
-                    <i class="fa fa-play" aria-hidden="true"/> {{ $t('startProduction') }}
-                </a>
+                <start-production-action class="dropdown-item" />
             </template>
         </template>
     </dropdown>
@@ -111,6 +107,7 @@ import {
 } from "../../definitions/agreementLineStatuses";
 import {isValid} from "../../services/datesService";
 import ConfirmableAction from "../../modules/agreementLineList/Actions/ConfirmableAction";
+import StartProductionAction from "../../modules/agreementLineList/Actions/StartProductionAction";
 
 /**
  *  todo:
@@ -123,7 +120,8 @@ export default {
     name: 'LineActions',
     components: {
         Dropdown,
-        ConfirmableAction
+        ConfirmableAction,
+        StartProductionAction,
     },
     props: {
         line: {
@@ -205,19 +203,6 @@ export default {
             return this.hasProduction
                 ? this.updateAgreementStatus(AGREEMENT_LINE_STATUS_MANUFACTURING)
                 : this.updateAgreementStatus(AGREEMENT_LINE_STATUS_WAITING);
-        },
-
-        startProduction() {
-            return ApiNewOrder.startProduction(this.line.id)
-                .then(({data}) => {
-                    this.line.productions = Array.isArray(data) ? data : [];
-                    EventBus.$emit('message', {
-                        type: 'success',
-                        content: this.$t('addedToSchedule')
-                    });
-                    EventBus.$emit('statusUpdated');
-                    this.$emit('lineChanged');
-                })
         },
 
         updateAgreementStatus(statusCode) {
