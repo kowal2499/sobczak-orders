@@ -43,7 +43,7 @@
 <script>
 import ModalAction from "../../../components/base/ModalAction.vue";
 import ApiNewOrder from "../../../api/neworder";
-import helpers, { getDepartmentName, DPT_GLUEING } from "../../../helpers";
+import helpers, { getDepartmentName, getLocalDate, DPT_GLUEING } from "../../../helpers";
 import datePicker from "../../../components/base/DatePicker.vue";
 export default {
     name: "StartProductionAction",
@@ -97,7 +97,7 @@ export default {
                         this.form[slug][fieldIdx].value = this.getDefaultStartDate(slug, this.confirmedDate)
                     }
                     if (field.id === 'dateEnd') {
-                        this.form[slug][fieldIdx].value = this.getDefaultEndDate(slug, this.confirmedDate)
+                        this.form[slug][fieldIdx].value = this.getDefaultEndDate(slug, new Date(this.confirmedDate.getTime()))
                     }
                 })
             })
@@ -118,20 +118,19 @@ export default {
          */
         getDefaultEndDate(dpt, confirmedDate)
         {
-            let date = this.confirmedDate
+            let date = confirmedDate
             if (dpt === DPT_GLUEING) {
                 let daysPassed = 0
                 let currentDate = date
-                while (daysPassed <= 5) {
+                while (daysPassed < 5) {
                     date = new Date(date.setDate(date.getDate()-1))
                     const weekDay = date.getDay()
                     if (![0,6].includes(weekDay)) {
                         daysPassed++
                     }
-
                 }
             }
-            return date.toISOString().split('T').shift()
+            return getLocalDate(date)
         },
 
         getDepartmentName
