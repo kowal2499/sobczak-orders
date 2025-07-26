@@ -91,7 +91,11 @@
 
             <template v-if="canStartProduction">
                 <hr style="margin: 5px auto">
-                <start-production-action class="dropdown-item" />
+                <start-production-action
+                    class="dropdown-item"
+                    :agreement-line-id="line.id"
+                    :confirmed-date="new Date(line.confirmedDate)"
+                />
             </template>
         </template>
     </dropdown>

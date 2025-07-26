@@ -1,5 +1,5 @@
 <template>
-    <modal-action title="Daty produkcji dla działów" :configuration="{ hideFooter: false }">
+    <modal-action title="Daty produkcji dla działów" :configuration="{ hideFooter: false, size: 'lg' }">
         <template #open-action="{ open }">
             <a class="dropdown-item p-0"
                href="#"
@@ -18,7 +18,24 @@
         </template>
 
         <template #default="{ close }">
-            Treść modala
+            <b-row v-for="slug in Object.keys(form)" :key="slug">
+                <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(slug) }}</b-col>
+                <b-col v-for="(field, fieldIdx) in form[slug]"
+                       :key="fieldIdx"
+                >
+                    <b-form-group
+                        :label="$t(field.label)"
+                    >
+                        <date-picker
+                            v-if="field.type === 'date'"
+                            v-model="form[slug][fieldIdx].value"
+                            :is-range="false"
+                            :date-only="true"
+                            style="width: 100%"
+                        />
+                    </b-form-group>
+                </b-col>
+            </b-row>
         </template>
     </modal-action>
 </template>
@@ -26,29 +43,126 @@
 <script>
 import ModalAction from "../../../components/base/ModalAction.vue";
 import ApiNewOrder from "../../../api/neworder";
-
+import helpers, { getDepartmentName, DPT_GLUEING } from "../../../helpers";
+import datePicker from "../../../components/base/DatePicker.vue";
 export default {
     name: "StartProductionAction",
 
+    props: {
+        agreementLineId: {
+            type: Number,
+            required: true
+        },
+        confirmedDate: {
+            type: Date,
+            required: true
+        }
+    },
+
     components: {
-        ModalAction
+        ModalAction,
+        datePicker
+    },
+
+    computed: {
+        productionDepartments() {
+            return helpers.getDepartments()
+        }
+    },
+
+    mounted() {
+        this.setDefaultValues()
     },
 
     methods: {
-        startProduction() {
-            return ApiNewOrder.startProduction(this.line.id)
+        startProduction()
+        {
+            return ApiNewOrder.startProduction(this.agreementLineId)
                 .then(({data}) => {
-                    this.line.productions = Array.isArray(data) ? data : [];
-                    EventBus.$emit('message', {
-                        type: 'success',
-                        content: this.$t('addedToSchedule')
-                    });
-                    EventBus.$emit('statusUpdated');
-                    this.$emit('lineChanged');
+                    // this.line.productions = Array.isArray(data) ? data : [];
+                    // EventBus.$emit('message', {
+                    //     type: 'success',
+                    //     content: this.$t('addedToSchedule')
+                    // });
+                    // EventBus.$emit('statusUpdated');
+                    // this.$emit('lineChanged');
                 })
         },
-    }
+
+        setDefaultValues()
+        {
+            Object.keys(this.form).forEach(slug => {
+                this.form[slug].forEach((field, fieldIdx) => {
+                    if (field.id === 'dateStart') {
+                        this.form[slug][fieldIdx].value = this.getDefaultStartDate(slug, this.confirmedDate)
+                    }
+                    if (field.id === 'dateEnd') {
+                        this.form[slug][fieldIdx].value = this.getDefaultEndDate(slug, this.confirmedDate)
+                    }
+                })
+            })
+        },
+
+        /**
+         * @param {string} dpt
+         * @param {Date} confirmedDate
+         */
+        getDefaultStartDate(dpt, confirmedDate)
+        {
+            return (new Date()).toISOString().split('T')[0]
+        },
+
+        /**
+         * @param {string} dpt
+         * @param {Date} confirmedDate
+         */
+        getDefaultEndDate(dpt, confirmedDate)
+        {
+            let date = this.confirmedDate
+            if (dpt === DPT_GLUEING) {
+                let daysPassed = 0
+                let currentDate = date
+                while (daysPassed <= 5) {
+                    date = new Date(date.setDate(date.getDate()-1))
+                    const weekDay = date.getDay()
+                    if (![0,6].includes(weekDay)) {
+                        daysPassed++
+                    }
+
+                }
+            }
+            return date.toISOString().split('T').shift()
+        },
+
+        getDepartmentName
+    },
+
+    data: () => ({
+        form: getForm()
+    })
 }
+
+function getForm() {
+    return helpers.getDepartments()
+        .reduce((prev, current) => {
+            prev[current.slug] = [
+                {
+                    id: 'dateStart',
+                    value: null,
+                    type: 'date',
+                    label: 'Data rozpoczęcia'
+                },
+                {
+                    id: 'dateEnd',
+                    value: null,
+                    type: 'date',
+                    label: 'Data zakończenia'
+                }
+            ]
+            return prev
+        }, {})
+}
+
 </script>
 
 <style scoped lang="scss">
