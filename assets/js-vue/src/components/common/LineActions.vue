@@ -95,6 +95,7 @@
                     class="dropdown-item"
                     :agreement-line-id="line.id"
                     :confirmed-date="new Date(line.confirmedDate)"
+                    v-on="$listeners"
                 />
             </template>
         </template>

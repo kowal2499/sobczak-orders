@@ -13,7 +13,9 @@
         <template #modal-footer="{ close }">
             <div class="d-flex justify-content-end">
                 <button class="btn btn-secondary" @click="close">Anuluj</button>
-                <button class="btn btn-success ml-2"><i class="fa fa-play mr-2" aria-hidden="true"/> Rozpocznij produkcję</button>
+                <button class="btn btn-success ml-2" @click="startProduction(close)">
+                    <i class="fa fa-play mr-2" aria-hidden="true" /> Rozpocznij produkcję
+                </button>
             </div>
         </template>
 
@@ -67,6 +69,14 @@ export default {
     computed: {
         productionDepartments() {
             return helpers.getDepartments()
+        },
+
+        payload() {
+            return Object.keys(this.form).map(key => ({
+                department: key,
+                [this.form[key][0].id]: this.form[key][0].value,
+                [this.form[key][1].id]: this.form[key][1].value,
+            }))
         }
     },
 
@@ -75,17 +85,20 @@ export default {
     },
 
     methods: {
-        startProduction()
+        startProduction(closeCallback)
         {
-            return ApiNewOrder.startProduction(this.agreementLineId)
+            return ApiNewOrder.startProduction(this.agreementLineId, { schedule: this.payload })
                 .then(({data}) => {
                     // this.line.productions = Array.isArray(data) ? data : [];
-                    // EventBus.$emit('message', {
-                    //     type: 'success',
-                    //     content: this.$t('addedToSchedule')
-                    // });
-                    // EventBus.$emit('statusUpdated');
-                    // this.$emit('lineChanged');
+                    EventBus.$emit('message', {
+                        type: 'success',
+                        content: this.$t('addedToSchedule')
+                    });
+                    EventBus.$emit('statusUpdated');
+                    this.$emit('lineChanged');
+                    if (closeCallback) {
+                        closeCallback()
+                    }
                 })
         },
 
