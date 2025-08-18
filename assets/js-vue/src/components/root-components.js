@@ -27,5 +27,5 @@ export default {
     Notifications,
     NavOrders,
     ...TagsModule,
-    Dashboard2
+    Dashboard2,
 }

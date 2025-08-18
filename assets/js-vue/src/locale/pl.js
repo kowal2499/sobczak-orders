@@ -21,5 +21,13 @@ export default {
     '_dpt05': 'Pakowanie',
     '_yes': 'Tak',
     '_no': 'Nie',
-    '_confirmation_required': 'Wymagane potwierdzenie'
+    '_confirmation_required': 'Wymagane potwierdzenie',
+
+    '_validation': {
+        'required': 'To pole jest wymagane',
+        'dateFrom': 'Data początkowa musi być wcześniejsza niż data końcowa',
+        'dateTo': 'Data końcowa musi być późniejsza niż data początkowa',
+
+        'fixFormErrors': 'Popraw błędy formularza'
+    }
 }

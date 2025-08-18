@@ -21,5 +21,13 @@ export default {
     '_dpt05': 'Packing',
     '_yes': 'Yes',
     '_no': 'No',
-    '_confirmation_required': 'Confirmation required'
+    '_confirmation_required': 'Confirmation required',
+
+    '_validation': {
+        'required': 'This field is required',
+        'dateFrom': 'The start date must be earlier than the end date',
+        'dateTo': 'The end date must be later than the start date',
+
+        'fixFormErrors': 'Fix form errors'
+    }
 }

@@ -9,6 +9,7 @@ import routing from "./src/api/routing";
 import i18n from "./i18n";
 import store from './src/store';
 import init from "./src/services/init";
+import validation from './src/validation/index'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -55,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.filter('roundFloat', value => {
         return (Math.round(value * 100)/100).toFixed(2)
     })
+
+    console.log('test')
 
     new Vue({
         el: '#app',

@@ -1,45 +1,67 @@
 <template>
-    <modal-action title="Daty produkcji dla działów" :configuration="{ hideFooter: false, size: 'lg' }">
-        <template #open-action="{ open }">
-            <a class="dropdown-item p-0"
-               href="#"
-               @click.prevent="open"
-            >
-                <i class="fa fa-play mr-3" aria-hidden="true"/>
-                {{ $t('startProduction') }}
-            </a>
-        </template>
-
-        <template #modal-footer="{ close }">
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-secondary" @click="close">Anuluj</button>
-                <button class="btn btn-success ml-2" @click="startProduction(close)">
-                    <i class="fa fa-play mr-2" aria-hidden="true" /> Rozpocznij produkcję
-                </button>
-            </div>
-        </template>
-
-        <template #default="{ close }">
-            <b-row v-for="slug in Object.keys(form)" :key="slug">
-                <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(slug) }}</b-col>
-                <b-col v-for="(field, fieldIdx) in form[slug]"
-                       :key="fieldIdx"
+    <ValidationObserver ref="form" #default="{ invalid }">
+        <modal-action title="Daty produkcji dla działów" :configuration="{ hideFooter: false, size: 'lg' }">
+            <template #open-action="{ open }">
+                <a class="dropdown-item p-0"
+                   href="#"
+                   @click.prevent="open"
                 >
-                    <b-form-group
-                        :label="$t(field.label)"
+                    <i class="fa fa-play mr-3" aria-hidden="true"/>
+                    {{ $t('startProduction') }}
+                </a>
+            </template>
+
+            <template #modal-footer="{ close }">
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-secondary" @click="close">{{ $t('_cancel') }}</button>
+                    <button class="btn btn-success ml-2" @click="startProduction(close)">
+                        <i class="fa fa-play mr-2" aria-hidden="true" /> Rozpocznij produkcję
+                    </button>
+                </div>
+            </template>
+
+            <template #default="{ close }">
+                <b-row v-for="slug in Object.keys(form)" :key="slug">
+                    <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(slug) }}</b-col>
+                    <b-col v-for="(field, fieldIdx) in form[slug]"
+                           :key="fieldIdx"
                     >
-                        <date-picker
-                            v-if="field.type === 'date'"
-                            v-model="form[slug][fieldIdx].value"
-                            :is-range="false"
-                            :date-only="true"
-                            style="width: 100%"
-                        />
-                    </b-form-group>
-                </b-col>
-            </b-row>
-        </template>
-    </modal-action>
+                        <ValidationProvider
+                            #default="{ errors }"
+                            :rules="{
+                                required: true,
+                                ...(fieldIdx === 0 && {
+                                    dateFrom: {
+                                        target: form[slug][1].value
+                                    }
+                                }),
+                                ...(fieldIdx === 1 && {
+                                    dateTo: {
+                                        target: form[slug][0].value
+                                    }
+                                })
+
+                            }"
+                            :name="`${slug}${field.id}`"
+                        >
+                            <b-form-group
+                                :label="$t(field.label)"
+                                :invalid-feedback="errors.join(' ')"
+                            >
+                                <date-picker
+                                    v-model="form[slug][fieldIdx].value"
+                                    :is-range="false"
+                                    :date-only="true"
+                                    style="width: 100%"
+                                    :class="errors.length > 0 && 'is-invalid'"
+                                />
+                            </b-form-group>
+                        </ValidationProvider>
+                    </b-col>
+                </b-row>
+            </template>
+        </modal-action>
+    </ValidationObserver>
 </template>
 
 <script>
@@ -47,6 +69,7 @@ import ModalAction from "../../../components/base/ModalAction.vue";
 import ApiNewOrder from "../../../api/neworder";
 import helpers, { getDepartmentName, getLocalDate, DPT_GLUEING } from "../../../helpers";
 import datePicker from "../../../components/base/DatePicker.vue";
+
 export default {
     name: "StartProductionAction",
 
@@ -63,7 +86,7 @@ export default {
 
     components: {
         ModalAction,
-        datePicker
+        datePicker,
     },
 
     computed: {
@@ -85,8 +108,18 @@ export default {
     },
 
     methods: {
-        startProduction(closeCallback)
+        async startProduction(closeCallback)
         {
+            const isValid = await this.$refs.form.validate();
+
+            if (!isValid) {
+                EventBus.$emit('message', {
+                    type: 'error',
+                    content: this.$t('_validation.fixFormErrors')
+                });
+                return
+            }
+
             return ApiNewOrder.startProduction(this.agreementLineId, { schedule: this.payload })
                 .then(({data}) => {
                     // this.line.productions = Array.isArray(data) ? data : [];
