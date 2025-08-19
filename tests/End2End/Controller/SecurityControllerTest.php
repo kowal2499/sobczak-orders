@@ -64,5 +64,4 @@ class SecurityControllerTest extends ApiTestCase
         $this->assertEquals($connection->getCustomer()->getId(), $this->customer->getId());
         $this->assertEquals($connection->getUser()->getId(), $newUserId);
     }
-
 }

@@ -7,6 +7,9 @@ import access from "./src/services/privilages";
 import helpers from "./src/helpers";
 import routing from "./src/api/routing";
 import i18n from "./i18n";
+import store from './src/store';
+import init from "./src/services/init";
+import validation from './src/validation/index'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -24,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = userData ? JSON.parse(decodeURIComponent(userData.dataset.userInfo)) : {};
     i18n.locale = user.locale;
 
-        // inicjalizacja vue
+    // inicjalizacja vue
     Vue.prototype.$access = access;
     Vue.prototype.$user = new access.User(user);
     Vue.prototype.$privilages = access.Roles;
@@ -57,6 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     new Vue({
         el: '#app',
         components,
-        i18n
+        i18n,
+        store,
+        created() {
+            init()
+        }
     });
 });

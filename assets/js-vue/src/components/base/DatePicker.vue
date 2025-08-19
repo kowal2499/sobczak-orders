@@ -8,8 +8,7 @@
         use-utc="true"
         :show-week-number="true"
         :formatter="formatter"
-        >
-    </vueDP>
+    />
 </template>
 
 <script>
@@ -101,14 +100,14 @@
                 set(newValue) {
                     if (this.isRange) {
                         this.$emit('input', {
-                            start: moment(newValue[0]).format('YYYY-MM-DD'),
-                            end: moment(newValue[1]).format('YYYY-MM-DD'),
+                            start: newValue[0] ? moment(newValue[0]).format('YYYY-MM-DD') : null,
+                            end: newValue[1] ? moment(newValue[1]).format('YYYY-MM-DD') : null,
                         });
                     } else {
                         if (this.dateOnly) {
-                            this.$emit('input', moment(newValue).format('YYYY-MM-DD'));
+                            this.$emit('input', newValue ? moment(newValue).format('YYYY-MM-DD') : null);
                         } else {
-                            this.$emit('input', moment(newValue).format('YYYY-MM-DD HH:mm:ss'));
+                            this.$emit('input', newValue ? moment(newValue).format('YYYY-MM-DD HH:mm:ss') : null);
                         }
 
                     }

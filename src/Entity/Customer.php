@@ -2,114 +2,80 @@
 
 namespace App\Entity;
 
+use App\Repository\CustomerRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
- */
+#[ORM\Entity(repositoryClass: CustomerRepository::class)]
 class Customer
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups('_main')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message: 'Pole nie może być puste')]
     #[Groups('_main')]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $first_name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $last_name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $street;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $street_number;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $apartment_number;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $city;
 
-    /**
-     * @ORM\Column(type="string", length=16, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     #[Groups('_main')]
     private $postal_code;
 
-    /**
-     * @ORM\Column(type="string", length=2, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 2, nullable: true)]
     #[Groups('_main')]
     private $country;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $phone;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups('_main')]
     private $email;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    // todo: used to be 'createDate'
+    #[ORM\Column(type: 'datetime')]
     #[Groups('_main')]
     private $create_date;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    // todo: used to be 'updateDate'
+    #[ORM\Column(type: 'datetime')]
     #[Groups('_main')]
     private $update_date;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Agreement", mappedBy="Customer", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: Agreement::class, mappedBy: 'Customer', orphanRemoval: true)]
     private $agreements;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Customers2Users", mappedBy="customer")
-     */
+    #[ORM\OneToMany(targetEntity: Customers2Users::class, mappedBy: 'customer')]
     private $customers2Users;
 
     public function __construct()
@@ -231,24 +197,24 @@ class Customer
         return $this;
     }
 
-    public function getCreateDate(): ?\DateTimeInterface
+    public function getCreateDate(): ?DateTimeInterface
     {
         return $this->create_date;
     }
 
-    public function setCreateDate(\DateTimeInterface $create_date): self
+    public function setCreateDate(DateTimeInterface $create_date): self
     {
         $this->create_date = $create_date;
 
         return $this;
     }
 
-    public function getUpdateDate(): ?\DateTimeInterface
+    public function getUpdateDate(): ?DateTimeInterface
     {
         return $this->update_date;
     }
 
-    public function setUpdateDate(\DateTimeInterface $update_date): self
+    public function setUpdateDate(DateTimeInterface $update_date): self
     {
         $this->update_date = $update_date;
 

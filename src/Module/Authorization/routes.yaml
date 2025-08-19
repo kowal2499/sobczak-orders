@@ -1,0 +1,4 @@
+authorization_controllers:
+  resource: ./Controller
+  type: annotation
+  prefix: /authorization

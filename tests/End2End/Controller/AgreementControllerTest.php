@@ -22,7 +22,6 @@ class AgreementControllerTest extends ApiTestCase
         $this->user = $this->factory->make(User::class, [
             'roles' => ['ROLE_PRODUCTION']
         ]);
-
     }
 
     public function testShouldCreateAgreement(): void

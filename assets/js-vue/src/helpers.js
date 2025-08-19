@@ -18,13 +18,35 @@ const roles = [
     { value: 'ROLE_CUSTOMER', name: 'Klient' },
 ];
 
+export const DPT_GLUEING = 'dpt01'
+export const DPT_CNC = 'dpt02'
+export const DPT_GRINDING = 'dpt03'
+export const DPT_LACQUERING = 'dpt04'
+export const DPT_PACKING = 'dpt05'
+
 const departments = [
-    {name: 'Klejenie', slug: 'dpt01'},
-    {name: 'CNC', slug: 'dpt02'},
-    {name: 'Szlifowanie', slug: 'dpt03'},
-    {name: 'Lakierowanie', slug: 'dpt04'},
-    {name: 'Pakowanie', slug: 'dpt05'},
+    {name: 'Klejenie', slug: DPT_GLUEING},
+    {name: 'CNC', slug: DPT_CNC},
+    {name: 'Szlifowanie', slug: DPT_GRINDING},
+    {name: 'Lakierowanie', slug: DPT_LACQUERING},
+    {name: 'Pakowanie', slug: DPT_PACKING},
 ];
+export function getDepartmentName(slug) {
+    const department = departments.find(dpt => dpt.slug === slug)
+    return (department && department.name) || slug
+}
+
+/**
+ * @param { Date } date
+ * @returns {string}
+ */
+export function getLocalDate(date) {
+    const yyyy = date.getFullYear()
+    const mm = String(date.getMonth() + 1).padStart(2, '0')
+    const dd = String(date.getDate()).padStart(2, '0')
+
+    return `${yyyy}-${mm}-${dd}`;
+}
 
 
 export default {

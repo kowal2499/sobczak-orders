@@ -8,53 +8,37 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="tag_definition")
- */
+#[ORM\Table(name: 'tag_definition')]
+#[ORM\Entity]
 class TagDefinition
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups(['_main', '_linePanel'])]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=128, nullable=false)
-     */
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'string', length: 128, nullable: false)]
     #[Groups(['_main', '_linePanel'])]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=128, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 128, nullable: false)]
     #[Groups(['_main'])]
     private $module;
 
-    /**
-     * @ORM\Column(type="string", length=128, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 128, nullable: true)]
     #[Groups(['_main'])]
     private $icon;
 
-    /**
-     * @ORM\Column(type="string", length=7, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 7, nullable: true)]
     #[Groups(['_main'])]
     private $color;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $isDeleted;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\TagAssignment", mappedBy="tagDefinition")
-     */
+    #[ORM\OneToMany(targetEntity: \App\Entity\TagAssignment::class, mappedBy: 'tagDefinition')]
     private $tagAssignments;
 
     /**

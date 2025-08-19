@@ -54,11 +54,19 @@ class ProductionController extends BaseController
     #[Route(path: '/production/start/{agreementLine}', methods: ['POST'])]
     public function startProduction(
         AgreementLine $agreementLine,
-        ProductionTaskDatesResolver $datesResolver,
+//        ProductionTaskDatesResolver $datesResolver,
         EntityManagerInterface $em,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        Request $request,
     ): JsonResponse
     {
+        $params = $request->request->all();
+        $schedule = [];
+
+        if (isset($params['schedule']) && is_array($params['schedule'])) {
+            $schedule = $params['schedule'];
+        }
+
         $repository = $em->getRepository(Production::class);
         if ($repository->findBy([
             'agreementLine' => $agreementLine,
@@ -77,12 +85,22 @@ class ProductionController extends BaseController
                 ->setCreatedAt(new \DateTime())
                 ->setUpdatedAt(new \DateTime());
 
-            $production->setDateStart(
-                $datesResolver->resolveDateFrom($production, $agreementLine->getConfirmedDate())
-            );
-            $production->setDateEnd(
-                $datesResolver->resolveDateTo($production, $agreementLine->getConfirmedDate())
-            );
+            foreach ($schedule as $dptSchedule) {
+                if ($dptSchedule['department'] === $task['slug']) {
+                    if ($dptSchedule['dateStart']) {
+                        $production->setDateStart(new \DateTime($dptSchedule['dateStart']));
+                    }
+                    if ($dptSchedule['dateEnd']) {
+                        $production->setDateEnd(new \DateTime($dptSchedule['dateEnd']));
+                    }
+                }
+            }
+//            $production->setDateStart(
+//                $datesResolver->resolveDateFrom($production, $agreementLine->getConfirmedDate())
+//            );
+//            $production->setDateEnd(
+//                $datesResolver->resolveDateTo($production, $agreementLine->getConfirmedDate())
+//            );
 
             $em->persist($production);
             $response[] = $production;

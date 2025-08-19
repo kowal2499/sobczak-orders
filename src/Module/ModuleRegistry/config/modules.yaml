@@ -1,0 +1,13 @@
+app_modules:
+    - namespace: authorization
+      description: Moduł zarządzania użytkownikami i ich uprawnieniami
+      active: true
+    - namespace: production
+      description: Moduł zarządzania produkcją
+      active: true
+    - namespace: orders
+      description: Moduł zarządzania zamówieniami
+      active: true
+    - namespace: reports
+      description: Moduł raportów
+      active: true

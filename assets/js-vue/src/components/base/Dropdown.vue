@@ -94,7 +94,7 @@
 
             padding: 0;
 
-            a {
+            & > * {
                 font-size: 0.8rem;
             }
 

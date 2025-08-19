@@ -1,0 +1,19 @@
+app_module:
+  namespace: production
+  description: Moduł zarządzania produkcją
+  active: true
+  grants:
+      - name: Data produkcji
+        description: Zarządzanie datą produkcji dla całego zamówienia
+        slug: production.production_date
+        type: select
+        options:
+          - optionSlug: read
+            label: Widok
+          - optionSlug: update
+            label: Aktualizacja
+      - name: Widok panelu produkcji
+        description: Określa czy użytkownik ma dostęp do panelu produkcji
+        slug: production.panel
+        type: boolean
+        

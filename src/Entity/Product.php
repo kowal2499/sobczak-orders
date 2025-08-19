@@ -2,52 +2,39 @@
 
 namespace App\Entity;
 
+use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
- */
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups('_main')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     #[Groups('_main')]
     private $name;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     #[Groups('_main')]
     private $description;
 
-    /**
-     * @ORM\Column(type="float")
-     */
+    #[ORM\Column(type: 'float')]
     #[Groups('_main')]
     private $factor = 0;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     #[Groups('_main')]
     private $createDate;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AgreementLine", mappedBy="Product")
-     */
+    #[ORM\OneToMany(mappedBy: 'Product', targetEntity: AgreementLine::class)]
     private $agreementLines;
 
     public function __construct()

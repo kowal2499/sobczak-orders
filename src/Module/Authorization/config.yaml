@@ -1,0 +1,15 @@
+services:
+    App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface:
+        alias: App\Module\Authorization\Repository\AuthGrantRepository
+
+    App\Module\Authorization\Repository\Interface\AuthRoleRepositoryInterface:
+        alias: App\Module\Authorization\Repository\AuthRoleRepository
+
+    App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface:
+        alias: App\Module\Authorization\Repository\AuthUserRoleRepository
+
+    App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface:
+        alias: App\Module\Authorization\Repository\AuthRoleGrantValueRepository
+
+    App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface:
+        alias: App\Module\Authorization\Repository\AuthUserGrantValueRepository

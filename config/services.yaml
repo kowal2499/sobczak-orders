@@ -8,6 +8,10 @@ parameters:
     uploads_base_url: '%env(SITE_BASE_URL)%'
     fixture_admin_password: '%env(FIXTURE_ADMIN_PASSWORD)%'
 
+imports:
+    # Automatyczny import plików services.yaml z modułów
+    - { resource: '../src/Module/**/config.yaml' }
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -29,8 +33,16 @@ services:
             - '../src/Kernel.php'
             - '../src/Migrations'
             - '../src/Tests'
+    App\Module\:
+        resource: '../src/Module/*'
+        exclude: '../src/Module/**/{DependencyInjection,Entity,Event,Command,DTO/*DTO}'
+
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
     Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'
+
+    App\Service\ModuleConfigurationLoader:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

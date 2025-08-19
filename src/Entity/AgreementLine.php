@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
+use App\Repository\AgreementLineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\AgreementLineRepository")
- */
+#[ORM\Entity(repositoryClass: AgreementLineRepository::class)]
+#[ORM\Table(name: 'agreement_line')]
 class AgreementLine
 {
     const STATUS_WAITING = 5;
@@ -18,84 +18,58 @@ class AgreementLine
     const STATUS_ARCHIVED = 20;
     const STATUS_DELETED = 25;
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     #[Groups(['_main', '_linePanel'])]
     private int $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     #[Groups(['_main', '_linePanel'])]
     private $confirmedDate;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="agreementLines")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'agreementLines')]
+    #[ORM\JoinColumn(nullable: false)]
     #[Groups('_main')]
     private $Product;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Agreement", inversedBy="agreementLines")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Agreement::class, inversedBy: 'agreementLines')]
+    #[ORM\JoinColumn(nullable: false)]
     #[Groups('_main')]
     private $Agreement;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Production", cascade={"persist", "remove"}, mappedBy="agreementLine", orphanRemoval=true)
-     * @ORM\OrderBy({"id" = "ASC"})
-     */
+    #[ORM\OneToMany(mappedBy: 'agreementLine', targetEntity: Production::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
     #[Groups(['_main', '_linePanel'])]
     private $productions;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $archived;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: 'smallint', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private ?int $status;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $deleted;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $description;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $factor;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\TagAssignment", mappedBy="contextId")
-     */
+    #[ORM\OneToMany(targetEntity: TagAssignment::class, mappedBy: 'contextId')]
     #[Groups(['_main', '_linePanel'])]
     private $tags;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $productionStartDate;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $productionCompletionDate;
 

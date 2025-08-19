@@ -3,52 +3,48 @@
 
 <!DOCTYPE html>
 <html lang="pl">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="/imgs/sobczak.ico">
+    <title>{% block title %}{% endblock %}</title>
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+        {{ encore_entry_link_tags('app-vue') }}
+    {% endblock %}
+</head>
+<body id="page-top">
 
-        <link rel="icon" href="/imgs/sobczak.ico">
+<div id="app">
+    <div id="wrapper">
 
-        <title>{% block title %}{% endblock %}</title>
+        {% include('_sidebar.html.twig') %}
 
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-            {{ encore_entry_link_tags('app-vue') }}
-        {% endblock %}
+        <div id="content-wrapper" class="d-flex flex-column">
 
-    </head>
-    <body id="page-top">
+            <div class="topbar d-flex justify-content-between">
 
-        <div id="app">
-            <div id="wrapper">
+                <div class="p-1">
+                    {% include('_language_switcher.html.twig') %}
+                </div>
 
-                {% include('_sidebar.html.twig') %}
-
-                <div id="content-wrapper" class="d-flex flex-column">
-
-                    <div class="topbar d-flex justify-content-between">
-
-                        <div class="p-1">
-                            {% include('_language_switcher.html.twig') %}
-                        </div>
-
-                        <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
-                            <template>
-                                <a class="dropdown-item" href="{{ path('security_logout') }}">
-                                    <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
-                                </a>
-                            </template>
-                        </dropdown>
+                <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
+                    <template>
+                        <a class="dropdown-item" href="{{ path('security_logout') }}">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
+                        </a>
+                    </template>
+                </dropdown>
 
 
 
-                    </div>
+            </div>
 
-                    <!-- Main Content -->
-                    <div id="content">
+            <!-- Main Content -->
+            <div id="content">
 
-                        <notifications :bag="[
+                <notifications :bag="[
 
                             {% for message in app.flashes('success') %}
                                 {
@@ -60,32 +56,28 @@
                         ]"></notifications>
 
 
-                        <div class="container-fluid">
-
-                            {% block body %}{% endblock %}
-                        </div>
-                    </div>
-
+                <div class="container-fluid">
+                    {% block body %}{% endblock %}
                 </div>
-
-
             </div>
         </div>
+    </div>
+</div>
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-            {{ encore_entry_script_tags('app-vue') }}
-        {% endblock %}
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {{ encore_entry_script_tags('app-vue') }}
+{% endblock %}
 
-        {% set userInfo = {
-            id: app.user.id,
-            firstName: app.user.firstName,
-            lastName: app.user.lastName,
-            roles: app.user.roles,
-            locale: app.request.locale
-        } %}
+{% set userInfo = {
+    id: app.user.id,
+    firstName: app.user.firstName,
+    lastName: app.user.lastName,
+    roles: app.user.roles,
+    locale: app.request.locale
+} %}
 
-        <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>
+<div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>
 
-    </body>
+</body>
 </html>

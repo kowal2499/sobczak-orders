@@ -73,8 +73,8 @@ export default {
         return axios.post(Routing.get('orders_single_fetch') + '/' + id);
     },
 
-    startProduction(agreementLineId) {
-        return axios.post(`/production/start/${agreementLineId}`);
+    startProduction(agreementLineId, payload) {
+        return axios.post(`/production/start/${agreementLineId}`, payload);
     },
 
     getNumber(customerId) {
