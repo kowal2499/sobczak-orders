@@ -1,6 +1,6 @@
 <template>
     <ValidationObserver ref="form" #default="{ invalid }">
-        <modal-action title="Daty produkcji dla działów" :configuration="{ hideFooter: false, size: 'lg' }">
+        <modal-action :title="$t('agreement_line_list.startProductionForm.modalTitle')" :configuration="{ hideFooter: false, size: 'lg' }">
             <template #open-action="{ open }">
                 <a class="dropdown-item p-0"
                    href="#"
@@ -13,52 +13,15 @@
 
             <template #modal-footer="{ close }">
                 <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary" @click="close">{{ $t('_cancel') }}</button>
+                    <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
                     <button class="btn btn-success ml-2" @click="startProduction(close)">
-                        <i class="fa fa-play mr-2" aria-hidden="true" /> Rozpocznij produkcję
+                        <i class="fa fa-play mr-2" aria-hidden="true" /> {{ $t('agreement_line_list.startProductionForm.startProduction') }}
                     </button>
                 </div>
             </template>
 
             <template #default="{ close }">
-                <b-row v-for="slug in Object.keys(form)" :key="slug">
-                    <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(slug) }}</b-col>
-                    <b-col v-for="(field, fieldIdx) in form[slug]"
-                           :key="fieldIdx"
-                    >
-                        <ValidationProvider
-                            #default="{ errors }"
-                            :rules="{
-                                required: true,
-                                ...(fieldIdx === 0 && {
-                                    dateFrom: {
-                                        target: form[slug][1].value
-                                    }
-                                }),
-                                ...(fieldIdx === 1 && {
-                                    dateTo: {
-                                        target: form[slug][0].value
-                                    }
-                                })
-
-                            }"
-                            :name="`${slug}${field.id}`"
-                        >
-                            <b-form-group
-                                :label="$t(field.label)"
-                                :invalid-feedback="errors.join(' ')"
-                            >
-                                <date-picker
-                                    v-model="form[slug][fieldIdx].value"
-                                    :is-range="false"
-                                    :date-only="true"
-                                    style="width: 100%"
-                                    :class="errors.length > 0 && 'is-invalid'"
-                                />
-                            </b-form-group>
-                        </ValidationProvider>
-                    </b-col>
-                </b-row>
+                <StartProductionForm v-model="form" />
             </template>
         </modal-action>
     </ValidationObserver>
@@ -66,9 +29,9 @@
 
 <script>
 import ModalAction from "../../../components/base/ModalAction.vue";
+import StartProductionForm from "../Forms/StartProductionForm.vue";
 import ApiNewOrder from "../../../api/neworder";
-import helpers, { getDepartmentName, getLocalDate, DPT_GLUEING } from "../../../helpers";
-import datePicker from "../../../components/base/DatePicker.vue";
+import helpers, { getLocalDate, DPT_GLUEING } from "../../../helpers";
 
 export default {
     name: "StartProductionAction",
@@ -86,7 +49,7 @@ export default {
 
     components: {
         ModalAction,
-        datePicker,
+        StartProductionForm,
     },
 
     computed: {
@@ -121,7 +84,7 @@ export default {
             }
 
             return ApiNewOrder.startProduction(this.agreementLineId, { schedule: this.payload })
-                .then(({data}) => {
+                .then(() => {
                     // this.line.productions = Array.isArray(data) ? data : [];
                     EventBus.$emit('message', {
                         type: 'success',
@@ -167,7 +130,6 @@ export default {
             let date = confirmedDate
             if (dpt === DPT_GLUEING) {
                 let daysPassed = 0
-                let currentDate = date
                 while (daysPassed < 5) {
                     date = new Date(date.setDate(date.getDate()-1))
                     const weekDay = date.getDay()
@@ -179,7 +141,6 @@ export default {
             return getLocalDate(date)
         },
 
-        getDepartmentName
     },
 
     data: () => ({
@@ -195,13 +156,13 @@ function getForm() {
                     id: 'dateStart',
                     value: null,
                     type: 'date',
-                    label: 'Data rozpoczęcia'
+                    label: 'agreement_line_list.startProductionForm.startDate'
                 },
                 {
                     id: 'dateEnd',
                     value: null,
                     type: 'date',
-                    label: 'Data zakończenia'
+                    label: 'agreement_line_list.startProductionForm.endDate'
                 }
             ]
             return prev

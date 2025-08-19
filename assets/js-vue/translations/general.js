@@ -35,6 +35,7 @@ export default {
         'forbidden': 'No access',
         'error': 'An error occured',
         'noData': 'No information',
+        'cancel': 'Cancel',
     },
     'pl': {
         Styczeń: 'Styczeń',
@@ -72,5 +73,6 @@ export default {
         'forbidden': 'Brak dostępu',
         'error': 'Wystąpił błąd',
         'noData': 'Brak informacji',
+        'cancel': 'Anuluj',
     }
 }

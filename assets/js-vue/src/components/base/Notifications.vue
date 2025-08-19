@@ -78,7 +78,7 @@
         bottom: 0;
         width: 350px;
         margin: 40px;
-        z-index: 1000;
+        z-index: 1050;
 
         .notification {
             padding: 20px;
