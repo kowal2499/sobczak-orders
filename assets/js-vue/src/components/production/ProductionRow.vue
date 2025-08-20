@@ -1,12 +1,12 @@
 <template>
     <tr :class="{'is-disabled': disabled}">
         <td>
-            {{ order.Agreement.orderNumber || order.id }}
+            <span class="text-nowrap">{{ order.Agreement.orderNumber || order.id }}</span>
             <tags-indicator :logs="order.tags"/>
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
         </td>
 
-        <td>
+        <td class="text-nowrap">
             {{ order.confirmedDate | formatDate('YYYY-MM-DD') }}
         </td>
 
@@ -35,23 +35,43 @@
 
         <td class="prod" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
             <div class="task">
-                <b-dropdown
-                        :text="$t(getStatusData(production.status).name)"
-                        size="sm"
-                        class="w-100"
-                        :class="getStatusData(production.status).className"
-                        variant="light"
-                        split-variant=""
-                        :disabled="disabled"
-                >
-                    <b-dropdown-item
-                            v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
-                            :value="status.value"
-                            :key="status.value"
-                            :disabled="!userCanProduction()"
-                            @click="updateProduction(production, status.value)"
-                    >{{ $t(status.name) }}</b-dropdown-item>
-                </b-dropdown>
+                <div class="d-flex flex-column gap-2">
+                    <b-dropdown
+                            :text="$t(getStatusData(production.status).name)"
+                            size="sm"
+                            class="w-100"
+                            :class="getStatusData(production.status).className"
+                            variant="light"
+                            split-variant=""
+                            :disabled="disabled"
+                    >
+                        <b-dropdown-item
+                                v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
+                                :value="status.value"
+                                :key="status.value"
+                                :disabled="!userCanProduction()"
+                                @click="updateProduction(production, status.value)"
+                        >{{ $t(status.name) }}</b-dropdown-item>
+                    </b-dropdown>
+                    <tooltip v-if="production.dateEnd">
+                        <template #visible-content>
+                            <div class="text-right text-sm text-nowrap hasTooltip">
+                                <i class="fa fa-clock-o mr-1" />
+                                <span v-if="production.dateEnd">{{ production.dateEnd | formatDate('YYYY-MM-DD') }}</span>
+                                <span v-else>{{ $t('noData') }}</span>
+                            </div>
+                        </template>
+                        <div slot="tooltip-content" class="text-left">
+                            {{ $t('realisationDateFor') }} {{ getDepartmentName(production.departmentSlug) }}:
+                            {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
+                        </div>
+                    </tooltip>
+                    <div v-else class="text-right text-sm text-nowrap opacity-75">
+                        <i class="fa fa-clock-o mr-1" />
+                        {{ $t('noData') }}
+                    </div>
+
+                </div>
                 <div>
                     <production-task-notification
                         :date-start="production.dateStart"
@@ -93,7 +113,7 @@
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
     import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
-    import helpers from "../../helpers";
+    import helpers, { getDepartmentName } from "../../helpers";
     import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
@@ -140,8 +160,9 @@
             updateProduction(production, newStatus) {
                 production.status = newStatus;
                 this.$emit('statusUpdated', { id: production.id, status: newStatus});
-            }
+            },
 
+            getDepartmentName,
         },
         computed: {
             hasDetails() {
