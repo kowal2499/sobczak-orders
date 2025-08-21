@@ -107,12 +107,12 @@
 
         {% endif %}
 
-        {% if is_granted('ROLE_CONFIG') %}
+        {% if is_granted('ROLE_ADMIN') %}
 
             <hr class="sidebar-divider">
 
             <menu-item
-                    :active="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new', 'tags'] %}true{% else %}false{% endif %}"
+                    :active="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new', 'authorization_role_view', 'tags'] %}true{% else %}false{% endif %}"
                     :path="'{{ path('production_show') }}'"
                     :title-icon="'fa fa-wrench'"
                     :title="'{{ 'Konfiguracja'|trans }}'"
@@ -123,6 +123,11 @@
                     >
                         {{ 'Użytkownicy'|trans }}
                     </a>
+                    <a href="/authorization/role/view"
+                        class="{% if active in ['authorization_role_view'] %}active{% endif %}"
+                    >
+                        {{ 'Role'|trans }}
+                    </a>
                     <a href="{{ path('tags') }}"
                        class="{% if active in ['tags'] %}active{% endif %}"
                     >
@@ -131,8 +136,5 @@
                 </div>
             </menu-item>
         {% endif %}
-
     </ul>
-
-
 </nav>

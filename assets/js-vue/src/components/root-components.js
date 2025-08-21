@@ -12,6 +12,7 @@ import MenuItem from './base/MenuItem';
 import NavOrders from './navigation/NavOrders';
 
 import TagsModule from "../modules/tags";
+import { views as AuthorizationModuleViews } from "../modules/authorization/exports"
 import Dashboard2 from '../modules/dashboard/Dashboard';
 
 export default {
@@ -26,6 +27,7 @@ export default {
     MenuItem,
     Notifications,
     NavOrders,
-    ...TagsModule,
     Dashboard2,
+    ...TagsModule,
+    ...AuthorizationModuleViews,
 }

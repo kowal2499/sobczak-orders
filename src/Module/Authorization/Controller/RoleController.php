@@ -5,12 +5,13 @@ namespace App\Module\Authorization\Controller;
 use App\Controller\BaseController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/auth/role', name: 'authorization')]
+#[Route(path: '/role', name: 'authorization')]
 class RoleController extends BaseController
 {
-    #[Route(path: 'list', name: 'list', methods: ['GET'])]
+    #[Route(path: '/list', name: 'list', methods: ['GET'])]
     public function list(): JsonResponse
     {
         // get listing of all modules, roles and grants
@@ -24,7 +25,7 @@ class RoleController extends BaseController
         return new JsonResponse([]);
     }
 
-    #[Route(path: '{roleId}', methods: ['PUT'])]
+    #[Route(path: '/{roleId}', methods: ['PUT'])]
     public function update(Request $request): JsonResponse
     {
         // update a role
@@ -32,10 +33,16 @@ class RoleController extends BaseController
     }
 
 
-    #[Route(path: '{roleId}', methods: ['DELETE'])]
+    #[Route(path: '/{roleId}', methods: ['DELETE'])]
     public function delete(Request $request): JsonResponse
     {
         // delete a role
         return new JsonResponse([]);
+    }
+
+    #[Route(path: '/view',  name: '_role_view', methods: ['GET'])]
+    public function view(): Response
+    {
+        return $this->render('authorization/role.html.twig');
     }
 }
