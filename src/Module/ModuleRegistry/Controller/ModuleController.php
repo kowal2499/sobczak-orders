@@ -3,18 +3,18 @@
 namespace App\Module\ModuleRegistry\Controller;
 
 use App\Controller\BaseController;
+use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/module')]
 class ModuleController extends BaseController
 {
     #[Route(path: 'list', name: 'list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(ModuleRepository $moduleRepository): JsonResponse
     {
-        // get listing of all modules
-        return new JsonResponse([]);
+        $data = $moduleRepository->findAllAsArray();
+        return new JsonResponse($data);
     }
 
     #[Route(path: '', methods: ['POST'])]

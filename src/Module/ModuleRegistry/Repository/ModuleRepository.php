@@ -64,4 +64,23 @@ class ModuleRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * Zwraca wszystkie moduły jako tablice z polami: id, namespace, description, active
+     * @return array<int, array<string, mixed>>
+     */
+    public function findAllAsArray(): array
+    {
+        $modules = $this->findAll();
+        $result = [];
+        foreach ($modules as $module) {
+            $result[] = [
+                'id' => $module->getId(),
+                'namespace' => $module->getNamespace(),
+                'description' => $module->getDescription(),
+                'active' => $module->isActive(),
+            ];
+        }
+        return $result;
+    }
+
 }

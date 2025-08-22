@@ -56,4 +56,26 @@ class AuthGrantRepository extends ServiceEntityRepository implements AuthGrantRe
             ->getOneOrNullResult()
         ;
     }
+
+    /**
+     * Zwraca wszystkie granty jako tablice z polami: wszystkie pola AuthGrant + module_id
+     * @return array<int, array<string, mixed>>
+     */
+    public function findAllAsArray(): array
+    {
+        $grants = $this->findAll();
+        $result = [];
+        foreach ($grants as $grant) {
+            $result[] = [
+                'id' => $grant->getId(),
+                'slug' => $grant->getSlug(),
+                'name' => $grant->getName(),
+                'description' => $grant->getDescription(),
+                'type' => $grant->getType()->value,
+                'options' => $grant->getOptions()?->toArray(),
+                'module_id' => $grant->getModule()->getId(),
+            ];
+        }
+        return $result;
+    }
 }

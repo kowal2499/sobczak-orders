@@ -36,4 +36,16 @@ class GrantOptionsCollection implements \Iterator
     {
         $this->currentIndex = 0;
     }
+
+    public function toArray(): array
+    {
+        $result = [];
+        foreach ($this->options as $option) {
+            $result[] = [
+                'label' => $option->getLabel(),
+                'optionSlug' => $option->getOptionSlug(),
+            ];
+        }
+        return $result;
+    }
 }
