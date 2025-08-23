@@ -5,6 +5,7 @@ import translationsGeneral from "./translations/general";
 import translationsOrders from "./translations/orders";
 import translationsProduction from "./translations/production";
 import translationsTags from "./translations/tags";
+import translationsAuth from "./translations/authorization";
 import {merge} from 'lodash';
 
 Vue.use(VueI18n)
@@ -23,7 +24,14 @@ function loadDefaultMessages() {
 }
 
 function loadMessages() {
-    const sources = [translationsDashboard, translationsGeneral, translationsOrders, translationsProduction, translationsTags]
+    const sources = [
+        translationsDashboard,
+        translationsGeneral,
+        translationsOrders,
+        translationsProduction,
+        translationsTags,
+        translationsAuth,
+    ]
     let messages = {};
     for (let locale of sources) {
         for (let lang of Object.keys(locale)) {

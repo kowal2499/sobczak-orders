@@ -1,0 +1,10 @@
+.nav-pills .nav-link.active {
+    background-color: $mainBlue !important;
+}
+
+.custom-control.custom-switch {
+    .custom-control-label:before,
+    .custom-control-label:after {
+        cursor: pointer;
+    }
+}

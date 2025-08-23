@@ -3,19 +3,19 @@
 namespace App\Module\Authorization\Controller;
 
 use App\Controller\BaseController;
+use App\Module\Authorization\Repository\AuthRoleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/role', name: 'authorization')]
+#[Route(path: '/role', name: 'authorization_role')]
 class RoleController extends BaseController
 {
     #[Route(path: '/list', name: 'list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(AuthRoleRepository $authRoleRepository): JsonResponse
     {
-        // get listing of all modules, roles and grants
-        return new JsonResponse([]);
+        return new JsonResponse($authRoleRepository->findAllAsArray());
     }
 
     #[Route(path: '', methods: ['POST'])]

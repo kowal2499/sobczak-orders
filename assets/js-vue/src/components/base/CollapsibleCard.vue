@@ -1,5 +1,5 @@
 <template>
-    <div class="card shadow mb-4">
+    <div class="card shadow mb-4" :class="[noPadding && 'border-0']">
         <div class="card-header py-2 d-flex flex-wrap align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary" v-text="title"
             ></h6>
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="card-body" v-show="collapsed === false">
+        <div class="card-body" :class="noPadding && 'p-0 border-0'" v-show="collapsed === false">
             <div class="card-filters">
                 <slot name="filters"></slot>
             </div>
@@ -25,15 +25,23 @@
     export default {
         name: "CollapsibleCard",
 
-        props: ['title', 'locked'],
+        props: {
+            title: String,
+            locked: {
+                type: Boolean,
+                default: false
+            },
+            noPadding: {
+                type: Boolean,
+                default: false
+            }
+        },
 
         data() {
             return {
                 collapsed: false
             }
         }
-
-
     }
 </script>
 

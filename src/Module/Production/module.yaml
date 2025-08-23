@@ -4,16 +4,43 @@ app_module:
   active: true
   grants:
       - name: Data produkcji
-        description: Zarządzanie datą produkcji dla całego zamówienia
+        description: Zarządzanie datą produkcji
         slug: production.production_date
         type: select
         options:
           - optionSlug: read
-            label: Widok
+            label: Odczyt
           - optionSlug: update
-            label: Aktualizacja
-      - name: Widok panelu produkcji
-        description: Określa czy użytkownik ma dostęp do panelu produkcji
+            label: Edycja
+      - name: Panel produkcji
+        description: Dostęp do widoku panelu produkcji
         slug: production.panel
         type: boolean
+      - name: Dział Klejenie
+        description: Uprawnienia do działu Klejenie
+        slug: production.gluing
+        type: select
+        options:
+          - optionSlug: read
+            label: Odczyt
+          - optionSlug: update
+            label: Edycja
+      - name: Dział CNC
+        description: Uprawnienia do działu CNC
+        slug: production.cnc
+        type: select
+        options:
+          - optionSlug: read
+            label: Odczyt
+          - optionSlug: update
+            label: Edycja
+      - name: Dział Szlifowanie
+        description: Uprawnienia do działu Szlifowanie
+        slug: production.grinding
+        type: select
+        options:
+          - optionSlug: read
+            label: Odczyt
+          - optionSlug: update
+            label: Edycja
         

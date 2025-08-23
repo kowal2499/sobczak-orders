@@ -17,3 +17,27 @@
 .text-sm {
     font-size: 0.65rem;
 }
+
+.gap-1 {
+    gap: 0.25rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.gap-4 {
+    gap: 1.5rem;
+}
+
+.gap-5 {
+    gap: 3rem;
+}
+
+.background-light {
+    background-color: $lightgray3;
+}
