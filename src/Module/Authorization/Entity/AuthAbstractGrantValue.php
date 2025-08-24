@@ -52,4 +52,9 @@ abstract class AuthAbstractGrantValue
     {
         return GrantVO::m(implode(':', array_filter([$this->grant->getSlug(), $this->grantOptionSlug])));
     }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
 }

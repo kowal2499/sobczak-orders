@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
-import '../css/app-vue.scss';
 import components from './src/components/root-components';
 import access from "./src/services/privilages";
 import helpers from "./src/helpers";

@@ -17,11 +17,45 @@ export default {
         grants: {
             type: Array,
             default: () => ([])
+        },
+        store: {
+            type: Array,
+            default: () => ([])
         }
     },
 
     components: {
         GrantItem
+    },
+
+    methods: {
+        getValueForGrant(grantId) {
+            return this.store.filter(val =>
+                val.grantId === grantId
+                && (
+                    (this.roleId && this.roleId === val.roleId)
+                    ||
+                    (this.userId && this.userId === val.userId)
+                ))
+        },
+        // setValueForGrant(grant) {
+        //     const newStore = this.value.map(v => {
+        //         if (
+        //             v.grantId === grant.grantId
+        //             && (
+        //                 (this.roleId && this.roleId === v.roleId)
+        //                 ||
+        //                 (this.userId && this.userId === v.userId)
+        //             )
+        //             && v.optionSlug === grant.optionSlug
+        //         ) {
+        //             return { ...v, value: grant.value }
+        //         }
+        //         return { ...v }
+        //     })
+        //
+        //     this.$emit('input', newStore)
+        // }
     },
 
     computed: {
@@ -32,29 +66,28 @@ export default {
             }, {
             })
         }
-    }
+    },
 }
 </script>
 
 <template>
     <div>
         <div v-for="module in modules" :key="module.id">
-            <div class="module-header">
-                <h6>{{ module.namespace }}</h6>
-                <span class="text-sm">{{ module.description }}</span>
-            </div>
-            <div class="py-2 d-flex flex-column gap-2">
-                <div class="alert alert-light my-0 text-sm opacity-75" v-if="grantsInModule[module.id].length === 0">
-                    {{ $t('auth.noGrantsInModule', { name: module.namespace }) }}
+            <template v-if="grantsInModule[module.id].length">
+                <div class="module-header">
+                    <h6>{{ module.namespace }}</h6>
+                    <span class="text-sm">{{ module.description }}</span>
                 </div>
-                <template v-else>
+                <div class="py-2 d-flex flex-column gap-2">
                     <GrantItem
                         v-for="grant in grantsInModule[module.id]"
                         :grant="grant"
+                        :value="getValueForGrant(grant.id)"
+                        @input="$emit('grantChanged', $event)"
                         :key="grant.id"
                     />
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
     </div>
 </template>

@@ -2,7 +2,12 @@
 import CollapsibleCard from '@/components/base/CollapsibleCard'
 import RolesNavigation from '../components/RolesNavigation'
 import GrantsList from '../components/GrantsList'
-import { fetchGrants, fetchModules, fetchRoles } from '../repository/authorizatonRepository'
+import {
+    fetchGrants,
+    fetchModules,
+    fetchRoles,
+    setGrantRoleValue,
+} from '../repository/authorizatonRepository'
 
 export default {
     name: 'RolesView',
@@ -23,6 +28,7 @@ export default {
         this.roles = rolesData
         this.modules = modulesData
         this.grants = grantsData
+        this.initStore()
         this.isBusy = false
     },
 
@@ -36,21 +42,61 @@ export default {
         },
 
         fetchRoles() {
-            return fetchRoles().then(response => {
-                // return response.data
-                return [
-                    { id: 1, name: 'Administrator'},
-                    { id: 2, name: 'Produkcja Klejenie'},
-                    { id: 3, name: 'Produkcja CNC'},
-                    { id: 4, name: 'Produkcja Szlifowanie'},
-                    { id: 5, name: 'Produkcja Lakierowanie'},
-                    { id: 6, name: 'Produkcja Pakowanie'},
-                    { id: 7, name: 'Kierownik Produkcji'},
-                ]
-            });
+            return fetchRoles().then(response => response.data);
         },
 
-        onAddRole() {}
+        initStore() {
+            this.grantsStore = []
+            for (const role of this.roles) {
+                for (const grant of this.grants) {
+
+                    if (grant.options.length) {
+                        for (const option of grant.options) {
+                            this.grantsStore.push({
+                                roleId: role.id,
+                                userId: null,
+                                grantId: grant.id,
+                                optionSlug: option.optionSlug,
+                                value: false
+                            })
+                        }
+                    } else {
+                        // Single boolean grant
+                        this.grantsStore.push({
+                            roleId: role.id,
+                            userId: null,
+                            grantId: grant.id,
+                            optionSlug: null,
+                            value: false
+                        })
+                    }
+                }
+            }
+        },
+
+        onAddRole() {},
+
+        onGrantChange(grant) {
+            // Persist change
+            setGrantRoleValue(grant)
+
+            // Update local store
+            this.grantsStore = this.grantsStore.map(v => {
+                if (
+                    v.grantId === grant.grantId
+                    && (
+                        (grant.roleId && grant.roleId === v.roleId)
+                        ||
+                        (grant.userId && grant.userId === v.userId)
+                    )
+                    && v.optionSlug === grant.optionSlug
+                ) {
+                    return { ...v, value: grant.value }
+                }
+                return { ...v }
+            })
+            console.log(grant)
+        }
     },
 
     data: () => ({
@@ -58,6 +104,8 @@ export default {
         roles: [],
         modules: [],
         grants: [],
+
+        grantsStore: []
     })
 }
 </script>
@@ -65,7 +113,13 @@ export default {
 <template>
     <CollapsibleCard :title="$t('auth.rolesConfigurationTitle')" :locked="true" no-padding>
         <RolesNavigation :roles="roles" #default="{ roleId }">
-            <GrantsList :role-id="roleId" :grants="grants" :modules="modules" />
+            <GrantsList
+                :role-id="roleId"
+                :grants="grants"
+                :modules="modules"
+                :store="grantsStore"
+                @grantChanged="onGrantChange"
+            />
         </RolesNavigation>
     </CollapsibleCard>
 </template>

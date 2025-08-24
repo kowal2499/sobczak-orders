@@ -12,3 +12,7 @@ export function fetchModules() {
     return axios.get('/module/list');
 }
 
+export function setGrantRoleValue(data) {
+    return axios.post('/authorization/grant/role/value', data);
+}
+
