@@ -7,6 +7,7 @@ import {
     fetchModules,
     fetchRoles,
     setGrantRoleValue,
+    fetchGrantRoleValues,
 } from '../repository/authorizatonRepository'
 
 export default {
@@ -20,15 +21,16 @@ export default {
 
     async mounted() {
         this.isBusy = true
-        const [grantsData, rolesData, modulesData] = await Promise.all([
+        const [grantsData, rolesData, modulesData, storeValues] = await Promise.all([
             this.fetchGrants(),
             this.fetchRoles(),
             this.fetchModules(),
+            fetchGrantRoleValues()
         ])
         this.roles = rolesData
         this.modules = modulesData
         this.grants = grantsData
-        this.initStore()
+        this.initStore(storeValues.data)
         this.isBusy = false
     },
 
@@ -45,30 +47,25 @@ export default {
             return fetchRoles().then(response => response.data);
         },
 
-        initStore() {
+        initStore(initialValues) {
             this.grantsStore = []
             for (const role of this.roles) {
                 for (const grant of this.grants) {
 
-                    if (grant.options.length) {
-                        for (const option of grant.options) {
-                            this.grantsStore.push({
-                                roleId: role.id,
-                                userId: null,
-                                grantId: grant.id,
-                                optionSlug: option.optionSlug,
-                                value: false
-                            })
-                        }
-                    } else {
-                        // Single boolean grant
+                    const options = grant.options.length ? grant.options : [{ optionSlug: null }];
+                    for (const option of options) {
+                        const initValue = initialValues.find(v =>
+                            v.grant_id === grant.id
+                            && v.role_id === role.id
+                            && v.option_slug === option.optionSlug
+                        )
                         this.grantsStore.push({
                             roleId: role.id,
                             userId: null,
                             grantId: grant.id,
-                            optionSlug: null,
-                            value: false
-                        })
+                            optionSlug: option.optionSlug,
+                            value: initValue ? initValue.value : false
+                        });
                     }
                 }
             }
@@ -76,26 +73,28 @@ export default {
 
         onAddRole() {},
 
-        onGrantChange(grant) {
-            // Persist change
-            setGrantRoleValue(grant)
+        onGrantChange(grants) {
+            console.log({grants})
+            const toPersist = []
 
             // Update local store
             this.grantsStore = this.grantsStore.map(v => {
-                if (
-                    v.grantId === grant.grantId
-                    && (
-                        (grant.roleId && grant.roleId === v.roleId)
-                        ||
-                        (grant.userId && grant.userId === v.userId)
-                    )
-                    && v.optionSlug === grant.optionSlug
-                ) {
-                    return { ...v, value: grant.value }
+                const replacement = grants.find(g =>
+                    g.grantId === v.grantId
+                    && g.optionSlug === v.optionSlug
+                    && g.roleId === v.roleId
+                    && g.userId === v.userId
+                    && g.value !== v.value
+                )
+                if (replacement) {
+                    toPersist.push(replacement)
+                    return replacement
                 }
-                return { ...v }
+                return v
             })
-            console.log(grant)
+
+            // Persist change
+            toPersist.forEach(grant => setGrantRoleValue(grant))
         }
     },
 
@@ -112,13 +111,13 @@ export default {
 
 <template>
     <CollapsibleCard :title="$t('auth.rolesConfigurationTitle')" :locked="true" no-padding>
-        <RolesNavigation :roles="roles" #default="{ roleId }">
+        <RolesNavigation :roles="roles" :store="grantsStore" #default="{ roleId, contextStore }">
             <GrantsList
-                :role-id="roleId"
                 :grants="grants"
                 :modules="modules"
-                :store="grantsStore"
+                :store="contextStore"
                 @grantChanged="onGrantChange"
+                :key="roleId"
             />
         </RolesNavigation>
     </CollapsibleCard>

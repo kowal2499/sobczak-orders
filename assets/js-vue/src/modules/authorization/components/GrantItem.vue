@@ -13,37 +13,45 @@ export default {
         }
     },
 
-    methods: {
-        setOptionsValue(currentOptionsSlugArray) {
-            this.value.forEach(item => {
-                const currentValue = currentOptionsSlugArray.includes(item.optionSlug)
-                if (item.value === currentValue) {
-                    return
-                }
-                this.$emit('input', { ...item, value: currentValue })
-            })
-        },
+    data() {
+        return {
+            localOptionsValue: []
+        }
+    },
 
+    watch: {
+        value: {
+            handler(newVal) {
+                this.localOptionsValue = newVal.filter(v => v.value).map(v => v.optionSlug)
+            },
+            immediate: true,
+            deep: true
+        }
+    },
+
+    methods: {
+        onOptionsChange(newOptions) {
+            const updated = this.value.map(item => ({
+                ...item,
+                value: newOptions.includes(item.optionSlug)
+            }))
+            this.$emit('input', updated)
+        },
         setValue(value, optionSlug = null) {
             const updatedItem = this.value.find(v => v.optionSlug === optionSlug)
             if (updatedItem) {
-                updatedItem.value = value
-                this.$emit('input', { ...updatedItem, value })
+                this.$emit('input', [{ ...updatedItem, value }])
             }
         }
     },
 
     computed: {
-        getOptionsValue() {
+        optionsValue() {
             return this.value
                 .filter(v => v.value)
                 .map(v => v.optionSlug)
         }
     },
-
-    data: () => ({
-        test: false
-    })
 }
 </script>
 
@@ -63,13 +71,16 @@ export default {
                         @change="setValue($event, null)"
                     />
                 </div>
-                <b-form-checkbox-group v-else
-                    :options="grant.options.map(opt => ({ text: opt.label, value: opt.optionSlug }))"
-                    buttons
-                    button-variant="outline-primary"
-                    :value="getOptionsValue"
-                    @change="setOptionsValue($event)"
-                ></b-form-checkbox-group>
+                <template v-else>
+                    <b-form-checkbox-group
+                        :options="grant.options.map(opt => ({ text: opt.label, value: opt.optionSlug }))"
+                        buttons
+                        button-variant="outline-primary"
+                        v-model="localOptionsValue"
+                        @change="onOptionsChange"
+                        :key="grant.id"
+                    ></b-form-checkbox-group>
+                </template>
             </div>
         </div>
 

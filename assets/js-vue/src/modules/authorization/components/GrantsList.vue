@@ -4,12 +4,6 @@ import GrantItem from './GrantItem'
 export default {
     name: 'GrantsList',
     props: {
-        userId: {
-            type: Number,
-        },
-        roleId: {
-            type: Number
-        },
         modules: {
             type: Array,
             default: () => ([])
@@ -30,32 +24,8 @@ export default {
 
     methods: {
         getValueForGrant(grantId) {
-            return this.store.filter(val =>
-                val.grantId === grantId
-                && (
-                    (this.roleId && this.roleId === val.roleId)
-                    ||
-                    (this.userId && this.userId === val.userId)
-                ))
+            return this.store.filter(val => val.grantId === grantId)
         },
-        // setValueForGrant(grant) {
-        //     const newStore = this.value.map(v => {
-        //         if (
-        //             v.grantId === grant.grantId
-        //             && (
-        //                 (this.roleId && this.roleId === v.roleId)
-        //                 ||
-        //                 (this.userId && this.userId === v.userId)
-        //             )
-        //             && v.optionSlug === grant.optionSlug
-        //         ) {
-        //             return { ...v, value: grant.value }
-        //         }
-        //         return { ...v }
-        //     })
-        //
-        //     this.$emit('input', newStore)
-        // }
     },
 
     computed: {

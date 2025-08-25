@@ -7,12 +7,16 @@ export default {
         roles: {
             type: Array,
             default: () => ([]),
+        },
+        store: {
+            type: Array,
+            default: () => ([])
         }
     },
 
     computed: {
-        activeRole() {
-            return this.roles.find(role => role.id === this.activeRoleId) || null
+        contextStore() {
+            return this.store.filter(item => item.roleId === this.activeRoleId)
         }
     },
 
@@ -48,7 +52,7 @@ export default {
 
         <b-col>
             <div class="p-3">
-                <slot :roleId="activeRoleId" v-if="activeRoleId" />
+                <slot :roleId="activeRoleId" :contextStore="contextStore" v-if="activeRoleId" />
                 <div class="alert alert-info text-center" v-else>
                     {{ $t('auth.selectRole') }}
                 </div>
