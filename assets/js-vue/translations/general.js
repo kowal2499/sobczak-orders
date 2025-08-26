@@ -36,6 +36,8 @@ export default {
         'error': 'An error occured',
         'noData': 'No information',
         'cancel': 'Cancel',
+        'add': 'Add',
+        'name': 'Name',
     },
     'pl': {
         Styczeń: 'Styczeń',
@@ -74,5 +76,7 @@ export default {
         'error': 'Wystąpił błąd',
         'noData': 'Brak informacji',
         'cancel': 'Anuluj',
+        'add': 'Dodaj',
+        'name': 'Nazwa',
     }
 }

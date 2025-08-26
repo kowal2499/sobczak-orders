@@ -13,6 +13,9 @@ export default {
             addNew: 'Dodaj rolę',
             selectRole: 'Wybierz rolę z listy',
             noGrantsInModule: 'Moduł "{name}" nie posiada uprawnień',
+            roleWasAdded: 'Rola została dodana',
+            roleSavingError: 'Bład podczas zapisywania roli',
+            newRole: 'Nowa rola',
         }
     }
 }

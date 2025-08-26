@@ -24,9 +24,6 @@ class AuthRoleRepository extends ServiceEntityRepository implements AuthRoleRepo
 
     public function add(AuthRole $role, bool $flush = true): void
     {
-//        if ($this->findOneByName($role->getName())) {
-//            return;
-//        }
         $this->_em->persist($role);
         if ($flush) {
             $this->_em->flush();

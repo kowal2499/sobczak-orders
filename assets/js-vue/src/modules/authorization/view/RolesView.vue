@@ -9,32 +9,38 @@ import {
     setGrantRoleValue,
     fetchGrantRoleValues,
 } from '../repository/authorizatonRepository'
+import RoleModalForm from '../forms/RoleModalForm'
 
 export default {
     name: 'RolesView',
 
     components: {
+        RoleModalForm,
         CollapsibleCard,
         RolesNavigation,
         GrantsList,
     },
 
-    async mounted() {
-        this.isBusy = true
-        const [grantsData, rolesData, modulesData, storeValues] = await Promise.all([
-            this.fetchGrants(),
-            this.fetchRoles(),
-            this.fetchModules(),
-            fetchGrantRoleValues()
-        ])
-        this.roles = rolesData
-        this.modules = modulesData
-        this.grants = grantsData
-        this.initStore(storeValues.data)
-        this.isBusy = false
+    mounted() {
+        this.reset()
     },
 
     methods: {
+        async reset() {
+            this.isBusy = true
+            const [grantsData, rolesData, modulesData, storeValues] = await Promise.all([
+                this.fetchGrants(),
+                this.fetchRoles(),
+                this.fetchModules(),
+                fetchGrantRoleValues()
+            ])
+            this.roles = rolesData
+            this.modules = modulesData
+            this.grants = grantsData
+            this.initStore(storeValues.data)
+            this.isBusy = false
+        },
+
         async fetchGrants() {
             return fetchGrants().then(response => response.data);
         },
@@ -71,10 +77,7 @@ export default {
             }
         },
 
-        onAddRole() {},
-
         onGrantChange(grants) {
-            console.log({grants})
             const toPersist = []
 
             // Update local store
@@ -111,14 +114,19 @@ export default {
 
 <template>
     <CollapsibleCard :title="$t('auth.rolesConfigurationTitle')" :locked="true" no-padding>
-        <RolesNavigation :roles="roles" :store="grantsStore" #default="{ roleId, contextStore }">
-            <GrantsList
-                :grants="grants"
-                :modules="modules"
-                :store="contextStore"
-                @grantChanged="onGrantChange"
-                :key="roleId"
-            />
+        <RolesNavigation :roles="roles" :store="grantsStore">
+            <template #actions>
+                <RoleModalForm @roleCreated="reset" />
+            </template>
+            <template #default="{ roleId, contextStore}">
+                <GrantsList
+                    :grants="grants"
+                    :modules="modules"
+                    :store="contextStore"
+                    @grantChanged="onGrantChange"
+                    :key="roleId"
+                />
+            </template>
         </RolesNavigation>
     </CollapsibleCard>
 </template>

@@ -20,10 +20,6 @@ export default {
         }
     },
 
-    methods: {
-        onAddRole() {}
-    },
-
     data: () => ({
         activeRoleId: null,
         isBusy: false,
@@ -35,9 +31,7 @@ export default {
     <b-row>
         <b-col cols="3" >
             <b-nav pills card vertical class="p-2 background-light">
-                <b-button class="w-100 mb-1" size="sm" variant="outline-success" :disabled="isBusy" @click="onAddRole">
-                    {{ $t('auth.addNew') }}
-                </b-button>
+                <slot name="actions" />
                 <b-nav-item
                     v-for="role in roles"
                     :key="role.id"
