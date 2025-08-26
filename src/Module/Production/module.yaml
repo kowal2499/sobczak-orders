@@ -3,44 +3,32 @@ app_module:
   description: Moduł zarządzania produkcją
   active: true
   grants:
-      - name: Data produkcji
-        description: Zarządzanie datą produkcji
-        slug: production.production_date
-        type: select
-        options:
-          - optionSlug: read
-            label: Odczyt
-          - optionSlug: update
-            label: Edycja
+      - name: Widoczność daty produkcji
+        description: Widoczność finalnej daty produkcji całego zamówienia
+        slug: production.show.production_date
+        type: boolean
+      - name: Widoczność działu - Klejenie
+        description: Widoczność terminów i statusów działu - Klejenie
+        slug: production.show.gluing
+        type: boolean
+      - name: Widoczność działu - CNC
+        description: Widoczność terminów i statusów działu - CNC
+        slug: production.show.cnc
+        type: boolean
+      - name: Widoczność działu - Szlifowanie
+        description: Widoczność terminów i statusów działu - Szlifowanie
+        slug: production.show.grinding
+        type: boolean
+      - name: Widoczność działu - Lakierowanie
+        description: Widoczność terminów i statusów działu - Lakierowanie
+        slug: production.show.laquering
+        type: boolean
+      - name: Widoczność działu - Pakowanie
+        description: Widoczność terminów i statusów działu - Pakowanie
+        slug: production.show.packing
+        type: boolean
+
       - name: Panel produkcji
         description: Dostęp do widoku panelu produkcji
         slug: production.panel
         type: boolean
-      - name: Dział Klejenie
-        description: Uprawnienia do działu Klejenie
-        slug: production.gluing
-        type: select
-        options:
-          - optionSlug: read
-            label: Odczyt
-          - optionSlug: update
-            label: Edycja
-      - name: Dział CNC
-        description: Uprawnienia do działu CNC
-        slug: production.cnc
-        type: select
-        options:
-          - optionSlug: read
-            label: Odczyt
-          - optionSlug: update
-            label: Edycja
-      - name: Dział Szlifowanie
-        description: Uprawnienia do działu Szlifowanie
-        slug: production.grinding
-        type: select
-        options:
-          - optionSlug: read
-            label: Odczyt
-          - optionSlug: update
-            label: Edycja
-        
