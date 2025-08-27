@@ -9,8 +9,6 @@ use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryIn
 use App\Module\Authorization\Repository\Interface\AuthUserGrantValueRepositoryInterface;
 use App\Module\Authorization\Repository\Interface\AuthUserRoleRepositoryInterface;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class GrantsResolver
 {
@@ -19,7 +17,7 @@ class GrantsResolver
         private readonly AuthUserGrantValueRepositoryInterface $userGrantValueRepository,
         private readonly AuthUserRoleRepositoryInterface       $userRoleRepository,
         private readonly Security                              $security,
-        private readonly CacheInterface                        $cache,
+        private readonly AuthCacheService                      $authCacheService,
     ) {
     }
 
@@ -38,11 +36,9 @@ class GrantsResolver
 
     protected function getRoleNames(User $user): array
     {
-        $cacheKey = 'user_role_names_' . $user->getId();
+        $cacheKey = $this->authCacheService->getRolesCacheKey();
 
-        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($user) {
-            $item->expiresAfter(3600);
-
+        return $this->authCacheService->get($cacheKey, function() use ($user) {
             return array_map(
                 fn (AuthUserRole $userRole) => $userRole->getRole()->getName(),
                 $this->userRoleRepository->findAllByUser($user)
@@ -52,10 +48,9 @@ class GrantsResolver
 
     public function getGrants(User $user): array
     {
-        $cacheKey = 'user_grant_names_' . $user->getId();
+        $cacheKey = $this->authCacheService->getGrantsCacheKey();
 
-        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($user) {
-            $item->expiresAfter(3600);
+        return $this->authCacheService->get($cacheKey, function () use ($user) {
 
             $userRoles = $this->userRoleRepository->findAllByUser($user);
 

@@ -1,7 +1,7 @@
 export default {
     'en': {
         auth: {
-            rolesConfigurationTitle : 'Roles C  onfiguration',
+            rolesConfigurationTitle : 'Roles and grants configuration',
             addNew: 'Add new role',
             selectRole: 'Select role from the list',
             noGrantsInModule: 'Module "{name}" has no grants',
@@ -9,7 +9,7 @@ export default {
     },
     'pl': {
         auth: {
-            rolesConfigurationTitle : 'Konfiguracja ról',
+            rolesConfigurationTitle : 'Konfiguracja ról i uprawnień',
             addNew: 'Dodaj rolę',
             selectRole: 'Wybierz rolę z listy',
             noGrantsInModule: 'Moduł "{name}" nie posiada uprawnień',

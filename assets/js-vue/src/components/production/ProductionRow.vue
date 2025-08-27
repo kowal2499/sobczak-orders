@@ -6,7 +6,7 @@
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
         </td>
 
-        <td class="text-nowrap">
+        <td class="text-nowrap" v-if="$user.can('production.show.production_date')">
             {{ order.confirmedDate | formatDate('YYYY-MM-DD') }}
         </td>
 

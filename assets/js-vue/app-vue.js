@@ -2,7 +2,7 @@ import Vue from 'vue';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import components from './src/components/root-components';
-import access from "./src/services/privilages";
+import { privileges, Tasks, User, Roles } from "./src/services/privilages";
 import helpers from "./src/helpers";
 import routing from "./src/api/routing";
 import i18n from "./i18n";
@@ -27,9 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     i18n.locale = user.locale;
 
     // inicjalizacja vue
-    Vue.prototype.$access = access;
-    Vue.prototype.$user = new access.User(user);
-    Vue.prototype.$privilages = access.Roles;
+    Vue.prototype.$user = new User(user);
+    Vue.prototype.$privilages = Roles;
     Vue.prototype.$helpers = helpers;
 
     Vue.mixin({

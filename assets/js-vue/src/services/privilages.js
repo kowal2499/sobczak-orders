@@ -1,12 +1,9 @@
 import Tasks from "../definitions/userTasks";
 import Roles from "../definitions/userRoles";
 
-class Privilages {
-
+class Privileges {
     constructor(roles) {
-
         this.init(roles);
-
     }
 
     init(roles) {
@@ -18,7 +15,6 @@ class Privilages {
     }
 
     can(task) {
-
         if (this.roles.length === 0) {
             return false;
         }
@@ -35,10 +31,8 @@ class Privilages {
     }
 }
 
-class User {
-
+export class User {
     constructor(user) {
-
         if (user) {
             this.user = user;
         } else {
@@ -56,6 +50,7 @@ class User {
             ROLE_PRODUCTION: [Roles.CAN_PRODUCTION, Roles.CAN_PRODUCTION_VIEW, Roles.CAN_PRODUCTS, Roles.CAN_DASHBOARD_METRICS_VIEW]
         }
 
+        this.grants = []
     }
 
     getName() {
@@ -73,35 +68,32 @@ class User {
             return null;
         }
     }
+    setGrants(grants) {
+        this.grants = Array.isArray(grants) ? grants.map(g => g.toLowerCase()) : []
+    }
 
     can(name) {
         if (this.user.roles.length === 0) {
             return false;
         }
 
-
         for (let role of this.user.roles) {
-
             let possibilities = this.hierarchy[role];
-
             if (!possibilities) {
                 continue;
             }
-
             if (possibilities.indexOf(name) !== -1) {
                 return true;
             }
-
         }
 
-        return false;
+        console.log({
+            grants: this.grants,
+            test: this.grants.includes(name)
+        })
+        return this.grants.includes(name)
     }
 }
 
-
-export default {
-    privileges: new Privilages([]),
-    Tasks,
-    Roles,
-    User
-};
+export const privileges = new Privileges([]);
+export { Tasks, Roles }

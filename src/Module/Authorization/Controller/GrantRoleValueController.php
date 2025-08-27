@@ -7,6 +7,7 @@ use App\Module\Authorization\Entity\AuthRoleGrantValue;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
+use App\Module\Authorization\Service\AuthCacheService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,6 +23,7 @@ class GrantRoleValueController extends BaseController
         AuthRoleGrantValueRepository $roleGrantValueRepository,
         AuthRoleRepository $roleRepository,
         AuthGrantRepository $grantRepository,
+        AuthCacheService $cacheService,
     ): JsonResponse
     {
         $data = $request->request->all();
@@ -40,6 +42,9 @@ class GrantRoleValueController extends BaseController
         }
         $instance->setValue($data['value'] ?? false);
         $roleGrantValueRepository->add($instance);
+
+        // clear caches
+        $cacheService->invalidate();
         return new JsonResponse(['success' => true, 'id' => $instance->getId()]);
     }
 

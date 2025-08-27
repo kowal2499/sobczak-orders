@@ -278,7 +278,7 @@
                 return [
                     [
                         { name: this.$t('ID'), sortKey: 'id' },
-                        { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
+                        this.userCanSeeProductionDate && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
                         { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                         { name: this.$t('customer'), sortKey: 'customer' },
                         { name: this.$t('product'), sortKey: 'product' },
@@ -300,6 +300,10 @@
 
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            },
+
+            userCanSeeProductionDate() {
+                return this.$user.can('production.show.production_date');
             },
 
             /**
