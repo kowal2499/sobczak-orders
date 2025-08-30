@@ -44,7 +44,7 @@ class GrantRoleValueController extends BaseController
         $roleGrantValueRepository->add($instance);
 
         // clear caches
-        $cacheService->invalidate();
+        $cacheService->invalidateAll();
         return new JsonResponse(['success' => true, 'id' => $instance->getId()]);
     }
 

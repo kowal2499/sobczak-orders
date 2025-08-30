@@ -3,8 +3,11 @@ import axios from "axios";
 import { get, set } from "../../services/localstorageCache"
 
 export default {
-    async [TYPES.ACTION_FETCH_GRANTS]({ commit }) {
-        let grants = get('-user-grants')
+    async [TYPES.ACTION_FETCH_GRANTS]({ commit }, force = false) {
+        let grants
+        if (!force) {
+            grants = get('-user-grants')
+        }
         if (grants === undefined) {
             const response = await axios.get('/authorization/grants')
             grants = response.data.data
