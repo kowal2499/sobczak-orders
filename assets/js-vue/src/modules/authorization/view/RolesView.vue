@@ -5,10 +5,12 @@ import GrantsList from '../components/GrantsList'
 import {
     fetchGrants,
     fetchModules,
-    fetchRoles,
     setGrantRoleValue,
     fetchGrantRoleValues,
 } from '../repository/authorizatonRepository'
+import {
+    fetchRoles
+} from '../repository/rolesRepository'
 import RoleModalForm from '../forms/RoleModalForm'
 
 export default {

@@ -46,4 +46,12 @@ class AuthUserRoleRepository extends ServiceEntityRepository implements AuthUser
             ->getResult()
         ;
     }
+
+    public function remove(AuthUserRole $userRole, bool $flush = true): void
+    {
+        $this->_em->remove($userRole);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 }

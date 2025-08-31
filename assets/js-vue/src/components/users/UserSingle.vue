@@ -10,7 +10,7 @@
             >
 
                 <div class="form-group row">
-                    <label class="col-2 col-form-label">
+                    <label class="col-3 col-form-label">
                         Imię
                     </label>
                     <div class="col">
@@ -19,7 +19,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-2 col-form-label">
+                    <label class="col-3 col-form-label">
                         Nazwisko
                     </label>
                     <div class="col">
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-2 col-form-label">
+                    <label class="col-3 col-form-label">
                         Email
                     </label>
                     <div class="col">
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-2 col-form-label">
+                    <label class="col-3 col-form-label">
                         Uwierzytelnienie
                     </label>
                     <div class="col">
@@ -48,7 +48,7 @@
                                 <div class="card-text">
 
                                     <div class="form-group row" v-if="!isNew()">
-                                        <label class="col-2 col-form-label">
+                                        <label class="col-3 col-form-label">
                                             Stare hasło
                                         </label>
                                         <div class="col">
@@ -57,7 +57,7 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label class="col-2 col-form-label">
+                                        <label class="col-3 col-form-label">
                                             <span v-if="isNew()">Hasło</span><span v-else>Nowe hasło</span>
                                         </label>
                                         <div class="col">
@@ -66,7 +66,7 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label class="col-2 col-form-label">
+                                        <label class="col-3 col-form-label">
                                             <span v-if="isNew()">Powtórz hasło</span><span v-else>Powtórz nowe hasło</span>
                                         </label>
                                         <div class="col">
@@ -93,11 +93,23 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-2 col-form-label">
-                        Rola w systemie
+                    <label class="col-3 col-form-label">
+                        Role (stary system)
                     </label>
                     <div class="col">
                         <role-picker v-model="user" />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-3 col-form-label">
+                        Role (nowy system)
+                    </label>
+                    <div class="col">
+                        <role-select
+                            :userId="userId"
+                            v-model="newRoles"
+                        />
                     </div>
                 </div>
 
@@ -130,41 +142,17 @@
     import Routing from "../../api/routing";
     import ButtonPlus from "../base/ButtonPlus";
     import RolePicker from "./RolePicker";
-
+    import RoleSelect from '@/modules/authorization/components/RoleSelect'
+    import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
     export default {
         name: "UserSingle",
 
-        components: { CollapsibleCard, Waiting, ButtonPlus, RolePicker },
+        components: {RoleSelect, CollapsibleCard, Waiting, ButtonPlus, RolePicker },
 
         props: {
             userId: {
                 type: Number,
                 default: 0
-            }
-        },
-
-        data() {
-            return {
-                user: {
-                    roles: []
-                },
-                locked: false,
-                dataFetched: false,
-                title: '',
-
-                passwords: {
-                    new: '',
-                    old: '',
-                    check: '',
-                    passwordsMatch: true
-                },
-
-                // roles: {
-                //     roles: [],
-                //     customers: []
-                // },
-
-                canSave: true,
             }
         },
 
@@ -219,7 +207,10 @@
 
                 let fn = this.userId ? users.storeUser : users.addUser;
 
-                fn(userData)
+                Promise.all([
+                    fn(userData),
+                    assignRoles(this.userId, this.newRoles)
+                ])
                     .then(() => {
                         // gdy dodano nowego użytkownika to przekieruj do listy
                         if (this.isNew()) {
@@ -260,7 +251,29 @@
                 },
                 deep: true
             }
-        }
+        },
+
+        data() {
+            return {
+                user: {
+                    roles: []
+                },
+                locked: false,
+                dataFetched: false,
+                title: '',
+
+                passwords: {
+                    new: '',
+                    old: '',
+                    check: '',
+                    passwordsMatch: true
+                },
+
+                newRoles: [],
+
+                canSave: true,
+            }
+        },
 
 
     }

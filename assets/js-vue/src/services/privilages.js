@@ -87,10 +87,6 @@ export class User {
             }
         }
 
-        console.log({
-            grants: this.grants,
-            test: this.grants.includes(name)
-        })
         return this.grants.includes(name)
     }
 }

@@ -8,10 +8,6 @@ export function createRole(name) {
     return axios.post('/authorization/role', { name });
 }
 
-export function fetchRoles() {
-    return axios.get('/authorization/role/list');
-}
-
 export function fetchModules() {
     return axios.get('/module/list');
 }
