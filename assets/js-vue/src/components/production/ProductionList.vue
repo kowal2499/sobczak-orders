@@ -278,16 +278,16 @@
                 return [
                     [
                         { name: this.$t('ID'), sortKey: 'id' },
-                        this.userCanSeeProductionDate && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
+                        this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
                         { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                         { name: this.$t('customer'), sortKey: 'customer' },
                         { name: this.$t('product'), sortKey: 'product' },
                         this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
-                        { name: this.$t('Klejenie'), classCell: 'text-center', classHeader: 'prod'},
-                        { name: this.$t('CNC'), classCell: 'text-center', classHeader: 'prod'},
-                        { name: this.$t('Szlifowanie'), classCell: 'text-center', classHeader: 'prod'},
-                        { name: this.$t('Lakierowanie'), classCell: 'text-center', classHeader: 'prod'},
-                        { name: this.$t('Pakowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        this.$user.can('production.show.gluing') && { name: this.$t('Klejenie'), classCell: 'text-center', classHeader: 'prod'},
+                        this.$user.can('production.show.cnc') && { name: this.$t('CNC'), classCell: 'text-center', classHeader: 'prod'},
+                        this.$user.can('production.show.grinding') && { name: this.$t('Szlifowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        this.$user.can('production.show.laquering') && { name: this.$t('Lakierowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        this.$user.can('production.show.packing') && { name: this.$t('Pakowanie'), classCell: 'text-center', classHeader: 'prod'},
                         this.userCanProduction && { name: this.$t('orders.additionalOrders')},
                         { name: this.$t('actions')}
                     ].filter(Boolean),

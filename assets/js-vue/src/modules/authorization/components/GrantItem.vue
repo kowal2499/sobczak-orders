@@ -58,9 +58,12 @@ export default {
 <template>
     <div class="grant-item">
         <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <strong>{{ grant.name }}</strong>
+            <div class="my-1">
+                <h6 class="font-weight-bolder">{{ grant.name }}</h6>
                 <div class="text-sm text-muted">{{ grant.description }}</div>
+                <div style="font-family: 'Courier New'; font-size: 0.8em" class="mt-2 text-muted">
+                    {{ grant.slug }}
+                </div>
             </div>
             <div>
                 <div v-if="grant.type === 'boolean'">

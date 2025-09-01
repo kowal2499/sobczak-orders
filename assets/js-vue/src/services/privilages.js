@@ -73,6 +73,10 @@ export class User {
     }
 
     can(name) {
+        if (this.user.roles.includes('ROLE_ADMIN')) {
+            return true
+        }
+
         if (this.user.roles.length === 0) {
             return false;
         }

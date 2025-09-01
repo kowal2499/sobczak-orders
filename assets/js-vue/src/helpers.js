@@ -24,15 +24,15 @@ export const DPT_GRINDING = 'dpt03'
 export const DPT_LACQUERING = 'dpt04'
 export const DPT_PACKING = 'dpt05'
 
-const departments = [
-    {name: 'Klejenie', slug: DPT_GLUEING},
-    {name: 'CNC', slug: DPT_CNC},
-    {name: 'Szlifowanie', slug: DPT_GRINDING},
-    {name: 'Lakierowanie', slug: DPT_LACQUERING},
-    {name: 'Pakowanie', slug: DPT_PACKING},
+export const DEPARTMETNS = [
+    {name: 'Klejenie', slug: DPT_GLUEING, grant: 'production.show.gluing'},
+    {name: 'CNC', slug: DPT_CNC, grant: 'production.show.cnc'},
+    {name: 'Szlifowanie', slug: DPT_GRINDING, grant: 'production.show.grinding'},
+    {name: 'Lakierowanie', slug: DPT_LACQUERING, grant: 'production.show.laquering'},
+    {name: 'Pakowanie', slug: DPT_PACKING, grant: 'production.show.packing'},
 ];
 export function getDepartmentName(slug) {
-    const department = departments.find(dpt => dpt.slug === slug)
+    const department = DEPARTMETNS.find(dpt => dpt.slug === slug)
     return (department && department.name) || slug
 }
 
@@ -103,11 +103,11 @@ export default {
     },
 
     getDepartments() {
-        return departments;
+        return DEPARTMETNS;
     },
 
     getDepartmentsSlugs() {
-        return departments.map(d => d.slug);
+        return DEPARTMETNS.map(d => d.slug);
     },
 
     getStatusStyle(statusId) {

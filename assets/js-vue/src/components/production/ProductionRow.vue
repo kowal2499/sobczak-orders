@@ -33,7 +33,9 @@
 
         <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
 
-        <td class="prod" v-for="(production, prodKey) in order.productions" v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1">
+        <td class="prod" v-for="(production, prodKey) in productionsByGrants"
+            v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1"
+        >
             <div class="task">
                 <div class="d-flex flex-column gap-2">
                     <b-dropdown
@@ -108,12 +110,11 @@
 </template>
 
 <script>
-
     import ProductionRowBase from "./ProductionRowBase";
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
     import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
-    import helpers, { getDepartmentName } from "../../helpers";
+    import helpers, { getDepartmentName, DEPARTMETNS } from "../../helpers";
     import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
@@ -125,6 +126,23 @@
 
         data() {
             return {}
+        },
+
+        computed: {
+            hasDetails() {
+                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
+            },
+
+            productionsByGrants() {
+                const productionSlugs = DEPARTMETNS.map(d => d.slug)
+                return this.order.productions.filter(prod => {
+                    if (!productionSlugs.includes(prod.departmentSlug)) {
+                        return true
+                    }
+                    const config = DEPARTMETNS.find(d => d.slug === prod.departmentSlug)
+                    return this.$user.can(config.grant)
+                })
+            }
         },
 
         methods: {
@@ -164,11 +182,7 @@
 
             getDepartmentName,
         },
-        computed: {
-            hasDetails() {
-                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
-            }
-        }
+
     }
 </script>
 
