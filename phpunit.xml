@@ -12,6 +12,7 @@
         <env name="DATABASE_URL" value="mysql://user:secret@mysql:3306/sobczak_app_test" />
         <env name="APP_SECRET" value="$ecretf0rt3st" />
         <env name="SITE_BASE_URL" value="http://localhost" />
+        <env name="LOCK_DSN" value="flock" />
 
         <ini name="error_reporting" value="-1" />
     </php>

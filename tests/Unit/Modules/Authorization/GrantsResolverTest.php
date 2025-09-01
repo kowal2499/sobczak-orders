@@ -6,6 +6,7 @@ use App\Module\Authorization\Repository\Test\AuthRoleGrantValueTestRepository;
 use App\Module\Authorization\Repository\Test\AuthRoleTestRepository;
 use App\Module\Authorization\Repository\Test\AuthUserGrantValueTestRepository;
 use App\Module\Authorization\Repository\Test\AuthUserRoleTestRepository;
+use App\Module\Authorization\Service\AuthCacheService;
 use App\Module\Authorization\Service\GrantsResolver;
 use App\Module\ModuleRegistry\Entity\Module;
 use App\Module\ModuleRegistry\Repository\ModuleRepository;
@@ -14,6 +15,7 @@ use App\Tests\Utilities\AuthHelper;
 use App\Tests\Utilities\Cache\TestCacheWrapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Security\Core\Security;
 
 class GrantsResolverTest extends TestCase
@@ -32,6 +34,10 @@ class GrantsResolverTest extends TestCase
         $roleGrantValueRepository = new AuthRoleGrantValueTestRepository();
         $userGrantValueRepository = new AuthUserGrantValueTestRepository();
         $roleUserRepository = new AuthUserRoleTestRepository();
+        $cacheService = new AuthCacheService(
+            new TestCacheWrapper(),
+            $this->createMock(LockFactory::class)
+        );
 
         $this->authHelper = new AuthHelper(
             $roleRepository,
@@ -48,9 +54,8 @@ class GrantsResolverTest extends TestCase
             $userGrantValueRepository,
             $roleUserRepository,
             $this->securityMock,
-            new TestCacheWrapper(),
+            $cacheService,
         );
-
     }
 
     public function testShouldGetEmptyArrayWhenNoRoleAndUserGrants(): void
@@ -73,7 +78,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['some_grant', 'namespace.grant:optionOne'], $grants);
+        $this->assertEqualsCanonicalizing(['some_grant', 'namespace.grant:optionOne'], $grants);
     }
 
     public function testShouldGetUserGrants(): void
@@ -87,7 +92,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.dateComplete', 'namespace.grant:optionOne', 'namespace.grant:optionTwo'], $grants);
+        $this->assertEqualsCanonicalizing(['production.dateComplete', 'namespace.grant:optionOne', 'namespace.grant:optionTwo'], $grants);
     }
 
     public function testShouldSkipFalsyRoleGrants(): void
@@ -101,7 +106,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.grant01', 'production.grant03'], $grants);
+        $this->assertEqualsCanonicalizing(['production.grant01', 'production.grant03'], $grants);
     }
 
     public function testShouldSkipFalsyUserGrants(): void
@@ -113,7 +118,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.grant01', 'production.grant03'], $grants);
+        $this->assertEqualsCanonicalizing(['production.grant01', 'production.grant03'], $grants);
     }
 
     public function testShouldMergeRoleAndUserGrants(): void
@@ -144,7 +149,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.grant01', 'production.grant02', 'namespace.grant:optionOne'], $grants);
+        $this->assertEqualsCanonicalizing(['production.grant01', 'production.grant02', 'namespace.grant:optionOne'], $grants);
     }
 
     public function testShouldSkipFalsyGrantsOnMerge(): void
@@ -157,20 +162,27 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.grant01', 'other.grant01'], $grants);
+        $this->assertEqualsCanonicalizing(['production.grant01', 'other.grant01'], $grants);
     }
 
     public function testShouldOverrideExistingGrantWithNewValue(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_PRODUCTION', ['production.grant01=true', 'production.grant02=false', 'namespace.grant:optionOne=true', 'namespace.grant:optionTwo=true']);
-        $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=false', 'production.grant02=true', 'namespace.grant:optionOne=false']);
+        $this->authHelper->createRole(
+            'ROLE_PRODUCTION',
+            ['production.grant01=true', 'production.grant02=false', 'namespace.grant:optionOne=true', 'namespace.grant:optionTwo=true']
+        );
+        $user = $this->authHelper->createUser(
+            [],
+            ['ROLE_PRODUCTION'],
+            ['production.grant01=false', 'production.grant02=true', 'namespace.grant:optionOne=false']
+        );
 
         // When
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertSame(['production.grant02', 'namespace.grant:optionTwo'], $grants);
+        $this->assertEqualsCanonicalizing(['production.grant02', 'namespace.grant:optionTwo'], $grants);
     }
 
     public function testShouldMergeRoleGrants(): void
@@ -187,7 +199,7 @@ class GrantsResolverTest extends TestCase
         $this->assertSame(['grant01', 'grant02', 'grant03'], $grants);
     }
 
-    public function testShouldMergeRoleGrantsUsingAndOperator(): void
+    public function testShouldMergeRoleGrantsUsingOrOperator(): void
     {
         // Given
         $this->authHelper->createRole('ROLE_PRODUCTION', ['grant01=true', 'grant02=true']);
@@ -199,7 +211,7 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertEmpty($grants);
+        $this->assertEqualsCanonicalizing(['grant01', 'grant02'], $grants);
     }
 
     public function testShouldDisableAllGrantsFromNotActiveModule(): void

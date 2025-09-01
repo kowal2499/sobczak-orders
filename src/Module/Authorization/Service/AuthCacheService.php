@@ -13,16 +13,12 @@ class AuthCacheService
 {
 
     private CacheInterface $cache;
-    private Security $security;
-    private LoggerInterface $logger;
     private LockFactory $lockFactory;
     private const KEYS_TRACKING = 'auth_cache_keys_tracking';
 
-    public function __construct(CacheInterface $cache, Security $security, LoggerInterface $logger, LockFactory $lockFactory)
+    public function __construct(CacheInterface $cache, LockFactory $lockFactory)
     {
         $this->cache = $cache;
-        $this->security = $security;
-        $this->logger = $logger;
         $this->lockFactory = $lockFactory;
     }
 
@@ -35,17 +31,13 @@ class AuthCacheService
         $this->cache->delete(self::KEYS_TRACKING);
     }
 
-    public function getRolesCacheKey(): string
+    public function getRolesCacheKey(User $user): string
     {
-        /** @var User $user */
-        $user = $this->security->getUser();
         return 'user_role_names_' . $user->getId();
     }
 
-    public function getGrantsCacheKey(): string
+    public function getGrantsCacheKey(User $user): string
     {
-        /** @var User $user */
-        $user = $this->security->getUser();
         return 'user_grant_names_' . $user->getId();
     }
 

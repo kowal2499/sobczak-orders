@@ -36,7 +36,7 @@ class GrantsResolver
 
     protected function getRoleNames(User $user): array
     {
-        $cacheKey = $this->authCacheService->getRolesCacheKey();
+        $cacheKey = $this->authCacheService->getRolesCacheKey($user);
 
         return $this->authCacheService->get($cacheKey, function() use ($user) {
             return array_map(
@@ -48,7 +48,7 @@ class GrantsResolver
 
     public function getGrants(User $user): array
     {
-        $cacheKey = $this->authCacheService->getGrantsCacheKey();
+        $cacheKey = $this->authCacheService->getGrantsCacheKey($user);
 
         return $this->authCacheService->get($cacheKey, function () use ($user) {
 
@@ -77,12 +77,18 @@ class GrantsResolver
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
                 $value = $this->getGrantValue($grantValue);
-                $key = $grantValue->getGrantVO()->toString();
-                if (isset($result[$key])) {
-                    $result[$key] = $result[$key] && $value;
-                } else {
-                    $result[$key] = $value;
+                if ($value) {
+                    $result[$grantValue->getGrantVO()->toString()] = true;
                 }
+
+//                $key = $grantValue->getGrantVO()->toString();
+//
+//
+//                if (isset($result[$key])) {
+//                    $result[$key] = $result[$key] && $value;
+//                } else {
+//                    $result[$key] = $value;
+//                }
             }
         }
         return $result;
