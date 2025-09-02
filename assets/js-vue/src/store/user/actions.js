@@ -11,7 +11,7 @@ export default {
         if (grants === undefined) {
             const response = await axios.get('/authorization/grants')
             grants = response.data.data
-            set('-user-grants', grants, 10)
+            set('-user-grants', grants, 5)
         }
         commit(TYPES.MUTATION_SET_USER_GRANTS, grants);
     }
