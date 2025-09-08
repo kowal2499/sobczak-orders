@@ -2,6 +2,7 @@
 import CollapsibleCard from '@/components/base/CollapsibleCard'
 import RolesNavigation from '../components/RolesNavigation'
 import GrantsList from '../components/GrantsList'
+import GrantRoleValue from '../components/GrantRoleValue'
 import {
     fetchGrants,
     fetchModules,
@@ -21,6 +22,7 @@ export default {
         CollapsibleCard,
         RolesNavigation,
         GrantsList,
+        GrantRoleValue,
     },
 
     mounted() {
@@ -121,13 +123,16 @@ export default {
                 <RoleModalForm @roleCreated="reset" />
             </template>
             <template #default="{ roleId, contextStore}">
-                <GrantsList
-                    :grants="grants"
-                    :modules="modules"
-                    :store="contextStore"
-                    @grantChanged="onGrantChange"
-                    :key="roleId"
-                />
+                <GrantsList>
+                    <template #grantValue="{ grant }">
+                        <GrantRoleValue
+                            :key="roleId"
+                            :grant="grant"
+                            :store="contextStore"
+                            @valueChanged="onGrantChange"
+                        />
+                    </template>
+                </GrantsList>
             </template>
         </RolesNavigation>
     </CollapsibleCard>

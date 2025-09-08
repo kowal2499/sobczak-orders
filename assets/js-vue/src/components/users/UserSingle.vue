@@ -113,6 +113,18 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <label class="col-3 col-form-label">
+                        Uprawnienia
+                    </label>
+                    <div class="col">
+                        <user-grants
+                            :userId="userId"
+                            v-model="grants"
+                        />
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col">
                         <button-plus
@@ -143,11 +155,12 @@
     import ButtonPlus from "../base/ButtonPlus";
     import RolePicker from "./RolePicker";
     import RoleSelect from '@/modules/authorization/components/RoleSelect'
+    import UserGrants from '@/modules/authorization/components/UserGrants'
     import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
     export default {
         name: "UserSingle",
 
-        components: {RoleSelect, CollapsibleCard, Waiting, ButtonPlus, RolePicker },
+        components: {UserGrants, RoleSelect, CollapsibleCard, Waiting, ButtonPlus, RolePicker },
 
         props: {
             userId: {
@@ -270,6 +283,8 @@
                 },
 
                 newRoles: [],
+
+                grants: [],
 
                 canSave: true,
             }

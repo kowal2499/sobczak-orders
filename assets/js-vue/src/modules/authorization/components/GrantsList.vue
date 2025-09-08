@@ -1,31 +1,33 @@
 <script>
 import GrantItem from './GrantItem'
+import {
+    fetchGrants,
+    fetchModules,
+} from '../repository/authorizatonRepository'
 
 export default {
     name: 'GrantsList',
-    props: {
-        modules: {
-            type: Array,
-            default: () => ([])
-        },
-        grants: {
-            type: Array,
-            default: () => ([])
-        },
-        store: {
-            type: Array,
-            default: () => ([])
-        }
-    },
+    props: {},
 
     components: {
         GrantItem
     },
 
+    mounted() {
+        this.reset()
+    },
+
     methods: {
-        getValueForGrant(grantId) {
-            return this.store.filter(val => val.grantId === grantId)
-        },
+        async reset() {
+            this.isBusy = true
+            const [modulesData, grantsData] = await Promise.all([
+                fetchModules(),
+                fetchGrants(),
+            ])
+
+            this.modules = modulesData.data
+            this.grants = grantsData.data
+        }
     },
 
     computed: {
@@ -37,6 +39,12 @@ export default {
             })
         }
     },
+
+    data: () => ({
+        modules: [],
+        grants: [],
+        isBusy: false,
+    })
 }
 </script>
 
@@ -49,13 +57,27 @@ export default {
                     <span class="text-sm">{{ module.description }}</span>
                 </div>
                 <div class="py-2 d-flex flex-column gap-2">
-                    <GrantItem
-                        v-for="grant in grantsInModule[module.id]"
-                        :grant="grant"
-                        :value="getValueForGrant(grant.id)"
-                        @input="$emit('grantChanged', $event)"
-                        :key="grant.id"
-                    />
+                    <div v-for="grant in grantsInModule[module.id]"
+                         class="grant-item"
+                         :key="grant.id"
+                    >
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="my-1">
+                                <h6 class="font-weight-bolder">{{ grant.name }}</h6>
+                                <div class="text-sm text-muted">{{ grant.description }}</div>
+                                <div style="font-family: 'Courier New'; font-size: 0.8em" class="mt-2 text-muted">
+                                    {{ grant.slug }}
+                                </div>
+                            </div>
+                            <div>
+                                <slot name="grantValue" :grant="grant">
+                                    <div class="text-sm text-muted">[Brak slotu grantValue]</div>
+                                </slot>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </template>
         </div>
@@ -78,4 +100,8 @@ export default {
         margin: 0;
     }
 }
+.grant-item + .grant-item {
+    border-top: 1px solid #e9ecef;
+}
+
 </style>
