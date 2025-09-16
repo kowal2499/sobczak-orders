@@ -7,10 +7,12 @@
                 :locked="locked"
             >
 
-                <div class="row">
-                    <div class="col">
-                        <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm mb-3 float-right"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
-                    </div>
+                <div class="d-flex justify-content-end align-items-center gap-4 mb-3">
+                    <b-form-checkbox v-model="showInactiveUsers" switch>
+                        <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
+                    </b-form-checkbox>
+
+                    <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
                 </div>
 
                 <div class="table-responsive has-dropdown" v-if="!locked">
@@ -22,6 +24,7 @@
                                 <th>Nazwisko</th>
                                 <th>Email</th>
                                 <th>Rola w systemie</th>
+                                <th>Aktywny</th>
                                 <th>Akcje</th>
                             </tr>
                         </thead>
@@ -36,6 +39,10 @@
                                     <span v-for="role in user.roles">
                                         <span class="badge badge-info mr-1">{{ getRoleName(role) }}</span>
                                     </span>
+                                </td>
+                                <td>
+                                    <i v-if="user.active" class="fa fa-check text-success"></i>
+                                    <i v-else class="fa fa-times text-danger"></i>
                                 </td>
                                 <td>
                                     <dropdown class="icon-only">
@@ -75,23 +82,29 @@
         data() {
             return {
                 locked: false,
-                users: []
+                users: [],
+                showInactiveUsers: false,
             }
         },
 
         mounted() {
-            this.locked = true;
-            UsersApi.fetchUsers()
-                .then(({data}) => {
-                    this.users = data;
-                })
-                .catch(() => {})
-                .finally(() => {
-                    this.locked = false;
-                })
+            this.fetchData()
+        },
+
+        watch: {
+            showInactiveUsers() {
+                this.fetchData()
+            }
         },
 
         methods: {
+            fetchData() {
+                this.locked = true;
+                return UsersApi.fetchUsers(this.showInactiveUsers)
+                    .then(({data}) => this.users = data)
+                    .finally(() => this.locked = false)
+            },
+
             getRouting() {
                 return routing;
             },

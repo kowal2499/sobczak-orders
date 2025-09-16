@@ -38,7 +38,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         return new Passport(
             new UserBadge($email, function ($userIdentifier) {
                 $user = $this->userRepository->findOneBy(['email' => $userIdentifier]);
-                if (!$user) {
+                if (!$user || $user->isActive() === false) {
                     throw new UserNotFoundException();
                 }
                 return $user;
