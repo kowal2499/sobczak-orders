@@ -89,9 +89,11 @@ class SecurityController extends BaseController
      * Zwraca wszystkich użytkowników
      */
     #[Route(path: '/users/fetch', name: 'users_fetch', options: ['expose' => true], methods: ['GET'])]
-    public function fetchUsers(UserRepository $repository): JsonResponse
+    public function fetchUsers(Request $request, UserRepository $repository): JsonResponse
     {
-        return $this->json($repository->findAll(), Response::HTTP_OK, [], [
+        $all = $request->query->getBoolean('all');
+        $users = $all ? $repository->findAll() : $repository->findBy(['active' => true]);
+        return $this->json($users, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['user_main']
         ]);
     }
@@ -118,12 +120,20 @@ class SecurityController extends BaseController
      * @param EntityManagerInterface $em
      * @param UserPasswordHasherInterface $userPasswordHasher
      * @param TranslatorInterface $t
+     * @param Security $security
      * @return JsonResponse
      *
      * Edytuje użytkownika
      */
     #[Route(path: '/user/{id}', name: 'user_edit', options: ['expose' => true], methods: ['PATCH'])]
-    public function editUser(Request $request, User $user, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, TranslatorInterface $t): Response
+    public function editUser(
+        Request $request,
+        User $user,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $userPasswordHasher,
+        TranslatorInterface $t,
+        Security $security,
+    ): Response
     {
         $form = $this->createForm(UserSecurityFormType::class, $user);
 
@@ -132,6 +142,13 @@ class SecurityController extends BaseController
 
             /** @var User $user */
             $user = $form->getData();
+
+            /** @var User $loggedUser */
+            $loggedUser = $security->getUser();
+
+            if (!$user->isActive() && $loggedUser && $user->getId() === $loggedUser->getId()) {
+                throw new \Exception($t->trans('Nie możesz dezaktywować swojego własnego konta.', [], 'security'));
+            }
 
             // jeśli przesłano nowe hasło to zmieniamy
             if ($form['passwordPlain']->getData()) {
@@ -175,7 +192,11 @@ class SecurityController extends BaseController
      * Tworzy nowego użytkownika
      */
     #[Route(path: '/user', name: 'user_add', options: ['expose' => true], methods: ['POST'])]
-    public function addUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher)
+    public function addUser(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $userPasswordHasher,
+    )
     {
         $form = $this->createForm(UserSecurityFormType::class);
 

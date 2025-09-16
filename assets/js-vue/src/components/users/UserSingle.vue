@@ -36,6 +36,8 @@
                     </div>
                 </div>
 
+
+
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
                         Uwierzytelnienie
@@ -113,6 +115,15 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <label class="col-3 col-form-label">
+                        Aktywny
+                    </label>
+                    <div class="col">
+                        <b-form-checkbox v-model="user.active" switch />
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col">
                         <button-plus
@@ -169,7 +180,6 @@
                             customer: item.customer.id
                         }))
                         this.user = data;
-                        // this.roles.customers = data.customers;
                         this.title = helpers.userName(this.user);
                         this.repeatedPassword = this.user.password;
                         this.dataFetched = true;
@@ -256,7 +266,14 @@
         data() {
             return {
                 user: {
-                    roles: []
+                    id: null,
+                    customers2users: [],
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    roles: [],
+                    userFullName: null,
+                    active: true,
                 },
                 locked: false,
                 dataFetched: false,

@@ -2,9 +2,8 @@ import axios from 'axios';
 import Routing from './routing';
 
 export default {
-    fetchUsers() {
-
-        return axios.get(Routing.get('users_fetch'));
+    fetchUsers(showInactive) {
+        return axios.get(Routing.get('users_fetch') + `?all=${showInactive ? 'true' : 'false'}`);
     },
 
     fetchUser(id) {

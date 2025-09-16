@@ -47,6 +47,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups('user_main')]
     private $customers2Users;
 
+    #[ORM\Column(type: 'boolean')]
+    #[Groups('user_main')]
+    private bool $active = true;
+
     public function __construct()
     {
         $this->statusLogs = new ArrayCollection();
@@ -262,5 +266,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->customers2Users->contains($customer2user)) {
             $this->customers2Users->removeElement($customer2user);
         }
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 }
