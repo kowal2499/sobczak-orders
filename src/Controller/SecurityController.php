@@ -152,9 +152,6 @@ class SecurityController extends BaseController
 
             // jeśli przesłano nowe hasło to zmieniamy
             if ($form['passwordPlain']->getData()) {
-                if (!$userPasswordHasher->isPasswordValid($user, $form['passwordOld']->getData())) {
-                    throw new \Exception($t->trans('Stare hasło jest nieprawidłowe.', [], 'security'));
-                }
                 $user->setPassword($userPasswordHasher->hashPassword(
                     $user,
                     $form['passwordPlain']->getData())

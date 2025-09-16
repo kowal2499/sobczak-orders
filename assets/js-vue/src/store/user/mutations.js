@@ -7,7 +7,5 @@ export default {
 
         const user = Vue.prototype.$user
         user.setGrants(grants)
-
-        console.log(user.grants)
     }
 };

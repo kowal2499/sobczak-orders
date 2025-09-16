@@ -48,16 +48,6 @@
                                 <p class="text-muted" v-if="!isNew()">Pozostaw te pola puste aby nie zmieniać hasła.</p>
 
                                 <div class="card-text">
-
-                                    <div class="form-group row" v-if="!isNew()">
-                                        <label class="col-3 col-form-label">
-                                            Stare hasło
-                                        </label>
-                                        <div class="col">
-                                            <input type="password" class="form-control" v-model="passwords.old">
-                                        </div>
-                                    </div>
-
                                     <div class="form-group row">
                                         <label class="col-3 col-form-label">
                                             <span v-if="isNew()">Hasło</span><span v-else>Nowe hasło</span>
@@ -212,7 +202,6 @@
 
                 if (this.passwords.new) {
                     userData.passwordPlain = this.passwords.new;
-                    userData.passwordOld = this.passwords.old;
                 }
 
                 let fn = this.userId ? users.storeUser : users.addUser;
@@ -281,7 +270,6 @@
 
                 passwords: {
                     new: '',
-                    old: '',
                     check: '',
                     passwordsMatch: true
                 },
