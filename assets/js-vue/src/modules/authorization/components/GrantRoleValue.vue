@@ -17,6 +17,9 @@ export default defineComponent({
     computed: {
         value() {
             return this.getValueForGrant(this.grant.id)
+        },
+        isBoolTypeChecked() {
+            return this.value.length && this.value[0].value
         }
     },
 
@@ -53,7 +56,7 @@ export default defineComponent({
             <b-form-checkbox
                 :unchecked-value="false"
                 switch size="lg"
-                :checked="value.length && value[0].value"
+                :checked="isBoolTypeChecked"
                 @change="setValue($event, null)"
             />
         </div>

@@ -14,12 +14,29 @@ export default defineComponent({
     mixins: [ proxyValue ],
     components: {
         GrantsList
-    }
+    },
+    data: () => ({
+        value: true
+    })
 })
 </script>
 
 <template>
-    <GrantsList />
+    <GrantsList #grantValue="{ grant }">
+        <b-form-group>
+            <b-form-radio-group
+                size="sm"
+                button-variant="outline-primary"
+                v-model="value"
+                :options="[{text: 'Wartość wg ról', value: true}, {text: 'Ustawienie ręczne', value: false}]"
+                name="radios-btn-default"
+                buttons
+            ></b-form-radio-group>
+        </b-form-group>
+
+<!--        :value="isBoolTypeChecked"-->
+<!--        @input="setValue($event, null)"-->
+    </GrantsList>
 </template>
 
 <style scoped lang="scss">

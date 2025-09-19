@@ -75,9 +75,7 @@ export default {
                                 </slot>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
             </template>
         </div>

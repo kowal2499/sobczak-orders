@@ -86,6 +86,15 @@
 
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
+                        Aktywny
+                    </label>
+                    <div class="col">
+                        <b-form-checkbox v-model="user.active" switch />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-3 col-form-label">
                         Role (stary system)
                     </label>
                     <div class="col">
@@ -102,15 +111,6 @@
                             :userId="userId"
                             v-model="newRoles"
                         />
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Aktywny
-                    </label>
-                    <div class="col">
-                        <b-form-checkbox v-model="user.active" switch />
                     </div>
                 </div>
 
