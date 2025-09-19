@@ -36,6 +36,8 @@
                     </div>
                 </div>
 
+
+
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
                         Uwierzytelnienie
@@ -46,16 +48,6 @@
                                 <p class="text-muted" v-if="!isNew()">Pozostaw te pola puste aby nie zmieniać hasła.</p>
 
                                 <div class="card-text">
-
-                                    <div class="form-group row" v-if="!isNew()">
-                                        <label class="col-3 col-form-label">
-                                            Stare hasło
-                                        </label>
-                                        <div class="col">
-                                            <input type="password" class="form-control" v-model="passwords.old">
-                                        </div>
-                                    </div>
-
                                     <div class="form-group row">
                                         <label class="col-3 col-form-label">
                                             <span v-if="isNew()">Hasło</span><span v-else>Nowe hasło</span>
@@ -110,6 +102,15 @@
                             :userId="userId"
                             v-model="newRoles"
                         />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-3 col-form-label">
+                        Aktywny
+                    </label>
+                    <div class="col">
+                        <b-form-checkbox v-model="user.active" switch />
                     </div>
                 </div>
 
@@ -182,7 +183,6 @@
                             customer: item.customer.id
                         }))
                         this.user = data;
-                        // this.roles.customers = data.customers;
                         this.title = helpers.userName(this.user);
                         this.repeatedPassword = this.user.password;
                         this.dataFetched = true;
@@ -215,7 +215,6 @@
 
                 if (this.passwords.new) {
                     userData.passwordPlain = this.passwords.new;
-                    userData.passwordOld = this.passwords.old;
                 }
 
                 let fn = this.userId ? users.storeUser : users.addUser;
@@ -269,7 +268,14 @@
         data() {
             return {
                 user: {
-                    roles: []
+                    id: null,
+                    customers2users: [],
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    roles: [],
+                    userFullName: null,
+                    active: true,
                 },
                 locked: false,
                 dataFetched: false,
@@ -277,7 +283,6 @@
 
                 passwords: {
                     new: '',
-                    old: '',
                     check: '',
                     passwordsMatch: true
                 },
