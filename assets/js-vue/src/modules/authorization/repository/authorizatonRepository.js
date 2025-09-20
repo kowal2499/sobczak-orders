@@ -11,12 +11,3 @@ export function createRole(name) {
 export function fetchModules() {
     return axios.get('/module/list');
 }
-
-export function setGrantRoleValue(data) {
-    return axios.post('/authorization/grant/role/value', data);
-}
-
-export function fetchGrantRoleValues() {
-    return axios.get('/authorization/grant/role/value');
-}
-

@@ -16,7 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GrantRoleValueController extends BaseController
 {
-
     #[Route(path: '', name: '_add', methods: ['POST'])]
     public function add(
         Request $request,
@@ -26,9 +25,11 @@ class GrantRoleValueController extends BaseController
         AuthCacheService $cacheService,
     ): JsonResponse
     {
-        $data = $request->request->all();
-        $role = $roleRepository->find($data['roleId']);
-        $grant = $grantRepository->find($data['grantId']);
+        $roleId = $request->request->getInt('roleId');
+        $grantId = $request->request->getInt('grantId');
+
+        $role = $roleRepository->find($roleId);
+        $grant = $grantRepository->find($grantId);
         if (!$role || !$grant) {
             return new JsonResponse(
                 ['error' => 'Role or Grant not found'],

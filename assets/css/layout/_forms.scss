@@ -42,7 +42,10 @@ label.required:before {
         padding: .25rem .5rem;
         font-size: .85rem;
         line-height: 1.5;
-        border-radius: .2rem;
+
+        &:not(.btn-group-toggle .btn-sm) {
+            border-radius: .2rem;
+        }
     }
 
     .btn-i {

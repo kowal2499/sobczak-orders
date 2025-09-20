@@ -15,10 +15,8 @@ export default defineComponent({
     components: {
         GrantsList
     },
-    data: () => ({
-        value: true
-    })
 })
+
 </script>
 
 <template>
@@ -27,7 +25,7 @@ export default defineComponent({
             <b-form-radio-group
                 size="sm"
                 button-variant="outline-primary"
-                v-model="value"
+                v-model="proxyData"
                 :options="[{text: 'Wartość wg ról', value: true}, {text: 'Ustawienie ręczne', value: false}]"
                 name="radios-btn-default"
                 buttons

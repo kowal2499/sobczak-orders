@@ -6,9 +6,13 @@ import GrantRoleValue from '../components/GrantRoleValue'
 import {
     fetchGrants,
     fetchModules,
+} from '../repository/authorizatonRepository'
+
+import {
     setGrantRoleValue,
     fetchGrantRoleValues,
-} from '../repository/authorizatonRepository'
+} from '../repository/grantValueRepository'
+
 import {
     fetchRoles
 } from '../repository/rolesRepository'
