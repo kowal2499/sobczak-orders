@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 import ui from './ui';
 import user from './user';
+import auth from './auth';
 
 import actions from './actions'
 import mutations from './mutations'
@@ -14,7 +15,8 @@ import { getState } from "./state";
 export default new Vuex.Store({
     modules: {
         ui,
-        user
+        user,
+        auth,
     },
     actions,
     mutations,

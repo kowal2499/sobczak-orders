@@ -3,6 +3,7 @@
 namespace App\Module\Authorization\Controller;
 
 use App\Controller\BaseController;
+use App\Entity\User;
 use App\Module\Authorization\Entity\AuthUserGrantValue;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
@@ -15,7 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/grant/user/value', name: 'authorization_grant_user_value')]
 class GrantUserValueController extends BaseController
 {
-    public function add(
+    #[Route(path: '', name: '_create', methods: ['POST'])]
+    public function create(
         Request $request,
         UserRepository $userRepository,
         AuthGrantRepository $authGrantRepository,
@@ -24,6 +26,7 @@ class GrantUserValueController extends BaseController
     ) {
         $userId = $request->request->getInt('userId');
         $grantId = $request->request->getInt('grantId');
+        $grantOptionSlug = $request->request->getAlpha('optionSlug',null);
 
         $user = $userRepository->find($userId);
         $grant = $authGrantRepository->find($grantId);
@@ -33,37 +36,65 @@ class GrantUserValueController extends BaseController
                 400
             );
         }
-        $grantOptionSlug = $request->request->getAlpha('optionSlug',null);
-        $instance = $authUserGrantValueRepository->findOneByUserAndGrant($user, $grant, $grantOptionSlug);
-        if (!$instance) {
-            $instance = new AuthUserGrantValue($user, $grant, $grantOptionSlug);
+
+        if ($authUserGrantValueRepository->findOneByUserAndGrant($user, $grant, $grantOptionSlug)) {
+            return new JsonResponse(
+                ['error' => 'Such grant value already exists for this user'],
+                400
+            );
         }
+
+        $instance = new AuthUserGrantValue($user, $grant, $grantOptionSlug);
         $instance->setValue($request->request->getBoolean('value'));
         $authUserGrantValueRepository->add($instance);
 
         // clear caches
         $cacheService->invalidateAll();
         return new JsonResponse(['success' => true, 'id' => $instance->getId()]);
-
-    }
-    #[Route(path: '/{userId}',  methods: ['GET'])]
-    public function read(): JsonResponse
-    {
-        // get listing of user's grants
-        return new JsonResponse([]);
     }
 
-    #[Route(path: '/{userId}/{grantValue}/', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    #[Route(path: '/{user}', name: '_list',  methods: ['GET'])]
+    public function list(
+        User $user,
+        AuthUserGrantValueRepository $authUserGrantValueRepository
+    ): JsonResponse
     {
-        // assign grant to user
-        return new JsonResponse([]);
+        $result = array_map(function (AuthUserGrantValue $item) {
+            return [
+                'id' => $item->getId(),
+                'user_id' => $item->getUser()->getId(),
+                'grant_id' => $item->getGrant()->getId(),
+                'option_slug' => $item->getGrantOptionSlug(),
+                'value' => $item->getValue(),
+            ];
+        }, $authUserGrantValueRepository->findAllByUser($user));
+
+        return $this->json($result);
     }
 
-    #[Route(path: '/{userId}/{grantId}', methods: ['DELETE'])]
-    public function delete(Request $request): JsonResponse
+    #[Route(path: '/{authUserGrantValue}', name: '_update', methods: ['PUT'])]
+    public function update(
+        Request $request,
+        AuthUserGrantValue $authUserGrantValue,
+        AuthUserGrantValueRepository $authUserGrantValueRepository,
+        AuthCacheService $cacheService,
+    ): JsonResponse
     {
-        // remove user-grant assignment
-        return new JsonResponse([]);
+        $authUserGrantValue->setValue($request->request->getBoolean('value'));
+        $authUserGrantValueRepository->add($authUserGrantValue);
+        $cacheService->invalidateAll();
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route(path: '/{authUserGrantValue}', name: '_delete', methods: ['DELETE'])]
+    public function delete(
+        AuthUserGrantValue $authUserGrantValue,
+        AuthUserGrantValueRepository $authUserGrantValueRepository,
+        AuthCacheService $cacheService,
+    ): JsonResponse
+    {
+        $authUserGrantValueRepository->remove($authUserGrantValue);
+        $cacheService->invalidateAll();
+        return new JsonResponse(['success' => true]);
     }
 }

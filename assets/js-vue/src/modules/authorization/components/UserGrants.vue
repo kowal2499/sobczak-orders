@@ -21,6 +21,7 @@ export default defineComponent({
 
 <template>
     <GrantsList #grantValue="{ grant }">
+        <pre>{{ grant }}</pre>
         <b-form-group>
             <b-form-radio-group
                 size="sm"

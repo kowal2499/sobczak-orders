@@ -67,4 +67,12 @@ class AuthUserGrantValueRepository extends ServiceEntityRepository implements Au
             $this->_em->flush();
         }
     }
+
+    public function remove(AuthUserGrantValue $userGrantValue, bool $flush = true): void
+    {
+        $this->_em->remove($userGrantValue);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 }

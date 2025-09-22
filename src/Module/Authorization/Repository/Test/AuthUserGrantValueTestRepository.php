@@ -44,4 +44,13 @@ class AuthUserGrantValueTestRepository implements AuthUserGrantValueRepositoryIn
         }
         return null;
     }
+
+    public function remove(AuthUserGrantValue $userGrantValue): void
+    {
+        $id = $userGrantValue->getId();
+        $this->storage = array_filter(
+            $this->storage,
+            fn(AuthUserGrantValue $item) => $item->getId() !== $id
+        );
+    }
 }

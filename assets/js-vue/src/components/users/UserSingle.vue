@@ -36,8 +36,6 @@
                     </div>
                 </div>
 
-
-
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
                         Uwierzytelnienie
@@ -158,6 +156,8 @@
     import RoleSelect from '@/modules/authorization/components/RoleSelect'
     import UserGrants from '@/modules/authorization/components/UserGrants'
     import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
+    import { fetchGrantUserValues } from '@/modules/authorization/repository/grantValueRepository'
+
     export default {
         name: "UserSingle",
 
@@ -170,13 +170,26 @@
             }
         },
 
-        mounted() {
+        async mounted() {
+            this.dataFetched = false;
+            this.locked = true;
+
             // pobranie danych użytkownika
             if (this.userId > 0) {
-                this.dataFetched = false;
-                this.locked = true;
+                await Promise.all([
+                    this.fetchUserData(),
+                    this.fetchUserGrants()
+                ])
+            } else {
+                 this.title = "Nowy użytkownik";
+            }
+            this.dataFetched = true;
+            this.locked = false;
+        },
 
-                users.fetchUser(this.userId)
+        methods: {
+            fetchUserData() {
+                return users.fetchUser(this.userId)
                     .then(({data}) => {
                         data.customers2Users = (data.customers2Users || []).map(item => ({
                             id: item.id,
@@ -184,21 +197,15 @@
                         }))
                         this.user = data;
                         this.title = helpers.userName(this.user);
-                        this.repeatedPassword = this.user.password;
-                        this.dataFetched = true;
                     })
-                    .catch(() => {})
-                    .finally(() => {
-                        this.locked = false;
-                    })
-            } else {
-                this.dataFetched = true;
-                this.title = "Nowy użytkownik";
-            }
+            },
 
-        },
+            fetchUserGrants() {
+                return fetchGrantUserValues(this.userId).then(({data}) => {
+                    this.grants = data
+                })
+            },
 
-        methods: {
             save() {
                 this.locked = true;
 
