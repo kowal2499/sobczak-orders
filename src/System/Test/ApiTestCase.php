@@ -4,6 +4,7 @@
 namespace App\System\Test;
 
 use App\Entity\User;
+use App\Utilities\Test\AuthHelper;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -12,26 +13,19 @@ class ApiTestCase extends WebTestCase
 {
     private static $entityManagerWasCleared = false;
     private $client = null;
+    private ?AuthHelper $authHelper = null;
 
     protected static $container = null;
 
-    /**
-     * ApiTestCase constructor.
-     * @param null $name
-     * @param array $data
-     * @param string $dataName
-     */
 
     protected function setUp(): void
     {
         parent::setUp();
-//        $this->getManager()->beginTransaction();
 
     }
 
     protected function tearDown(): void
     {
-//        $this->getManager()->rollback();
         parent::tearDown();
     }
 
@@ -77,12 +71,30 @@ class ApiTestCase extends WebTestCase
      * @param string $service
      * @return object|null
      */
-    protected function get(string $service)
+    protected function get(string $service): mixed
     {
         if (null === static::$kernel) {
             // triggers bootKernel
             $this->initializeClient();
         }
         return static::getContainer()->get($service);
+    }
+
+    protected function getAuthHelper(): AuthHelper
+    {
+        if (null === $this->authHelper) {
+            $authHelper = $this->get(AuthHelper::class);
+            assert($authHelper instanceof AuthHelper);
+            $this->authHelper = $authHelper;
+        }
+        return $this->authHelper;
+    }
+
+    protected function createUser(
+        array $data = [],
+        array $roleNames = [],
+        array $grantNames = []
+    ): User {
+        return $this->getAuthHelper()->createUser($data, $roleNames, $grantNames);
     }
 }

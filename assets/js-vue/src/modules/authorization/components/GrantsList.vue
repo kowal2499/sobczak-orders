@@ -4,6 +4,8 @@ import {
     fetchGrants,
     fetchModules,
 } from '../repository/authorizatonRepository'
+import store from '@/store'
+import * as TYPES from '@/store/types'
 
 export default {
     name: 'GrantsList',
@@ -21,12 +23,12 @@ export default {
         async reset() {
             this.isBusy = true
             const [modulesData, grantsData] = await Promise.all([
-                fetchModules(),
-                fetchGrants(),
+                store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_MODULES),
+                store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS),
             ])
 
-            this.modules = modulesData.data
-            this.grants = grantsData.data
+            this.modules = modulesData
+            this.grants = grantsData
         }
     },
 

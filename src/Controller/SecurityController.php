@@ -64,7 +64,7 @@ class SecurityController extends BaseController
     #[Route(path: '/users/edit/{id}', name: 'security_user_edit', options: ['expose' => true])]
     public function editUserView(User $user): Response
     {
-        return $this->render('security/single_user.html.twig', [
+        return $this->render('configuration/single_user.html.twig', [
             'user' => $user
         ]);
     }

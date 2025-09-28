@@ -27,6 +27,8 @@ class GrantRoleValueController extends BaseController
     {
         $roleId = $request->request->getInt('roleId');
         $grantId = $request->request->getInt('grantId');
+        $optionSlug = $request->request->get('optionSlug');
+        $grantValue = $request->request->getBoolean('value');
 
         $role = $roleRepository->find($roleId);
         $grant = $grantRepository->find($grantId);
@@ -36,12 +38,11 @@ class GrantRoleValueController extends BaseController
                 400
             );
         }
-        $grantOptionSlug = $data['optionSlug'] ?? null;
-        $instance = $roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $grantOptionSlug);
+        $instance = $roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $optionSlug);
         if (!$instance) {
-            $instance = new AuthRoleGrantValue($role, $grant, $grantOptionSlug);
+            $instance = new AuthRoleGrantValue($role, $grant, $optionSlug);
         }
-        $instance->setValue($data['value'] ?? false);
+        $instance->setValue($grantValue);
         $roleGrantValueRepository->add($instance);
 
         // clear caches

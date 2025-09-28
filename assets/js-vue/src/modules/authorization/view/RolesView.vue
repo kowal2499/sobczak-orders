@@ -17,7 +17,8 @@ import {
     fetchRoles
 } from '../repository/rolesRepository'
 import RoleModalForm from '../forms/RoleModalForm'
-
+import store from '@/store'
+import * as TYPES from '@/store/types'
 export default {
     name: 'RolesView',
 
@@ -50,11 +51,11 @@ export default {
         },
 
         async fetchGrants() {
-            return fetchGrants().then(response => response.data);
+            return store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS)
         },
 
         fetchModules() {
-            return fetchModules().then(response => response.data);
+            return store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_MODULES)
         },
 
         fetchRoles() {

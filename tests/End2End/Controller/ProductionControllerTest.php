@@ -47,9 +47,7 @@ class ProductionControllerTest extends ApiTestCase
     public function testShouldCreateProductionTasksWithProperDates()
     {
         $manager = $this->getManager();
-        $dateStart = new \DateTime();
-        $deadline = (clone $dateStart)->modify('+15 days');
-        $expectedDateStart = (clone $deadline)->modify('-7 days')->setTime(7, 0);
+        $deadline = new \DateTime('2024-06-15');
         // Given
         $agreementLine = (new AgreementLine())
             ->setStatus(AgreementLine::STATUS_WAITING)
@@ -65,7 +63,36 @@ class ProductionControllerTest extends ApiTestCase
         $client = $this->login($this->user);
 
         // When
-        $client->xmlHttpRequest('POST', '/production/start/' . $agreementLine->getId());
+        $client->xmlHttpRequest('POST', '/production/start/' . $agreementLine->getId(), [
+            'schedule' => [
+                [
+                    'department' => 'dpt01',
+                    'dateStart' => '2024-06-01',
+                    'dateEnd' => '2024-06-11',
+                ],
+                [
+                    'department' => 'dpt02',
+                    'dateStart' => '2024-06-02',
+                    'dateEnd' => '2024-06-12',
+                ],
+                [
+                    'department' => 'dpt03',
+                    'dateStart' => '2024-06-03',
+                    'dateEnd' => '2024-06-13',
+                ],
+                [
+                    'department' => 'dpt04',
+                    'dateStart' => '2024-06-04',
+                    'dateEnd' => '2024-06-14',
+                ],
+                [
+                    'department' => 'dpt05',
+                    'dateStart' => '2024-06-05',
+                    'dateEnd' => '2024-06-15',
+                ]
+
+            ]
+        ]);
 
         // Then
         /** @var Production[] $productionCollection */
@@ -75,20 +102,20 @@ class ProductionControllerTest extends ApiTestCase
 
         $this->assertCount(5, $productionCollection);
         // dpt01
-        $this->assertEquals($expectedDateStart, $productionCollection[0]->getDateStart());
-        $this->assertEquals($deadline, $productionCollection[0]->getDateEnd());
+        $this->assertEquals('2024-06-01', $productionCollection[0]->getDateStart()->format('Y-m-d'));
+        $this->assertEquals('2024-06-11', $productionCollection[0]->getDateEnd()->format('Y-m-d'));
         // dpt02
-        $this->assertNull($productionCollection[1]->getDateStart());
-        $this->assertEquals($deadline, $productionCollection[1]->getDateEnd());
+        $this->assertEquals('2024-06-02', $productionCollection[1]->getDateStart()->format('Y-m-d'));
+        $this->assertEquals('2024-06-12', $productionCollection[1]->getDateEnd()->format('Y-m-d'));
         // dpt03
-        $this->assertNull($productionCollection[2]->getDateStart());
-        $this->assertEquals($deadline, $productionCollection[2]->getDateEnd());
+        $this->assertEquals('2024-06-03', $productionCollection[2]->getDateStart()->format('Y-m-d'));
+        $this->assertEquals('2024-06-13', $productionCollection[2]->getDateEnd()->format('Y-m-d'));
         // dpt04
-        $this->assertNull($productionCollection[3]->getDateStart());
-        $this->assertEquals($deadline, $productionCollection[3]->getDateEnd());
+        $this->assertEquals('2024-06-04', $productionCollection[3]->getDateStart()->format('Y-m-d'));
+        $this->assertEquals('2024-06-14', $productionCollection[3]->getDateEnd()->format('Y-m-d'));
         // dpt05
-        $this->assertNull($productionCollection[4]->getDateStart());
-        $this->assertEquals($deadline, $productionCollection[4]->getDateEnd());
+        $this->assertEquals('2024-06-05', $productionCollection[4]->getDateStart()->format('Y-m-d'));
+        $this->assertEquals('2024-06-15', $productionCollection[4]->getDateEnd()->format('Y-m-d'));
     }
 
     public function testShouldThrowProductionAlreadyExistsExceptionIfProductionExist()

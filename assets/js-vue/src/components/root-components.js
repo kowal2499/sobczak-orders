@@ -14,8 +14,11 @@ import NavOrders from './navigation/NavOrders';
 import TagsModule from "../modules/tags";
 import { views as AuthorizationModuleViews } from "../modules/authorization/exports"
 import Dashboard2 from '../modules/dashboard/Dashboard';
+import ConfigurationModuleWrapper from '../modules/configuration/views/ConfigurationModuleWrapper.vue'
+import App from '../modules/app/views/App.vue'
 
 export default {
+    App,
     NewOrder,
     OrdersList,
     ProductionList,
@@ -28,6 +31,7 @@ export default {
     Notifications,
     NavOrders,
     Dashboard2,
+    ConfigurationModuleWrapper,
     ...TagsModule,
     ...AuthorizationModuleViews,
 }

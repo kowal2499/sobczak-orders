@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Utilities;
+namespace App\Utilities\Test;
 
 use App\Entity\User;
 use App\Module\Authorization\Entity\AuthGrant;
@@ -52,7 +52,7 @@ class AuthHelper
 
         foreach ($grantNames as $grantName) {
             $grantVO = GrantVO::m($grantName);
-            $grantInstance = $this->getOrCreateGrant($grantName);
+            $grantInstance = $this->createGrant($grantName);
             $val = new AuthUserGrantValue($user, $grantInstance, $grantVO->getOptionSlug());
             $val->setValue($grantVO->getValue());
             $this->userGrantValueRepository->add($val);
@@ -72,7 +72,7 @@ class AuthHelper
 
         foreach ($grantNames as $grantName) {
             $grantVO = GrantVO::m($grantName);
-            $grantInstance = $this->getOrCreateGrant($grantName);
+            $grantInstance = $this->createGrant($grantName);
             $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grantInstance, $grantVO->getOptionSlug());
             if (!$roleGrantValue) {
                 $roleGrantValue = new AuthRoleGrantValue($role, $grantInstance, $grantVO->getOptionSlug());
@@ -83,7 +83,7 @@ class AuthHelper
         return $role;
     }
 
-    public function getOrCreateGrant(string $grant, ?Module $module = null): AuthGrant
+    public function createGrant(string $grant, ?Module $module = null): AuthGrant
     {
         $grantVO = GrantVO::m($grant);
         $grantInstance = $this->grantRepository->findOneBySlug($grantVO->getSlug());
@@ -104,3 +104,4 @@ class AuthHelper
         return $grantInstance;
     }
 }
+

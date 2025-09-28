@@ -12,10 +12,14 @@
 {% endblock %}
 
 {% block body %}
-    <user-single
-        {% if user is not null %}
-            :user-id="{{ user.getId }}"
-        {% endif %}
-    ></user-single>
+    <app>
+        <configuration-module-wrapper>
+            <user-single
+                {% if user is not null %}
+                    :user-id="{{ user.getId }}"
+                {% endif %}
+            ></user-single>
+        </configuration-module-wrapper>
+    </app>
 {% endblock %}
 

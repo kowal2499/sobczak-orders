@@ -2,48 +2,18 @@
 
 namespace App\Tests\End2End\Modules\Authorization;
 
-use App\Module\Authorization\Repository\AuthGrantRepository;
-use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
-use App\Module\Authorization\Repository\AuthRoleRepository;
-use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
-use App\Module\Authorization\Repository\AuthUserRoleRepository;
-use App\Module\ModuleRegistry\Repository\ModuleRepository;
-use App\Repository\UserRepository;
 use App\System\Test\ApiTestCase;
-use App\Tests\Utilities\AuthHelper;
-use App\Tests\Utilities\Factory\AuthFactory;
-use App\Tests\Utilities\Factory\EntityFactory;
+use App\Utilities\Test\AuthHelper;
 
 class GrantsResolverTest extends ApiTestCase
 {
-    private EntityFactory $factory;
-    private AuthFactory $authFactory;
     private AuthHelper $authHelper;
-
-    protected function setUp(): void
-    {
-        $this->factory = new EntityFactory($this->getManager());
-        $this->authFactory = new AuthFactory($this->getManager());
-        $this->authHelper = new AuthHelper(
-            $this->getContainer()->get(AuthRoleRepository::class),
-            $this->getContainer()->get(AuthGrantRepository::class),
-            $this->getContainer()->get(AuthRoleGrantValueRepository::class),
-            $this->getContainer()->get(AuthUserGrantValueRepository::class),
-            $this->getContainer()->get(AuthUserRoleRepository::class),
-            $this->getContainer()->get(ModuleRepository::class),
-            $this->getContainer()->get(UserRepository::class),
-        );
-    }
 
     public function testShouldGetUserGrants(): void
     {
         // given
-        $this->authHelper->createRole('ROLE_PRODUCTION', ['grant01=false', 'grant02=true', 'grant03']);
-        $user = $this->authHelper->createUser(
-            [],
-            ['ROLE_PRODUCTION'],
-            ['grant04=true', 'grant05:option01=true']
-        );
+        $this->getAuthHelper()->createRole('ROLE_PRODUCTION', ['grant01=false', 'grant02=true', 'grant03']);
+        $user = $this->createUser([], ['ROLE_PRODUCTION'], ['grant04=true', 'grant05:option01=true']);
 
         $client = $this->login($user);
 
