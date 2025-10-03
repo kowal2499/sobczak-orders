@@ -117,6 +117,7 @@
                         Uprawnienia
                     </label>
                     <div class="col">
+                        <pre>{{ grants }}</pre>
                         <user-grants
                             :userId="userId"
                             v-model="grants"
@@ -145,16 +146,15 @@
 </template>
 
 <script>
-
-    import CollapsibleCard from "../base/CollapsibleCard";
-    import users from "../../api/users";
-    import helpers from "../../helpers";
-    import Waiting from "../base/Waiting";
-    import Routing from "../../api/routing";
-    import ButtonPlus from "../base/ButtonPlus";
-    import RolePicker from "./RolePicker";
+    import CollapsibleCard from "@/components/base/CollapsibleCard";
+    import users from "../repository/users";
+    import UserGrants from "../components/UserGrants"
+    import helpers from "@/helpers";
+    import Waiting from "@/components/base/Waiting";
+    import Routing from "@/api/routing";
+    import ButtonPlus from "@/components/base/ButtonPlus";
+    import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/authorization/components/RoleSelect'
-    import UserGrants from '@/modules/authorization/components/UserGrants'
     import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
     import { fetchGrantUserValues } from '@/modules/authorization/repository/grantValueRepository'
 
@@ -301,8 +301,6 @@
                 canSave: true,
             }
         },
-
-
     }
 </script>
 

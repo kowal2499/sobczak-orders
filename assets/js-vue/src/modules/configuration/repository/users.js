@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Routing from './routing';
+import Routing from '@/api/routing';
 
 export default {
     fetchUsers(showInactive) {

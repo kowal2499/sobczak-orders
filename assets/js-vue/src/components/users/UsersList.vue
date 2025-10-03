@@ -70,7 +70,7 @@
 
     import CollapsibleCard from "../base/CollapsibleCard";
     import Dropdown from "../base/Dropdown";
-    import UsersApi from "../../api/users";
+    import UsersApi from "@/modules/configuration/repository/users";
     import routing from "../../api/routing";
     import helpers from "../../helpers";
 

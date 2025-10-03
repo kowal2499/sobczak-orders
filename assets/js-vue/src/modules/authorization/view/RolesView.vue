@@ -1,7 +1,7 @@
 <script>
 import CollapsibleCard from '@/components/base/CollapsibleCard'
 import RolesNavigation from '../components/RolesNavigation'
-import GrantsList from '../components/GrantsList'
+import GrantsList from '@/modules/configuration/components/GrantsList'
 import GrantRoleValue from '../components/GrantRoleValue'
 import {
     fetchGrants,

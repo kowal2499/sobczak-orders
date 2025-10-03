@@ -4,7 +4,6 @@ import ProductionList from './production/ProductionList';
 import SingleOrder from './orders/single/SingleOrder';
 import Dashboard from './dashboard/Dashboard';
 import UsersList from './users/UsersList';
-import UserSingle from './users/UserSingle';
 import Notifications from './base/Notifications';
 import Dropdown from './base/Dropdown';
 
@@ -14,7 +13,10 @@ import NavOrders from './navigation/NavOrders';
 import TagsModule from "../modules/tags";
 import { views as AuthorizationModuleViews } from "../modules/authorization/exports"
 import Dashboard2 from '../modules/dashboard/Dashboard';
+
 import ConfigurationModuleWrapper from '../modules/configuration/views/ConfigurationModuleWrapper.vue'
+import UserSingle from '../modules/configuration/views/UserSingle.vue'
+
 import App from '../modules/app/views/App.vue'
 
 export default {

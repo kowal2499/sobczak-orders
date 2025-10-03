@@ -1,11 +1,6 @@
 <script>
 import GrantItem from './GrantItem'
-import {
-    fetchGrants,
-    fetchModules,
-} from '../repository/authorizatonRepository'
-import store from '@/store'
-import * as TYPES from '@/store/types'
+import { mapGetters } from 'vuex'
 
 export default {
     name: 'GrantsList',
@@ -15,27 +10,12 @@ export default {
         GrantItem
     },
 
-    mounted() {
-        this.reset()
-    },
-
-    methods: {
-        async reset() {
-            this.isBusy = true
-            const [modulesData, grantsData] = await Promise.all([
-                store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_MODULES),
-                store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS),
-            ])
-
-            this.modules = modulesData
-            this.grants = grantsData
-        }
-    },
-
     computed: {
+        ...mapGetters('auth', ['allGrants', 'allModules']),
+
         grantsInModule() {
-            return this.modules.reduce((prev, current) => {
-                prev[current.id] = this.grants.filter(grant => grant.module_id === current.id);
+            return this.allModules.reduce((prev, current) => {
+                prev[current.id] = this.allGrants.filter(grant => grant.module_id === current.id);
                 return prev;
             }, {
             })
@@ -43,8 +23,6 @@ export default {
     },
 
     data: () => ({
-        modules: [],
-        grants: [],
         isBusy: false,
     })
 }
@@ -52,7 +30,7 @@ export default {
 
 <template>
     <div>
-        <div v-for="module in modules" :key="module.id">
+        <div v-for="module in allModules" :key="module.id">
             <template v-if="grantsInModule[module.id].length">
                 <div class="module-header">
                     <h6>{{ module.namespace }}</h6>
