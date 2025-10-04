@@ -37,8 +37,8 @@ export default defineComponent({
 </script>
 
 <template>
-    <div>
-        <b-form-group>
+    <div class="my-3">
+        <b-form-group class="m-0">
             <b-form-radio-group
                 size="sm"
                 button-variant="outline-primary"
@@ -49,12 +49,21 @@ export default defineComponent({
             ></b-form-radio-group>
         </b-form-group>
         <GrantValue
+            v-if="roleMode"
+            :grant="grant"
+            :user-id="userId"
+            :value="[]"
+            :is-disabled="true"
+            :disabledDescription="'Aby zmienić uprawnienie, przejdź do konfiguracji ról. Możesz też włączyć tryb \'ustawienie własne\' by określić uprawnienia tylko dla tego użytkownika.'"
+            class="my-2"
+        />
+        <GrantValue
             v-if="!roleMode"
             :grant="grant"
             :user-id="userId"
             v-model="proxyData"
-        >
-        </GrantValue>
+            class="my-2"
+        />
     </div>
 </template>
 

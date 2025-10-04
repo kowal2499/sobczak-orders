@@ -41,15 +41,15 @@ export default {
                          class="grant-item"
                          :key="grant.id"
                     >
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="my-1">
+                        <div class="row">
+                            <div class="col-6">
                                 <h6 class="font-weight-bolder">{{ grant.name }}</h6>
                                 <div class="text-sm text-muted">{{ grant.description }}</div>
                                 <div style="font-family: 'Courier New'; font-size: 0.8em" class="mt-2 text-muted">
                                     {{ grant.slug }}
                                 </div>
                             </div>
-                            <div>
+                            <div class="col-6">
                                 <slot name="grantValue" :grant="grant">
                                     <div class="text-sm text-muted">[Brak slotu grantValue]</div>
                                 </slot>

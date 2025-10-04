@@ -18,11 +18,19 @@ export default {
         roleId: {
             type: Number,
             default: null
+        },
+        isDisabled: {
+            type: Boolean,
+            default: false
+        },
+        disabledDescription: {
+            type: String,
+            default: null
         }
     },
 
     computed: {
-        options2() {
+        options() {
             return this.grant.options.length
                 ? this.grant.options.map(option => ({
                     name: option.label,
@@ -48,7 +56,7 @@ export default {
             deep: true,
             immediate: true,
             handler() {
-                const newValue = this.options2.map(option => {
+                const newValue = this.options.map(option => {
                     return {
                         role_id: this.roleId,
                         user_id: this.userId,
@@ -78,13 +86,18 @@ export default {
 <template>
     <b-form-checkbox-group
         v-model="localOptionsChecked"
+        stacked
+        switches
+        :disabled="isDisabled"
+        :v-b-tooltip.hover="isDisabled" :title="disabledDescription"
     >
         <b-form-checkbox
-            v-for="(opt, index) in options2" :key="index"
+            v-for="(opt, index) in options" :key="index"
             :value="opt.value"
+            :button="false"
             size="lg"
         >
-            {{ grant.type === 'boolean' ? '' : opt.name }}
+            <span :class="isDisabled && 'opacity-50'">{{ opt.name }}</span>
         </b-form-checkbox>
     </b-form-checkbox-group>
 </template>

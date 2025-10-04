@@ -1,9 +1,9 @@
 <script>
-import { defineComponent } from 'vue'
+import {defineComponent} from 'vue'
 import proxyValue from '@/mixins/proxyValue'
 import GrantsList from './GrantsList'
 import GrantUserValue from './GrantUserValue'
-import { mapGetters } from 'vuex'
+import {mapGetters} from 'vuex'
 
 export default defineComponent({
     name: 'UserGrants',
@@ -37,8 +37,7 @@ export default defineComponent({
                 ...this.valuesPerGrant,
                 [grantId]: grantsValue
             }
-            const flattenedValues = Object.values(this.valuesPerGrant).flat()
-            this.proxyData = flattenedValues
+            this.proxyData = Object.values(this.valuesPerGrant).flat()
         }
     },
 

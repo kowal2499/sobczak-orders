@@ -117,7 +117,6 @@
                         Uprawnienia
                     </label>
                     <div class="col">
-                        <pre>{{ grants }}</pre>
                         <user-grants
                             :userId="userId"
                             v-model="grants"
