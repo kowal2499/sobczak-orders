@@ -22,16 +22,25 @@ export default defineComponent({
     },
 
     watch: {
-        roleMode(newValue)  {
-            if (newValue) {
-                this.proxyData = []
+        proxyData: {
+            immediate: true,
+            deep: true,
+            handler() {
+                this.roleMode = this.proxyData.length === 0
             }
         },
     },
 
+    methods: {
+        onModeChange() {
+            if (this.roleMode) {
+                this.proxyData = []
+            }
+        }
+    },
+
     data: () => ({
         roleMode: true,
-        localGrantValue: []
     })
 })
 </script>
@@ -46,6 +55,7 @@ export default defineComponent({
                 :options="[{text: 'Na podstawie ról', value: true}, {text: 'Ustawienie własne', value: false}]"
                 name="radios-btn-default"
                 buttons
+                @change="onModeChange"
             ></b-form-radio-group>
         </b-form-group>
         <GrantValue

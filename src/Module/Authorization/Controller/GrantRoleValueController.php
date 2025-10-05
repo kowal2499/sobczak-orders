@@ -59,7 +59,7 @@ class GrantRoleValueController extends BaseController
                 'id' => $item->getId(),
                 'role_id' => $item->getRole()->getId(),
                 'grant_id' => $item->getGrant()->getId(),
-                'option_slug' => $item->getGrantOptionSlug(),
+                'grant_option_slug' => $item->getGrantOptionSlug(),
                 'value' => $item->getValue(),
             ];
         }, $all);

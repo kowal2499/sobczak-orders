@@ -31,6 +31,19 @@ export default defineComponent({
         ...mapGetters('auth', ['allGrants', 'allModules']),
     },
 
+    watch: {
+        proxyData: {
+            deep: true,
+            immediate: true,
+            handler() {
+                this.valuesPerGrant = this.allGrants.reduce((prev, current) => {
+                    prev[current.id] = this.proxyData.filter(item => item.grant_id === current.id)
+                    return prev
+                }, {})
+            }
+        }
+    },
+
     methods: {
         setValuesPerGrant(grantId, grantsValue) {
             this.valuesPerGrant = {

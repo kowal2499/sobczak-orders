@@ -48,7 +48,10 @@ export default {
             deep: true,
             immediate: true,
             handler() {
-                this.localOptionsChecked = this.value.filter(item => item.value).map(item => item.grant_option_slug)
+                this.localOptionsChecked = this.value
+                    .filter(item => item.value === true)
+                    .map(item => item.grant_option_slug)
+                console.log(this.grant.id, this.localOptionsChecked)
             }
         },
 

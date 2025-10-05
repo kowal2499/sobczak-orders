@@ -15,3 +15,13 @@ framework:
         routing:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
+
+        default_bus: messenger.bus.commands
+        buses:
+            messenger.bus.commands:
+                middleware:
+                  - validation
+
+            messenger.bus.queries:
+                middleware:
+                    - validation

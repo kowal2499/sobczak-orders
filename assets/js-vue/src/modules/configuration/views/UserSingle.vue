@@ -137,11 +137,9 @@
                         </button-plus>
                     </div>
                 </div>
-
             </collapsible-card>
         </div>
     </div>
-
 </template>
 
 <script>
@@ -155,7 +153,10 @@
     import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/authorization/components/RoleSelect'
     import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
-    import { fetchGrantUserValues } from '@/modules/authorization/repository/grantValueRepository'
+    import {
+        fetchGrantUserValues,
+        setGrantUserValues,
+    } from '@/modules/authorization/repository/grantValueRepository'
 
     export default {
         name: "UserSingle",
@@ -225,10 +226,11 @@
 
                 let fn = this.userId ? users.storeUser : users.addUser;
 
-                Promise.all([
-                    fn(userData),
-                    assignRoles(this.userId, this.newRoles)
-                ])
+                fn(userData)
+                    .then(() => Promise.all([
+                        assignRoles(this.userId, this.newRoles),
+                        setGrantUserValues(this.userId, this.grants)
+                    ]))
                     .then(() => {
                         // gdy dodano nowego użytkownika to przekieruj do listy
                         if (this.isNew()) {
@@ -261,11 +263,7 @@
         watch: {
             passwords: {
                 handler() {
-                    if (this.passwords.new === this.passwords.check) {
-                        this.passwords.passwordsMatch = true;
-                    } else {
-                        this.passwords.passwordsMatch = false;
-                    }
+                    this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
                 },
                 deep: true
             }
@@ -286,17 +284,13 @@
                 locked: false,
                 dataFetched: false,
                 title: '',
-
                 passwords: {
                     new: '',
                     check: '',
                     passwordsMatch: true
                 },
-
                 newRoles: [],
-
                 grants: [],
-
                 canSave: true,
             }
         },

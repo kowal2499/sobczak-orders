@@ -72,7 +72,7 @@ export default {
                         const initValue = initialValues.find(v =>
                             v.grant_id === grant.id
                             && v.role_id === role.id
-                            && v.option_slug === option.optionSlug
+                            && v.grant_option_slug === option.optionSlug
                         )
                         this.grantsStore.push({
                             roleId: role.id,

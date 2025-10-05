@@ -49,3 +49,24 @@ services:
 
     App\Utilities\Test\AuthHelper:
         public: true
+
+    # Messenger handlers configuration
+    App\System\CommandBus:
+        arguments:
+            $messageBus: '@messenger.bus.commands'
+
+    App\System\QueryBus:
+        arguments:
+            $messageBus: '@messenger.bus.queries'
+
+    command_handlers:
+        namespace: App\
+        resource: '%kernel.project_dir%/src/**/CommandHandler/**/*Handler.php'
+        tags:
+          - { name: messenger.message_handler, bus: messenger.bus.commands }
+
+    query_handlers:
+        namespace: App\
+        resource: '%kernel.project_dir%/src/**/QueryHandler/**/*Handler.php'
+        tags:
+            - { name: messenger.message_handler, bus: messenger.bus.queries }
