@@ -51,7 +51,6 @@ export default {
                 this.localOptionsChecked = this.value
                     .filter(item => item.value === true)
                     .map(item => item.grant_option_slug)
-                console.log(this.grant.id, this.localOptionsChecked)
             }
         },
 

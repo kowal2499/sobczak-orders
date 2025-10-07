@@ -10,7 +10,8 @@ export default defineComponent({
         await store.dispatch('ui/' + TYPES.ACTION_ENABLE_BUSY_STATE, 'Inicjalizacja modułu konfiguracji...')
         await Promise.all([
             store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_MODULES),
-            store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS)
+            store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS),
+            store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_ROLES),``
         ])
         await store.dispatch('ui/' + TYPES.ACTION_DISABLE_BUSY_STATE)
         this.isInitialized = true

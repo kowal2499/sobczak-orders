@@ -2,7 +2,7 @@
 import { defineComponent    } from 'vue'
 import RoleForm from './RoleForm'
 import ModalAction from '@/components/base/ModalAction'
-import { createRole } from '../repository/authorizatonRepository'
+import { createRole } from '../../repository/authorizatonRepository'
 
 export default defineComponent({
     name: 'RoleModalForm',

@@ -8,7 +8,7 @@ export function assignRoles(userId, roles) {
     return axios.post(`/authorization/role/user/${userId}/assign`, { roles });
 }
 
-export function fetchRoles() {
-    return axios.get('/authorization/role/list');
+export function fetchGrantRoleValues() {
+    return axios.get('/authorization/grant/role/value');
 }
 

@@ -1,27 +1,15 @@
 <script>
+import { mapGetters } from "vuex";
+
 export default {
     name: 'RolesNavigation',
 
-    props: {
-        roles: {
-            type: Array,
-            default: () => ([]),
-        },
-        store: {
-            type: Array,
-            default: () => ([])
-        }
-    },
-
     computed: {
-        contextStore() {
-            return this.store.filter(item => item.roleId === this.activeRoleId)
-        }
+        ...mapGetters('auth', ['allRoles']),
     },
 
     data: () => ({
         activeRoleId: null,
-        isBusy: false,
     })
 }
 </script>
@@ -32,7 +20,7 @@ export default {
             <b-nav pills card vertical class="p-2 background-light">
                 <slot name="actions" />
                 <b-nav-item
-                    v-for="role in roles"
+                    v-for="role in allRoles"
                     :key="role.id"
                     :title="role.name"
                     :active="activeRoleId === role.id"
@@ -45,7 +33,7 @@ export default {
 
         <b-col>
             <div class="p-3">
-                <slot :roleId="activeRoleId" :contextStore="contextStore" v-if="activeRoleId" />
+                <slot :roleId="activeRoleId" v-if="activeRoleId" />
                 <div class="alert alert-info text-center" v-else>
                     {{ $t('auth.selectRole') }}
                 </div>

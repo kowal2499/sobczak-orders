@@ -151,12 +151,12 @@
     import Routing from "@/api/routing";
     import ButtonPlus from "@/components/base/ButtonPlus";
     import RolePicker from "@/components/users/RolePicker";
-    import RoleSelect from '@/modules/authorization/components/RoleSelect'
-    import { assignRoles } from '@/modules/authorization/repository/rolesRepository'
+    import RoleSelect from '@/modules/configuration/components/roles/RoleSelect'
+    import { assignRoles } from '@/modules/configuration/repository/rolesRepository'
     import {
         fetchGrantUserValues,
         setGrantUserValues,
-    } from '@/modules/authorization/repository/grantValueRepository'
+    } from '../repository/authorizatonRepository'
 
     export default {
         name: "UserSingle",

@@ -11,11 +11,11 @@ import MenuItem from './base/MenuItem';
 import NavOrders from './navigation/NavOrders';
 
 import TagsModule from "../modules/tags";
-import { views as AuthorizationModuleViews } from "../modules/authorization/exports"
 import Dashboard2 from '../modules/dashboard/Dashboard';
-
 import ConfigurationModuleWrapper from '../modules/configuration/views/ConfigurationModuleWrapper.vue'
+
 import UserSingle from '../modules/configuration/views/UserSingle.vue'
+import Roles from "../modules/configuration/views/Roles.vue"
 
 import App from '../modules/app/views/App.vue'
 
@@ -28,6 +28,7 @@ export default {
     Dashboard,
     UsersList,
     UserSingle,
+    Roles,
     Dropdown,
     MenuItem,
     Notifications,
@@ -35,5 +36,4 @@ export default {
     Dashboard2,
     ConfigurationModuleWrapper,
     ...TagsModule,
-    ...AuthorizationModuleViews,
 }

@@ -20,15 +20,15 @@ export default defineComponent({
         GrantUserValue,
     },
 
+    computed: {
+        ...mapGetters('auth', ['allGrants', 'allModules']),
+    },
+
     mounted() {
         this.valuesPerGrant = this.allGrants.reduce((prev, current) => {
             prev[current.id] = this.proxyData.filter(item => item.grant_id === current.id)
             return prev
         }, {})
-    },
-
-    computed: {
-        ...mapGetters('auth', ['allGrants', 'allModules']),
     },
 
     watch: {

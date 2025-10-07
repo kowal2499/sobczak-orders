@@ -1,7 +1,8 @@
 <script>
 import { defineComponent } from 'vue'
 import VueSelect from 'vue-select'
-import { fetchRolesByUserId, fetchRoles } from '../repository/rolesRepository'
+import { fetchRolesByUserId } from '../../repository/rolesRepository'
+import { mapGetters } from 'vuex'
 
 export default defineComponent({
     name: 'RoleSelect',
@@ -24,10 +25,6 @@ export default defineComponent({
     watch: {
         userId: {
             async handler() {
-                if (this.allRoles === undefined) {
-                    const { data } = await fetchRoles()
-                    this.allRoles = data.map(role => ({ label: role.name, value: role.id, id: role.id }) )
-                }
 
                 fetchRolesByUserId(this.userId).then(({data}) => {
                     const allRoleIds = this.allRoles.map(role => role.id)
@@ -41,6 +38,16 @@ export default defineComponent({
     },
 
     computed: {
+        ...mapGetters('auth', ['allRoles']),
+
+        roleOptions() {
+            return this.allRoles.map(role => ({
+                label: role.name,
+                value: role.id,
+                id: role.id
+            }))
+        },
+
         innerValue: {
             get() {
                 return this.value
@@ -54,10 +61,6 @@ export default defineComponent({
         }
     },
 
-    data: () => ({
-        allRoles: undefined,
-    })
-
 })
 </script>
 
@@ -65,7 +68,7 @@ export default defineComponent({
     <div>
         <vue-select
             v-model="innerValue"
-            :options="allRoles"
+            :options="roleOptions"
             multiple
             taggable
             searchable

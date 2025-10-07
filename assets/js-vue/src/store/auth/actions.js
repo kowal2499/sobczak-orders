@@ -1,5 +1,5 @@
 import * as TYPES from "../types";
-import { fetchGrants, fetchModules } from "@/modules/authorization/repository/authorizatonRepository"
+import { fetchGrants, fetchModules, fetchRoles } from "@/modules/configuration/repository/authorizatonRepository"
 
 export default {
     [TYPES.ACTION_AUTH_FETCH_GRANTS]({ state, commit}, force = false) {
@@ -20,5 +20,15 @@ export default {
             })
         }
         return Promise.resolve(state.modules)
+    },
+
+    [TYPES.ACTION_AUTH_FETCH_ROLES]({ state, commit }, force = false) {
+        if (state.roles === undefined || force) {
+            return fetchRoles().then(({data}) => {
+                commit(TYPES.MUTATION_AUTH_SET_ROLES, data);
+                return data
+            })
+        }
+        return Promise.resolve(state.roles)
     }
 }
