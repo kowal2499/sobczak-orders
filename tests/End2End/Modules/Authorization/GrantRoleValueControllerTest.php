@@ -29,18 +29,19 @@ class GrantRoleValueControllerTest extends ApiTestCase
     {
         // Given
         $grant = $this->getAuthHelper()->createGrant('grant768');
-        $role = $this->getAuthHelper()->createRole('ROLE_PRODUCTION', ['grant768']);
+        $role = $this->getAuthHelper()->createRole('ROLE_PRODUCTION', []);
 
         $user = $this->createUser([], ['ROLE_ADMIN']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('POST', '/authorization/grant/role/value', [
-            'roleId' => $role->getId(),
-            'grantId' => $grant->getId(),
-            'value' => false
-        ]);
+        $client->xmlHttpRequest('POST', '/authorization/grant/role/' . $role->getId() . '/value', [[
+            'role_id' => $role->getId(),
+            'grant_id' => $grant->getId(),
+            'grant_option_slug' => null,
+            'value' => true
+        ]]);
 
         // Then
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -49,10 +50,11 @@ class GrantRoleValueControllerTest extends ApiTestCase
         $repo = $this->getContainer()->get(AuthRoleGrantValueRepository::class);
         $entity = $repo->findOneByRoleAndGrant(
             $this->roleRepository->find($role->getId()),
-            $this->grantRepository->findOneBySlug($grant->getSlug())
+            $this->grantRepository->find($grant->getId()),
+            null
         );
         $this->assertNotNull($entity);
-        $this->assertEquals(false, $entity->getValue());
+        $this->assertTrue($entity->getValue());
     }
 
     public function testShouldListGrantRoleValues(): void

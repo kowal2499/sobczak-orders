@@ -40,4 +40,21 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
         }
     }
 
+    public function remove(AuthRoleGrantValue $userGrantValue, bool $flush = true): void
+    {
+        foreach ($this->storage as $idx => $rgValue) {
+            if (
+                $rgValue->getRole()->getId() === $userGrantValue->getRole()->getId()
+                && $rgValue->getGrant()->getId() === $userGrantValue->getGrant()->getId()
+                && $rgValue->getGrantOptionSlug() === $userGrantValue->getGrantOptionSlug()
+            ) {
+                unset($this->storage[$idx]);
+                break;
+            }
+        }
+
+        $this->storage = array_values($this->storage);
+    }
+
+
 }

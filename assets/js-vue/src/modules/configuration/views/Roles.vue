@@ -3,10 +3,12 @@ import CollapsibleCard from '@/components/base/CollapsibleCard'
 import RolesNavigation from '../components/roles/RolesNavigation'
 import GrantsList from '../components/GrantsList'
 import GrantValue from '../components/GrantValue'
-import { fetchGrantRoleValues } from '../repository/rolesRepository'
 import RoleModalForm from '../components/forms/RoleModalForm'
 import { mapGetters } from 'vuex'
 import { isEqual } from 'lodash'
+import { fetchGrantRoleValues } from '../repository/rolesRepository'
+import { setGrantRoleValue } from '../repository/authorizatonRepository'
+
 export default {
     name: 'RolesView',
 
@@ -81,12 +83,17 @@ export default {
                 }
             }
 
-            this.save(grantsValue)
+            this.save(roleId, grantsValue)
         },
 
-        save(grantValues) {
-            // todo: implement saving
-            console.log({save: grantValues})
+        save(roleId, grantValues) {
+            return setGrantRoleValue(roleId, grantValues)
+                .catch(() => {
+                    EventBus.$emit('message', {
+                        type: 'error',
+                        content: 'Błąd zapisu danych'
+                    });
+                })
         }
     },
 

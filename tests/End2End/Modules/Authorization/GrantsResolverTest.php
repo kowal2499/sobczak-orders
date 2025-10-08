@@ -24,6 +24,7 @@ class GrantsResolverTest extends ApiTestCase
         $content = json_decode($client->getResponse()->getContent(), true)['data'];
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        dd($content);
         $this->assertCount(4, $content);
         $this->assertSame(['grant02', 'grant03', 'grant04', 'grant05:option01'], $content);
     }

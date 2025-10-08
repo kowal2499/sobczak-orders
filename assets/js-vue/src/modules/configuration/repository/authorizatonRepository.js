@@ -20,8 +20,8 @@ export function setGrantUserValues(userId, data) {
     return axios.post(`/authorization/grant/user/${userId}/values`, data);
 }
 
-export function setGrantRoleValue(data) {
-    return axios.post('/authorization/grant/role/value', data);
+export function setGrantRoleValue(roleId, data) {
+    return axios.post(`/authorization/grant/role/${roleId}/value`, data);
 }
 
 export function fetchGrantUserValues(userId) {

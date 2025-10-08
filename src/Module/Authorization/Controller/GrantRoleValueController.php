@@ -3,54 +3,53 @@
 namespace App\Module\Authorization\Controller;
 
 use App\Controller\BaseController;
+use App\Module\Authorization\Command\CreateRoleGrantValue;
+use App\Module\Authorization\Command\DeleteRoleGrantValue;
+use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
 use App\Module\Authorization\Service\AuthCacheService;
+use App\System\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/grant/role/value', name: 'authorization_grant_role_value')]
 
 class GrantRoleValueController extends BaseController
 {
-    #[Route(path: '', name: '_add', methods: ['POST'])]
-    public function add(
+    #[Route(path: '/grant/role/{role}/value', name: 'authorization_grant_role_value_add', methods: ['POST'])]
+    public function store(
         Request $request,
-        AuthRoleGrantValueRepository $roleGrantValueRepository,
-        AuthRoleRepository $roleRepository,
-        AuthGrantRepository $grantRepository,
-        AuthCacheService $cacheService,
+        AuthRole $role,
+        CommandBus $commandBus,
     ): JsonResponse
     {
-        $roleId = $request->request->getInt('roleId');
-        $grantId = $request->request->getInt('grantId');
-        $optionSlug = $request->request->get('optionSlug');
-        $grantValue = $request->request->getBoolean('value');
+        foreach ($request->request->all() as $grantRoleValue) {
+            if (!array_key_exists('grant_id', $grantRoleValue) ||
+                !array_key_exists('grant_option_slug', $grantRoleValue) ||
+                !array_key_exists('value', $grantRoleValue)
+            ) {
+                return new JsonResponse(
+                    ['error' => 'Invalid input data'],
+                    400
+                );
+            }
 
-        $role = $roleRepository->find($roleId);
-        $grant = $grantRepository->find($grantId);
-        if (!$role || !$grant) {
-            return new JsonResponse(
-                ['error' => 'Role or Grant not found'],
-                400
-            );
-        }
-        $instance = $roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $optionSlug);
-        if (!$instance) {
-            $instance = new AuthRoleGrantValue($role, $grant, $optionSlug);
-        }
-        $instance->setValue($grantValue);
-        $roleGrantValueRepository->add($instance);
+            if ($grantRoleValue['value']) {
+                $command = new CreateRoleGrantValue($role->getId(), $grantRoleValue['grant_id'], $grantRoleValue['grant_option_slug'], true);
+            } else {
+                $command = new DeleteRoleGrantValue($role->getId(), $grantRoleValue['grant_id'], $grantRoleValue['grant_option_slug']);
+            }
 
-        // clear caches
-        $cacheService->invalidateAll();
-        return new JsonResponse(['success' => true, 'id' => $instance->getId()]);
+            $commandBus->dispatch($command);
+        }
+
+        return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '', name: '_list', methods: ['GET'])]
+    #[Route(path: '/grant/role/value', name: 'authorization_grant_role_value_list', methods: ['GET'])]
     public function list(AuthRoleGrantValueRepository $roleGrantValueRepository): JsonResponse
     {
         $all = $roleGrantValueRepository->findAll();
