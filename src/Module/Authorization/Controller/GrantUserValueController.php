@@ -42,9 +42,9 @@ class GrantUserValueController extends BaseController
 
             $commandBus->dispatch(new CreateUserGrantValue(
                 $user->getId(),
-                $grantUserValue['grant_id'],
-                $grantUserValue['grant_option_slug'],
-                $grantUserValue['value']
+                (int)$grantUserValue['grant_id'],
+                $grantUserValue['grant_option_slug'] ?: null,
+                (bool)$grantUserValue['value']
             ));
 
             // Remove from existing values to avoid deletion

@@ -52,4 +52,12 @@ class AuthRoleRepository extends ServiceEntityRepository implements AuthRoleRepo
         }
         return $result;
     }
+
+    public function remove(AuthRole $role, bool $flush = true): void
+    {
+        $this->_em->remove($role);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 }

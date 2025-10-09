@@ -2,13 +2,9 @@
 
 namespace App\Tests\End2End\Modules\Authorization;
 
-use App\Module\Authorization\Entity\AuthGrant;
-use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
-use App\Module\Authorization\Repository\Interface\AuthGrantRepositoryInterface;
-use App\Module\Authorization\Repository\Interface\AuthRoleRepositoryInterface;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\EntityFactory;
 
@@ -19,6 +15,7 @@ class GrantRoleValueControllerTest extends ApiTestCase
 
     protected function setUp(): void
     {
+        $this->getManager()->beginTransaction();
         $factory = new EntityFactory($this->getManager());
 
         $this->roleRepository = $this->get(AuthRoleRepository::class);
@@ -51,7 +48,6 @@ class GrantRoleValueControllerTest extends ApiTestCase
         $entity = $repo->findOneByRoleAndGrant(
             $this->roleRepository->find($role->getId()),
             $this->grantRepository->find($grant->getId()),
-            null
         );
         $this->assertNotNull($entity);
         $this->assertTrue($entity->getValue());

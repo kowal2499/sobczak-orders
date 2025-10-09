@@ -37,10 +37,13 @@ class GrantRoleValueController extends BaseController
                 );
             }
 
+            $grantId = (int)$grantRoleValue['grant_id'];
+            $optionSlug = $grantRoleValue['grant_option_slug'] ?: null;
+
             if ($grantRoleValue['value']) {
-                $command = new CreateRoleGrantValue($role->getId(), $grantRoleValue['grant_id'], $grantRoleValue['grant_option_slug'], true);
+                $command = new CreateRoleGrantValue($role->getId(), $grantId, $optionSlug, true);
             } else {
-                $command = new DeleteRoleGrantValue($role->getId(), $grantRoleValue['grant_id'], $grantRoleValue['grant_option_slug']);
+                $command = new DeleteRoleGrantValue($role->getId(), $grantId, $optionSlug);
             }
 
             $commandBus->dispatch($command);

@@ -32,4 +32,14 @@ class AuthRoleTestRepository implements AuthRoleRepositoryInterface
     {
         return $this->rolesMap[$id] ?? null;
     }
+
+    public function remove(AuthRole $role, bool $flush = true): void
+    {
+        $foundRole  = $this->findById($role->getId());
+        if ($foundRole) {
+            unset($this->rolesMap[$foundRole->getId()]);
+        }
+    }
+
+
 }
