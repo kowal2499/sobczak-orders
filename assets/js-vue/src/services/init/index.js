@@ -2,10 +2,9 @@ import store from "../../store";
 import * as TYPES from "../../store/types"
 
 export default async () => {
-    console.log(process.env.DISABLE_GRANTS_CACHE)
     await store.dispatch(`ui/${TYPES.ACTION_ENABLE_BUSY_STATE}`, 'Inicjalizacja')
     await Promise.all([
-        store.dispatch(`user/${TYPES.ACTION_FETCH_GRANTS}`, true),
+        store.dispatch(`user/${TYPES.ACTION_FETCH_GRANTS}`, !!process.env.DISABLE_GRANTS_CACHE),
     ])
     await store.dispatch(`ui/${TYPES.ACTION_DISABLE_BUSY_STATE}`)
 }
