@@ -49,7 +49,7 @@ class SecurityController extends BaseController
     #[Route(path: '/users', name: 'security_users', options: ['expose' => true], methods: ['GET'])]
     public function users(): Response
     {
-        return $this->render('security/users.html.twig', []);
+        return $this->render('configuration/users.html.twig', []);
     }
 
     #[Route(path: '/logout', name: 'security_logout')]
@@ -76,7 +76,7 @@ class SecurityController extends BaseController
     #[Route(path: '/users/add', name: 'view_security_user_new', options: ['expose' => true])]
     public function viewAddUser(): Response
     {
-        return $this->render('security/single_user.html.twig', [
+        return $this->render('configuration/single_user.html.twig', [
             'user' => null
         ]);
     }
@@ -213,6 +213,6 @@ class SecurityController extends BaseController
             return $this->composeErrorResponse($e);
         }
 
-        return new JsonResponse(['id' => $user->getId()]);
+        return $this->json(['id' => $user->getId()]);
     }
 }

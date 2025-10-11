@@ -43,12 +43,12 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                <p class="text-muted" v-if="!isNew()">Pozostaw te pola puste aby nie zmieniać hasła.</p>
+                                <p class="text-muted" v-if="!isNew">Pozostaw te pola puste aby nie zmieniać hasła.</p>
 
                                 <div class="card-text">
                                     <div class="form-group row">
                                         <label class="col-3 col-form-label">
-                                            <span v-if="isNew()">Hasło</span><span v-else>Nowe hasło</span>
+                                            <span v-if="isNew">Hasło</span><span v-else>Nowe hasło</span>
                                         </label>
                                         <div class="col">
                                             <input type="password" class="form-control" v-model="passwords.new">
@@ -57,7 +57,7 @@
 
                                     <div class="form-group row">
                                         <label class="col-3 col-form-label">
-                                            <span v-if="isNew()">Powtórz hasło</span><span v-else>Powtórz nowe hasło</span>
+                                            <span v-if="isNew">Powtórz hasło</span><span v-else>Powtórz nowe hasło</span>
                                         </label>
                                         <div class="col">
                                             <input type="password" class="form-control" v-model="passwords.check">
@@ -66,10 +66,10 @@
 
                                     <div class="row" v-if="!passwords.passwordsMatch">
                                         <div class="col">
-                                            <div class="alert alert-info" v-if="!isNew()">
+                                            <div class="alert alert-info" v-if="!isNew">
                                                 Wartości w polach 'Nowe hasło' i 'Powtórz nowe hasło' muszą być takie same.
                                             </div>
-                                            <div class="alert alert-info" v-if="isNew()">
+                                            <div class="alert alert-info" v-if="isNew">
                                                 Wartości w polach 'Hasło' i 'Powtórz hasło' muszą być takie same.
                                             </div>
                                         </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <div class="form-group row">
+                <div class="form-group row" v-if="!isNew">
                     <label class="col-3 col-form-label">
                         Aktywny
                     </label>
@@ -129,7 +129,7 @@
                         <button-plus
                             :button-class="'btn-primary float-right'"
                             :icon-class="'fa fa-floppy-o'"
-                            :inner-text="isNew() ? 'Dodaj użytkownika' : 'Zapisz zmiany'"
+                            :inner-text="isNew ? 'Dodaj użytkownika' : 'Zapisz zmiany'"
                             :is-disabled="!passwords.passwordsMatch || user.roles.length===0"
                             :is-busy="locked"
                             @clicked="save"
@@ -175,7 +175,7 @@
             this.locked = true;
 
             // pobranie danych użytkownika
-            if (this.userId > 0) {
+            if (!this.isNew) {
                 await Promise.all([
                     this.fetchUserData(),
                     this.fetchUserGrants()
@@ -185,6 +185,21 @@
             }
             this.dataFetched = true;
             this.locked = false;
+        },
+
+        computed: {
+            isNew() {
+                return this.userId === 0
+            }
+        },
+
+        watch: {
+            passwords: {
+                handler() {
+                    this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
+                },
+                deep: true
+            }
         },
 
         methods: {
@@ -224,16 +239,21 @@
                     userData.passwordPlain = this.passwords.new;
                 }
 
-                let fn = this.userId ? users.storeUser : users.addUser;
+                let fn = this.isNew ? users.addUser : users.storeUser;
 
-                fn(userData)
-                    .then(() => Promise.all([
-                        assignRoles(this.userId, this.newRoles),
-                        setGrantUserValues(this.userId, this.grants)
-                    ]))
+                return fn(userData)
+                    .then(({data}) => {
+                        const userId = this.isNew ? data.id : this.userId;
+                        if (userId) {
+                            return Promise.all([
+                                assignRoles(userId, this.newRoles),
+                                setGrantUserValues(userId, this.grants)
+                            ])
+                        }
+                    })
                     .then(() => {
                         // gdy dodano nowego użytkownika to przekieruj do listy
-                        if (this.isNew()) {
+                        if (this.isNew) {
                             window.location.replace(Routing.get('security_users'));
                         } else {
                             EventBus.$emit('message', {
@@ -254,19 +274,6 @@
                     })
                 ;
             },
-
-            isNew() {
-                return this.userId === 0;
-            }
-        },
-
-        watch: {
-            passwords: {
-                handler() {
-                    this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
-                },
-                deep: true
-            }
         },
 
         data() {

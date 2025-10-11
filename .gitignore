@@ -2,6 +2,7 @@
 /.env.local
 /.env.local.php
 /.env.*.local
+
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
@@ -44,3 +45,6 @@ testing.php
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+# Ignoruj pliki env w assets
+assets/.env.local

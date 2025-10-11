@@ -25,7 +25,9 @@ export default defineComponent({
     watch: {
         userId: {
             async handler() {
-
+                if (!this.userId) {
+                    return
+                }
                 fetchRolesByUserId(this.userId).then(({data}) => {
                     const allRoleIds = this.allRoles.map(role => role.id)
 
