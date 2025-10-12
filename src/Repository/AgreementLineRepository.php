@@ -166,13 +166,13 @@ class AgreementLineRepository extends ServiceEntityRepository
         // gdy użytkownik ma rolę 'klient' to zawężamy wyniki do podpiętych klientów
         if ($this->security->isGranted('ROLE_CUSTOMER')) {
             $customers = $this->security->getUser()->getCustomers();
-            $qb
-                ->innerJoin('l.Agreement', 'a')
-                ->innerJoin('a.Customer', 'c')
-
-                ->andWhere('c.id IN (:ownedCustomers)')
-                ->setParameter('ownedCustomers', $customers)
-            ;
+            if (!empty($customers->toArray())) {
+                $qb
+                    ->innerJoin('l.Agreement', 'a')
+                    ->innerJoin('a.Customer', 'c')
+                    ->andWhere('c.id IN (:ownedCustomers)')
+                    ->setParameter('ownedCustomers', $customers);
+            }
         }
 
         return $qb->getQuery()->getResult();

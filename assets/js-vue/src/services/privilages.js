@@ -71,7 +71,6 @@ export class User {
     setGrants(grants) {
         this.grants = Array.isArray(grants) ? grants.map(g => g.toLowerCase()) : []
     }
-
     can(name) {
         if (this.user.roles.includes('ROLE_ADMIN')) {
             return true
@@ -92,6 +91,10 @@ export class User {
         }
 
         return this.grants.includes(name)
+    }
+
+    isImpersonated() {
+        return this.user && this.user.isImpersonated === true;
     }
 }
 

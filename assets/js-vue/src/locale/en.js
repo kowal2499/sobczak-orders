@@ -22,6 +22,9 @@ export default {
     '_yes': 'Yes',
     '_no': 'No',
     '_confirmation_required': 'Confirmation required',
+    '_logout': 'Logout',
+    '_impersonate': 'Impersonate user',
+    '_impersonate_back': 'Return to your user',
 
     '_validation': {
         'required': 'This field is required',

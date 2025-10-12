@@ -1,7 +1,5 @@
 <template>
-
-
-    <div class="dropdown"
+    <div class="dropdown s-dropdown"
          v-click-outside="onClickOutside"
     >
         <button class="btn btn-light dropdown-toggle" type="button"
@@ -16,10 +14,7 @@
         >
             <slot></slot>
         </div>
-
     </div>
-
-
 </template>
 
 <script>
@@ -86,18 +81,10 @@
     }
 
     .dropdown {
-
         .dropdown-menu {
             left: auto;
             right: 0;
             top: 110%;
-
-            padding: 0;
-
-            & > * {
-                font-size: 0.8rem;
-            }
-
         }
 
         button {
@@ -108,11 +95,6 @@
             &.btn {
                 padding: 0 0.5rem;
             }
-        }
-
-        a i {
-            margin-right: 10px;
-            color: #aaa;
         }
     }
 </style>

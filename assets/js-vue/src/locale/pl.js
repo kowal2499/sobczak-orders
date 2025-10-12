@@ -22,6 +22,10 @@ export default {
     '_yes': 'Tak',
     '_no': 'Nie',
     '_confirmation_required': 'Wymagane potwierdzenie',
+    '_logout': 'Wyloguj',
+    '_impersonate': 'Zmień użytkownika',
+    '_impersonate_back': 'Przywróć swojego użytkownika',
+
 
     '_validation': {
         'required': 'To pole jest wymagane',

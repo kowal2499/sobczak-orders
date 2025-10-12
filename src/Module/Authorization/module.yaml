@@ -3,4 +3,8 @@ app_module:
   description: Moduł zarządzania użytkownikami i ich uprawnieniami
   active: true
   grants:
+    - name: Przelogowanie użytkownika
+      description: Możliwość przelogowania się na innego użytkownika w systemie
+      slug: authorization.impersonate
+      type: boolean
       

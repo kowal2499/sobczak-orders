@@ -17,6 +17,8 @@ import ConfigurationModuleWrapper from '../modules/configuration/views/Configura
 import UserSingle from '../modules/configuration/views/UserSingle.vue'
 import Roles from "../modules/configuration/views/Roles.vue"
 
+import ContextMenu from './base/Menu/ContextMenu.vue'
+
 import App from '../modules/app/views/App.vue'
 
 export default {
@@ -36,4 +38,5 @@ export default {
     Dashboard2,
     ConfigurationModuleWrapper,
     ...TagsModule,
+    ContextMenu,
 }

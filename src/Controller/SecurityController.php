@@ -42,6 +42,10 @@ class SecurityController extends BaseController
         ]);
     }
 
+    #[Route(path: '/logout', name: 'security_logout')]
+    public function logout()
+    {}
+
     /**
      * @isGranted("ROLE_ADMIN")
      * @return Response
@@ -52,9 +56,6 @@ class SecurityController extends BaseController
         return $this->render('configuration/users.html.twig', []);
     }
 
-    #[Route(path: '/logout', name: 'security_logout')]
-    public function logout()
-    {}
 
     /**
      * @isGranted("ROLE_ADMIN")

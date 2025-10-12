@@ -59,9 +59,12 @@ class GrantsResolver
         $cacheKey = $this->authCacheService->getRolesCacheKey($user);
 
         return $this->authCacheService->get($cacheKey, function() use ($user) {
-            return array_map(
-                fn (AuthUserRole $userRole) => $userRole->getRole()->getName(),
-                $this->userRoleRepository->findAllByUser($user)
+            return array_merge(
+                $user->getRoles(),
+                array_map(
+                    fn (AuthUserRole $userRole) => $userRole->getRole()->getName(),
+                    $this->userRoleRepository->findAllByUser($user)
+                )
             );
         });
     }
