@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return (Math.round(value * 100)/100).toFixed(2)
     })
 
-    init().then(() => {
+    init(user).then(() => {
         new Vue({
             el: '#app',
             components,
