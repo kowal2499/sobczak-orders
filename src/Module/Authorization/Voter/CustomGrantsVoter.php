@@ -10,7 +10,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class CustomGrantsVoter extends Voter
 {
     private const roleBlacklist = [
-        'IS_IMPERSONATOR'
+        'IS_IMPERSONATOR',
+        'ROLE_CUSTOMER',
     ];
 
     public function __construct(
