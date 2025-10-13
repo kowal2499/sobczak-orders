@@ -1,9 +1,10 @@
 import * as TYPES from "../types";
 import axios from "axios";
 import { get, set } from "../../services/localstorageCache"
+import UsersApi from "@/modules/configuration/repository/users";
 
 export default {
-    async [TYPES.ACTION_FETCH_GRANTS]({ commit }, force = false) {
+    async [TYPES.ACTION_USER_FETCH_GRANTS]({ commit }, force = false) {
         let grants
         if (!force) {
             grants = get('-user-grants')
@@ -14,5 +15,15 @@ export default {
             set('-user-grants', grants, 5)
         }
         commit(TYPES.MUTATION_SET_USER_GRANTS, grants);
+    },
+
+    async [TYPES.ACTION_USER_FETCH_USERS]({ state, commit }, force = false) {
+        if (force || state.users === undefined) {
+            return UsersApi.fetchUsers(true)
+                .then(({data}) => {
+                    commit(TYPES.MUTATION_USER_SET_USERS, data)
+                })
+        }
+        return Promise.resolve(state.users)
     }
 }

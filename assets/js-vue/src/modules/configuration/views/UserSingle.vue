@@ -8,7 +8,6 @@
                 :title="title"
                 :locked="locked"
             >
-
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
                         Imię
@@ -157,7 +156,6 @@
         fetchGrantUserValues,
         setGrantUserValues,
     } from '../repository/authorizatonRepository'
-
     export default {
         name: "UserSingle",
 

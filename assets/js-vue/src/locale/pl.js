@@ -23,9 +23,13 @@ export default {
     '_no': 'Nie',
     '_confirmation_required': 'Wymagane potwierdzenie',
     '_logout': 'Wyloguj',
-    '_impersonate': 'Zmień użytkownika',
-    '_impersonate_back': 'Przywróć swojego użytkownika',
+    '_noData': 'Brak danych',
 
+    '_impersonate': {
+        'title': 'Zmień użytkownika',
+        'titleBack': 'Wróć na swoje konto',
+        'description': 'Przelogowanie pozwala tymczasowo działać jako wybrany użytkownik. Uprawnienia i widok interjesu będą dokładnie takie jak posiada dany użytkownik. Wszystkie operacje zostaną zapisane na jego konto.'
+    },
 
     '_validation': {
         'required': 'To pole jest wymagane',

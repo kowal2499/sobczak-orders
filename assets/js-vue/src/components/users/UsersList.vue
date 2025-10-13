@@ -1,17 +1,14 @@
 <template>
-
     <div class="row">
         <div class="col-sm-12">
             <collapsible-card
                 :title="'Użytkownicy systemu'"
                 :locked="locked"
             >
-
                 <div class="d-flex justify-content-end align-items-center gap-4 mb-3">
                     <b-form-checkbox v-model="showInactiveUsers" switch>
                         <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
                     </b-form-checkbox>
-
                     <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
                 </div>
 
@@ -30,7 +27,7 @@
                         </thead>
 
                         <tbody>
-                            <tr v-for="user in users">
+                            <tr v-for="user in usersList">
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.firstName }}</td>
                                 <td>{{ user.lastName }}</td>
@@ -54,7 +51,6 @@
                                     </dropdown>
                                 </td>
                             </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -62,46 +58,38 @@
             </collapsible-card>
         </div>
     </div>
-
-
 </template>
 
 <script>
-
     import CollapsibleCard from "../base/CollapsibleCard";
     import Dropdown from "../base/Dropdown";
-    import UsersApi from "@/modules/configuration/repository/users";
     import routing from "../../api/routing";
     import helpers from "../../helpers";
+    import store from "@/store";
+    import * as TYPES from "@/store/types"
+    import { mapGetters } from "vuex";
 
     export default {
         components: { CollapsibleCard, Dropdown },
 
         name: "UsersList",
 
-        data() {
-            return {
-                locked: false,
-                users: [],
-                showInactiveUsers: false,
-            }
-        },
-
         mounted() {
             this.fetchData()
         },
 
-        watch: {
-            showInactiveUsers() {
-                this.fetchData()
+        computed: {
+            ...mapGetters('user', ['users']),
+
+            usersList() {
+                return this.users(!this.showInactiveUsers)
             }
         },
 
         methods: {
             fetchData() {
                 this.locked = true;
-                return UsersApi.fetchUsers(this.showInactiveUsers)
-                    .then(({data}) => this.users = data)
+                return store.dispatch(`user/${TYPES.ACTION_USER_FETCH_USERS}`)
                     .finally(() => this.locked = false)
             },
 
@@ -112,7 +100,14 @@
             getRoleName(role) {
                 return helpers.getRoleName(role)
             }
-        }
+        },
+
+        data() {
+            return {
+                locked: false,
+                showInactiveUsers: false,
+            }
+        },
     }
 </script>
 
