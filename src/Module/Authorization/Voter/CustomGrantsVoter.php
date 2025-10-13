@@ -9,6 +9,10 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class CustomGrantsVoter extends Voter
 {
+    private const roleBlacklist = [
+        'IS_IMPERSONATOR',
+        'ROLE_CUSTOMER',
+    ];
 
     public function __construct(
         private readonly GrantsResolver $grantsResolver
@@ -25,6 +29,10 @@ class CustomGrantsVoter extends Voter
         $user = $token->getUser();
 
         if (!$user instanceof User) {
+            return false;
+        }
+
+        if (in_array($attribute, self::roleBlacklist)) {
             return false;
         }
 

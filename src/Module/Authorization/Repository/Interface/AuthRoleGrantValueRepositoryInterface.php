@@ -23,5 +23,6 @@ interface AuthRoleGrantValueRepositoryInterface
      */
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void;
 
+    public function remove(AuthRoleGrantValue $userGrantValue, bool $flush = true): void;
 
 }

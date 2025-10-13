@@ -50,7 +50,11 @@
                         enabled: true,
                         slug: task.departmentSlug
                     }
-                    helpers.getDepartmentsSlugs().includes(normalizedTask.slug)
+                    const slugs = helpers.getDepartments()
+                        .filter(({grant}) => this.$user.can(grant))
+                        .map(({slug}) => slug)
+
+                    slugs.includes(normalizedTask.slug)
                         ? systemTasks.push(normalizedTask)
                         : customTasks.push(normalizedTask)
                 })

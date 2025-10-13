@@ -16,11 +16,7 @@ security:
   # Note: Only the *first* access control that matches will be used
   access_control:
     - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-    - { path: ^/touch_user$, role: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
-
-  # https://symfony.com/doc/current/security/impersonating_user.html
-  # switch_user: true
 
   providers:
     # used to reload user from session & other features (e.g. switch_user)
@@ -36,7 +32,7 @@ security:
       security: false
     main:
       lazy: true
-      provider: users_in_memory
+      provider: app_user_provider
 
       custom_authenticator:
         - App\Security\LoginFormAuthenticator
@@ -47,6 +43,8 @@ security:
       remember_me:
         secret: '%kernel.secret%'
         lifetime: 2592000
+
+      switch_user: { role: 'authorization.impersonate' }
 
 when@test:
   security:

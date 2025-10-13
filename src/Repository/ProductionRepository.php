@@ -60,7 +60,7 @@ class ProductionRepository extends ServiceEntityRepository
 
         if ($this->security->isGranted('ROLE_CUSTOMER')) {
             $customers = $this->security->getUser()->getCustomers();
-            if (!empty($customers)) {
+            if (!empty($customers->toArray())) {
                 $qb
                     ->andWhere('c.id IN (:ownedCustomers)')
                     ->setParameter('ownedCustomers', $customers);

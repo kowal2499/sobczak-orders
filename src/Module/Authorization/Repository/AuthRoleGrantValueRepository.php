@@ -63,4 +63,12 @@ class AuthRoleGrantValueRepository extends ServiceEntityRepository implements Au
             ->getResult();
     }
 
+    public function remove(AuthRoleGrantValue $roleGrantValue, bool $flush = true): void
+    {
+        $this->_em->remove($roleGrantValue);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
 }

@@ -11,7 +11,7 @@ use App\Module\Authorization\Service\GrantsResolver;
 use App\Module\ModuleRegistry\Entity\Module;
 use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use App\Repository\UserRepository;
-use App\Tests\Utilities\AuthHelper;
+use App\Utilities\Test\AuthHelper;
 use App\Tests\Utilities\Cache\TestCacheWrapper;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -221,7 +221,7 @@ class GrantsResolverTest extends TestCase
         $module->setNamespace('marketing');
         $module->setDescription('Moduł marketingu');
         $module->setActive(false);
-        $this->authHelper->getOrCreateGrant('marketing.grant01', $module);
+        $this->authHelper->createGrant('marketing.grant01', $module);
         $user = $this->authHelper->createUser([], [], ['marketing.grant01=true']);
 
         // When

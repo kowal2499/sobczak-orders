@@ -59,6 +59,6 @@ class RoleController extends BaseController
     #[Route(path: '/view',  name: '_role_view', methods: ['GET'])]
     public function view(): Response
     {
-        return $this->render('authorization/role.html.twig');
+        return $this->render('configuration/role.html.twig');
     }
 }

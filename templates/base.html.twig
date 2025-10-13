@@ -29,16 +29,7 @@
                     {% include('_language_switcher.html.twig') %}
                 </div>
 
-                <dropdown icon-class="fa fa-user-circle-o" btn-text="{{ app.user.getUserFullName }}">
-                    <template>
-                        <a class="dropdown-item" href="{{ path('security_logout') }}">
-                            <i class="fa fa-sign-out" aria-hidden="true"></i> {{ 'Wyloguj'|trans }}
-                        </a>
-                    </template>
-                </dropdown>
-
-
-
+                <context-menu />
             </div>
 
             <!-- Main Content -->
@@ -74,7 +65,8 @@
     firstName: app.user.firstName,
     lastName: app.user.lastName,
     roles: app.user.roles,
-    locale: app.request.locale
+    locale: app.request.locale,
+    isImpersonated: is_granted('IS_IMPERSONATOR')
 } %}
 
 <div id="js-usr" data-user-info="{{ userInfo|json_encode|url_encode }}"></div>

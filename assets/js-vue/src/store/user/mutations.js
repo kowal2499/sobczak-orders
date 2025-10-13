@@ -7,5 +7,9 @@ export default {
 
         const user = Vue.prototype.$user
         user.setGrants(grants)
+    },
+
+    [TYPES.MUTATION_USER_SET_USERS](state, users) {
+        state.users = users;
     }
 };

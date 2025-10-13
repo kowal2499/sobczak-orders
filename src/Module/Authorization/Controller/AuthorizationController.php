@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Security;
 
 class AuthorizationController extends BaseController
 {
-
     #[Route(path: '/grants', options: ['expose' => true], methods: ['GET'])]
     public function grants(Security $security, GrantsResolver $grantsResolver): JsonResponse
     {

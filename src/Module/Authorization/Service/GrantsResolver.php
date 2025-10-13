@@ -34,18 +34,6 @@ class GrantsResolver
         return in_array($grantName, $grants);
     }
 
-    protected function getRoleNames(User $user): array
-    {
-        $cacheKey = $this->authCacheService->getRolesCacheKey($user);
-
-        return $this->authCacheService->get($cacheKey, function() use ($user) {
-            return array_map(
-                fn (AuthUserRole $userRole) => $userRole->getRole()->getName(),
-                $this->userRoleRepository->findAllByUser($user)
-            );
-        });
-    }
-
     public function getGrants(User $user): array
     {
         $cacheKey = $this->authCacheService->getGrantsCacheKey($user);
@@ -66,6 +54,21 @@ class GrantsResolver
         });
     }
 
+    protected function getRoleNames(User $user): array
+    {
+        $cacheKey = $this->authCacheService->getRolesCacheKey($user);
+
+        return $this->authCacheService->get($cacheKey, function() use ($user) {
+            return array_merge(
+                $user->getRoles(),
+                array_map(
+                    fn (AuthUserRole $userRole) => $userRole->getRole()->getName(),
+                    $this->userRoleRepository->findAllByUser($user)
+                )
+            );
+        });
+    }
+
     /**
      * @param AuthUserRole[] $userRoles
      * @return array
@@ -77,18 +80,10 @@ class GrantsResolver
             $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
             foreach ($grantValues as $grantValue) {
                 $value = $this->getGrantValue($grantValue);
+                // keep only true values from roles, false values should be set only by user grants
                 if ($value) {
                     $result[$grantValue->getGrantVO()->toString()] = true;
                 }
-
-//                $key = $grantValue->getGrantVO()->toString();
-//
-//
-//                if (isset($result[$key])) {
-//                    $result[$key] = $result[$key] && $value;
-//                } else {
-//                    $result[$key] = $value;
-//                }
             }
         }
         return $result;
@@ -98,8 +93,8 @@ class GrantsResolver
     {
         $result = [];
         foreach ($this->userGrantValueRepository->findAllByUser($user) as $grantValue) {
-            $key = $grantValue->getGrantVO()->toString();
-            $result[$key] = $this->getGrantValue($grantValue);
+            // keep both true and false values from user grants
+            $result[$grantValue->getGrantVO()->toString()] = $this->getGrantValue($grantValue);
         }
         return $result;
     }
@@ -109,7 +104,12 @@ class GrantsResolver
         $result = [];
         foreach ($grantsPool as $pool) {
             foreach ($pool as $grantSlug => $grantValue) {
-                $result[$grantSlug] = (bool) $grantValue;
+                $boolValue = (bool) $grantValue;
+                if (array_key_exists($grantSlug, $result)) {
+                    $result[$grantSlug] = $result[$grantSlug] && $boolValue;
+                } else {
+                    $result[$grantSlug] = $boolValue;
+                }
             }
         }
         return $result;

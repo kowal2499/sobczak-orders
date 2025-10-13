@@ -22,6 +22,14 @@ export default {
     '_yes': 'Yes',
     '_no': 'No',
     '_confirmation_required': 'Confirmation required',
+    '_logout': 'Logout',
+    '_noData': 'No data',
+
+    '_impersonate': {
+        'title': 'Impersonate user',
+        'titleBack': 'Return to your account',
+        'description': 'Impersonation allows you to temporarily act as the selected user. Permissions and the interface view will be exactly the same as that user’s. All actions will be recorded under that user’s account.'
+    },
 
     '_validation': {
         'required': 'This field is required',
