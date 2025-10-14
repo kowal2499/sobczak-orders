@@ -151,7 +151,7 @@
     import ButtonPlus from "@/components/base/ButtonPlus";
     import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/configuration/components/roles/RoleSelect'
-    import { assignRoles } from '@/modules/configuration/repository/rolesRepository'
+    import { assignRoles, mergeRoles } from '@/modules/configuration/repository/rolesRepository'
     import {
         fetchGrantUserValues,
         setGrantUserValues,
@@ -197,6 +197,16 @@
                     this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
                 },
                 deep: true
+            },
+
+            newRoles: {
+                handler() {
+                    mergeRoles(this.newRoles).then(({data}) => {
+                        console.log(data)
+                        // todo: store results and show in "per role" mode
+                    })
+                },
+                deep: true,
             }
         },
 

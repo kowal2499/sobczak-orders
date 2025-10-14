@@ -8,6 +8,8 @@ use App\Module\Authorization\Repository\Test\AuthUserGrantValueTestRepository;
 use App\Module\Authorization\Repository\Test\AuthUserRoleTestRepository;
 use App\Module\Authorization\Service\AuthCacheService;
 use App\Module\Authorization\Service\GrantsResolver;
+use App\Module\Authorization\Service\GrantValueSupplier;
+use App\Module\Authorization\Service\RolesMerger;
 use App\Module\ModuleRegistry\Entity\Module;
 use App\Module\ModuleRegistry\Repository\ModuleRepository;
 use App\Repository\UserRepository;
@@ -49,12 +51,16 @@ class GrantsResolverTest extends TestCase
             $this->createMock(UserRepository::class),
         );
 
+        $valueSupplier = new GrantValueSupplier();
+
         $this->rut = new GrantsResolver(
             $roleGrantValueRepository,
             $userGrantValueRepository,
             $roleUserRepository,
             $this->securityMock,
             $cacheService,
+            new RolesMerger($roleGrantValueRepository, $valueSupplier),
+            $valueSupplier
         );
     }
 

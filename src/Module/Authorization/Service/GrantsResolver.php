@@ -18,6 +18,8 @@ class GrantsResolver
         private readonly AuthUserRoleRepositoryInterface       $userRoleRepository,
         private readonly Security                              $security,
         private readonly AuthCacheService                      $authCacheService,
+        private readonly RolesMerger                           $rolesMerger,
+        private readonly GrantValueSupplier                    $grantValueSupplier,
     ) {
     }
 
@@ -76,16 +78,13 @@ class GrantsResolver
     protected function getFromRoles(array $userRoles): array
     {
         $result = [];
-        foreach ($userRoles as $userRole) {
-            $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
-            foreach ($grantValues as $grantValue) {
-                $value = $this->getGrantValue($grantValue);
-                // keep only true values from roles, false values should be set only by user grants
-                if ($value) {
-                    $result[$grantValue->getGrantVO()->toString()] = true;
-                }
-            }
+        $values = $this->rolesMerger->merge(
+            ...array_map(fn ($userRoles) => $userRoles->getRole(), $userRoles)
+        );
+        foreach ($values as $roleGrantValue) {
+            $result[$roleGrantValue->getGrantVO()->toString()] = true;
         }
+
         return $result;
     }
 
@@ -94,7 +93,7 @@ class GrantsResolver
         $result = [];
         foreach ($this->userGrantValueRepository->findAllByUser($user) as $grantValue) {
             // keep both true and false values from user grants
-            $result[$grantValue->getGrantVO()->toString()] = $this->getGrantValue($grantValue);
+            $result[$grantValue->getGrantVO()->toString()] = $this->grantValueSupplier->getValue($grantValue);
         }
         return $result;
     }
@@ -113,10 +112,5 @@ class GrantsResolver
             }
         }
         return $result;
-    }
-
-    protected function getGrantValue(AuthAbstractGrantValue $grantValue): bool
-    {
-        return $grantValue->getValue() && $grantValue->getGrant()->getModule()->isActive();
     }
 }

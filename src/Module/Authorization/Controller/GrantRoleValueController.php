@@ -7,15 +7,13 @@ use App\Module\Authorization\Command\CreateRoleGrantValue;
 use App\Module\Authorization\Command\DeleteRoleGrantValue;
 use App\Module\Authorization\Entity\AuthRole;
 use App\Module\Authorization\Entity\AuthRoleGrantValue;
-use App\Module\Authorization\Repository\AuthGrantRepository;
 use App\Module\Authorization\Repository\AuthRoleGrantValueRepository;
 use App\Module\Authorization\Repository\AuthRoleRepository;
-use App\Module\Authorization\Service\AuthCacheService;
+use App\Module\Authorization\Service\RolesMerger;
 use App\System\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 class GrantRoleValueController extends BaseController
 {
@@ -52,20 +50,39 @@ class GrantRoleValueController extends BaseController
         return new JsonResponse(['success' => true]);
     }
 
+    #[Route(path: '/grant/role/value/merge', name: 'authorization_grant_role_value_merge', methods: ['POST'])]
+    public function merge(Request $request, AuthRoleRepository $roleRepository, RolesMerger $merger): JsonResponse
+    {
+        $roles = [];
+        foreach ($request->request->get('roles', []) as $roleId) {;
+            $role = $roleRepository->find($roleId);
+            if (!$role) {
+                return new JsonResponse(['error' => "Role with ID $roleId not found"], 404);
+            }
+            $roles[] = $role;
+        }
+
+        $result = array_map(fn ($item) => $this->toArray($item), $merger->merge(...$roles));
+
+        return new JsonResponse($result);
+    }
+
     #[Route(path: '/grant/role/value', name: 'authorization_grant_role_value_list', methods: ['GET'])]
     public function list(AuthRoleGrantValueRepository $roleGrantValueRepository): JsonResponse
     {
         $all = $roleGrantValueRepository->findAll();
-        $result = array_map(function ($item) {
-            return [
-                'id' => $item->getId(),
-                'role_id' => $item->getRole()->getId(),
-                'grant_id' => $item->getGrant()->getId(),
-                'grant_option_slug' => $item->getGrantOptionSlug(),
-                'value' => $item->getValue(),
-            ];
-        }, $all);
-
+        $result = array_map(fn ($item) => $this->toArray($item), $all);
         return new JsonResponse($result);
+    }
+
+    protected function toArray(AuthRoleGrantValue $item): array
+    {
+        return [
+            'id' => $item->getId(),
+            'role_id' => $item->getRole()->getId(),
+            'grant_id' => $item->getGrant()->getId(),
+            'grant_option_slug' => $item->getGrantOptionSlug(),
+            'value' => $item->getValue(),
+        ];
     }
 }
