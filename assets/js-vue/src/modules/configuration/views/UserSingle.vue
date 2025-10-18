@@ -118,6 +118,7 @@
                     <div class="col">
                         <user-grants
                             :userId="userId"
+                            :grants-per-role="grantsPerRole"
                             v-model="grants"
                         />
                     </div>
@@ -201,9 +202,9 @@
 
             newRoles: {
                 handler() {
-                    mergeRoles(this.newRoles).then(({data}) => {
-                        console.log(data)
-                        // todo: store results and show in "per role" mode
+                    return mergeRoles(this.newRoles).then(({data}) => {
+                        this.grantsPerRole = data
+                        console.log(this.grantsPerRole)
                     })
                 },
                 deep: true,
@@ -306,6 +307,7 @@
                 },
                 newRoles: [],
                 grants: [],
+                grantsPerRole: [],
                 canSave: true,
             }
         },

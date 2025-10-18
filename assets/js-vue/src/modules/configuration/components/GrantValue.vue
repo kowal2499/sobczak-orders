@@ -72,7 +72,9 @@ export default {
                     return
                 }
 
-                this.$emit('input', newValue)
+                if (!this.isDisabled) {
+                    this.$emit('input', newValue)
+                }
             }
         },
     },
