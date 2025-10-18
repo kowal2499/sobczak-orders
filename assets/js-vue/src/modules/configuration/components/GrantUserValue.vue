@@ -37,18 +37,11 @@ export default defineComponent({
         roleMode(val) {
             if (val) {
                 this.customModeValuesCache = JSON.stringify(this.proxyData)
+                this.proxyData = []
             } else if (this.customModeValuesCache) {
                 this.$nextTick(() => {
                     this.proxyData = JSON.parse(this.customModeValuesCache)
                 })
-            }
-        }
-    },
-
-    methods: {
-        onModeChange() {
-            if (this.roleMode) {
-                this.proxyData = []
             }
         }
     },
@@ -70,7 +63,6 @@ export default defineComponent({
                 :options="[{text: 'Na podstawie ról', value: true}, {text: 'Ustawienie własne', value: false}]"
                 name="radios-btn-default"
                 buttons
-                @change="onModeChange"
             ></b-form-radio-group>
         </b-form-group>
         <GrantValue
