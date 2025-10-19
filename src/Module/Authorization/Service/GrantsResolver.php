@@ -12,6 +12,8 @@ use Symfony\Component\Security\Core\Security;
 
 class GrantsResolver
 {
+    const ADMIN_GRANT = 'authorization.admin';
+
     public function __construct(
         private readonly AuthRoleGrantValueRepositoryInterface $roleGrantValueRepository,
         private readonly AuthUserGrantValueRepositoryInterface $userGrantValueRepository,
@@ -28,11 +30,12 @@ class GrantsResolver
         /** @var User $user */
         $user = $this->security->getUser();
 
-        if (in_array('ROLE_ADMINISTRATOR', $this->getRoleNames($user))){
+        $grants = $this->getGrants($user);
+
+        if (in_array(self::ADMIN_GRANT, $grants)) {
             return true;
         }
 
-        $grants = $this->getGrants($user);
         return in_array($grantName, $grants);
     }
 

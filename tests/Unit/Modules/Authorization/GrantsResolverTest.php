@@ -253,11 +253,10 @@ class GrantsResolverTest extends TestCase
         $this->assertFalse($this->rut->isGranted('namespace.grant:optionNonExist'));
     }
 
-    public function testShouldGrantAccessIsUserHasAdminRole(): void
+    public function testShouldGrantAccessIsUserHasAdminGrant(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_ADMINISTRATOR');
-        $user = $this->authHelper->createUser([], ['ROLE_ADMINISTRATOR']);
+        $user = $this->authHelper->createUser([], [], ['authorization.admin=true', 'production.grant01=false']);
         $this->securityMock->method('getUser')->willReturn($user);
 
         // When && Then

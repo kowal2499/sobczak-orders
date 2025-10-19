@@ -3,7 +3,11 @@
 namespace App\Module\ModuleRegistry\CLI;
 
 use App\Module\Authorization\Entity\AuthGrant;
+use App\Module\Authorization\Entity\AuthRoleGrantValue;
+use App\Module\Authorization\Entity\AuthUserGrantValue;
 use App\Module\Authorization\Repository\AuthGrantRepository;
+use App\Module\Authorization\Repository\AuthUserGrantValueRepository;
+use App\Module\Authorization\Repository\Interface\AuthRoleGrantValueRepositoryInterface;
 use App\Module\Authorization\ValueObject\GrantOption;
 use App\Module\Authorization\ValueObject\GrantOptionsCollection;
 use App\Module\Authorization\ValueObject\GrantType;
@@ -25,6 +29,8 @@ class RegisterModules extends Command
         private readonly ModuleConfigurationLoader $configurationLoader,
         private readonly ModuleRepository $moduleRepository,
         private readonly AuthGrantRepository $grantRepository,
+        private readonly AuthRoleGrantValueRepositoryInterface $authRoleGrantValueRepository,
+        private readonly AuthUserGrantValueRepository $authUserGrantValueRepository,
         private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
@@ -35,13 +41,15 @@ class RegisterModules extends Command
         $io = new SymfonyStyle($input, $output);
         $io->block('Rejestracja modułów na podstawie konfiguracji');
 
+        $existingModules = $this->moduleRepository->findAll();
+
         $rawModules = $this->configurationLoader->load();
         $io->progressStart(count($rawModules));
 
         foreach ($rawModules as $raw) {
             $namespace = $raw['namespace'];
             $dbModule = $this->moduleRepository->findOneByNamespace($namespace);
-
+            $existingGrants = $this->grantRepository->findBy(['module' => $dbModule]);
             if (null === $dbModule) {
                 $dbModule = new Module();
                 $dbModule->setNamespace($namespace);
@@ -50,7 +58,6 @@ class RegisterModules extends Command
 
             $dbModule->setDescription($raw['description'] ?? '');
             $dbModule->setActive($raw['active'] ?? false);
-
 
             foreach ($raw['grants'] ?? [] as $grantData) {
                 /** @var AuthGrant|null $dbGrant */
@@ -69,15 +76,33 @@ class RegisterModules extends Command
                     $options
                 ));
                 $dbGrant->setOptions($grantOptions);
-
+                $existingGrants = array_filter($existingGrants, fn(AuthGrant $g) => $g->getSlug() !== $grantData['slug']);
             }
+            // Remove grants that are no longer present in configuration
+            foreach ($existingGrants as $obsoleteGrant) {
+                foreach ($this->authUserGrantValueRepository->findBy(['grant' => $obsoleteGrant]) as $grantValue) {
+                    $this->authUserGrantValueRepository->remove($grantValue);
+                }
+                foreach ($this->authRoleGrantValueRepository->findBy(['grant' => $obsoleteGrant]) as $grantValue) {
+                    $this->authRoleGrantValueRepository->remove($grantValue);
+                }
+                $this->grantRepository->remove($obsoleteGrant, false);
+            }
+            $this->entityManager->flush();
             $io->progressAdvance();
+
+            $existingModules = array_filter($existingModules, fn(Module $m) => $m->getNamespace() !== $namespace);
         }
+
+        // Remove modules that are no longer present in configuration
+        foreach ($existingModules as $obsoleteModule) {
+            $this->moduleRepository->remove($obsoleteModule, false);
+        }
+
         $this->entityManager->flush();
         $io->progressFinish();
         
         $io->success('Zakończono rejestrację modułów');
         return self::SUCCESS;
     }
-
 }
