@@ -50,7 +50,6 @@
 </template>
 
 <script>
-
     import qs from 'qs';
     import moment from 'moment';
     import api from '../../api/neworder';
@@ -62,6 +61,7 @@
     import CollapsibleCard from "../base/CollapsibleCard";
     import ProductionRow from "./ProductionRow";
     import ProductionRowDetails from "./ProductionRowDetails";
+    import { resolveDefaultDate } from "../../modules/agreementLineList/services/DefaultSortDateResolver"
 
     export default {
         name: "ProductionList",
@@ -155,7 +155,7 @@
             this.args.meta.page = parseInt(query.page) || 1;
 
             // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
+            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultDate();
         },
 
         watch: {
@@ -274,6 +274,30 @@
         },
 
         computed: {
+            productionDepartmentHeaders() {
+                return this.departments.map(department => {
+                    return this.$user.can('production.show.'.concat(department.slug)) ? [
+                        {
+                            name: this.$t(department.name),
+                            classCell: 'text-center',
+                            classHeader: 'prod'
+                        },
+                        {
+                            name: `${this.$t(department.name)} - data rozpoczęcia`,
+                            classCell: 'text-center',
+                            classHeader: 'prod',
+                            sortKey: `${department.slug}DateStart`
+                        },
+                        {
+                            name: `${this.$t(department.name)} - data zakończenia`,
+                            classCell: 'text-center',
+                            classHeader: 'prod',
+                            sortKey: `${department.slug}DateEnd`
+                        }
+                    ] : null
+                }).filter(Boolean).flat()
+            },
+
             tableHeaders() {
                 return [
                     [
@@ -283,11 +307,7 @@
                         { name: this.$t('customer'), sortKey: 'customer' },
                         { name: this.$t('product'), sortKey: 'product' },
                         this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
-                        this.$user.can('production.show.gluing') && { name: this.$t('Klejenie'), classCell: 'text-center', classHeader: 'prod'},
-                        this.$user.can('production.show.cnc') && { name: this.$t('CNC'), classCell: 'text-center', classHeader: 'prod'},
-                        this.$user.can('production.show.grinding') && { name: this.$t('Szlifowanie'), classCell: 'text-center', classHeader: 'prod'},
-                        this.$user.can('production.show.laquering') && { name: this.$t('Lakierowanie'), classCell: 'text-center', classHeader: 'prod'},
-                        this.$user.can('production.show.packing') && { name: this.$t('Pakowanie'), classCell: 'text-center', classHeader: 'prod'},
+                        ...this.productionDepartmentHeaders,
                         this.userCanProduction && { name: this.$t('orders.additionalOrders')},
                         { name: this.$t('actions')}
                     ].filter(Boolean),

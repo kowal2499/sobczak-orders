@@ -47,17 +47,6 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
-        // Dodatkowe Production joins w celu umożliwienia sortowania po datach produkcji dla konkretnych działów
-        foreach (TaskTypes::getDefaultSlugs() as $slug) {
-            $num = substr($slug, 3);
-            if (!preg_match('/^\d{2}$/', $num)) {
-                continue;
-            }
-            $alias = 'pr' . $num;
-            $qb->leftJoin('l.productions', $alias, 'WITH', $alias . '.departmentSlug = :slug_' . $num)
-               ->addSelect($alias)
-               ->setParameter('slug_' . $num, $slug);
-        }
 
         if (isset($term['search']) && is_array($term['search'])) {
 
@@ -148,16 +137,56 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'factor': $qb->orderBy('l.factor', $order); break;
                     case 'user': $qb->orderBy('userFullName', $order); break;
 
-                    case 'dateDpt01Start': $qb->orderBy('pr01.dateStart', $order); break;
-                    case 'dateDpt01End': $qb->orderBy('pr01.dateEnd', $order); break;
-                    case 'dateDpt02Start': $qb->orderBy('pr02.dateStart', $order); break;
-                    case 'dateDpt02End': $qb->orderBy('pr02.dateEnd', $order); break;
-                    case 'dateDpt03Start': $qb->orderBy('pr03.dateStart', $order); break;
-                    case 'dateDpt03End': $qb->orderBy('pr03.dateEnd', $order); break;
-                    case 'dateDpt04Start': $qb->orderBy('pr04.dateStart', $order); break;
-                    case 'dateDpt04End': $qb->orderBy('pr04.dateEnd', $order); break;
-                    case 'dateDpt05Start': $qb->orderBy('pr05.dateStart', $order); break;
-                    case 'dateDpt05End': $qb->orderBy('pr05.dateEnd', $order); break;
+                    case 'dpt01DateStart':
+                        $qb->addSelect('(SELECT prS01.dateStart FROM App\\Entity\\Production prS01 WHERE prS01.agreementLine = l AND prS01.departmentSlug = :slug_dpt01) AS HIDDEN sort_dpt01_start')
+                           ->addOrderBy('sort_dpt01_start', $order)
+                           ->setParameter('slug_dpt01', TaskTypes::TYPE_DEFAULT_SLUG_GLUING);
+                        break;
+                    case 'dpt01DateEnd':
+                        $qb->addSelect('(SELECT prE01.dateEnd FROM App\\Entity\\Production prE01 WHERE prE01.agreementLine = l AND prE01.departmentSlug = :slug_dpt01) AS HIDDEN sort_dpt01_end')
+                           ->addOrderBy('sort_dpt01_end', $order)
+                           ->setParameter('slug_dpt01', TaskTypes::TYPE_DEFAULT_SLUG_GLUING);
+                        break;
+                    case 'dpt02DateStart':
+                        $qb->addSelect('(SELECT prS02.dateStart FROM App\\Entity\\Production prS02 WHERE prS02.agreementLine = l AND prS02.departmentSlug = :slug_dpt02) AS HIDDEN sort_dpt02_start')
+                           ->addOrderBy('sort_dpt02_start', $order)
+                           ->setParameter('slug_dpt02', TaskTypes::TYPE_DEFAULT_SLUG_CNC);
+                        break;
+                    case 'dpt02DateEnd':
+                        $qb->addSelect('(SELECT prE02.dateEnd FROM App\\Entity\\Production prE02 WHERE prE02.agreementLine = l AND prE02.departmentSlug = :slug_dpt02) AS HIDDEN sort_dpt02_end')
+                           ->addOrderBy('sort_dpt02_end', $order)
+                           ->setParameter('slug_dpt02', TaskTypes::TYPE_DEFAULT_SLUG_CNC);
+                        break;
+                    case 'dpt03DateStart':
+                        $qb->addSelect('(SELECT prS03.dateStart FROM App\\Entity\\Production prS03 WHERE prS03.agreementLine = l AND prS03.departmentSlug = :slug_dpt03) AS HIDDEN sort_dpt03_start')
+                           ->addOrderBy('sort_dpt03_start', $order)
+                           ->setParameter('slug_dpt03', TaskTypes::TYPE_DEFAULT_SLUG_GRINDING);
+                        break;
+                    case 'dpt03DateEnd':
+                        $qb->addSelect('(SELECT prE03.dateEnd FROM App\\Entity\\Production prE03 WHERE prE03.agreementLine = l AND prE03.departmentSlug = :slug_dpt03) AS HIDDEN sort_dpt03_end')
+                           ->addOrderBy('sort_dpt03_end', $order)
+                           ->setParameter('slug_dpt03', TaskTypes::TYPE_DEFAULT_SLUG_GRINDING);
+                        break;
+                    case 'dpt04DateStart':
+                        $qb->addSelect('(SELECT prS04.dateStart FROM App\\Entity\\Production prS04 WHERE prS04.agreementLine = l AND prS04.departmentSlug = :slug_dpt04) AS HIDDEN sort_dpt04_start')
+                           ->addOrderBy('sort_dpt04_start', $order)
+                           ->setParameter('slug_dpt04', TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING);
+                        break;
+                    case 'dpt04DateEnd':
+                        $qb->addSelect('(SELECT prE04.dateEnd FROM App\\Entity\\Production prE04 WHERE prE04.agreementLine = l AND prE04.departmentSlug = :slug_dpt04) AS HIDDEN sort_dpt04_end')
+                           ->addOrderBy('sort_dpt04_end', $order)
+                           ->setParameter('slug_dpt04', TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING);
+                        break;
+                    case 'dpt05DateStart':
+                        $qb->addSelect('(SELECT prS05.dateStart FROM App\\Entity\\Production prS05 WHERE prS05.agreementLine = l AND prS05.departmentSlug = :slug_dpt05) AS HIDDEN sort_dpt05_start')
+                           ->addOrderBy('sort_dpt05_start', $order)
+                           ->setParameter('slug_dpt05', TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING);
+                        break;
+                    case 'dpt05DateEnd':
+                        $qb->addSelect('(SELECT prE05.dateEnd FROM App\\Entity\\Production prE05 WHERE prE05.agreementLine = l AND prE05.departmentSlug = :slug_dpt05) AS HIDDEN sort_dpt05_end')
+                           ->addOrderBy('sort_dpt05_end', $order)
+                           ->setParameter('slug_dpt05', TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING);
+                        break;
                 }
             }
         }
