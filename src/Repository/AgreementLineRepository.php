@@ -18,10 +18,7 @@ use Symfony\Component\Security\Core\Security;
  */
 class AgreementLineRepository extends ServiceEntityRepository
 {
-    /**
-     * @var Security
-     */
-    private $security;
+    private Security $security;
 
     public function __construct(ManagerRegistry $registry, Security $security)
     {
@@ -50,9 +47,21 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
+        // Dodatkowe Production joins w celu umożliwienia sortowania po datach produkcji dla konkretnych działów
+        foreach (TaskTypes::getDefaultSlugs() as $slug) {
+            $num = substr($slug, 3);
+            if (!preg_match('/^\d{2}$/', $num)) {
+                continue;
+            }
+            $alias = 'pr' . $num;
+            $qb->leftJoin('l.productions', $alias, 'WITH', $alias . '.departmentSlug = :slug_' . $num)
+               ->addSelect($alias)
+               ->setParameter('slug_' . $num, $slug);
+        }
+
         if (isset($term['search']) && is_array($term['search'])) {
 
-            // Jeżeli nie wskazano statusu (tzn chcemy widzieć wszystkie zamówienia), to ukryj zamówienia usunięte
+            // Jeżeli nie wskazano statusu (tzn. chcemy widzieć wszystkie zamówienia), to ukryj zamówienia usunięte
             if (false === isset($term['search']['status'])) {
                 $term['search']['hideDeleted'] = true;
             }
@@ -126,9 +135,10 @@ class AgreementLineRepository extends ServiceEntityRepository
         if (isset($term['search']['sort']) && !empty($term['search']['sort'])) {
 
             $sort = preg_replace('/_.+$/', '', $term['search']['sort']);
-            $order = preg_replace('/^.+_/', '', $term['search']['sort']);
+            $order = strtoupper(preg_replace('/^.+_/', '', $term['search']['sort']));
+            $order = in_array($order, ['ASC', 'DESC']) ? $order : 'ASC';
 
-            if ($sort && $order) {
+            if ($sort) {
                 switch ($sort) {
                     case 'id': $qb->orderBy('a.orderNumber', $order); break;
                     case 'dateReceive': $qb->orderBy('a.createDate', $order); break;
@@ -137,6 +147,17 @@ class AgreementLineRepository extends ServiceEntityRepository
                     case 'product': $qb->orderBy('p.name', $order); break;
                     case 'factor': $qb->orderBy('l.factor', $order); break;
                     case 'user': $qb->orderBy('userFullName', $order); break;
+
+                    case 'dateDpt01Start': $qb->orderBy('pr01.dateStart', $order); break;
+                    case 'dateDpt01End': $qb->orderBy('pr01.dateEnd', $order); break;
+                    case 'dateDpt02Start': $qb->orderBy('pr02.dateStart', $order); break;
+                    case 'dateDpt02End': $qb->orderBy('pr02.dateEnd', $order); break;
+                    case 'dateDpt03Start': $qb->orderBy('pr03.dateStart', $order); break;
+                    case 'dateDpt03End': $qb->orderBy('pr03.dateEnd', $order); break;
+                    case 'dateDpt04Start': $qb->orderBy('pr04.dateStart', $order); break;
+                    case 'dateDpt04End': $qb->orderBy('pr04.dateEnd', $order); break;
+                    case 'dateDpt05Start': $qb->orderBy('pr05.dateStart', $order); break;
+                    case 'dateDpt05End': $qb->orderBy('pr05.dateEnd', $order); break;
                 }
             }
         }
