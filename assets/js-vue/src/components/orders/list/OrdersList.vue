@@ -21,6 +21,9 @@
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(line, key) in agreementLines" :key="key">
+                <td>
+                    <line-actions :line="line" @lineChanged="fetchData()"/>
+                </td>
                 <td class="d-flex flex-column">
                     <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
                     <tags-indicator :logs="line.tags"/>
@@ -50,9 +53,7 @@
                     </span>
                 </td>
 
-                <td>
-                    <line-actions :line="line" @lineChanged="fetchData()"/>
-                </td>
+
 
             </tr>
         </table-plus>
@@ -230,6 +231,7 @@
             tableHeaders() {
                 return [
                     [
+                        { name: this.$t('actions') },
                         { name: this.$t('id'), sortKey: 'id' },
                         { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
                         { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
@@ -238,7 +240,6 @@
                         { name: this.$t('product'), sortKey: 'product' },
                         { name: this.$t('orderStatus') },
                         { name: this.$t('productionStatus') },
-                        { name: this.$t('actions') },
                     ]
                 ];
             },

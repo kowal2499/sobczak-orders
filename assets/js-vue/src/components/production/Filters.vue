@@ -12,7 +12,7 @@
             <date-picker v-model="filtersCollection.dateStart" style="width: 100%;"/>
         </div>
 
-        <div class="form-group col-md-3">
+        <div class="form-group col-md-3" v-if="canShowDeliveryDateFilter">
             <label>{{ $t('deliveryDate') }}</label><br>
             <date-picker v-model="filtersCollection.dateDelivery" style="width: 100%"/>
         </div>
@@ -23,7 +23,7 @@
         </div>
 
         <div class="col">
-            <slot></slot>
+            <slot />
         </div>
 
     </div>
@@ -42,6 +42,12 @@
                 default: () => {}
             }
         },
+
+        computed: {
+            canShowDeliveryDateFilter() {
+                return this.$user && this.$user.can('production.show.production_date');
+            }
+        }
     }
 </script>
 

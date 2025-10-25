@@ -55,13 +55,13 @@
     import api from '../../api/neworder';
     import routing from '../../api/routing';
     import productionApi from '../../api/production';
-    import Helpers from '../../helpers';
+    import Helpers, {DEPARTMETNS} from '../../helpers';
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
     import CollapsibleCard from "../base/CollapsibleCard";
     import ProductionRow from "./ProductionRow";
     import ProductionRowDetails from "./ProductionRowDetails";
-    import { resolveDefaultDate } from "../../modules/agreementLineList/services/DefaultSortDateResolver"
+    import { resolveDefaultOrder } from "../../modules/agreementLineList/services/DefaultSortDateResolver"
 
     export default {
         name: "ProductionList",
@@ -155,7 +155,7 @@
             this.args.meta.page = parseInt(query.page) || 1;
 
             // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultDate();
+            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
         },
 
         watch: {
@@ -276,23 +276,38 @@
         computed: {
             productionDepartmentHeaders() {
                 return this.departments.map(department => {
-                    return this.$user.can('production.show.'.concat(department.slug)) ? [
+                    const dep = DEPARTMETNS.find(d => d.slug === department.slug);
+                    if (!dep) {
+                        return null
+                    }
+                    return this.$user.can(dep.grant) ? [
                         {
-                            name: this.$t(department.name),
-                            classCell: 'text-center',
-                            classHeader: 'prod'
-                        },
-                        {
-                            name: `${this.$t(department.name)} - data rozpoczęcia`,
-                            classCell: 'text-center',
-                            classHeader: 'prod',
-                            sortKey: `${department.slug}DateStart`
-                        },
-                        {
-                            name: `${this.$t(department.name)} - data zakończenia`,
+                            name: this.$t('orders.status'),
                             classCell: 'text-center',
                             classHeader: 'prod',
-                            sortKey: `${department.slug}DateEnd`
+                            headerTop: {
+                                name: this.$t(department.name),
+                                colspan: 3,
+                                classHeader: 'text-center background-primary',
+                            }
+                        },
+                        {
+                            name: this.$t('agreement_line_list.startProductionForm.startDate'),
+                            classCell: 'text-center',
+                            classHeader: 'prod',
+                            sortKey: `${department.slug}DateStart`,
+                            headerTop: {
+                                disabled: true
+                            }
+                        },
+                        {
+                            name: this.$t('agreement_line_list.startProductionForm.endDate'),
+                            classCell: 'text-center',
+                            classHeader: 'prod',
+                            sortKey: `${department.slug}DateEnd`,
+                            headerTop: {
+                                disabled: true
+                            }
                         }
                     ] : null
                 }).filter(Boolean).flat()
@@ -301,6 +316,7 @@
             tableHeaders() {
                 return [
                     [
+                        { name: this.$t('actions')},
                         { name: this.$t('ID'), sortKey: 'id' },
                         this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
                         { name: this.$t('orders.issuedBy'), sortKey: 'user' },
@@ -309,7 +325,7 @@
                         this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
                         ...this.productionDepartmentHeaders,
                         this.userCanProduction && { name: this.$t('orders.additionalOrders')},
-                        { name: this.$t('actions')}
+
                     ].filter(Boolean),
                 ];
             },

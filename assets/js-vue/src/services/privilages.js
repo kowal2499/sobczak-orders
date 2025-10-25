@@ -90,6 +90,10 @@ export class User {
             }
         }
 
+        if (this.grants.includes('authorization.admin')) {
+            return true
+        }
+
         return this.grants.includes(name)
     }
 

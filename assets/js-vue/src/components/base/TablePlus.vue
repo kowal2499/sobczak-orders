@@ -5,7 +5,15 @@
 
                 <thead>
                     <tr v-for="header in headers">
-
+                        <template v-for="cell in header">
+                            <th v-if="cell.headerTop?.disabled !== true" :colspan="cell.headerTop?.colspan || ''" :rowspan="cell.headerTop?.rowspan || ''" :class="cell.headerTop?.classHeader || ''">
+                                <span v-if="cell.headerTop">{{ cell.headerTop.name }}</span>
+                            </th>
+                        </template>
+                    </tr>
+                </thead>
+                <thead>
+                    <tr v-for="header in headers">
                         <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.classHeader || ''">
                             <div class="wrapper" :class="cell.classCell || ''">
                                 <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">

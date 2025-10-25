@@ -42,6 +42,14 @@
                 const systemTasks = [];
                 const customTasks = [];
 
+                const grantedDpts = helpers.getDepartments()
+                    .filter(({grant}) => this.$user.can(grant))
+                    .map(({slug}) => slug)
+
+                const forbiddenDpts = helpers.getDepartments()
+                    .filter(({grant}) => !this.$user.can(grant))
+                    .map(({slug}) => slug)
+
                 this.proxyData.tasks.forEach(task => {
                     let normalizedTask = {
                         id: task.id,
@@ -50,11 +58,12 @@
                         enabled: true,
                         slug: task.departmentSlug
                     }
-                    const slugs = helpers.getDepartments()
-                        .filter(({grant}) => this.$user.can(grant))
-                        .map(({slug}) => slug)
 
-                    slugs.includes(normalizedTask.slug)
+                    if (forbiddenDpts.includes(task.departmentSlug)) {
+                        return
+                    }
+
+                    grantedDpts.includes(normalizedTask.slug)
                         ? systemTasks.push(normalizedTask)
                         : customTasks.push(normalizedTask)
                 })

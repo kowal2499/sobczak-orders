@@ -1,5 +1,5 @@
 <template>
-    <dropdown class="icon-only">
+    <dropdown class="icon-only" direction="right">
         <template v-if="isTrashed">
             <!-- 1.1 delete order line -->
             <confirmable-action

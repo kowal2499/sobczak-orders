@@ -1,6 +1,10 @@
 <template>
     <tr :class="{'is-disabled': disabled}">
         <td>
+            <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
+        </td>
+
+        <td>
             <span class="text-nowrap">{{ order.Agreement.orderNumber || order.id }}</span>
             <tags-indicator :logs="order.tags"/>
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
@@ -34,7 +38,7 @@
         <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
 
         <template
-            v-for="(production, prodKey) in productionsByGrants"
+            v-for="(production) in productionsByGrants"
             v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1"
         >
             <td class="prod">
@@ -57,24 +61,6 @@
                                 @click="updateProduction(production, status.value)"
                             >{{ $t(status.name) }}</b-dropdown-item>
                         </b-dropdown>
-                        <tooltip v-if="production.dateEnd">
-                            <template #visible-content>
-                                <div class="text-right text-sm text-nowrap hasTooltip">
-                                    <i class="fa fa-clock-o mr-1" />
-                                    <span v-if="production.dateEnd">{{ production.dateEnd | formatDate('YYYY-MM-DD') }}</span>
-                                    <span v-else>{{ $t('noData') }}</span>
-                                </div>
-                            </template>
-                            <div slot="tooltip-content" class="text-left">
-                                {{ $t('realisationDateFor') }} {{ getDepartmentName(production.departmentSlug) }}:
-                                {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
-                            </div>
-                        </tooltip>
-                        <div v-else class="text-right text-sm text-nowrap opacity-75">
-                            <i class="fa fa-clock-o mr-1" />
-                            {{ $t('noData') }}
-                        </div>
-
                     </div>
                     <div>
                         <production-task-notification
@@ -122,9 +108,7 @@
             </button>
         </td>
 
-        <td>
-            <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
-        </td>
+
     </tr>
 </template>
 

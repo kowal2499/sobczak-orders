@@ -6,7 +6,7 @@
                    href="#"
                    @click.prevent="open"
                 >
-                    <i class="fa fa-play mr-3" aria-hidden="true"/>
+                    <i class="fa fa-play" aria-hidden="true"/>
                     {{ $t('startProduction') }}
                 </a>
             </template>

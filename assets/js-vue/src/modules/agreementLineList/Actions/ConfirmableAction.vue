@@ -2,7 +2,7 @@
     <a class="dropdown-item" :class="anchorClass" href="#"
        @click.prevent="showModal = true"
     >
-        <i class="fa mr-3" :class="iconClass" /> {{ label }}
+        <i class="fa" :class="iconClass" /> {{ label }}
 
         <b-modal
             v-model="showModal"
