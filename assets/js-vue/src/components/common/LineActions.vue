@@ -1,5 +1,8 @@
 <template>
-    <dropdown class="icon-only" direction="right">
+    <b-dropdown size="sm" variant="outline-primary" no-caret>
+        <template #button-content>
+            <i class="fa fa-bars" aria-hidden="true" />
+        </template>
         <template v-if="isTrashed">
             <!-- 1.1 delete order line -->
             <confirmable-action
@@ -33,17 +36,18 @@
 
         <template v-if="false === isTrashed">
             <!-- sekcja wspólna -->
-            <a class="dropdown-item" :href="`/agreement/line/${line.id}`">
+            <b-dropdown-item :href="`/agreement/line/${line.id}`">
                 <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
-            </a>
-            <hr style="margin: 5px auto">
+            </b-dropdown-item>
+
+            <b-dropdown-divider />
 
             <!-- 1. sekcja zamówienie -->
 
             <!-- 1.1 edit order -->
-            <a class="dropdown-item" :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+            <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
                 <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
-            </a>
+            </b-dropdown-item>
 
             <!-- 1.1 set warehouse status -->
             <confirmable-action
@@ -90,16 +94,17 @@
             </confirmable-action>
 
             <template v-if="canStartProduction">
-                <hr style="margin: 5px auto">
+                <b-dropdown-divider />
+                <b-dropdown-item>
                 <start-production-action
-                    class="dropdown-item"
                     :agreement-line-id="line.id"
                     :confirmed-date="new Date(line.confirmedDate)"
                     v-on="$listeners"
                 />
+                </b-dropdown-item>
             </template>
         </template>
-    </dropdown>
+    </b-dropdown>
 </template>
 
 <script>

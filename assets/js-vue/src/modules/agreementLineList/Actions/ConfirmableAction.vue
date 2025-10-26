@@ -1,7 +1,8 @@
 <template>
-    <a class="dropdown-item" :class="anchorClass" href="#"
-       @click.prevent="showModal = true"
-    >
+    <b-dropdown-item-button @click.prevent="showModal = true">
+<!--    <a class="text-decoration-none" :class="anchorClass" href="#"-->
+<!--       @click.prevent="showModal = true"-->
+<!--    >-->
         <i class="fa" :class="iconClass" /> {{ label }}
 
         <b-modal
@@ -28,7 +29,7 @@
                 </b-button>
             </template>
         </b-modal>
-    </a>
+    </b-dropdown-item-button>
 </template>
 
 <script>
@@ -84,8 +85,10 @@ export default {
 }
 </script>
 
-<style scoped>
-    i.fa {
-        color: #aaa;
-    }
+<style scoped lang="scss">
+@import "~/css/helper/variables.scss";
+
+i.fa {
+    color: $primary;
+}
 </style>

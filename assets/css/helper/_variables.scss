@@ -8,6 +8,15 @@ $sidebar-mobile-width: 8.5rem;
 $sidebar-default-width: 13rem;
 
 $primary: $mainBlue;
+$primaryLight10: mix(#fff, $mainBlue, 10%);
+$primaryLight20: mix(#fff, $mainBlue, 20%);
+$primaryLight30: mix(#fff, $mainBlue, 30%);
+$primaryLight40: mix(#fff, $mainBlue, 40%);
+$primaryLight50: mix(#fff, $mainBlue, 50%);
+$primaryLight60: mix(#fff, $mainBlue, 60%);
+$primaryLight70: mix(#fff, $mainBlue, 70%);
+$primaryLight80: mix(#fff, $mainBlue, 80%);
+$primaryLight90: mix(#fff, $mainBlue, 90%);
 
 :root {
     --colorPrimary: $mainBlue;

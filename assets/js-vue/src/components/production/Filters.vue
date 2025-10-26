@@ -1,7 +1,5 @@
 <template>
-
     <div class="form-row">
-
         <div class="form-group col-md-3">
             <label>{{ $t('search') }}</label><br>
             <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
@@ -18,14 +16,12 @@
         </div>
 
         <div class="form-group col-sm-3">
-            <label>{{ $t('orders.hideArchivedOrder') }}</label><br>
-            <input type="checkbox" v-model="filtersCollection.hideArchive">
+            <b-form-checkbox v-model="filtersCollection.hideArchive" switch>{{ $t('orders.hideArchivedOrder') }}</b-form-checkbox>
         </div>
 
         <div class="col">
             <slot />
         </div>
-
     </div>
 </template>
 

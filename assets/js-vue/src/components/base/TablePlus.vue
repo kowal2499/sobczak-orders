@@ -5,16 +5,16 @@
 
                 <thead>
                     <tr v-for="header in headers">
-                        <template v-for="cell in header">
-                            <th v-if="cell.headerTop?.disabled !== true" :colspan="cell.headerTop?.colspan || ''" :rowspan="cell.headerTop?.rowspan || ''" :class="cell.headerTop?.classHeader || ''">
-                                <span v-if="cell.headerTop">{{ cell.headerTop.name }}</span>
+                        <template v-for="({headerTop = { enabled: true }}) in header">
+                            <th v-if="headerTop.enabled" :colspan="headerTop?.colspan || null" :rowspan="headerTop?.rowspan || null" :class="headerTop?.thClass || null">
+                                <span v-if="headerTop.name">{{ headerTop.name }}</span>
                             </th>
                         </template>
                     </tr>
                 </thead>
                 <thead>
                     <tr v-for="header in headers">
-                        <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.classHeader || ''">
+                        <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.thClass || ''">
                             <div class="wrapper" :class="cell.classCell || ''">
                                 <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
                                     {{ cell.name }}
@@ -32,7 +32,7 @@
                 </thead>
 
                 <tbody>
-                    <slot></slot>
+                    <slot />
                 </tbody>
 
             </table>

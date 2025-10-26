@@ -1,7 +1,16 @@
 <template>
     <collapsible-card :title="$t('orders.productionSchedule')">
         <template v-slot:filters>
-            <filters :filters-collection="args.filters"/>
+            <filters :filters-collection="args.filters">
+<!--                <b-dropdown size="sm" variant="outline-primary">-->
+<!--                    <template #button-content>-->
+<!--                        <i class="fa fa-cog" aria-hidden="true" />-->
+<!--                    </template>-->
+<!--                    <b-dropdown-item-button @click.prevent="onFiltersClear">-->
+<!--                        Wyczyść ustawienia filtrów-->
+<!--                    </b-dropdown-item-button>-->
+<!--                </b-dropdown>-->
+            </filters>
         </template>
 
         <b-pagination
@@ -271,42 +280,56 @@
                 return routing;
             },
 
+            onFiltersClear() {
+                this.args.filters.dateStart.start = null
+                this.args.filters.dateStart.end = null
+                this.args.filters.dateDelivery.start = null
+                this.args.filters.dateDelivery.end = null
+                this.args.filters.q = ''
+                this.args.filters.hideArchive = true
+                this.args.meta.sort = ''
+                this.args.meta.page = 1
+            }
+
         },
 
         computed: {
             productionDepartmentHeaders() {
-                return this.departments.map(department => {
+                return this.departments.map((department, index) => {
                     const dep = DEPARTMETNS.find(d => d.slug === department.slug);
                     if (!dep) {
                         return null
                     }
+                    const backgroundColorClass = (index % 2) ? 'background-color-primary-light-90' : 'background-color-primary-light-80';
+                    const thClass = 'text-center'.concat(' ', backgroundColorClass)
                     return this.$user.can(dep.grant) ? [
                         {
                             name: this.$t('orders.status'),
-                            classCell: 'text-center',
+                            thClass,
                             classHeader: 'prod',
                             headerTop: {
+                                enabled: true,
                                 name: this.$t(department.name),
                                 colspan: 3,
-                                classHeader: 'text-center background-primary',
+                                thClass,
                             }
                         },
                         {
                             name: this.$t('agreement_line_list.startProductionForm.startDate'),
-                            classCell: 'text-center',
+                            thClass,
                             classHeader: 'prod',
                             sortKey: `${department.slug}DateStart`,
                             headerTop: {
-                                disabled: true
+                                enabled: false
                             }
                         },
                         {
                             name: this.$t('agreement_line_list.startProductionForm.endDate'),
-                            classCell: 'text-center',
+                            thClass,
                             classHeader: 'prod',
                             sortKey: `${department.slug}DateEnd`,
                             headerTop: {
-                                disabled: true
+                                enabled: false
                             }
                         }
                     ] : null

@@ -1,3 +1,5 @@
+@import "variables";
+
 .opacity-0 {
     opacity: 0;
 }
@@ -40,4 +42,23 @@
 
 .background-light {
     background-color: $lightgray3;
+}
+
+$primary-light-map: (
+    10: $primaryLight10,
+    20: $primaryLight20,
+    30: $primaryLight30,
+    40: $primaryLight40,
+    50: $primaryLight50,
+    60: $primaryLight60,
+    70: $primaryLight70,
+    80: $primaryLight80,
+    90: $primaryLight90
+);
+
+@each $x, $color in $primary-light-map {
+    .background-color-primary-light-#{$x} {
+        background-color: $color;
+        color: #666;
+    }
 }
