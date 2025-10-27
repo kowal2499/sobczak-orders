@@ -102,6 +102,7 @@
                             end: null
                         },
                         hideArchive: true,
+                        hasProduction: true,
                         q: '',
                     },
                     meta: {

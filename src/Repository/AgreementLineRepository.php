@@ -32,23 +32,25 @@ class AgreementLineRepository extends ServiceEntityRepository
             ->innerJoin('l.Agreement', 'a')
             ->innerJoin('a.Customer', 'c')
             ->innerJoin('l.Product', 'p')
-            ->leftJoin('l.productions', 'pr')
-            ->leftJoin('pr.statusLogs', 's')
-            ->leftJoin('s.user', 'u')
             ->leftJoin('a.user', 'au')
             ->addSelect('a')
             ->addSelect('c')
             ->addSelect('p')
-            ->addSelect('pr')
-            ->addSelect('s')
-            ->addSelect('u')
             ->addSelect('au')
             ->addSelect("LOWER(CONCAT(au.firstName, ' ', au.lastName)) AS HIDDEN userFullName")
             ->andWhere('l.deleted = 0')     // nigdy nie zwracamy usuniętych zamówień
         ;
 
-
         if (isset($term['search']) && is_array($term['search'])) {
+            if (isset($term['search']['hasProduction']) && $term['search']['hasProduction']) {
+                $qb->innerJoin('l.productions', 'pr')
+                    ->leftJoin('pr.statusLogs', 's')
+                    ->leftJoin('s.user', 'u')
+                    ->addSelect('pr')
+                    ->addSelect('s')
+                    ->addSelect('u')
+                ;
+            }
 
             // Jeżeli nie wskazano statusu (tzn. chcemy widzieć wszystkie zamówienia), to ukryj zamówienia usunięte
             if (false === isset($term['search']['status'])) {
@@ -82,34 +84,34 @@ class AgreementLineRepository extends ServiceEntityRepository
                         break;
 
                     case 'archived':
-                        $qb->andWhere("l.archived = :{$key}");
+                        $qb->andWhere("l.archived = :$key");
                         $qb->setParameter($key, $value);
                         break;
                     case 'agreementLineId':
-                        $qb->andWhere("l.id = :{$key}");
+                        $qb->andWhere("l.id = :$key");
                         $qb->setParameter($key, $value);
                         break;
                     case 'ownedBy':
                         $customers = $value->getCustomers();
                         if (!empty($customers)) {
-                            $qb->andWhere("c.id IN (:{$key})");
+                            $qb->andWhere("c.id IN (:$key)");
                             $qb->setParameter($key, $customers);
                         }
                         break;
                     case 'status':
                         if (!empty($value)) {
-                            $qb->andWhere("l.status IN (:{$key})");
+                            $qb->andWhere("l.status IN (:$key)");
                             $qb->setParameter($key, $value);
                         }
                         break;
                     case 'hideArchive':
                         if ($value) {
-                            $qb->andWhere("l.status NOT IN (:{$key})");
+                            $qb->andWhere("l.status NOT IN (:$key)");
                             $qb->setParameter($key, [AgreementLine::STATUS_DELETED, AgreementLine::STATUS_ARCHIVED, AgreementLine::STATUS_WAREHOUSE]);
                         }
                         break;
                     case 'hideDeleted':
-                        $qb->andWhere("l.status NOT IN (:{$key})");
+                        $qb->andWhere("l.status NOT IN (:$key)");
                         $qb->setParameter($key, [AgreementLine::STATUS_DELETED]);
                         break;
 
