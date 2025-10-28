@@ -41,6 +41,7 @@
                     :statuses="statuses"
                     :key="'details' + order.id"
                     :disabled="busyOrders.includes(order.id)"
+                    :columns-count="tableHeaders.length"
                     @statusUpdated="updateStatus($event, order.id)"
                 />
             </template>
@@ -54,7 +55,6 @@
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
         />
-
     </collapsible-card>
 </template>
 
@@ -291,7 +291,6 @@
                 this.args.meta.sort = ''
                 this.args.meta.page = 1
             }
-
         },
 
         computed: {
@@ -303,55 +302,39 @@
                     }
                     const backgroundColorClass = (index % 2) ? 'background-color-primary-light-90' : 'background-color-primary-light-80';
                     const thClass = 'text-center'.concat(' ', backgroundColorClass)
-                    return this.$user.can(dep.grant) ? [
-                        {
-                            name: this.$t('orders.status'),
-                            thClass,
-                            classHeader: 'prod',
-                            headerTop: {
-                                enabled: true,
-                                name: this.$t(department.name),
-                                colspan: 3,
-                                thClass,
+                    return (this.$user.can(dep.grant) && {
+                        thClass,
+                        items: [
+                            {
+                                name: this.$t(`_${department.slug}`),
+                            },
+                            {
+                                name: this.$t('agreement_line_list.startProductionForm.startDate'),
+                                sortKey: `${department.slug}DateStart`,
+                                wrapperClass: 'text-nowrap',
+                            },
+                            {
+                                name: this.$t('agreement_line_list.startProductionForm.endDate'),
+                                sortKey: `${department.slug}DateEnd`,
+                                wrapperClass: 'text-nowrap',
                             }
-                        },
-                        {
-                            name: this.$t('agreement_line_list.startProductionForm.startDate'),
-                            thClass,
-                            classHeader: 'prod',
-                            sortKey: `${department.slug}DateStart`,
-                            headerTop: {
-                                enabled: false
-                            }
-                        },
-                        {
-                            name: this.$t('agreement_line_list.startProductionForm.endDate'),
-                            thClass,
-                            classHeader: 'prod',
-                            sortKey: `${department.slug}DateEnd`,
-                            headerTop: {
-                                enabled: false
-                            }
-                        }
-                    ] : null
-                }).filter(Boolean).flat()
+                        ]}) || null
+                }).filter(Boolean)
             },
 
             tableHeaders() {
-                return [
-                    [
-                        { name: this.$t('actions')},
-                        { name: this.$t('ID'), sortKey: 'id' },
-                        this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
-                        { name: this.$t('orders.issuedBy'), sortKey: 'user' },
-                        { name: this.$t('customer'), sortKey: 'customer' },
-                        { name: this.$t('product'), sortKey: 'product' },
-                        this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
-                        ...this.productionDepartmentHeaders,
-                        this.userCanProduction && { name: this.$t('orders.additionalOrders')},
+                const headers = [
+                    { name: this.$t('actions')},
+                    { name: this.$t('ID'), sortKey: 'id' },
+                    this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
+                    { name: this.$t('orders.issuedBy'), sortKey: 'user' },
+                    { name: this.$t('customer'), sortKey: 'customer' },
+                    { name: this.$t('product'), sortKey: 'product' },
+                    this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
+                ].filter(Boolean).map(i => ({ items: [i], thClass: null }))
 
-                    ].filter(Boolean),
-                ];
+                headers.push(...this.productionDepartmentHeaders)
+                return headers
             },
 
             productionSlugs() {

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-column mt-1">
+    <div class="flex-column">
         <div v-if="notStartedNotify" class="text-center">
             <badge :anim="true" variant="danger">
                 <template #icon>

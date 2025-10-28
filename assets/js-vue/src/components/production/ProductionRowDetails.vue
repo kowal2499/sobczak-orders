@@ -1,37 +1,55 @@
 <template>
     <tr :class="{'is-disabled': disabled}">
-        <td colspan="5">
+        <td :colspan="columnsCount">
+            <div class="d-flex align-items-start gap-3">
+                <attachments-widget
+                    :attachments="order.Agreement.attachments || []"
+                    :show-name="false"
+                    :tooltip="true"
+                    :horizontal="true"
+                />
 
-            <attachments-widget
-                :attachments="order.Agreement.attachments || []"
-                :show-name="false"
-                :tooltip="true"
-                :horizontal="true"
-            />
-        </td>
+                <div class="custom-tasks">
+                    <div class="task custom-task d-flex flex-column gap-1" v-for="task in getCustomTasks(order.productions)">
+                        <label>{{ task.title }}</label>
 
-        <td colspan="5" class="tasks">
-            <div class="custom-tasks">
-                <div class="task custom-task" v-for="task in getCustomTasks(order.productions)">
-                    <label>{{ task.title }}</label>
+                        <b-dropdown
+                                :text="$t(getStatusData(task.status).name)"
+                                size="sm"
+                                :class="getStatusData(task.status).className"
+                                :disabled="disabled"
+                                variant="light"
+                                class="w-100"
+                        >
+                            <b-dropdown-item
+                                    v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
+                                    :value="status.value"
+                                    :key="status.value"
+                                    :disabled="!userCanProduction"
+                                    @click="updateTask(task, status.value)"
+                            >{{ $t(status.name) }}</b-dropdown-item>
+                        </b-dropdown>
 
-                    <b-dropdown
-                            :text="$t(getStatusData(task.status).name)"
-                            size="sm"
-                            :class="getStatusData(task.status).className"
-                            :disabled="disabled"
-                            variant="light"
-                    >
-                        <b-dropdown-item
-                                v-for="status in helpers.statusesPerTaskType(task.departmentSlug)"
-                                :value="status.value"
-                                :key="status.value"
-                                :disabled="!userCanProduction()"
-                                @click="updateTask(task, status.value)"
-                        >{{ $t(status.name) }}</b-dropdown-item>
-                    </b-dropdown>
-                    <div>
+                        <div class="text-center text-nowrap w-100">
+                            <span v-if="task.dateStart">
+                                {{ task.dateStart | formatDate('YYYY-MM-DD') }}
+                            </span>
+                            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                                <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                            </span>
+                        </div>
+
+                        <div class="text-center text-nowrap w-100">
+                            <span v-if="task.dateEnd">
+                                {{ task.dateEnd | formatDate('YYYY-MM-DD') }}
+                            </span>
+                            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                                <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                            </span>
+                        </div>
+
                         <production-task-notification
+                            class="w-100"
                             :date-start="task.dateStart"
                             :date-end="task.dateEnd"
                             :status="task.status"
@@ -40,7 +58,6 @@
                             :date-deadline="order.confirmedDate"
                         />
                     </div>
-
                 </div>
             </div>
         </td>
@@ -48,7 +65,6 @@
 </template>
 
 <script>
-
     import ProductionRowBase from "./ProductionRowBase";
     import AttachmentsWidget from "../orders/single/AttachmentsWidget";
     import helpers from "../../helpers";
@@ -70,6 +86,7 @@
                 type: Object,
                 default: () => {}
             },
+            columnsCount: Number
         },
 
         methods: {
@@ -98,10 +115,10 @@
     .custom-tasks {
         display: flex;
         flex-wrap: wrap;
+        gap: 1rem;
 
         .custom-task {
-            width: 170px;
-            margin-right: 20px;
+            width: 190px;
         }
     }
 </style>

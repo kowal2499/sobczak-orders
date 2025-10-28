@@ -2,39 +2,31 @@
     <div class="wrapper">
         <div class="table-responsive has-dropdown">
             <table class="table">
-
                 <thead>
-                    <tr v-for="header in headers">
-                        <template v-for="({headerTop = { enabled: true }}) in header">
-                            <th v-if="headerTop.enabled" :colspan="headerTop?.colspan || null" :rowspan="headerTop?.rowspan || null" :class="headerTop?.thClass || null">
-                                <span v-if="headerTop.name">{{ headerTop.name }}</span>
-                            </th>
-                        </template>
-                    </tr>
-                </thead>
-                <thead>
-                    <tr v-for="header in headers">
-                        <th v-for="cell in header" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.thClass || ''">
-                            <div class="wrapper" :class="cell.classCell || ''">
-                                <a href="#" v-if="cell.sortKey" @click.prevent="sortBy(cell)" :class="{ selected: cell.sortKey === headerSort.sortKey }">
-                                    {{ cell.name }}
-                                </a>
-                                <span v-else>{{ cell.name }}</span>
+                    <tr>
+                        <th v-for="cell in headers" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.thClass || ''">
+                            <div
+                                v-for="item in cell.items"
+                                :class="['header-item', item.sortKey && 'header-item--sortable', item.wrapperClass, (item.sortKey === headerSort.sortKey) && 'header-item--selected']"
+                                @click="item.sortKey ? sortBy(item.sortKey) : null"
+                            >
+                                {{ item.name }}
+<!--                                <a href="#" v-if="item.sortKey" @click.prevent="sortBy(item.sortKey)">-->
+<!--                                    {{ item.name }}-->
+<!--                                </a>-->
+<!--                                <span v-else>{{ item.name }}</span>-->
 
-                                <span v-if="cell.sortKey === headerSort.sortKey" class="iconWrap">
-                                    <i class="fa fa-arrow-down" aria-hidden="true" v-if="headerSort.order === 'DESC'"></i>
-                                    <i class="fa fa-arrow-up" aria-hidden="true" v-if="headerSort.order === 'ASC'"></i>
-                                </span>
+                                <template v-if="item.sortKey === headerSort.sortKey">
+                                    <i :class="headerSort.order === 'ASC' && 'fa fa-arrow-up sort-direction'" />
+                                    <i :class="headerSort.order === 'DESC' && 'fa fa-arrow-down sort-direction'" />
+                                </template>
                             </div>
                         </th>
-
                     </tr>
                 </thead>
-
                 <tbody>
                     <slot />
                 </tbody>
-
             </table>
         </div>
 
@@ -85,15 +77,13 @@
         },
 
         methods: {
-            sortBy(header) {
-
-                if (this.headerSort.sortKey === header.sortKey) {
+            sortBy(sortKey) {
+                if (this.headerSort.sortKey === sortKey) {
                     this.headerSort.order = (this.headerSort.order === 'ASC') ? 'DESC' : 'ASC';
                 } else {
-                    this.headerSort.sortKey = header.sortKey;
+                    this.headerSort.sortKey = sortKey;
                     this.headerSort.order = 'ASC';
                 }
-
                 this.$emit('sortChanged', this.headerSort.sortKey.concat('_', this.headerSort.order.toLowerCase()));
             }
         }
@@ -119,13 +109,14 @@
     table.table {
         font-size: 0.8rem;
 
-
         th {
-
             border-bottom: 1px solid #e3e6f0;
             vertical-align: middle;
-            .wrapper {
+
+            .header-item {
+                position: relative;
                 font-size: 0.85rem;
+                padding: 0 1rem;
 
                 a {
                     color: #666;
@@ -136,14 +127,22 @@
                     color: #4E73DF;
                 }
 
-                .selected {
-                    color: #4E73DF;
+                &--sortable {
+                    cursor: pointer;
                 }
 
-                .iconWrap {
-                    i {
-                        padding-left: 3px;
+                &--selected {
+                    color: #4E73DF;
+
+                    a {
                         color: #4E73DF;
+                    }
+
+                    i.sort-direction {
+                        position: absolute;
+                        right: 0;
+                        top: 50%;
+                        transform: translateY(-50%);
                     }
                 }
 
@@ -151,19 +150,19 @@
                     text-align: center;
                 }
             }
+
+            th.prod {
+                min-width: 120px;
+                max-width: 120px;
+            }
         }
 
-        th.prod {
-          min-width: 120px;
-          max-width: 120px;
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity .2s;
+        }
+
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
         }
     }
-
-    .fade-enter-active, .fade-leave-active {
-        transition: opacity .2s;
-    }
-    .fade-enter, .fade-leave-to {
-        opacity: 0;
-    }
-
 </style>

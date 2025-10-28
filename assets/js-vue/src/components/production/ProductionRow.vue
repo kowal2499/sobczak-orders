@@ -1,7 +1,19 @@
 <template>
     <tr :class="{'is-disabled': disabled}">
-        <td>
+        <td class="d-flex flex-column align-items-start gap-2">
             <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
+
+            <button class="btn btn-light d-flex flex-nowrap gap-2" style="padding: 0 0.5rem" v-if="userCanProduction && hasDetails" @click.prevent="$emit('expandToggle', order.id)">
+                <span v-if="order.Agreement.attachments.length > 0" class="d-flex gap-1">
+                    <i class="fa fa-paperclip sb-color"/>
+                    <span class="badge badge-pill text-primary">{{ order.Agreement.attachments.length }}</span>
+                </span>
+
+                <span v-if="getCustomTasks(order.productions).length && userCanProduction" class="d-flex gap-1">
+                    <i class="fa fa-check-square-o sb-color"/>
+                    <span class="badge badge-pill text-primary">{{ getCustomTasks(order.productions).length }}</span>
+                </span>
+            </button>
         </td>
 
         <td>
@@ -35,80 +47,62 @@
             </tooltip>
         </td>
 
-        <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
+        <td v-text="order.factor" class="text-center" v-if="userCanProduction"/>
 
-        <template
-            v-for="(production) in productionsByGrants"
+        <td
+            v-for="production in productionsByGrants"
             v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1"
+            class="prod"
         >
-            <td class="prod">
-                <div class="task">
-                    <div class="d-flex flex-column gap-2">
-                        <b-dropdown
-                            :text="$t(getStatusData(production.status).name)"
-                            size="sm"
-                            class="w-100"
-                            :class="getStatusData(production.status).className"
-                            variant="light"
-                            split-variant=""
-                            :disabled="disabled"
-                        >
-                            <b-dropdown-item
-                                v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
-                                :value="status.value"
-                                :key="status.value"
-                                :disabled="!userCanProduction()"
-                                @click="updateProduction(production, status.value)"
-                            >{{ $t(status.name) }}</b-dropdown-item>
-                        </b-dropdown>
+            <div class="task">
+                <div class="d-flex flex-column gap-1">
+                    <b-dropdown
+                        :text="$t(getStatusData(production.status).name)"
+                        size="sm"
+                        class="w-100"
+                        :class="getStatusData(production.status).className"
+                        variant="light"
+                        split-variant=""
+                        :disabled="disabled"
+                    >
+                        <b-dropdown-item
+                            v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
+                            :value="status.value"
+                            :key="status.value"
+                            :disabled="!userCanProduction"
+                            @click="updateProduction(production, status.value)"
+                        >{{ $t(status.name) }}</b-dropdown-item>
+                    </b-dropdown>
+
+                    <div class="text-center text-nowrap">
+                        <span v-if="production.dateStart">
+                            {{ production.dateStart | formatDate('YYYY-MM-DD') }}
+                        </span>
+                                <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                            <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                        </span>
                     </div>
-                    <div>
-                        <production-task-notification
-                            :date-start="production.dateStart"
-                            :date-end="production.dateEnd"
-                            :status="production.status"
-                            :isStartDelayed="production.isStartDelayed"
-                            :isCompleted="production.isCompleted"
-                            :date-deadline="order.confirmedDate"
-                        />
+
+                    <div class="text-center text-nowrap">
+                        <span v-if="production.dateEnd">
+                            {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
+                        </span>
+                        <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                            <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                        </span>
                     </div>
+
+                    <production-task-notification
+                        :date-start="production.dateStart"
+                        :date-end="production.dateEnd"
+                        :status="production.status"
+                        :isStartDelayed="production.isStartDelayed"
+                        :isCompleted="production.isCompleted"
+                        :date-deadline="order.confirmedDate"
+                    />
                 </div>
-            </td>
-            <td>
-                <span v-if="production.dateStart">
-                    {{ production.dateStart | formatDate('YYYY-MM-DD') }}
-                </span>
-                <span v-else class="text-muted text-sm text-nowrap opacity-75">
-                    <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
-                </span>
-            </td>
-            <td>
-                <span v-if="production.dateEnd">
-                    {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
-                </span>
-                <span v-else class="text-muted text-sm text-nowrap opacity-75">
-                    <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
-                </span>
-            </td>
-        </template>
-
-        <td>
-            <button class="btn btn-light" style="padding: 0 0.5rem" v-if="hasDetails" @click.prevent="$emit('expandToggle', order.id)">
-
-                <span v-if="order.Agreement.attachments.length > 0">
-                    <i class="fa fa-paperclip sb-color"/>
-                    <span class="badge badge-pill">{{ order.Agreement.attachments.length }}</span>
-                </span>
-
-                <span v-if="getCustomTasks(order.productions).length && userCanProduction()">
-                    <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill">{{ getCustomTasks(order.productions).length }}</span>
-                </span>
-
-            </button>
+            </div>
         </td>
-
-
     </tr>
 </template>
 
@@ -133,7 +127,7 @@
 
         computed: {
             hasDetails() {
-                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
+                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction);
             },
 
             productionsByGrants() {
