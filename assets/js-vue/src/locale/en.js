@@ -35,6 +35,7 @@ export default {
         'required': 'This field is required',
         'dateFrom': 'The start date must be earlier than the end date',
         'dateTo': 'The end date must be later than the start date',
+        'dateEarlierThan': 'The date cannot exceed the deadline',
 
         'fixFormErrors': 'Fix form errors'
     }

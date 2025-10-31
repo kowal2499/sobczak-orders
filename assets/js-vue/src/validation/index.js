@@ -13,6 +13,12 @@ extend('required', {
 	message: i18n.t('_validation.required')
 });
 
+const parseYMD = s => {
+    const [y, m, d] = String(s).split('-').map(Number)
+    return new Date(y, m - 1, d)
+}
+const isValidDate = d => d instanceof Date && !isNaN(d.getTime())
+
 extend('dateFrom', {
 	params: ['target'],
 	validate(value, { target }) {
@@ -22,7 +28,12 @@ extend('dateFrom', {
 		if (!value) {
 			return false
 		}
-		return new Date(value) < new Date(target)
+        const targetDate = parseYMD(target)
+        const valueDate = parseYMD(value)
+        if (!isValidDate(targetDate) || !isValidDate(valueDate)) {
+            return false
+        }
+        return valueDate.getTime() < targetDate.getTime()
 	},
 	message: i18n.t('_validation.dateFrom')
 })
@@ -36,7 +47,31 @@ extend('dateTo', {
 		if (!value) {
 			return false
 		}
-		return new Date(value) > new Date(target)
+        const targetDate = parseYMD(target)
+        const valueDate = parseYMD(value)
+        if (!isValidDate(targetDate) || !isValidDate(valueDate)) {
+            return false
+        }
+		return valueDate.getTime() > targetDate.getTime()
 	},
 	message: i18n.t('_validation.dateTo')
+})
+
+extend('dateEarlierThan', {
+    params: ['deadline'],
+    validate(value, { deadline }) {
+
+        if (!deadline) return true
+        if (!value) return false
+
+        const valueDate = parseYMD(value)
+
+        if (!isValidDate(valueDate) || !isValidDate(deadline)) {
+            return false
+        }
+        const deadlineDate = new Date(deadline.getTime())
+        deadlineDate.setHours(23, 59, 59, 999)
+        return valueDate.getTime() < deadlineDate.getTime()
+    },
+    message: i18n.t('_validation.dateEarlierThan')
 })

@@ -21,7 +21,10 @@
             </template>
 
             <template #default="{ close }">
-                <StartProductionForm v-model="form" />
+                <StartProductionForm
+                    v-model="form"
+                    :confirmedDate="confirmedDate"
+                />
             </template>
         </modal-action>
     </ValidationObserver>
@@ -31,7 +34,8 @@
 import ModalAction from "../../../components/base/ModalAction.vue";
 import StartProductionForm from "../Forms/StartProductionForm.vue";
 import ApiNewOrder from "../../../api/neworder";
-import helpers, { getLocalDate, DPT_GLUEING } from "../../../helpers";
+import helpers from "../../../helpers";
+import { computeDefaultDatesForDepartment } from "../../../services/productionSchedule";
 
 export default {
     name: "StartProductionAction",
@@ -53,15 +57,11 @@ export default {
     },
 
     computed: {
-        productionDepartments() {
-            return helpers.getDepartments()
-        },
-
         payload() {
-            return Object.keys(this.form).map(key => ({
-                department: key,
-                [this.form[key][0].id]: this.form[key][0].value,
-                [this.form[key][1].id]: this.form[key][1].value,
+            return (this.form || []).map(row => ({
+                department: row.slug,
+                dateStart: row.dateStart,
+                dateEnd: row.dateEnd,
             }))
         }
     },
@@ -76,16 +76,12 @@ export default {
             const isValid = await this.$refs.form.validate();
 
             if (!isValid) {
-                EventBus.$emit('message', {
-                    type: 'error',
-                    content: this.$t('_validation.fixFormErrors')
-                });
+                // Basic field errors are already displayed by vee-validate
                 return
             }
 
             return ApiNewOrder.startProduction(this.agreementLineId, { schedule: this.payload })
                 .then(() => {
-                    // this.line.productions = Array.isArray(data) ? data : [];
                     EventBus.$emit('message', {
                         type: 'success',
                         content: this.$t('addedToSchedule')
@@ -100,47 +96,12 @@ export default {
 
         setDefaultValues()
         {
-            Object.keys(this.form).forEach(slug => {
-                this.form[slug].forEach((field, fieldIdx) => {
-                    if (field.id === 'dateStart') {
-                        this.form[slug][fieldIdx].value = this.getDefaultStartDate(slug, this.confirmedDate)
-                    }
-                    if (field.id === 'dateEnd') {
-                        this.form[slug][fieldIdx].value = this.getDefaultEndDate(slug, new Date(this.confirmedDate.getTime()))
-                    }
-                })
+            (this.form || []).forEach(row => {
+                const { start, end } = computeDefaultDatesForDepartment(row.slug, new Date(this.confirmedDate.getTime()));
+                row.dateStart = start;
+                row.dateEnd = end;
             })
         },
-
-        /**
-         * @param {string} dpt
-         * @param {Date} confirmedDate
-         */
-        getDefaultStartDate(dpt, confirmedDate)
-        {
-            return (new Date()).toISOString().split('T')[0]
-        },
-
-        /**
-         * @param {string} dpt
-         * @param {Date} confirmedDate
-         */
-        getDefaultEndDate(dpt, confirmedDate)
-        {
-            let date = confirmedDate
-            if (dpt === DPT_GLUEING) {
-                let daysPassed = 0
-                while (daysPassed < 5) {
-                    date = new Date(date.setDate(date.getDate()-1))
-                    const weekDay = date.getDay()
-                    if (![0,6].includes(weekDay)) {
-                        daysPassed++
-                    }
-                }
-            }
-            return getLocalDate(date)
-        },
-
     },
 
     data: () => ({
@@ -149,24 +110,11 @@ export default {
 }
 
 function getForm() {
-    return helpers.getDepartments()
-        .reduce((prev, current) => {
-            prev[current.slug] = [
-                {
-                    id: 'dateStart',
-                    value: null,
-                    type: 'date',
-                    label: 'agreement_line_list.startProductionForm.startDate'
-                },
-                {
-                    id: 'dateEnd',
-                    value: null,
-                    type: 'date',
-                    label: 'agreement_line_list.startProductionForm.endDate'
-                }
-            ]
-            return prev
-        }, {})
+    return helpers.getDepartments().map(d => ({
+        slug: d.slug,
+        dateStart: null,
+        dateEnd: null,
+    }));
 }
 
 </script>

@@ -35,7 +35,7 @@ export default {
         'required': 'To pole jest wymagane',
         'dateFrom': 'Data początkowa musi być wcześniejsza niż data końcowa',
         'dateTo': 'Data końcowa musi być późniejsza niż data początkowa',
-
+        'dateEarlierThan': 'Data nie może przekraczać terminu realizacji',
         'fixFormErrors': 'Popraw błędy formularza'
     }
 }

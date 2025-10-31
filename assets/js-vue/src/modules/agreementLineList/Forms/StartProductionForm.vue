@@ -1,34 +1,50 @@
 <template>
     <div>
-        <b-row v-for="slug in Object.keys(formProxy)" :key="slug">
-            <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(slug) }}</b-col>
-            <b-col v-for="(field, fieldIdx) in formProxy[slug]"
-                   :key="fieldIdx"
-            >
+        <b-row v-for="row in formProxy" :key="row.slug">
+            <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(row.slug) }}</b-col>
+
+            <b-col>
                 <ValidationProvider
+                    :name="`${row.slug}.dateStart`"
                     #default="{ errors }"
                     :rules="{
-                                    required: true,
-                                    ...(fieldIdx === 0 && {
-                                        dateFrom: {
-                                            target: formProxy[slug][1].value
-                                        }
-                                    }),
-                                    ...(fieldIdx === 1 && {
-                                        dateTo: {
-                                            target: formProxy[slug][0].value
-                                        }
-                                    })
-
-                                }"
-                    :name="`${slug}${field.id}`"
+                        required: true,
+                        dateFrom: { target: row.dateEnd },
+                        dateEarlierThan: { deadline: confirmedDate }
+                    }"
                 >
                     <b-form-group
-                        :label="$t(field.label)"
+                        :label="$t('agreement_line_list.startProductionForm.startDate')"
                         :invalid-feedback="errors.join(' ')"
                     >
                         <date-picker
-                            v-model="formProxy[slug][fieldIdx].value"
+                            v-model="row.dateStart"
+                            :is-range="false"
+                            :date-only="true"
+                            style="width: 100%"
+                            :class="errors.length > 0 && 'is-invalid'"
+                        />
+                    </b-form-group>
+                </ValidationProvider>
+            </b-col>
+
+            <b-col>
+                <ValidationProvider
+                    :name="`${row.slug}.dateEnd`"
+                    #default="{ errors }"
+                    :rules="{
+                        required: true,
+                        dateTo: { target: row.dateStart },
+                        dateEarlierThan: { deadline: confirmedDate }
+
+                    }"
+                >
+                    <b-form-group
+                        :label="$t('agreement_line_list.startProductionForm.endDate')"
+                        :invalid-feedback="errors.join(' ')"
+                    >
+                        <date-picker
+                            v-model="row.dateEnd"
                             :is-range="false"
                             :date-only="true"
                             style="width: 100%"
@@ -51,8 +67,12 @@ export default {
 
     props: {
         value: {
-            type: Object,
-            default: () => {}
+            type: Array,
+            default: () => []
+        },
+        confirmedDate: {
+            type: Date,
+            required: true
         }
     },
 
@@ -86,7 +106,7 @@ export default {
     },
 
     data: () => ({
-        formProxy: {}
+        formProxy: []
     })
 }
 </script>
