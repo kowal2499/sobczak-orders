@@ -18,7 +18,7 @@
 
         <div v-if="agreement.Customer">
             <div class="order-spec-list--item-title">{{ $t('customer') }}</div>
-            <CustomerDetails :customer="agreement.Customer" />
+            <CustomerDetails :customer="agreement.Customer" :disable-edit="disableEdit" />
         </div>
     </div>
 </template>
@@ -33,6 +33,10 @@
             agreement: {
                 type: Object,
                 required: true
+            },
+            disableEdit: {
+                type: Boolean,
+                default: false
             }
         },
 

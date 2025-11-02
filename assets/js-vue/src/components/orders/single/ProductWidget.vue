@@ -30,6 +30,10 @@
             product: {
                 type: Object,
                 required: true
+            },
+            disableEdit: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -41,11 +45,11 @@
 
         methods: {
             userCan() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTS);
+                return !this.disableEdit && this.$user.can(this.$privilages.CAN_PRODUCTS);
             },
 
             userCanProduction() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION);
+                return !this.disableEdit && this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         }
 

@@ -33,3 +33,8 @@ export function isValid(dateTime) {
     }
     return new Date(dateTime).toString() !== 'Invalid Date';
 }
+
+export function parseYMD(s) {
+    const [y, m, d] = String(s).split('-').map(Number)
+    return new Date(y, m - 1, d)
+}

@@ -3,6 +3,7 @@ import { ValidationProvider, ValidationObserver } from 'vee-validate';
 import { extend } from 'vee-validate';
 import { required, email } from 'vee-validate/dist/rules';
 import i18n from '../../i18n';
+import { parseYMD } from '../services/datesService';
 
 Vue.component('ValidationProvider', ValidationProvider)
 Vue.component('ValidationObserver', ValidationObserver)
@@ -13,10 +14,6 @@ extend('required', {
 	message: i18n.t('_validation.required')
 });
 
-const parseYMD = s => {
-    const [y, m, d] = String(s).split('-').map(Number)
-    return new Date(y, m - 1, d)
-}
 const isValidDate = d => d instanceof Date && !isNaN(d.getTime())
 
 extend('dateFrom', {

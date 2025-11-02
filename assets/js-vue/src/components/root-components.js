@@ -20,6 +20,7 @@ import Roles from "../modules/configuration/views/Roles.vue"
 import ContextMenu from './base/Menu/ContextMenu.vue'
 
 import App from '../modules/app/views/App.vue'
+import DevContainer from './dev/DevContainer'
 
 export default {
     App,
@@ -39,4 +40,5 @@ export default {
     ConfigurationModuleWrapper,
     ...TagsModule,
     ContextMenu,
+    DevContainer,
 }

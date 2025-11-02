@@ -97,8 +97,7 @@
                 <b-dropdown-divider />
                 <b-dropdown-item>
                 <start-production-action
-                    :agreement-line-id="line.id"
-                    :confirmed-date="new Date(line.confirmedDate)"
+                    :agreement-line="line"
                     v-on="$listeners"
                 />
                 </b-dropdown-item>
@@ -117,7 +116,7 @@ import {
 } from "../../definitions/agreementLineStatuses";
 import {isValid} from "../../services/datesService";
 import ConfirmableAction from "../../modules/agreementLineList/Actions/ConfirmableAction";
-import StartProductionAction from "../../modules/agreementLineList/Actions/StartProductionAction";
+import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 
 /**
  *  todo:

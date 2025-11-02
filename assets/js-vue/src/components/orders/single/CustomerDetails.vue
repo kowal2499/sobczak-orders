@@ -34,6 +34,10 @@
             customer: {
                 type: Object,
                 required: true
+            },
+            disableEdit: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -45,7 +49,7 @@
 
         methods: {
             userCan() {
-                return this.$user.can(this.$privilages.CAN_CUSTOMERS) || this.$user.can(this.$privilages.CAN_CUSTOMERS_OWNED_ONLY);
+                return !this.disableEdit && (this.$user.can(this.$privilages.CAN_CUSTOMERS) || this.$user.can(this.$privilages.CAN_CUSTOMERS_OWNED_ONLY));
             }
         }
 

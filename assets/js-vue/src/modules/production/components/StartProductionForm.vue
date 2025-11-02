@@ -1,9 +1,9 @@
 <template>
     <div>
         <b-row v-for="row in formProxy" :key="row.slug">
-            <b-col class="d-flex justify-content-end align-items-center">{{ getDepartmentName(row.slug) }}</b-col>
+            <b-col :cols="12" :lg="4" class="d-flex justify-content-end align-items-center">{{ getDepartmentName(row.slug) }}</b-col>
 
-            <b-col>
+            <b-col :cols="6" :lg="4">
                 <ValidationProvider
                     :name="`${row.slug}.dateStart`"
                     #default="{ errors }"
@@ -28,7 +28,7 @@
                 </ValidationProvider>
             </b-col>
 
-            <b-col>
+            <b-col :cols="6" :lg="4">
                 <ValidationProvider
                     :name="`${row.slug}.dateEnd`"
                     #default="{ errors }"
@@ -59,8 +59,8 @@
 
 <script>
 
-import { getDepartmentName } from "../../../helpers";
-import datePicker from "../../../components/base/DatePicker.vue";
+import { getDepartmentName } from "@/helpers";
+import datePicker from "@/components/base/DatePicker.vue";
 
 export default {
     name: "StartProductionForm",
