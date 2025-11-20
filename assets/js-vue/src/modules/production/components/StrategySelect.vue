@@ -1,7 +1,7 @@
 <script>
 import {defineComponent} from 'vue'
 import StrategyCascade from "../services/productionScheduler/strategyCascade";
-import StrategyInitial from "../services/productionScheduler/strategyInitial";
+import StrategyInitial from "../services/productionScheduler/strategyFast";
 import VueSelect from 'vue-select'
 
 export default defineComponent({
