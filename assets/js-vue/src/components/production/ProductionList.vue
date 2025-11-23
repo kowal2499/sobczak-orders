@@ -64,7 +64,7 @@
     import api from '../../api/neworder';
     import routing from '../../api/routing';
     import productionApi from '../../api/production';
-    import Helpers, {DEPARTMETNS} from '../../helpers';
+    import Helpers, {DEPARTMENTS} from '../../helpers';
     import Filters from './Filters';
     import TablePlus from '../base/TablePlus';
     import CollapsibleCard from "../base/CollapsibleCard";
@@ -296,7 +296,7 @@
         computed: {
             productionDepartmentHeaders() {
                 return this.departments.map((department, index) => {
-                    const dep = DEPARTMETNS.find(d => d.slug === department.slug);
+                    const dep = DEPARTMENTS.find(d => d.slug === department.slug);
                     if (!dep) {
                         return null
                     }

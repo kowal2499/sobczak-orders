@@ -3,7 +3,7 @@
         <slot></slot>
         <transition name="fade">
             <div class="courtain" v-if="show">
-                <stretch background="#4e73df"/>
+<!--                <stretch background="#4e73df"/>-->
             </div>
         </transition>
     </div>
@@ -11,12 +11,12 @@
 
 <script>
 
-import {Stretch} from 'vue-loading-spinner';
+// import {Stretch} from 'vue-loading-spinner';
 export default {
     name: "Overlay",
 
     components: {
-        Stretch
+        // Stretch
     },
 
     props: {

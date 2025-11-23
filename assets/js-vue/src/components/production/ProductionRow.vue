@@ -111,7 +111,7 @@
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
     import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
-    import helpers, { getDepartmentName, DEPARTMETNS } from "../../helpers";
+    import helpers, { getDepartmentName, DEPARTMENTS } from "../../helpers";
     import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
@@ -131,12 +131,12 @@
             },
 
             productionsByGrants() {
-                const productionSlugs = DEPARTMETNS.map(d => d.slug)
+                const productionSlugs = DEPARTMENTS.map(d => d.slug)
                 return this.order.productions.filter(prod => {
                     if (!productionSlugs.includes(prod.departmentSlug)) {
                         return true
                     }
-                    const config = DEPARTMETNS.find(d => d.slug === prod.departmentSlug)
+                    const config = DEPARTMENTS.find(d => d.slug === prod.departmentSlug)
                     return this.$user.can(config.grant)
                 })
             }

@@ -202,7 +202,8 @@ export default {
     .modal-table {
         font-size: 0.9em;
         td {
-            vertical-align: middle
+            vertical-align: middle;
+            font-weight: normal;
         }
 
         th {

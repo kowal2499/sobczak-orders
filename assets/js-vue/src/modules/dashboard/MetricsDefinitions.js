@@ -7,7 +7,7 @@ import Metric, {
     METRIC_TASKS_COMPLETED,
     GROUP_ROW_1,
     GROUP_ROW_2,
-    GROUP_ROW_3
+    GROUP_ROW_3, METRIC_TASKS_COMPLETED_VER2
 } from "./model/DashboardMetric";
 import PRIVILEGES from "../../definitions/userRoles";
 import {getProductionFinishedDetails, getProductionPendingDetails} from "./repository";

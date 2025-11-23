@@ -25,10 +25,12 @@ import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesSer
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
+    getProductionTasksCompletionSummaryNew,
     getOldSummary
 } from "./repository";
 import DetailsModal from "./components/DetailsModal";
 import MetricsDefinitions from "./MetricsDefinitions";
+import { METRIC_TASKS_COMPLETED_VER2 } from "./model/DashboardMetric";
 
 const START_YEAR = 2018;
 
@@ -43,7 +45,7 @@ export default {
         years() {
             const currentYear = new Date().getFullYear();
             const yearsRange = currentYear - START_YEAR + 2;
-            return Array.from({length: yearsRange }, (item, idx) => idx + START_YEAR)
+            return Array.from({length: yearsRange }, (item, idx) => idx + START_YEAR).reverse()
         },
         yearsOptions() {
             return [
@@ -127,12 +129,26 @@ export default {
             handler() {
                this.metrics.forEach(metric => metric.busy = true)
 
+                // zamówienia w realizacji
+                // zamówienia zrealizowane
                 getAgreementLinesSummary(this.dateRangeStart, this.dateRangeEnd)
                     .then(({data}) => this.setMetricsData(data))
 
+                // ukończone zadania produkcyjne
                 getProductionTasksCompletionSummary(this.dateRangeStart, this.dateRangeEnd)
-                    .then(({data}) => this.setMetricsData(data))
+                    .then(({data}) => {
+                        console.log(data);this.setMetricsData(data) }
+                    )
 
+                getProductionTasksCompletionSummaryNew(this.dateRangeStart, this.dateRangeEnd)
+                    .then(({data}) => {
+                        const metric = this.metrics.find(metric => metric.id === METRIC_TASKS_COMPLETED_VER2)
+                        metric.value = data
+                        metric.busy = false
+                    })
+
+                // ilość dni roboczych
+                // limit współczynników w miesiącu
                 getOldSummary(this.dateRangeStart, this.dateRangeEnd)
                     .then(({data}) => this.setMetricsData(data))
             }

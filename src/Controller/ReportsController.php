@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Modules\Reports\Production\ProductionReport;
+use App\Modules\Reports\Production\RecordSuppliers\TasksCompletedByDepartmentSupplier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -73,5 +74,18 @@ class ReportsController extends BaseController
             $start ? new \DateTime($start) : null,
             $end ? new \DateTime($end) : null
         ));
+    }
+
+    #[Route(path: '/production-tasks-completion-summary-new', methods: ['GET'])]
+    public function productionTasksCompletionSummaryNew(Request $request, TasksCompletedByDepartmentSupplier $supplier): Response
+    {
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+        $data = $supplier->getSummaryNew(
+            $start ? new \DateTime($start) : null,
+            $end ? new \DateTime($end) : null
+        );
+        return $this->json($data);
     }
 }

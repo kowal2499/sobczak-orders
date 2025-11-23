@@ -1,6 +1,10 @@
 {
   "name": "assets",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20 <21",
+    "npm": ">=10"
+  },
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
@@ -12,22 +16,22 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@symfony/webpack-encore": "^1.6.1",
+    "@symfony/webpack-encore": "^4.0.0",
     "dotenv-webpack": "^8.1.1",
-    "sass": "^1.42.1",
-    "sass-loader": "^12.1.0",
-    "vue": "^2.6.14",
+    "sass": "^1.77.0",
+    "sass-loader": "^13.3.2",
+    "vue": "^2.7.16",
     "vue-loader": "^15.9.8",
-    "vue-template-compiler": "^2.6.14",
-    "webpack-notifier": "^1.13.0"
+    "vue-template-compiler": "^2.7.16",
+    "webpack-notifier": "^1.15.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/vue-fontawesome": "^2.0.2",
-    "axios": "^0.21.4",
-    "bootstrap": "^4.6.0",
-    "bootstrap-vue": "^2.21.2",
+    "axios": "^1.7.2",
+    "bootstrap": "^4.6.2",
+    "bootstrap-vue": "^2.23.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.6.0",
     "localstorage": "^1.0.1",
@@ -35,7 +39,6 @@
     "moment": "^2.29.1",
     "vee-validate": "^3.4.15",
     "vue-i18n": "^8.26.0",
-    "vue-loading-spinner": "^1.0.11",
     "vue-select": "^3.13.0",
     "vue2-datepicker": "^3.10.2",
     "vue2-dropzone": "^3.6.0",

@@ -37,6 +37,7 @@ export default {
     Notifications,
     NavOrders,
     Dashboard2,
+    Dashboard3: () => import('../modules/dashboard/Dashboard3.vue'),
     ConfigurationModuleWrapper,
     ...TagsModule,
     ContextMenu,

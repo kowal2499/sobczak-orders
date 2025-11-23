@@ -1,3 +1,4 @@
+import Vue from 'vue'
 
 const statuses = [
     { value: 0, name: 'oczekuje', color: '#FFF', className: 'dropdown-white' },
@@ -24,7 +25,7 @@ export const DPT_GRINDING = 'dpt03'
 export const DPT_LACQUERING = 'dpt04'
 export const DPT_PACKING = 'dpt05'
 
-export const DEPARTMETNS = [
+export const DEPARTMENTS = [
     {name: 'Klejenie', slug: DPT_GLUEING, grant: 'production.show.gluing'},
     {name: 'CNC', slug: DPT_CNC, grant: 'production.show.cnc'},
     {name: 'Szlifowanie', slug: DPT_GRINDING, grant: 'production.show.grinding'},
@@ -32,8 +33,12 @@ export const DEPARTMETNS = [
     {name: 'Pakowanie', slug: DPT_PACKING, grant: 'production.show.packing'},
 ];
 export function getDepartmentName(slug) {
-    const department = DEPARTMETNS.find(dpt => dpt.slug === slug)
+    const department = DEPARTMENTS.find(dpt => dpt.slug === slug)
     return (department && department.name) || slug
+}
+
+export function getUserDepartments() {
+    return DEPARTMENTS.filter(dpt => Vue.prototype.$user.can(dpt.grant))
 }
 
 /**
@@ -103,11 +108,11 @@ export default {
     },
 
     getDepartments() {
-        return DEPARTMETNS;
+        return DEPARTMENTS;
     },
 
     getDepartmentsSlugs() {
-        return DEPARTMETNS.map(d => d.slug);
+        return DEPARTMENTS.map(d => d.slug);
     },
 
     getStatusStyle(statusId) {

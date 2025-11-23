@@ -4,6 +4,7 @@ export const METRIC_ORDERS_FINISHED = 'orders_finished';
 export const METRIC_ORDERS_PENDING = 'orders_pending';
 export const METRIC_DAY_OF_COMPLETION = 'firstFreeDay';
 export const METRIC_TASKS_COMPLETED = 'tasksCompleted';
+export const METRIC_TASKS_COMPLETED_VER2 = 'tasksCompletedv2';
 
 export const GROUP_ROW_1 = 'row1';
 export const GROUP_ROW_2 = 'row2';

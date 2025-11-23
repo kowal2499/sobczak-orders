@@ -2,6 +2,7 @@
 
 namespace App\Modules\Reports\Production;
 
+use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Modules\Reports\Production\RecordSuppliers\TasksCompletedByDepartmentSupplier;
@@ -33,7 +34,8 @@ class ProductionReport
     {
         $this->ordersPendingSupplier = new OrdersPendingRecordSupplier($productionPendingRepository);
         $this->ordersFinishedSupplier = new OrdersFinishedRecordSupplier($productionFinishedRepository);
-        $this->tasksSupplier = new TasksCompletedByDepartmentSupplier($productionTasksRepository);
+        $mapper = new TaskCompletedRecordMapper();
+        $this->tasksSupplier = new TasksCompletedByDepartmentSupplier($productionTasksRepository, $mapper);
         $this->suppliers = [$this->ordersPendingSupplier, $this->ordersFinishedSupplier];
     }
 
