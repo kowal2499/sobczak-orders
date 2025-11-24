@@ -63,39 +63,46 @@ export default defineComponent({
             return [
                 {
                     key: 'context',
-                    label: this.$t('_agreement_line')
+                    label: this.$t('_agreement_line'),
+                    active: true,
                 },
                 {
                     key: 'factor',
                     label: this.$t('_factor'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: true,
                 },
                 {
                     key: 'dpt01',
                     label: this.$t('_dpt01'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.gluing')
                 },
                 {
                     key: 'dpt02',
                     label: this.$t('_dpt02'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.cnc')
                 },
                 {
                     key: 'dpt03',
                     label: this.$t('_dpt03'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.grinding')
                 },
                 {
                     key: 'dpt04',
                     label: this.$t('_dpt04'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.laquering')
                 },
                 {
                     key: 'dpt05',
                     label: this.$t('_dpt05'),
-                    class: 'data-cell'
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.packing')
                 },
-            ]
+            ].filter(field => field.active)
         },
     },
     data: () => ({})
@@ -110,7 +117,8 @@ export default defineComponent({
          :sticky-header="`${height}px`"
          small
          hover
-         class="modal-table"
+         no-border-collapse
+         class="orders-count-table"
     >
         <template #cell(context)="{item}">
             <div v-if="item.context">
@@ -126,7 +134,7 @@ export default defineComponent({
                     <font-awesome-icon size="sm" icon="hashtag" />
                     <span>{{ (item.context.orderNumber || '').trim() }}</span>
                 </div>
-                <div class="context-row">
+                <div class="context-row" v-if="$user.can('production.panel')">
                     <a :href="panelUrl(item.context.id)" target="_blank" class="text-decoration-none">
                         <font-awesome-icon size="sm" icon="link" />
                         <span>{{ $t('_agreement_line_panel') }}</span>
@@ -135,11 +143,11 @@ export default defineComponent({
             </div>
         </template>
 
-        <template #cell(dpt01)="{item}"><status-icon :tick-value="item.dpt01" /></template>
-        <template #cell(dpt02)="{item}"><status-icon :tick-value="item.dpt02" /></template>
-        <template #cell(dpt03)="{item}"><status-icon :tick-value="item.dpt03" /></template>
-        <template #cell(dpt04)="{item}"><status-icon :tick-value="item.dpt04" /></template>
-        <template #cell(dpt05)="{item}"><status-icon :tick-value="item.dpt05" /></template>
+        <template #cell(dpt01)="{item}"><status-icon :tick-value="item.dpt01" class="cell-dpt" /></template>
+        <template #cell(dpt02)="{item}"><status-icon :tick-value="item.dpt02" class="cell-dpt" /></template>
+        <template #cell(dpt03)="{item}"><status-icon :tick-value="item.dpt03" class="cell-dpt" /></template>
+        <template #cell(dpt04)="{item}"><status-icon :tick-value="item.dpt04" class="cell-dpt" /></template>
+        <template #cell(dpt05)="{item}"><status-icon :tick-value="item.dpt05" class="cell-dpt" /></template>
 
         <template #head(context)="data">
             {{data.label}}
@@ -172,21 +180,22 @@ export default defineComponent({
     </b-table>
 </template>
 
-<style scoped lang="scss">
-.modal-table {
-    font-size: 0.77em;
+<style lang="scss">
+.orders-count-table {
+    font-size: 0.75em;
+    font-weight: normal;
+    padding-top: 0 !important;
+
     td {
         vertical-align: middle
     }
 
     th {
         color: #4e73df !important;
-        .badge {
-            font-size: 13px;
-        }
     }
 
-    .data-cell {
+    th.data-cell,
+    td.data-cell {
         text-align: center;
         width: 100px;
     }

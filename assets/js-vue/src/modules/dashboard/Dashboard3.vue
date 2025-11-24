@@ -66,7 +66,7 @@ import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
 import OrdersCountMetric from "./components/Metrics/OrdersCountMetric/index.vue"
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
-import DepartmentsFactorMetric from "./components/Metrics/DepartmentsFactorMetric.vue";
+import DepartmentsFactorMetric from "./components/Metrics/DepartmentsFactorMetric/index.vue";
 import PRIVILEGES from "../../definitions/userRoles";
 
 import {

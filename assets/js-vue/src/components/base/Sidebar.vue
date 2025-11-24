@@ -69,7 +69,6 @@ export default defineComponent({
 
         calcContentHeight() {
             const contentEl = this.$refs.content?.$el || this.$refs.content
-            console.log(contentEl)
             if (!contentEl) { return }
             return contentEl.getBoundingClientRect().height
         }

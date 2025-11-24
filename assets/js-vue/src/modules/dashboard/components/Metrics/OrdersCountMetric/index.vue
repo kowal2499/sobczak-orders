@@ -74,7 +74,7 @@ export default defineComponent({
             <Sidebar
                 v-if="canSeeProduction"
                 :title="$t(`dashboard.${status}`)"
-                sidebar-class="size-100 size-lg-75 size-xl-50"
+                sidebar-class="size-100 size-lg-75"
             >
                 <template #sidebar-action="{ open }">
                     <font-awesome-icon icon="spinner" spin v-if="isFetchingDetails" />
