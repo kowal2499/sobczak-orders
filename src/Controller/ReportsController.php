@@ -67,25 +67,12 @@ class ReportsController extends BaseController
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
     public function productionTasksCompletionSummary(Request $request, ProductionReport $report): Response
     {
-        $start = $request->query->get('start', null);
-        $end = $request->query->get('end', null);
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
 
         return $this->json($report->getCompletedProductionTasksSummary(
             $start ? new \DateTime($start) : null,
             $end ? new \DateTime($end) : null
         ));
-    }
-
-    #[Route(path: '/production-tasks-completion-summary-new', methods: ['GET'])]
-    public function productionTasksCompletionSummaryNew(Request $request, TasksCompletedByDepartmentSupplier $supplier): Response
-    {
-        $start = $request->query->get('start');
-        $end = $request->query->get('end');
-
-        $data = $supplier->getSummaryNew(
-            $start ? new \DateTime($start) : null,
-            $end ? new \DateTime($end) : null
-        );
-        return $this->json($data);
     }
 }

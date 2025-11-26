@@ -71,7 +71,7 @@ import PRIVILEGES from "../../definitions/userRoles";
 
 import {
     getAgreementLinesSummary,
-    getProductionTasksCompletionSummaryNew,
+    getProductionTasksCompletionSummary,
     getOldSummary
 } from "./repository";
 
@@ -89,7 +89,7 @@ const DATA_SOURCES = [
     },
     {
         id: 'src03',
-        fetcher: getProductionTasksCompletionSummaryNew,
+        fetcher: getProductionTasksCompletionSummary,
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
     }
 ]

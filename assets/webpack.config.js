@@ -38,7 +38,9 @@ Encore
     .enableSassLoader()
     .enableVueLoader()
     .addAliases({
-        '@': path.resolve(__dirname, 'js-vue/src'),})
+        '@': path.resolve(__dirname, 'js-vue/src'),
+        'css': path.resolve(__dirname, 'css')}
+    )
     .addPlugin(new Dotenv({
         path: path.resolve(__dirname, '.env.local')
     }))

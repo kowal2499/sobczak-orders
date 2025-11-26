@@ -36,12 +36,13 @@
 
         <template v-if="false === isTrashed">
             <!-- sekcja wspólna -->
-            <b-dropdown-item :href="`/agreement/line/${line.id}`">
-                <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
-            </b-dropdown-item>
+            <template v-if="$user.can('production.panel')">
+                <b-dropdown-item :href="`/agreement/line/${line.id}`" >
+                    <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
+                </b-dropdown-item>
 
-            <b-dropdown-divider />
-
+                <b-dropdown-divider />
+            </template>
             <!-- 1. sekcja zamówienie -->
 
             <!-- 1.1 edit order -->

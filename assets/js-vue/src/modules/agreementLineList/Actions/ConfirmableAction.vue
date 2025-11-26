@@ -86,7 +86,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "~/css/helper/variables.scss";
+@use "css/helper/variables" as *;
 
 i.fa {
     color: $primary;
