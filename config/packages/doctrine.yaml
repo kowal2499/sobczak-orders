@@ -36,6 +36,12 @@ doctrine:
                 prefix: 'App\Module\ModuleRegistry\Entity'
                 alias: ModuleRegistry
                 type: attribute
+            Production:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/Production/Entity'
+                prefix: 'App\Module\Production\Entity'
+                alias: Production
+                type: attribute
 
 when@test:
     doctrine:
