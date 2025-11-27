@@ -23,11 +23,21 @@ class FactorAdjustRepository extends ServiceEntityRepository implements FactorAd
         parent::__construct($registry, FactorAdjust::class);
     }
 
-    public function add(FactorAdjust $factorAdjust, bool $flush = true): void
+    public function save(FactorAdjust $factorAdjust, bool $flush = true): void
     {
         $this->_em->persist($factorAdjust);
         if ($flush) {
             $this->_em->flush();
         }
     }
+
+    public function delete(FactorAdjust $factorAdjust, bool $flush = true): void
+    {
+        $this->_em->remove($factorAdjust);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+
 }

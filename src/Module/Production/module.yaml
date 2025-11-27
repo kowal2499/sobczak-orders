@@ -32,3 +32,15 @@ app_module:
         description: Dostęp do widoku panelu produkcji
         slug: production.panel
         type: boolean
+
+      - name: Bonusy i kary dla działów produkcyjnych
+        description: Dodatkowa pula współczynników do sterowania wysokością premii
+        slug: production.factor_adjustment
+        type: select
+        options:
+          - label: Tworzenie
+            optionSlug: create
+          - label: Edycja i usuwanie
+            optionSlug: update
+          - label: Odczyt
+            optionSlug: read

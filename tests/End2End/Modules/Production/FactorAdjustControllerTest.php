@@ -5,26 +5,26 @@ namespace App\Tests\End2End\Modules\Production;
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
+use App\Module\Production\Entity\FactorAdjust;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class FactorAdjustControllerTest extends ApiTestCase
 {
-    private Production $production;
-
+    private int $productionId;
+    private EntityFactory $entityFactory;
 
     protected function setUp(): void
     {
-//        $this->getManager()->beginTransaction();
+        $this->getManager()->beginTransaction();
 
-        $factory = new EntityFactory($this->getManager());
+        $this->entityFactory = new EntityFactory($this->getManager());
         $fixtureHelper = new AgreementLineFixtureHelpers(
-            $factory,
-            new AgreementLineChainFactory($factory)
+            $this->entityFactory,
+            new AgreementLineChainFactory($this->entityFactory)
         );
 
         $agreementLine = $fixtureHelper->makeAgreementLineWithProductionTasks([
@@ -40,69 +40,94 @@ class FactorAdjustControllerTest extends ApiTestCase
             'dpt04' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
             'dpt05' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
         ]);
-        $this->production = $agreementLine->getProductions()->first();
+        $this->productionId = $agreementLine->getProductions()->first()->getId();
 
         $this->getManager()->flush();
-        $this->getManager()->clear();
     }
 
-    public function testShouldCreateFactorAdjust(): int
+    public function testShouldCreateFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], ['ROLE_ADMIN']);
+        $user = $this->createUser([], [], ['production.factor_adjustment:create']);
         $client = $this->login($user);
-
         // When
-        $client->xmlHttpRequest('POST', '/production/factor-adjust/create/' . $this->production->getId(), [
+        $client->xmlHttpRequest('POST', '/production/factor-adjust/create/' . $this->productionId, [
             'description' => 'Adjustment for testing',
             'factor' => 1.2
+        ]);
+        // Then
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+    }
+
+    public function testShouldReadFactorAdjust(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['production.factor_adjustment:read']);
+        $client = $this->login($user);
+        $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
+
+        // When
+        $client->xmlHttpRequest('GET', '/production/factor-adjust/' . $factorAdjust->getId());
+
+        // Then
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals('Adjustment for testing', $data['description']);
+        $this->assertEquals(1.2, $data['factor']);
+        $this->assertEquals($this->productionId, $data['productionId']);
+    }
+
+    public function testShouldUpdateFactorAdjust(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['production.factor_adjustment:update']);
+        $client = $this->login($user);
+        $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
+
+        // When
+        $client->xmlHttpRequest('PUT', '/production/factor-adjust/' . $factorAdjust->getId(), [
+            'description' => 'Updated description',
+            'factor' => 1.5
         ]);
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        return json_decode($client->getResponse()->getContent(), true)['id'];
+        $updatedFactorAdjust = $this->getManager()->find(FactorAdjust::class, $factorAdjust->getId());
+        $this->assertEquals('Updated description', $updatedFactorAdjust->getDescription());
+        $this->assertEquals(1.5, $updatedFactorAdjust->getFactor());
     }
 
-    /** @depends testShouldCreateFactorAdjust */
-    public function testShouldReadFactorAdjust(int $factorAdjustId): void
+    public function testShouldDeleteFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], ['ROLE_ADMIN']);
+        $user = $this->createUser([], [], ['production.factor_adjustment:update']);
         $client = $this->login($user);
-
-        // When
-        $client->xmlHttpRequest('GET', '/production/factor-adjust/' . $factorAdjustId);
-
-        // Then
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-    }
-
-    /** @depends testShouldCreateFactorAdjust */
-    public function testShouldUpdateFactorAdjust(int $factorAdjustId): void
-    {
-        // Given
-        $user = $this->createUser([], ['ROLE_ADMIN']);
-        $client = $this->login($user);
-
-        // When
-        $client->xmlHttpRequest('PUT', '/production/factor-adjust/' . $factorAdjustId);
-
-        // Then
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-    }
-
-    /** @depends testShouldCreateFactorAdjust */
-    public function testShouldDeleteFactorAdjust(int $factorAdjustId): void
-    {
-        // Given
-        $user = $this->createUser([], ['ROLE_ADMIN']);
-        $client = $this->login($user);
+        $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
+        $factorAdjustId = $factorAdjust->getId();
 
         // When
         $client->xmlHttpRequest('DELETE', '/production/factor-adjust/' . $factorAdjustId);
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertNull($this->getManager()->find(FactorAdjust::class, $factorAdjustId));
+    }
+
+    private function getProduction(): Production
+    {
+        return $this->getManager()->find(Production::class, $this->productionId);
+    }
+
+    private function createFactorAdjust(string $description, float $factor): FactorAdjust
+    {
+        $factorAdjust = $this->entityFactory->make(FactorAdjust::class, [
+            'production' => $this->getProduction(),
+            'description' => $description,
+            'factor' => $factor
+        ]);
+
+        $this->getManager()->flush();
+        return $factorAdjust;
     }
 
 }
