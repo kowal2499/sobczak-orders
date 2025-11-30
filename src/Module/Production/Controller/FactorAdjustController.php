@@ -4,8 +4,11 @@ namespace App\Module\Production\Controller;
 
 use App\Controller\BaseController;
 use App\Entity\Production;
+use App\Module\Production\Command\CreateFactorAdjust;
+use App\Module\Production\Command\DeleteFactorAdjust;
+use App\Module\Production\Command\UpdateFactorAdjust;
 use App\Module\Production\Entity\FactorAdjust;
-use App\Module\Production\Repository\Interface\FactorAdjustRepositoryInterface;
+use App\System\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,23 +25,17 @@ class FactorAdjustController extends BaseController
     public function create(
         Request $request,
         Production $production,
-        FactorAdjustRepositoryInterface $factorAdjustRepository
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $description = $request->request->get('description');
         $factor = (float)$request->request->get('factor');
-
         if (!$description || !$factor) {
             throw new BadRequestHttpException("Description and factor are required.");
         }
 
-        $adjust = new FactorAdjust();
-        $adjust->setProduction($production);
-        $adjust->setDescription($description);
-        $adjust->setFactor($factor);
-
-        $factorAdjustRepository->save($adjust);
-        return $this->json(['id' => $adjust->getId()]);
+        $commandBus->dispatch(new CreateFactorAdjust($production->getId(), $description, $factor));
+        return $this->json([], Response::HTTP_OK);
     }
 
     #[Route(path: '/{factorAdjust}',  methods: ['GET'])]
@@ -58,7 +55,7 @@ class FactorAdjustController extends BaseController
     public function update(
         Request $request,
         FactorAdjust $factorAdjust,
-        FactorAdjustRepositoryInterface $factorAdjustRepository
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $description = $request->request->get('description');
@@ -66,22 +63,19 @@ class FactorAdjustController extends BaseController
         if (!$description || !$factor) {
             throw new BadRequestHttpException("Description and factor are required.");
         }
-        $factorAdjust->setDescription($description);
-        $factorAdjust->setFactor($factor);
 
-        $factorAdjustRepository->save($factorAdjust);
-
+        $commandBus->dispatch(new UpdateFactorAdjust($factorAdjust->getId(), $description, $factor));
         return $this->json([], Response::HTTP_OK);
     }
 
     #[Route(path: '/{factorAdjust}', methods: ['DELETE'])]
-    #[IsGranted('production.factor_adjustment:update')]
+    #[IsGranted('production.factor_adjustment:delete')]
     public function delete(
         FactorAdjust $factorAdjust,
-        FactorAdjustRepositoryInterface $factorAdjustRepository
+        CommandBus $commandBus
     ): JsonResponse
     {
-        $factorAdjustRepository->delete($factorAdjust);
+        $commandBus->dispatch(new DeleteFactorAdjust($factorAdjust->getId()));
         return $this->json([], Response::HTTP_OK);
     }
 }
