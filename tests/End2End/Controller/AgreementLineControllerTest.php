@@ -263,7 +263,7 @@ class AgreementLineControllerTest extends ApiTestCase
                     'title' => $production->getTitle()
                 ];
                 if ($production->getId() === $firstProd->getId()) {
-                    $record['factorAdjusts'] = [
+                    $record['factorAdjustments'] = [
                         ['description' => 'Adj A', 'factor' => 1.1],
                         ['description' => 'Adj B', 'factor' => -0.9],
                     ];

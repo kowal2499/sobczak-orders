@@ -170,15 +170,15 @@ class AgreementLineController extends BaseController
                     $record['status']
                 ));
 
-                if (isset($record['factorAdjusts'])) {
+                if (isset($record['factorAdjustments'])) {
                     $commandBus->dispatch(new AssignFactorAdjustments(
                         $production->getId(),
-                        array_map(fn($adjust) => new FactorAdjustmentDTO(
-                            $adjust['id'] ?? null,
+                        array_map(fn($adjustment) => new FactorAdjustmentDTO(
+                            $adjustment['id'] ?? null,
                             $production->getId(),
-                            $adjust['description'],
-                            $adjust['factor']
-                        ), $record['factorAdjusts']),
+                            $adjustment['description'],
+                            $adjustment['factor']
+                        ), $record['factorAdjustments']),
                     ));
                 }
             }
