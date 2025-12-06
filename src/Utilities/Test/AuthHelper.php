@@ -36,13 +36,14 @@ class AuthHelper
         $this->faker = Factory::create('pl_PL');
     }
 
-    public function createUser(array $data = [], array $roleNames = [], array $grantNames = []): User
+    public function createUser(array $data = [], array $roleNames = [], array $grantNames = [], array $legacyRoles = []): User
     {
         $user = new User();
         $user->setEmail($data['email'] ?? $this->faker->email);
         $user->setFirstName($this->faker->firstNameFemale());
         $user->setLastName($this->faker->lastName());
         $user->setPassword($this->faker->password(10));
+        $user->setRoles($legacyRoles);
         $this->userRepository->add($user);
 
         foreach ($roleNames as $roleName) {

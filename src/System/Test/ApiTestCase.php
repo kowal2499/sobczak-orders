@@ -84,8 +84,9 @@ class ApiTestCase extends WebTestCase
     protected function createUser(
         array $data = [],
         array $roleNames = [],
-        array $grantNames = []
+        array $grantNames = [],
+        array $legacyRoles = [],
     ): User {
-        return $this->getAuthHelper()->createUser($data, $roleNames, $grantNames);
+        return $this->getAuthHelper()->createUser($data, $roleNames, $grantNames, $legacyRoles);
     }
 }

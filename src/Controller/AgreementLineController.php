@@ -153,21 +153,32 @@ class AgreementLineController extends BaseController
 
             $payload = json_decode($request->getContent(), true) ?? [];
             $productions = $payload['productions'] ?? [];
-            foreach ($agreementLine->getProductions() as $idx => $task) {
-                $messageBus->dispatch(new UpdateStatusCommand(
-                    $task->getId(),
-                    $productions[$idx]['status'])
-                );
 
-                if (isset($productions[$idx]['factorAdjusts'])) {
+            $productionsBySlug = [];
+            foreach ($agreementLine->getProductions() as $prod) {
+                $productionsBySlug[$prod->getDepartmentSlug()] = $prod;
+            }
+
+            foreach ($productions as $record) {
+                $production = $productionsBySlug[$record['departmentSlug']] ?? null;
+                if ($production === null) {
+                    continue;
+                }
+
+                $messageBus->dispatch(new UpdateStatusCommand(
+                    $production->getId(),
+                    $record['status']
+                ));
+
+                if (isset($record['factorAdjusts'])) {
                     $commandBus->dispatch(new AssignFactorAdjustments(
-                        $task->getId(),
+                        $production->getId(),
                         array_map(fn($adjust) => new FactorAdjustmentDTO(
                             $adjust['id'] ?? null,
-                            $task->getId(),
+                            $production->getId(),
                             $adjust['description'],
                             $adjust['factor']
-                        ), $productions[$idx]['factorAdjusts']),
+                        ), $record['factorAdjusts']),
                     ));
                 }
             }

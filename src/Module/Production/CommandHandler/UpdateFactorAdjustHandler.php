@@ -25,6 +25,11 @@ class UpdateFactorAdjustHandler
         if (!$adjust) {
             throw new InvalidArgumentException('FactorAdjust not found');
         }
+        if ($adjust->getDescription() === $command->getDescription()
+            && $adjust->getFactor() === $command->getFactor())
+        {
+            return;
+        }
         $adjust->setDescription($command->getDescription());
         $adjust->setFactor($command->getFactor());
 

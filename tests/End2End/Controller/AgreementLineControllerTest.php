@@ -10,6 +10,7 @@ use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
+use App\Module\Production\Entity\FactorAdjust;
 
 class AgreementLineControllerTest extends ApiTestCase
 {
@@ -225,5 +226,77 @@ class AgreementLineControllerTest extends ApiTestCase
             TaskTypes::TYPE_CUSTOM_STATUS_AWAITS,
             $agreementLineAfter->getProductions()[5]->getStatusLogs()[0]->getCurrentStatus()
         );
+    }
+    public function testShouldAssignFactorAdjustmentsDuringAgreementLineUpdate(): void
+    {
+        // Given
+        $agreementLine = $this->fixtureHelper->makeAgreementLineWithProductionTasks([
+            'status' => AgreementLine::STATUS_WAITING,
+            'productionStartDate' => new \DateTime('2025-02-15 12:00:00'),
+            'confirmedDate' => new \DateTime('2024-12-13 12:01:01'),
+            'description' => 'Lorem ipsum',
+            'factor' => 0.7
+        ], [
+            'dpt01' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
+            'dpt02' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
+            'dpt03' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
+            'dpt04' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
+            'dpt05' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
+        ]);
+        $this->getManager()->flush();
+
+        $firstProd = $agreementLine->getProductions()->first();
+
+        $payload = [
+            'status' => $agreementLine->getStatus(),
+            'confirmedDate' => $agreementLine->getConfirmedDate()->format('Y-m-d H:i:s'),
+            'description' => $agreementLine->getDescription(),
+            'factor' => $agreementLine->getFactor(),
+            'tags' => $agreementLine->getTags()->toArray(),
+            'productions' => array_map(function (Production $production) use ($firstProd) {
+                $record = [
+                    'dateEnd' => $production->getDateEnd()->format('Y-m-d H:i:s'),
+                    'dateStart' => $production->getDateStart()->format('Y-m-d H:i:s'),
+                    'departmentSlug' => $production->getDepartmentSlug(),
+                    'id' => $production->getId(),
+                    'status' => $production->getStatus(),
+                    'title' => $production->getTitle()
+                ];
+                if ($production->getId() === $firstProd->getId()) {
+                    $record['factorAdjusts'] = [
+                        ['description' => 'Adj A', 'factor' => 1.1],
+                        ['description' => 'Adj B', 'factor' => -0.9],
+                    ];
+                }
+                return $record;
+            }, $agreementLine->getProductions()->toArray())
+        ];
+
+        $userWithPrivilege = $this->createUser([], [], [
+            'production.factor_adjustment:create'
+        ], ['ROLE_PRODUCTION']);
+        $client = $this->login($userWithPrivilege);
+
+        // When
+        $client->xmlHttpRequest(
+            'PUT',
+            '/agreement_line/update/' . $agreementLine->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($payload)
+        );
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->getManager()->clear();
+        $prod = $this->getManager()->find(Production::class, $firstProd->getId());
+        $faRepo = $this->getManager()->getRepository(FactorAdjust::class);
+        $saved = $faRepo->findBy(['production' => $prod], ['id' => 'ASC']);
+        $this->assertCount(2, $saved);
+        $this->assertEquals('Adj A', $saved[0]->getDescription());
+        $this->assertEquals(1.1, $saved[0]->getFactor());
+        $this->assertEquals('Adj B', $saved[1]->getDescription());
+        $this->assertEquals(-0.9, $saved[1]->getFactor());
     }
 }
