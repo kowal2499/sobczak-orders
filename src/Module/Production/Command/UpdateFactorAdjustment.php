@@ -2,7 +2,7 @@
 
 namespace App\Module\Production\Command;
 
-class UpdateFactorAdjust
+class UpdateFactorAdjustment
 {
     public function __construct(
         private readonly int    $factorAdjustId,

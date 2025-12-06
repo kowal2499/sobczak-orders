@@ -5,14 +5,14 @@ namespace App\Tests\End2End\Modules\Production;
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
-use App\Module\Production\Entity\FactorAdjust;
+use App\Module\Production\Entity\FactorAdjustment;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
 use Symfony\Component\HttpFoundation\Response;
 
-class FactorAdjustControllerTest extends ApiTestCase
+class FactorAdjustmentControllerTest extends ApiTestCase
 {
     private int $productionId;
     private EntityFactory $entityFactory;
@@ -51,13 +51,13 @@ class FactorAdjustControllerTest extends ApiTestCase
         $user = $this->createUser([], [], ['production.factor_adjustment:create']);
         $client = $this->login($user);
         // When
-        $client->xmlHttpRequest('POST', '/production/factor-adjust/create/' . $this->productionId, [
+        $client->xmlHttpRequest('POST', '/production/factor-adjustment/create/' . $this->productionId, [
             'description' => 'Adjustment for testing',
             'factor' => 1.2
         ]);
         // Then
         $production = $this->getProduction();
-        $faRepository = $this->getManager()->getRepository(FactorAdjust::class);
+        $faRepository = $this->getManager()->getRepository(FactorAdjustment::class);
         $factorAdjusts = $faRepository->findBy(['description' => 'Adjustment for testing', 'factor' => 1.2, 'production' => $production]);
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertCount(1, $factorAdjusts);
@@ -73,7 +73,7 @@ class FactorAdjustControllerTest extends ApiTestCase
         $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
 
         // When
-        $client->xmlHttpRequest('GET', '/production/factor-adjust/' . $factorAdjust->getId());
+        $client->xmlHttpRequest('GET', '/production/factor-adjustment/' . $factorAdjust->getId());
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -91,14 +91,14 @@ class FactorAdjustControllerTest extends ApiTestCase
         $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
 
         // When
-        $client->xmlHttpRequest('PUT', '/production/factor-adjust/' . $factorAdjust->getId(), [
+        $client->xmlHttpRequest('PUT', '/production/factor-adjustment/' . $factorAdjust->getId(), [
             'description' => 'Updated description',
             'factor' => 1.5
         ]);
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $updatedFactorAdjust = $this->getManager()->find(FactorAdjust::class, $factorAdjust->getId());
+        $updatedFactorAdjust = $this->getManager()->find(FactorAdjustment::class, $factorAdjust->getId());
         $this->assertEquals('Updated description', $updatedFactorAdjust->getDescription());
         $this->assertEquals(1.5, $updatedFactorAdjust->getFactor());
     }
@@ -112,11 +112,11 @@ class FactorAdjustControllerTest extends ApiTestCase
         $factorAdjustId = $factorAdjust->getId();
 
         // When
-        $client->xmlHttpRequest('DELETE', '/production/factor-adjust/' . $factorAdjustId);
+        $client->xmlHttpRequest('DELETE', '/production/factor-adjustment/' . $factorAdjustId);
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertNull($this->getManager()->find(FactorAdjust::class, $factorAdjustId));
+        $this->assertNull($this->getManager()->find(FactorAdjustment::class, $factorAdjustId));
     }
 
     private function getProduction(): Production
@@ -124,9 +124,9 @@ class FactorAdjustControllerTest extends ApiTestCase
         return $this->getManager()->find(Production::class, $this->productionId);
     }
 
-    private function createFactorAdjust(string $description, float $factor): FactorAdjust
+    private function createFactorAdjust(string $description, float $factor): FactorAdjustment
     {
-        $factorAdjust = $this->entityFactory->make(FactorAdjust::class, [
+        $factorAdjust = $this->entityFactory->make(FactorAdjustment::class, [
             'production' => $this->getProduction(),
             'description' => $description,
             'factor' => $factor

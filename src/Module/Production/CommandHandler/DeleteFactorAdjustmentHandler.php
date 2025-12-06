@@ -2,21 +2,21 @@
 
 namespace App\Module\Production\CommandHandler;
 
-use App\Module\Production\Command\DeleteFactorAdjust;
-use App\Module\Production\Repository\Interface\FactorAdjustRepositoryInterface;
+use App\Module\Production\Command\DeleteFactorAdjustment;
+use App\Module\Production\Repository\Interface\FactorAdjustmentRepositoryInterface;
 use InvalidArgumentException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class DeleteFactorAdjustHandler
+class DeleteFactorAdjustmentHandler
 {
     public function __construct(
-        private readonly FactorAdjustRepositoryInterface $factorAdjustRepository,
+        private readonly FactorAdjustmentRepositoryInterface $factorAdjustRepository,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
-    public function __invoke(DeleteFactorAdjust $command): void
+    public function __invoke(DeleteFactorAdjustment $command): void
     {
         if (!$this->authorizationChecker->isGranted('production.factor_adjustment:delete')) {
             throw new AccessDeniedException('Access Denied.');

@@ -3,7 +3,7 @@
 
 namespace App\Tests\Utilities\Factory\Definition;
 
-use App\Module\Production\Entity\FactorAdjust;
+use App\Module\Production\Entity\FactorAdjustment;
 use App\Tests\Utilities\Factory\FactoryDefinitionInterface;
 use Faker\Generator;
 
@@ -12,7 +12,7 @@ class FactorAdjustFactory implements FactoryDefinitionInterface
 
     public static function supports(): string
     {
-        return FactorAdjust::class;
+        return FactorAdjustment::class;
     }
 
     public function defaultProperties(Generator $faker): array

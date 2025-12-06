@@ -3,13 +3,13 @@
 namespace App\Module\Production\Entity;
 
 use App\Entity\Production;
-use App\Module\Production\Repository\FactorAdjustRepository;
+use App\Module\Production\Repository\FactorAdjustmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: FactorAdjustRepository::class)]
-#[ORM\Table(name: "production_factor_adjust")]
-class FactorAdjust
+#[ORM\Entity(repositoryClass: FactorAdjustmentRepository::class)]
+#[ORM\Table(name: "production_factor_adjustment")]
+class FactorAdjustment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,7 +17,7 @@ class FactorAdjust
     #[Groups(['_main', '_linePanel'])]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: Production::class, inversedBy: 'factorAdjusts', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: Production::class, inversedBy: 'factorAdjustments', cascade: ['persist', 'remove'])]
     private Production $production;
 
     #[ORM\Column(type: 'string', length: 512, nullable: false)]

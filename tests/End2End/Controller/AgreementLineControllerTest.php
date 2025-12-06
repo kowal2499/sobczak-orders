@@ -10,7 +10,7 @@ use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
-use App\Module\Production\Entity\FactorAdjust;
+use App\Module\Production\Entity\FactorAdjustment;
 
 class AgreementLineControllerTest extends ApiTestCase
 {
@@ -291,7 +291,7 @@ class AgreementLineControllerTest extends ApiTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->getManager()->clear();
         $prod = $this->getManager()->find(Production::class, $firstProd->getId());
-        $faRepo = $this->getManager()->getRepository(FactorAdjust::class);
+        $faRepo = $this->getManager()->getRepository(FactorAdjustment::class);
         $saved = $faRepo->findBy(['production' => $prod], ['id' => 'ASC']);
         $this->assertCount(2, $saved);
         $this->assertEquals('Adj A', $saved[0]->getDescription());

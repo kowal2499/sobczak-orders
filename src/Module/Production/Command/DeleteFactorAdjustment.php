@@ -2,7 +2,7 @@
 
 namespace App\Module\Production\Command;
 
-class DeleteFactorAdjust
+class DeleteFactorAdjustment
 {
     public function __construct(
         private readonly int $factorAdjustId,
