@@ -4,24 +4,28 @@ namespace App\Modules\Reports\Production\DTO;
 
 class TaskCompletedRecordDTO
 {
+    /** @var FactorDTO[] */
+    private array $factors = [];
+
     public function __construct(
         private readonly string              $departmentSlug = '',
-        private readonly int|float           $factor = 0,
         private readonly ?\DateTimeInterface $completedAt = null,
         private readonly ?AgreementLineDTO   $agreementLine = null,
         private readonly ?AgreementDTO       $agreement = null,
         private readonly ?CustomerDTO        $customer = null
-    ) {}
+    ) {
+    }
 
     public function getDepartmentSlug(): string
     {
         return $this->departmentSlug;
     }
 
-    public function getFactor(): int|float
+    public function getFactors(): array
     {
-        return $this->factor;
+        return $this->factors;
     }
+
 
     public function getCompletedAt(): ?\DateTimeInterface
     {
@@ -41,5 +45,10 @@ class TaskCompletedRecordDTO
     public function getCustomer(): ?CustomerDTO
     {
         return $this->customer;
+    }
+
+    public function setFactors(array $factors): void
+    {
+        $this->factors = $factors;
     }
 }

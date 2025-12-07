@@ -4,6 +4,9 @@ namespace App\Tests\End2End\Modules\Reports;
 
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\User;
+use App\Module\Production\Factor\BonusFactorCollection;
+use App\Module\Production\Factor\ProductionFactorCollection;
+use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\ProductionReport;
 use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
 use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
@@ -46,7 +49,10 @@ class ProductionReportTest extends ApiTestCase
         $this->reportUnderTest = new ProductionReport(
             $pendingRepository,
             $finishedRepository,
-            $this->createMock(DoctrineProductionTasksRepository::class)
+            $this->createMock(DoctrineProductionTasksRepository::class),
+            new TaskCompletedRecordMapper(),
+            $this->createMock(ProductionFactorCollection::class),
+            $this->createMock(BonusFactorCollection::class),
         );
     }
 

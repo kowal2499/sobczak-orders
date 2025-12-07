@@ -21,7 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class FactorAdjustmentController extends BaseController
 {
     #[Route(path: '/create/{production}',  methods: ['POST'])]
-    #[IsGranted('production.factor_adjustment:create')]
+    #[IsGranted('production.factor_adjustment_bonus:create')]
     public function create(
         Request $request,
         Production $production,
@@ -39,7 +39,7 @@ class FactorAdjustmentController extends BaseController
     }
 
     #[Route(path: '/{factorAdjust}',  methods: ['GET'])]
-    #[IsGranted('production.factor_adjustment:read')]
+    #[IsGranted('production.factor_adjustment_bonus:read')]
     public function read(FactorAdjustment $factorAdjust): JsonResponse
     {
         return $this->json([
@@ -51,7 +51,7 @@ class FactorAdjustmentController extends BaseController
     }
 
     #[Route(path: '/{factorAdjust}',  methods: ['PUT'])]
-    #[IsGranted('production.factor_adjustment:update')]
+    #[IsGranted('production.factor_adjustment_bonus:update')]
     public function update(
         Request          $request,
         FactorAdjustment $factorAdjust,
@@ -69,7 +69,7 @@ class FactorAdjustmentController extends BaseController
     }
 
     #[Route(path: '/{factorAdjust}', methods: ['DELETE'])]
-    #[IsGranted('production.factor_adjustment:delete')]
+    #[IsGranted('production.factor_adjustment_bonus:update')]
     public function delete(
         FactorAdjustment $factorAdjust,
         CommandBus       $commandBus

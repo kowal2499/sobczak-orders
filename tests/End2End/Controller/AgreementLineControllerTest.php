@@ -273,7 +273,7 @@ class AgreementLineControllerTest extends ApiTestCase
         ];
 
         $userWithPrivilege = $this->createUser([], [], [
-            'production.factor_adjustment:create'
+            'production.factor_adjustment_bonus:create'
         ], ['ROLE_PRODUCTION']);
         $client = $this->login($userWithPrivilege);
 

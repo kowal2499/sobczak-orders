@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Module\Production\Entity\Factor;
 use App\Repository\AgreementLineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -43,6 +44,10 @@ class AgreementLine
     #[Groups(['_main', '_linePanel'])]
     private $productions;
 
+    #[ORM\OneToMany(mappedBy: 'agreementLine', targetEntity: Factor::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['_main', '_linePanel'])]
+    private $factors;
+
     #[ORM\Column(type: 'boolean')]
     private bool $archived;
 
@@ -77,6 +82,7 @@ class AgreementLine
     {
         $this->productions = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->factors = new ArrayCollection();
     }
 
     /**
@@ -256,5 +262,11 @@ class AgreementLine
     public function setProductionStartDate(?\DateTimeInterface $productionStartDate): void
     {
         $this->productionStartDate = $productionStartDate;
+    }
+
+    /** @return Collection|Factor[] */
+    public function getFactors(): Collection
+    {
+        return $this->factors;
     }
 }

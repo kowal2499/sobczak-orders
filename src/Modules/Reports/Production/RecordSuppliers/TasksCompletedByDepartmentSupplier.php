@@ -2,19 +2,18 @@
 
 namespace App\Modules\Reports\Production\RecordSuppliers;
 
+use App\Module\Production\Factor\FactorCollectionProviderInterface;
 use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\RecordSupplierInterface;
 use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
 
 class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
 {
-    private $tasksRepository;
-    private TaskCompletedRecordMapper $mapper;
-
-    public function __construct(DoctrineProductionTasksRepository $tasksRepository, TaskCompletedRecordMapper $mapper)
-    {
-        $this->tasksRepository = $tasksRepository;
-        $this->mapper = $mapper;
+    public function __construct(
+        private readonly DoctrineProductionTasksRepository $tasksRepository,
+        private readonly TaskCompletedRecordMapper $mapper,
+        private readonly FactorCollectionProviderInterface $factorCollection,
+    ) {
     }
 
     public function getId(): string
@@ -35,6 +34,18 @@ class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
     public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
     {
         $rows = $this->tasksRepository->getProductions($start, $end);
-        return $this->mapper->mapMany($rows);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $item = $this->mapper->mapRow($row);
+            $item->setFactors(
+                $this->factorCollection->getFactors(
+                    $item->getAgreementLine()->getId(),
+                    $item->getDepartmentSlug()
+                )
+            );
+            $result[] = $item;
+        }
+        return $result;
     }
 }

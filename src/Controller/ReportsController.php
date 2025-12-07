@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Modules\Reports\Production\ProductionReport;
-use App\Modules\Reports\Production\RecordSuppliers\TasksCompletedByDepartmentSupplier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -70,7 +69,7 @@ class ReportsController extends BaseController
         $start = $request->query->get('start');
         $end = $request->query->get('end');
 
-        return $this->json($report->getCompletedProductionTasksSummary(
+        return $this->json($report->getCompletedProductionTasksSummaryInBonusContext(
             $start ? new \DateTime($start) : null,
             $end ? new \DateTime($end) : null
         ));

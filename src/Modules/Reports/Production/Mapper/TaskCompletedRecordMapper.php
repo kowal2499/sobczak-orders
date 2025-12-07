@@ -32,14 +32,14 @@ class TaskCompletedRecordMapper
             $row['customerName'] ?? null
         );
 
-        return new TaskCompletedRecordDTO(
+        $dto = new TaskCompletedRecordDTO(
             $row['departmentSlug'] ?? '',
-            $row['factor'] ?? 0,
             $row['completedAt'] ?? null,
             $agreementLine,
             $agreement,
             $customer
         );
+        return $dto;
     }
 
     /**

@@ -48,7 +48,7 @@ class FactorAdjustmentControllerTest extends ApiTestCase
     public function testShouldCreateFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], [], ['production.factor_adjustment:create']);
+        $user = $this->createUser([], [], ['production.factor_adjustment_bonus:create']);
         $client = $this->login($user);
         // When
         $client->xmlHttpRequest('POST', '/production/factor-adjustment/create/' . $this->productionId, [
@@ -68,7 +68,7 @@ class FactorAdjustmentControllerTest extends ApiTestCase
     public function testShouldReadFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], [], ['production.factor_adjustment:read']);
+        $user = $this->createUser([], [], ['production.factor_adjustment_bonus:read']);
         $client = $this->login($user);
         $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
 
@@ -86,7 +86,7 @@ class FactorAdjustmentControllerTest extends ApiTestCase
     public function testShouldUpdateFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], [], ['production.factor_adjustment:update']);
+        $user = $this->createUser([], [], ['production.factor_adjustment_bonus:update']);
         $client = $this->login($user);
         $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
 
@@ -106,7 +106,7 @@ class FactorAdjustmentControllerTest extends ApiTestCase
     public function testShouldDeleteFactorAdjust(): void
     {
         // Given
-        $user = $this->createUser([], [], ['production.factor_adjustment:delete']);
+        $user = $this->createUser([], [], ['production.factor_adjustment_bonus:update']);
         $client = $this->login($user);
         $factorAdjust = $this->createFactorAdjust('Adjustment for testing', 1.2);
         $factorAdjustId = $factorAdjust->getId();

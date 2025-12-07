@@ -22,7 +22,7 @@ class CreateFactorAdjustmentHandler
 
     public function __invoke(CreateFactorAdjustment $command): void
     {
-        if (!$this->authorizationChecker->isGranted('production.factor_adjustment:create')) {
+        if (!$this->authorizationChecker->isGranted('production.factor_adjustment_bonus:create')) {
             throw new AccessDeniedException('Access Denied.');
         }
 

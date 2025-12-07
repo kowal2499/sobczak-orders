@@ -18,7 +18,7 @@ class DeleteFactorAdjustmentHandler
 
     public function __invoke(DeleteFactorAdjustment $command): void
     {
-        if (!$this->authorizationChecker->isGranted('production.factor_adjustment:delete')) {
+        if (!$this->authorizationChecker->isGranted('production.factor_adjustment_bonus:update')) {
             throw new AccessDeniedException('Access Denied.');
         }
 

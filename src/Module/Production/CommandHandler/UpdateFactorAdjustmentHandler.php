@@ -18,7 +18,7 @@ class UpdateFactorAdjustmentHandler
 
     public function __invoke(UpdateFactorAdjustment $command): void
     {
-        if (!$this->authorizationChecker->isGranted('production.factor_adjustment:update')) {
+        if (!$this->authorizationChecker->isGranted('production.factor_adjustment_bonus:update')) {
             throw new AccessDeniedException('Access Denied.');
         }
         $adjust = $this->factorAdjustRepository->find($command->getFactorAdjustId());
