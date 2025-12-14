@@ -36,12 +36,6 @@ class DepartmentBonusAssembler implements FactorAssemblerInterface
         $result = new AssembledFactorDTO($previousFactor);
 
         foreach ($factorsPool as $factor) {
-            if ($factor->getSource() !== FactorSource::FACTOR_ADJUSTMENT_BONUS) {
-                continue;
-            }
-            if ($departmentSlug && $factor->getDepartmentSlug() !== $departmentSlug) {
-                continue;
-            }
             $result->factorsStack[] = new FactorDTO(
                 FactorSource::FACTOR_ADJUSTMENT_BONUS,
                 $factor->getFactorValue(),
@@ -50,8 +44,6 @@ class DepartmentBonusAssembler implements FactorAssemblerInterface
                 $factor->getDescription(),
             );
             $result->factor = $result->factor + $factor->getFactorValue();
-
-
         }
 
         return $result;

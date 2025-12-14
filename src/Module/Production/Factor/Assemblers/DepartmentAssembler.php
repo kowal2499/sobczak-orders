@@ -36,12 +36,6 @@ class DepartmentAssembler implements FactorAssemblerInterface
         $result = new AssembledFactorDTO($previousFactor);
 
         foreach ($factorsPool as $factor) {
-            if ($factor->getSource() !== FactorSource::FACTOR_ADJUSTMENT_RATIO) {
-                continue;
-            }
-            if ($departmentSlug && $factor->getDepartmentSlug() !== $departmentSlug) {
-                continue;
-            }
             $result->factorsStack[] = new FactorDTO(
                 FactorSource::FACTOR_ADJUSTMENT_RATIO,
                 $factor->getFactorValue(),

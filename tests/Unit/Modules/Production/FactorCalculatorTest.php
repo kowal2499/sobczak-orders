@@ -123,7 +123,7 @@ class FactorCalculatorTest extends TestCase
             'dpt01',
             [
                 $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.9, 'dpt01', 'some desc one'),
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.5),
+                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.5, 'dpt01'), // should be ignored
                 $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.7, 'dpt01', 'some desc two'),
             ],
             FactorSource::FACTOR_ADJUSTMENT_RATIO
@@ -175,6 +175,36 @@ class FactorCalculatorTest extends TestCase
         $this->assertEquals(0.3, $result->factorsStack[2]->value);
         $this->assertEquals('dpt01', $result->factorsStack[2]->departmentSlug);
         $this->assertEquals('some desc two', $result->factorsStack[2]->description);
+    }
+
+    public function testShouldCalculateBonusAdjustmentAfterRatioAdjustment()
+    {
+        // Given
+        $agreement = $this->makeAgreementLineWithFactor(1.0);
+        // When
+        $result = $this->calcUnderTest->calculate(
+            $agreement,
+            'dpt01',
+            [
+                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.2, 'dpt01', 'some desc two'),
+                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.5, 'dpt01', 'some desc one'),
+            ],
+            FactorSource::FACTOR_ADJUSTMENT_BONUS
+        );
+        // Then
+        $this->assertEquals(0.7, $result->factor);
+        $this->assertCount(3, $result->factorsStack);
+
+        $this->assertEquals(FactorSource::FACTOR_ADJUSTMENT_RATIO, $result->factorsStack[1]->source);
+        $this->assertEquals(0.5, $result->factorsStack[1]->value);
+        $this->assertEquals('dpt01', $result->factorsStack[1]->departmentSlug);
+        $this->assertEquals('some desc one', $result->factorsStack[1]->description);
+
+        $this->assertEquals(FactorSource::FACTOR_ADJUSTMENT_BONUS, $result->factorsStack[2]->source);
+        $this->assertEquals(0.2, $result->factorsStack[2]->value);
+        $this->assertEquals('dpt01', $result->factorsStack[2]->departmentSlug);
+        $this->assertEquals('some desc two', $result->factorsStack[2]->description);
+
     }
 
     private function makeAgreementLineWithFactor(float $factor): AgreementLine

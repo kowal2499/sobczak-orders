@@ -6,7 +6,6 @@ use App\Entity\AgreementLine;
 use App\Module\Production\Entity\Factor;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
-use App\Module\Production\Factor\DTO\FactorDTO;
 
 interface FactorAssemblerInterface
 {

@@ -8,7 +8,6 @@ use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\Assemblers\AgreementLineAssembler;
 use App\Module\Production\Factor\Assemblers\DepartmentAssembler;
 use App\Module\Production\Factor\Assemblers\DepartmentBonusAssembler;
-use App\Module\Production\Factor\Assemblers\FactorAssemblerInterface;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
 class FactorCalculator
@@ -28,7 +27,6 @@ class FactorCalculator
         ],
     ];
 
-    /** @var $assemblers FactorAssemblerInterface[] */
     private array $assemblers;
 
     public function __construct()
@@ -62,28 +60,40 @@ class FactorCalculator
         $result = new AssembledFactorDTO();
 
         foreach ($recipe as $step) {
-            foreach ($this->assemblers as $assembler) {
-                if ($assembler->supports($step)) {
-
-                    $assembledFactor = $assembler->assemble(
-                        $result->factor,
-                        $agreementLine,
-                        $departmentSlug,
-                        $factorsPool,
-                    );
-
-                    if (!$assembledFactor) {
-                        continue;
-                    }
-
-                    $result->factor = $assembledFactor->factor;
-                    $result->factorsStack = array_merge(
-                        $result->factorsStack,
-                        $assembledFactor->factorsStack
-                    );
-
+            $assembler = null;
+            foreach ($this->assemblers as $assemblerCandidate) {
+                if ($assemblerCandidate->supports($step)) {
+                    $assembler = $assemblerCandidate;
+                    break;
                 }
             }
+            if ($assembler === null) {
+                throw new \InvalidArgumentException("Unsupported assembly step: " . $step->value);
+            }
+
+            $contextFactors = array_filter(
+                $factorsPool,
+                fn (Factor $factor) =>
+                    $factor->getSource() === $step && (
+                    $departmentSlug === null || $factor->getDepartmentSlug() === $departmentSlug
+                )
+            );
+
+            $assembledFactor = $assembler->assemble(
+                $result->factor,
+                $agreementLine,
+                $departmentSlug,
+                $contextFactors,
+            );
+            if (!$assembledFactor) {
+                continue;
+            }
+
+            $result->factor = $assembledFactor->factor;
+            $result->factorsStack = array_merge(
+                $result->factorsStack,
+                $assembledFactor->factorsStack
+            );
         }
 
         return $result;
