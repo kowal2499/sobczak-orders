@@ -3,8 +3,10 @@
 namespace App\Module\Production\Factor\Assemblers;
 
 use App\Entity\AgreementLine;
+use App\Module\Production\Entity\Factor;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
+use App\Module\Production\Factor\DTO\FactorDTO;
 
 class DepartmentAssembler implements FactorAssemblerInterface
 {
@@ -13,15 +15,43 @@ class DepartmentAssembler implements FactorAssemblerInterface
         return $source === FactorSource::FACTOR_ADJUSTMENT_RATIO;
     }
 
+    /**
+     * @param float $previousFactor
+     * @param AgreementLine $agreementLine
+     * @param string|null $departmentSlug
+     * @param Factor[] $factorsPool
+     * @return AssembledFactorDTO|null
+     */
     public function assemble(
-        AssembledFactorDTO $previousFactor,
+        float $previousFactor,
         AgreementLine $agreementLine,
         ?string $departmentSlug,
         array $factorsPool
-    ): AssembledFactorDTO
+    ): ?AssembledFactorDTO
     {
-        return new AssembledFactorDTO();
+        if (count($factorsPool) === 0) {
+            return null;
+        }
+
+        $result = new AssembledFactorDTO($previousFactor);
+
+        foreach ($factorsPool as $factor) {
+            if ($factor->getSource() !== FactorSource::FACTOR_ADJUSTMENT_RATIO) {
+                continue;
+            }
+            if ($departmentSlug && $factor->getDepartmentSlug() !== $departmentSlug) {
+                continue;
+            }
+            $result->factorsStack[] = new FactorDTO(
+                FactorSource::FACTOR_ADJUSTMENT_RATIO,
+                $factor->getFactorValue(),
+                $factor->getId(),
+                $departmentSlug,
+                $factor->getDescription(),
+            );
+            $result->factor = round($result->factor * $factor->getFactorValue(), 2);
+        }
+
+        return $result;
     }
-
-
 }

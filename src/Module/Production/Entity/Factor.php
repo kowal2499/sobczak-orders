@@ -85,4 +85,14 @@ class Factor
     {
         $this->factorValue = $factorValue;
     }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function setDepartmentSlug(string $departmentSlug): void
+    {
+        $this->departmentSlug = $departmentSlug;
+    }
 }

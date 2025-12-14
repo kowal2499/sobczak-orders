@@ -64,12 +64,24 @@ class FactorCalculator
         foreach ($recipe as $step) {
             foreach ($this->assemblers as $assembler) {
                 if ($assembler->supports($step)) {
-                    $result = $assembler->assemble(
-                        $result,
+
+                    $assembledFactor = $assembler->assemble(
+                        $result->factor,
                         $agreementLine,
                         $departmentSlug,
                         $factorsPool,
                     );
+
+                    if (!$assembledFactor) {
+                        continue;
+                    }
+
+                    $result->factor = $assembledFactor->factor;
+                    $result->factorsStack = array_merge(
+                        $result->factorsStack,
+                        $assembledFactor->factorsStack
+                    );
+
                 }
             }
         }

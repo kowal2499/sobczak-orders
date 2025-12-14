@@ -15,53 +15,64 @@ class AgreementLineAssembler implements FactorAssemblerInterface
         return $source === FactorSource::AGREEMENT_LINE;
     }
 
+    /**
+     * @param float $previousFactor
+     * @param AgreementLine $agreementLine
+     * @param string|null $departmentSlug
+     * @param Factor[] $factorsPool
+     * @return AssembledFactorDTO|null
+     */
     public function assemble(
-        AssembledFactorDTO $previousFactor,
+        float $previousFactor,
         AgreementLine $agreementLine,
         ?string $departmentSlug,
         array $factorsPool
-    ): AssembledFactorDTO
+    ): ?AssembledFactorDTO
     {
-        $factorDTO = $this->resolveFromPool($factorsPool)
-            ?? $this->resolveFromAgreement($agreementLine);
-
-        return $factorDTO;
+        $poolResult = $this->resolveFromPool($factorsPool);
+        if ($poolResult !== null) {
+            return $poolResult;
+        }
+        return $this->resolveFromAgreement($agreementLine);
     }
 
     private function resolveFromAgreement(AgreementLine $agreementLine): ?AssembledFactorDTO
     {
-        $stackItem = new FactorDTO();
-        $stackItem->agreementLineId = $agreementLine->getId();
-        $stackItem->departmentSlug = null;
-        $stackItem->description = null;
-        $stackItem->value = $agreementLine->getFactor();
-        $stackItem->source = FactorSource::AGREEMENT_LINE;
-        $assembledFactor = new AssembledFactorDTO();
-        $assembledFactor->factor = $stackItem->value;
-        $assembledFactor->factorsStack[] = $stackItem;
-        return $assembledFactor;
+        return new AssembledFactorDTO(
+            $agreementLine->getFactor(),
+            [
+                new FactorDTO(
+                    FactorSource::AGREEMENT_LINE,
+                    $agreementLine->getFactor(),
+                    $agreementLine->getId(),
+                    null,
+                    null,
+                )
+            ]
+        );
     }
 
     /**
      * @param Factor[] $pool
-     * @return FactorDTO|null
+     * @return AssembledFactorDTO|null
      */
     private function resolveFromPool(array $pool): ?AssembledFactorDTO
     {
         $result = null;
         foreach ($pool as $item) {
             if ($item->getSource() === FactorSource::AGREEMENT_LINE) {
-                $stackItem = new FactorDTO();
-                $stackItem->agreementLineId = $item->getAgreementLine()->getId();
-                $stackItem->departmentSlug = null;
-                $stackItem->description = null;
-                $stackItem->value = $item->getFactorValue();
-                $stackItem->source = $item->getSource();
-
-                $assembledFactor = new AssembledFactorDTO();
-                $assembledFactor->factor = $stackItem->value;
-                $assembledFactor->factorsStack[] = $stackItem;
-                $result = $assembledFactor;
+                $result = new AssembledFactorDTO(
+                    $item->getFactorValue(),
+                    [
+                        new FactorDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $item->getFactorValue(),
+                        $item->getAgreementLine()->getId(),
+                        null,
+                        null,
+                        )
+                    ]
+                );
             }
         }
         return $result;
