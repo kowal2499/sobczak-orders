@@ -18,5 +18,20 @@ class AssembledFactorDTO
         $this->factorsStack = $factorsStack;
     }
 
+    public function toArray():array
+    {
+        return [
+            'factor' => $this->factor,
+            'pool' => array_map(function(FactorDTO $factorDTO) {
+                return [
+                    'source' => $factorDTO->source->value,
+                    'value' => $factorDTO->value,
+                    'agreementLineId' => $factorDTO->agreementLineId,
+                    'departmentSlug' => $factorDTO->departmentSlug,
+                    'description' => $factorDTO->description,
+                ];
+            }, $this->factorsStack)
+        ];
+    }
 
 }

@@ -81,16 +81,19 @@ const DATA_SOURCES = [
     {
         id: 'src01',
         fetcher: getOldSummary,
+        active: false,
     },
     {
         id: 'src02',
         fetcher: getAgreementLinesSummary,
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
+        active: false,
     },
     {
         id: 'src03',
         fetcher: getProductionTasksCompletionSummary,
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
+        active: true,
     }
 ]
 
@@ -164,6 +167,9 @@ export default {
             handler() {
                 DATA_SOURCES.forEach(source => {
                     if (source.grant && !this.$user.can(source.grant)) {
+                        return;
+                    }
+                    if (!source.active) {
                         return;
                     }
                     this.sourcesState[source.id].isBusy = true;

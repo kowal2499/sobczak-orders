@@ -248,4 +248,19 @@ class AgreementLineRepository extends ServiceEntityRepository
 
         return $query->getOneOrNullResult();
     }
+
+    public function findWithFactors(array $ids): array
+    {
+        $manager = $this->getEntityManager();
+        $query = $manager->createQuery('
+            SELECT l, f 
+            FROM 
+                App\Entity\AgreementLine l 
+                LEFT JOIN l.factors f
+            WHERE l.id IN (:ids)
+        ')
+            ->setParameter('ids', $ids);
+
+        return $query->getResult();
+    }
 }

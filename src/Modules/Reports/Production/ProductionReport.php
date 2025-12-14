@@ -2,6 +2,8 @@
 
 namespace App\Modules\Reports\Production;
 
+use App\Module\Production\Factor\FactorCalculator;
+use App\Module\Production\Repository\FactorRepository;
 use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Modules\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
@@ -9,6 +11,7 @@ use App\Modules\Reports\Production\RecordSuppliers\TasksCompletedByDepartmentSup
 use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
 use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
 use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
+use App\Repository\AgreementLineRepository;
 
 class ProductionReport
 {
@@ -20,18 +23,24 @@ class ProductionReport
     private $ordersFinishedSupplier;
     private TaskCompletedRecordMapper $mapper;
     private DoctrineProductionTasksRepository $productionTasksRepository;
+    private AgreementLineRepository $agreementLineRepository;
+    private FactorCalculator $factorCalculator;
 
     /**
      * @param DoctrineProductionPendingRepository $productionPendingRepository
      * @param DoctrineProductionFinishedRepository $productionFinishedRepository
      * @param DoctrineProductionTasksRepository $productionTasksRepository
+     * @param AgreementLineRepository $agreementLineRepository
      * @param TaskCompletedRecordMapper $mapper
+     * @param FactorCalculator $factorCalculator
      */
     public function __construct(
         DoctrineProductionPendingRepository $productionPendingRepository,
         DoctrineProductionFinishedRepository $productionFinishedRepository,
         DoctrineProductionTasksRepository $productionTasksRepository,
+        AgreementLineRepository $agreementLineRepository,
         TaskCompletedRecordMapper $mapper,
+        FactorCalculator $factorCalculator,
     )
     {
         $this->mapper = $mapper;
@@ -41,6 +50,8 @@ class ProductionReport
         );
         $this->suppliers = [$this->ordersPendingSupplier, $this->ordersFinishedSupplier];
         $this->productionTasksRepository = $productionTasksRepository;
+        $this->agreementLineRepository = $agreementLineRepository;
+        $this->factorCalculator = $factorCalculator;
     }
 
     public function getSummary(
@@ -80,7 +91,9 @@ class ProductionReport
     {
         $tasksSupplier = new TasksCompletedByDepartmentSupplier(
             $this->productionTasksRepository,
+            $this->agreementLineRepository,
             $this->mapper,
+            $this->factorCalculator,
         );
 
         return $tasksSupplier->getSummary($start, $end);
@@ -93,7 +106,9 @@ class ProductionReport
     {
         $tasksSupplier = new TasksCompletedByDepartmentSupplier(
             $this->productionTasksRepository,
+            $this->agreementLineRepository,
             $this->mapper,
+            $this->factorCalculator,
         );
 
         return $tasksSupplier->getSummary($start, $end);
