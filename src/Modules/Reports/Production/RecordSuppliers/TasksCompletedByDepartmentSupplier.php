@@ -2,7 +2,6 @@
 
 namespace App\Modules\Reports\Production\RecordSuppliers;
 
-use App\Module\Production\Factor\FactorCollectionProviderInterface;
 use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\RecordSupplierInterface;
 use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
@@ -12,7 +11,6 @@ class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
     public function __construct(
         private readonly DoctrineProductionTasksRepository $tasksRepository,
         private readonly TaskCompletedRecordMapper $mapper,
-        private readonly FactorCollectionProviderInterface $factorCollection,
     ) {
     }
 
@@ -38,12 +36,13 @@ class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
         $result = [];
         foreach ($rows as $row) {
             $item = $this->mapper->mapRow($row);
-            $item->setFactors(
-                $this->factorCollection->getFactors(
-                    $item->getAgreementLine()->getId(),
-                    $item->getDepartmentSlug()
-                )
-            );
+            // todo: factors disabled
+//            $item->setFactors(
+//                $this->factorCollection->getFactors(
+//                    $item->getAgreementLine()->getId(),
+//                    $item->getDepartmentSlug()
+//                )
+//            );
             $result[] = $item;
         }
         return $result;

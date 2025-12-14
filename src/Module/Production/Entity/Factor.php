@@ -75,4 +75,14 @@ class Factor
     {
         return $this->source;
     }
+
+    public function setSource(FactorSource $source): void
+    {
+        $this->source = $source;
+    }
+
+    public function setFactorValue(float $factorValue): void
+    {
+        $this->factorValue = $factorValue;
+    }
 }

@@ -3,8 +3,6 @@
 namespace App\Tests\End2End\Modules\Reports;
 
 use App\Entity\User;
-use App\Module\Production\Factor\BonusFactorCollection;
-use App\Module\Production\Factor\ProductionFactorCollection;
 use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\ProductionReport;
 use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
@@ -51,8 +49,6 @@ class ReportsControllerTest extends ApiTestCase
             $finishedRepository,
             $this->createMock(DoctrineProductionTasksRepository::class),
             new TaskCompletedRecordMapper(),
-            $this->createMock(ProductionFactorCollection::class),
-            $this->createMock(BonusFactorCollection::class),
         );
     }
 
