@@ -12,9 +12,9 @@ import validation from './src/validation/index'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag)
+library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();

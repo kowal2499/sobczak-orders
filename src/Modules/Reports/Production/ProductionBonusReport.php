@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Modules\Reports\Production\RecordSuppliers;
+namespace App\Modules\Reports\Production;
 
-use App\Entity\AgreementLine;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\FactorCalculator;
-use App\Module\Production\Repository\FactorRepository;
+use App\Modules\Reports\Production\DTO\TaskCompletedRecordDTO;
 use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
-use App\Modules\Reports\Production\RecordSupplierInterface;
 use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
 use App\Repository\AgreementLineRepository;
 
-class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
+class ProductionBonusReport
 {
+
     public function __construct(
         private readonly DoctrineProductionTasksRepository $tasksRepository,
         private readonly AgreementLineRepository $agreementLineRepository,
@@ -21,22 +20,15 @@ class TasksCompletedByDepartmentSupplier implements RecordSupplierInterface
     ) {
     }
 
-    public function getId(): string
-    {
-        return 'tasks-completion';
-    }
-
-    public function getTitle(): string
-    {
-        return 'Zamówienia zrealizowane wg działu';
-    }
-
-    public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
-    {
-        return [];
-    }
-
-    public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
+    /**
+     * @param \DateTimeInterface|null $start
+     * @param \DateTimeInterface|null $end
+     * @return TaskCompletedRecordDTO[]
+     */
+    public function getData(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end
+    ): array
     {
         $rows = $this->tasksRepository->getProductions($start, $end);
         $agreementLineIds = [];

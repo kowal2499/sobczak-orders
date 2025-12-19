@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Modules\Reports\Production\ProductionBonusReport;
 use App\Modules\Reports\Production\ProductionReport;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,12 +65,12 @@ class ReportsController extends BaseController
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
-    public function productionTasksCompletionSummary(Request $request, ProductionReport $report): Response
+    public function productionTasksCompletionSummary(Request $request, ProductionBonusReport $report): Response
     {
         $start = $request->query->get('start');
         $end = $request->query->get('end');
 
-        return $this->json($report->getCompletedProductionTasksSummaryInBonusContext(
+        return $this->json($report->getData(
             $start ? new \DateTime($start) : null,
             $end ? new \DateTime($end) : null
         ));

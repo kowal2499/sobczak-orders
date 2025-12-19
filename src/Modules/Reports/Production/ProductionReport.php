@@ -99,21 +99,6 @@ class ProductionReport
         return $tasksSupplier->getSummary($start, $end);
     }
 
-    public function getCompletedProductionTasksSummaryInBonusContext(
-        ?\DateTimeInterface $start,
-        ?\DateTimeInterface $end
-    ): array
-    {
-        $tasksSupplier = new TasksCompletedByDepartmentSupplier(
-            $this->productionTasksRepository,
-            $this->agreementLineRepository,
-            $this->mapper,
-            $this->factorCalculator,
-        );
-
-        return $tasksSupplier->getSummary($start, $end);
-    }
-
     /**
      * @deprecated
      */

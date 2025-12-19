@@ -18,6 +18,7 @@ class TaskCompletedRecordMapper
     {
         $agreementLine = new AgreementLineDTO(
             $row['id'] ?? null,
+            $row['factor'] ?? null,
             $row['productName'] ?? null,
             $row['productionStartDate'] ?? null,
             $row['productionCompletionDate'] ?? null

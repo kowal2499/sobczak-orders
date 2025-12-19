@@ -49,7 +49,7 @@
 
         <div class="row">
             <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
-                <DepartmentsFactorMetric
+                <DepartmentsBonusMetric
                     :is-busy="sourcesState.src03.isBusy"
                     :data="sourcesState.src03.data"
                 />
@@ -66,7 +66,7 @@ import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
 import OrdersCountMetric from "./components/Metrics/OrdersCountMetric/index.vue"
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
-import DepartmentsFactorMetric from "./components/Metrics/DepartmentsFactorMetric/index.vue";
+import DepartmentsBonusMetric from "./components/Metrics/DepartmentsBonusMetric/index.vue";
 import PRIVILEGES from "../../definitions/userRoles";
 
 import {
@@ -106,7 +106,7 @@ export default {
         FactorsLimitMetric,
         CompletionDateMetric,
         OrdersCountMetric,
-        DepartmentsFactorMetric,
+        DepartmentsBonusMetric,
     },
 
     computed: {

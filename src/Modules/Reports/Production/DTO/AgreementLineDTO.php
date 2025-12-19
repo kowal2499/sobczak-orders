@@ -6,6 +6,7 @@ class AgreementLineDTO
 {
     public function __construct(
         private readonly ?int $id = null,
+        private readonly ?float $factor = null,
         private readonly ?string $productName = null,
         private readonly ?\DateTimeInterface $productionStartDate = null,
         private readonly ?\DateTimeInterface $productionCompletionDate = null
@@ -29,5 +30,10 @@ class AgreementLineDTO
     public function getProductionCompletionDate(): ?\DateTimeInterface
     {
         return $this->productionCompletionDate;
+    }
+
+    public function getFactor(): ?float
+    {
+        return $this->factor;
     }
 }

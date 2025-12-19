@@ -1,7 +1,7 @@
 <script>
 import { defineComponent } from 'vue'
 import StatusIcon from '../../StatusIcon.vue'
-
+import DepartmentFactorValue from '../../DepartmentFactorValue.vue';
 const DEFAULT_ROW = () => ({
     context: null,
     factor: 0,
@@ -14,7 +14,7 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: { StatusIcon },
+    components: {DepartmentFactorValue, StatusIcon },
     props: {
         data: {
             type: Array,
@@ -38,11 +38,11 @@ export default defineComponent({
                         product: record.productName
                     },
                     factor: record.factor,
-                    dpt01: parseInt(record.involved_dpt01) > 0,
-                    dpt02: parseInt(record.involved_dpt02) > 0,
-                    dpt03: parseInt(record.involved_dpt03) > 0,
-                    dpt04: parseInt(record.involved_dpt04) > 0,
-                    dpt05: parseInt(record.involved_dpt05) > 0,
+                    dpt01: record.involved_dpt01,
+                    dpt02: record.involved_dpt02,
+                    dpt03: record.involved_dpt03,
+                    dpt04: record.involved_dpt04,
+                    dpt05: record.involved_dpt05,
                 }
             })
         },
@@ -51,11 +51,11 @@ export default defineComponent({
             this.rows.forEach(row => {
                 let factor = row.factor || 0;
                 summaryRow.factor += factor;
-                summaryRow.dpt01 += row.dpt01 ? factor : 0;
-                summaryRow.dpt02 += row.dpt02 ? factor : 0;
-                summaryRow.dpt03 += row.dpt03 ? factor : 0;
-                summaryRow.dpt04 += row.dpt04 ? factor : 0;
-                summaryRow.dpt05 += row.dpt05 ? factor : 0;
+                summaryRow.dpt01 += row.dpt01.factor;
+                summaryRow.dpt02 += row.dpt02.factor;
+                summaryRow.dpt03 += row.dpt03.factor;
+                summaryRow.dpt04 += row.dpt04.factor;
+                summaryRow.dpt05 += row.dpt05.factor;
             })
             return summaryRow;
         },
@@ -143,11 +143,21 @@ export default defineComponent({
             </div>
         </template>
 
-        <template #cell(dpt01)="{item}"><status-icon :tick-value="item.dpt01" class="cell-dpt" /></template>
-        <template #cell(dpt02)="{item}"><status-icon :tick-value="item.dpt02" class="cell-dpt" /></template>
-        <template #cell(dpt03)="{item}"><status-icon :tick-value="item.dpt03" class="cell-dpt" /></template>
-        <template #cell(dpt04)="{item}"><status-icon :tick-value="item.dpt04" class="cell-dpt" /></template>
-        <template #cell(dpt05)="{item}"><status-icon :tick-value="item.dpt05" class="cell-dpt" /></template>
+        <template #cell(dpt01)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt01" />
+        </template>
+        <template #cell(dpt02)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt02" />
+        </template>
+        <template #cell(dpt03)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt03" />
+        </template>
+        <template #cell(dpt04)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt04" />
+        </template>
+        <template #cell(dpt05)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt05" />
+        </template>
 
         <template #head(context)="data">
             {{data.label}}

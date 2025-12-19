@@ -22,7 +22,7 @@ export default defineComponent({
                 slug: department.slug,
                 value: this.data?.reduce((acc, item) => {
                     if (item.departmentSlug === department.slug) {
-                        return acc + item.factor
+                        return acc + item.factors.factor
                     }
                     return acc
                 }, 0)
@@ -34,26 +34,24 @@ export default defineComponent({
                     acc.set(item.agreementLine.id, {
                         ...item.agreementLine,
                         ...item.agreement,
-                        factor: item.factor,
+                        factor: item.agreementLine.factor,
                         customerName: item.customer.name,
                         completedAt: item.completedAt,
-                        involved_dpt01: 0,
-                        involved_dpt02: 0,
-                        involved_dpt03: 0,
-                        involved_dpt04: 0,
-                        involved_dpt05: 0,
+                        involved_dpt01: {factor: 0, pool: []},
+                        involved_dpt02: {factor: 0, pool: []},
+                        involved_dpt03: {factor: 0, pool: []},
+                        involved_dpt04: {factor: 0, pool: []},
+                        involved_dpt05: {factor: 0, pool: []},
                     })
                 }
 
                 const lineData = acc.get(item.agreementLine.id)
-                lineData[`involved_${item.departmentSlug}`] = 1
+                lineData[`involved_${item.departmentSlug}`] = item.factors
 
                 return acc
             }, new Map())
 
             return [...agreementLinesMap.values()]
-
-
         }
     },
 
