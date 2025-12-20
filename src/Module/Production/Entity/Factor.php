@@ -27,10 +27,10 @@ class Factor
     private FactorSource $source;
 
     #[ORM\Column(type: 'float', nullable: true)]
-    private float $factorValue;
+    private ?float $factorValue;
 
     #[ORM\Column(type: 'string', length: 512, nullable: true)]
-    private string $description;
+    private ?string $description;
 
     /** @Gedmo\Timestampable(on="create") */
     #[ORM\Column(type: 'datetime')]
@@ -56,7 +56,7 @@ class Factor
         return $this->type;
     }
 
-    public function getFactorValue(): float
+    public function getFactorValue(): ?float
     {
         return $this->factorValue;
     }
@@ -66,7 +66,7 @@ class Factor
         return $this->createdAt;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -81,12 +81,12 @@ class Factor
         $this->source = $source;
     }
 
-    public function setFactorValue(float $factorValue): void
+    public function setFactorValue(?float $factorValue): void
     {
         $this->factorValue = $factorValue;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
