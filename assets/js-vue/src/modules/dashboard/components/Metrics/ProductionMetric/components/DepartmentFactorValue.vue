@@ -41,17 +41,17 @@ export default defineComponent({
 
 <template>
     <div>
-        <font-awesome-icon
-            v-if="!factorData.factor && !factorData.factorsStack.length"
-            icon="times"
-            class="text-danger opacity-75"
-            style="font-size: 20px"
-        />
-        <span v-else :class="!factorData.factor ? 'text-muted' : 'font-weight-bold'">{{ factorData.factor }}</span>
-        <template v-if="factorData.factorsStack.length">
+        <div class="d-flex justify-content-center align-items-center gap-1">
+            <div :class="!factorData.factor ? 'text-muted' : 'font-weight-bold'">{{ factorData.factor }}</div>
+            <font-awesome-icon
+                :icon="factorData.factor ? 'check-circle' : 'times'"
+                :class="[factorData.factor ? 'text-success' : 'text-danger', 'opacity-75']"
+                style="font-size: 18px"
+            />
+        </div>
+        <div v-if="factorData.factorsStack.length" class="text-center">
             <font-awesome-icon icon="info-circle" class="opacity-25 text-primary" :id="popoverTarget"/>
             <b-popover v-if="factorData.factorsStack.length" custom-class="factor-data-popover" :target="popoverTarget" placement="bottom" triggers="hover">
-
                 <table class="table table-sm mb-0">
                     <thead>
                         <tr>
@@ -75,9 +75,7 @@ export default defineComponent({
                     </tbody>
                 </table>
             </b-popover>
-        </template>
-
-
+        </div>
     </div>
 </template>
 

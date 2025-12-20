@@ -8,11 +8,11 @@ export function getAgreementLines(start, end, departments) {
 }
 
 export function getAgreementLinesSummary(start, end) {
-    return axios.get(`/api/reports/agreement-line-production-summary`, {params: {start, end}});
+    return axios.get(`/reports/production/agreement-line-production-summary`, {params: {start, end}});
 }
 
 export function getProductionTasksCompletionSummary(start, end) {
-    return axios.get(`/api/reports/production-tasks-completion-summary`, {params: {start, end}});
+    return axios.get(`/reports/production/production-tasks-completion-summary`, {params: {start, end}});
 }
 
 export function getOldSummary(start, end) {
@@ -23,9 +23,9 @@ export function getOldSummary(start, end) {
 }
 
 export function getProductionPendingDetails(start, end) {
-    return axios.get(`/api/reports/production-pending-details`, {params: {start, end}});
+    return axios.get(`/reports/production/production-pending-details`, {params: {start, end}});
 }
 
 export function getProductionFinishedDetails(start, end) {
-    return axios.get(`/api/reports/production-finished-details`, {params: {start, end}});
+    return axios.get(`/reports/production/production-finished-details`, {params: {start, end}});
 }

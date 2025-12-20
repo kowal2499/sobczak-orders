@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Reports\Production;
+namespace App\Module\Reports\Production;
 
 interface RecordSupplierInterface
 {

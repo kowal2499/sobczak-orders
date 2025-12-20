@@ -5,7 +5,7 @@ import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
 import { getUserDepartments } from '@/helpers'
-import Details from '../Details.vue'
+import Details from './components/Details.vue'
 import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
 export default defineComponent({
     name: 'DepartmentsFactorMetric',

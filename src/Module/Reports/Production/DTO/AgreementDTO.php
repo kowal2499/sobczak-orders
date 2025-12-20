@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Reports\Production\DTO;
+namespace App\Module\Reports\Production\DTO;
 
 class AgreementDTO
 {

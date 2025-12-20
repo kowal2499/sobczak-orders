@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Modules\Reports\Production\RecordSuppliers;
+namespace App\Module\Reports\Production\RecordSuppliers;
 
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 use App\Module\Production\Factor\FactorCalculator;
-use App\Modules\Reports\Production\DTO\AgreementDTO;
-use App\Modules\Reports\Production\DTO\AgreementLineDTO;
-use App\Modules\Reports\Production\DTO\CustomerDTO;
-use App\Modules\Reports\Production\DTO\ProductionReportRecordDTO;
+use App\Module\Reports\Production\DTO\AgreementDTO;
+use App\Module\Reports\Production\DTO\AgreementLineDTO;
+use App\Module\Reports\Production\DTO\CustomerDTO;
+use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
 use App\Repository\AgreementLineRepository;
 
 class BaseSupplier

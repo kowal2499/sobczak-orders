@@ -1,4 +1,4 @@
 authorization_controllers:
   resource: ./Controller
   type: annotation
-  prefix: /reports
+  prefix: /reports/production

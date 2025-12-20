@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Modules\Reports\Production\RecordSuppliers;
+namespace App\Module\Reports\Production\RecordSuppliers;
 
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\FactorCalculator;
-use App\Modules\Reports\Production\RecordSupplierInterface;
-use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
+use App\Module\Reports\Production\RecordSupplierInterface;
+use App\Module\Reports\Production\Repository\DoctrineProductionPendingRepository;
 use App\Repository\AgreementLineRepository;
 
 class OrdersPendingRecordSupplier extends BaseSupplier implements RecordSupplierInterface

@@ -64,9 +64,9 @@ import CollapsibleCard from "../../components/base/CollapsibleCard";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
 import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
-import OrdersCountMetric from "./components/Metrics/OrdersCountMetric/index.vue"
+import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric.vue"
+import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
-import DepartmentsBonusMetric from "./components/Metrics/DepartmentsBonusMetric/index.vue";
 import PRIVILEGES from "../../definitions/userRoles";
 
 import {
@@ -81,13 +81,13 @@ const DATA_SOURCES = [
     {
         id: 'src01',
         fetcher: getOldSummary,
-        active: false,
+        active: true,
     },
     {
         id: 'src02',
         fetcher: getAgreementLinesSummary,
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        active: false,
+        active: true,
     },
     {
         id: 'src03',

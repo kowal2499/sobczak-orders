@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Reports\Production\Repository;
+namespace App\Module\Reports\Production\Repository;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Security;
 
 class DoctrineProductionFinishedRepository extends ServiceEntityRepository
