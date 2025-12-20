@@ -6,7 +6,7 @@ export default defineComponent({
     props: {
         factorData: {
             type: Object,
-            validator: (val) => Object.hasOwn(val, 'factor') && Object.hasOwn(val, 'pool'),
+            validator: (val) => Object.hasOwn(val, 'factor') && Object.hasOwn(val, 'factorsStack'),
         },
     },
     computed: {
@@ -22,7 +22,7 @@ export default defineComponent({
                 case 'factor_adjustment_bonus':
                     return value > 0 ? 'Bonus' : 'Kara'
                 case 'factor_adjustment_ratio':
-                    return 'Korekta podstawy'
+                    return 'Waga podstawy'
                 default:
                     return 'Nieobsłużona wartość'
             }
@@ -41,10 +41,16 @@ export default defineComponent({
 
 <template>
     <div>
-        <span :class="!factorData.factor ? 'text-muted' : 'font-weight-bold'">{{ factorData.factor }}</span>
-        <template v-if="factorData.pool.length">
+        <font-awesome-icon
+            v-if="!factorData.factor && !factorData.factorsStack.length"
+            icon="times"
+            class="text-danger opacity-75"
+            style="font-size: 20px"
+        />
+        <span v-else :class="!factorData.factor ? 'text-muted' : 'font-weight-bold'">{{ factorData.factor }}</span>
+        <template v-if="factorData.factorsStack.length">
             <font-awesome-icon icon="info-circle" class="opacity-25 text-primary" :id="popoverTarget"/>
-            <b-popover v-if="factorData.pool.length" custom-class="factor-data-popover" :target="popoverTarget" placement="bottom" triggers="hover">
+            <b-popover v-if="factorData.factorsStack.length" custom-class="factor-data-popover" :target="popoverTarget" placement="bottom" triggers="hover">
 
                 <table class="table table-sm mb-0">
                     <thead>
@@ -55,7 +61,7 @@ export default defineComponent({
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, key) in factorData.pool" :key="key">
+                        <tr v-for="(item, key) in factorData.factorsStack" :key="key">
                             <td>
                                 {{ getName(item.source, item.value) }}
                             </td>

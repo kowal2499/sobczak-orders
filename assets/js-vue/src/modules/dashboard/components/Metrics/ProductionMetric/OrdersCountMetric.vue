@@ -3,7 +3,8 @@ import { defineComponent } from 'vue'
 import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
-import Details from './Details.vue'
+import Details from '../Details.vue'
+import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
 
 import {
     getProductionPendingDetails,
@@ -13,6 +14,8 @@ import {
 export default defineComponent({
     name: 'PendingOrdersMetric',
     extends: BaseMetric,
+    mixins: [ProductionMetricMixin],
+
     props: {
         status: {
             type: String,
@@ -30,15 +33,13 @@ export default defineComponent({
             if (!this.data) {
                 return 0
             }
-
-            return Array.isArray(this.data[this.status]) ? this.data[this.status][0].count : 0;
+            return this.data && this.data[this.status] && this.data[this.status].count || 0
         },
         summary() {
             if (!this.data) {
                 return 0
             }
-            return Array.isArray(this.data[this.status]) ? this.data[this.status][0].factors_summary : 0;
-        }
+            return this.data && this.data[this.status] && this.data[this.status].factors_summary || 0        }
     },
 
     methods: {
@@ -50,11 +51,11 @@ export default defineComponent({
 
             return promise
                 .then(({data}) => {
-                    this.detailsData = data;
+                    this.detailsData = this.mapDetails(data);
                     callback()
                 })
                 .finally(() => this.isFetchingDetails = false)
-        }
+        },
     },
 
     data: () => ({

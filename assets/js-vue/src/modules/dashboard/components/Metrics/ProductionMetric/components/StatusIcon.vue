@@ -1,6 +1,6 @@
 <template>
     <font-awesome-icon
-        :icon="tickValue ? 'check-circle' : 'times-circle'"
+        :icon="tickValue ? 'check-circle' : 'times'"
         :class="tickValue ? 'text-success' : 'text-danger opacity-75'"
         style="font-size: 20px"
     />

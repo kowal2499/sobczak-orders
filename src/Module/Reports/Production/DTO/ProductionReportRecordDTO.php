@@ -2,17 +2,18 @@
 
 namespace App\Modules\Reports\Production\DTO;
 
-class TaskCompletedRecordDTO
+use App\Module\Production\Factor\DTO\AssembledFactorDTO;
+
+class ProductionReportRecordDTO
 {
-    /** @var FactorDTO[] */
-    private array $factors = [];
 
     public function __construct(
         private readonly string              $departmentSlug = '',
         private readonly ?\DateTimeInterface $completedAt = null,
         private readonly ?AgreementLineDTO   $agreementLine = null,
         private readonly ?AgreementDTO       $agreement = null,
-        private readonly ?CustomerDTO        $customer = null
+        private readonly ?CustomerDTO        $customer = null,
+        private readonly ?AssembledFactorDTO $factors = null,
     ) {
     }
 
@@ -21,7 +22,7 @@ class TaskCompletedRecordDTO
         return $this->departmentSlug;
     }
 
-    public function getFactors(): array
+    public function getFactors(): ?AssembledFactorDTO
     {
         return $this->factors;
     }
@@ -45,10 +46,5 @@ class TaskCompletedRecordDTO
     public function getCustomer(): ?CustomerDTO
     {
         return $this->customer;
-    }
-
-    public function setFactors(array $factors): void
-    {
-        $this->factors = $factors;
     }
 }

@@ -5,12 +5,12 @@ import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
 import { getUserDepartments } from '@/helpers'
-import Details from '../OrdersCountMetric/Details.vue'
-
+import Details from '../Details.vue'
+import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
 export default defineComponent({
     name: 'DepartmentsFactorMetric',
     extends: BaseMetric,
-
+    mixins: [ProductionMetricMixin],
     components: {
         MetricLayout, Sidebar, Details,
     },
@@ -29,29 +29,7 @@ export default defineComponent({
             }))
         },
         perAgreementData() {
-            const agreementLinesMap = this.data?.reduce((acc, item) => {
-                if (!acc.has(item.agreementLine.id)) {
-                    acc.set(item.agreementLine.id, {
-                        ...item.agreementLine,
-                        ...item.agreement,
-                        factor: item.agreementLine.factor,
-                        customerName: item.customer.name,
-                        completedAt: item.completedAt,
-                        involved_dpt01: {factor: 0, pool: []},
-                        involved_dpt02: {factor: 0, pool: []},
-                        involved_dpt03: {factor: 0, pool: []},
-                        involved_dpt04: {factor: 0, pool: []},
-                        involved_dpt05: {factor: 0, pool: []},
-                    })
-                }
-
-                const lineData = acc.get(item.agreementLine.id)
-                lineData[`involved_${item.departmentSlug}`] = item.factors
-
-                return acc
-            }, new Map())
-
-            return [...agreementLinesMap.values()]
+            return this.mapDetails(this.data)
         }
     },
 

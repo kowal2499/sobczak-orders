@@ -2,15 +2,22 @@
 
 namespace App\Modules\Reports\Production\RecordSuppliers;
 
+use App\Module\Production\Entity\FactorSource;
+use App\Module\Production\Factor\FactorCalculator;
 use App\Modules\Reports\Production\RecordSupplierInterface;
 use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
+use App\Repository\AgreementLineRepository;
 
-class OrdersFinishedRecordSupplier implements RecordSupplierInterface
+class OrdersFinishedRecordSupplier extends BaseSupplier implements RecordSupplierInterface
 {
-    private $repository;
+    private DoctrineProductionFinishedRepository $repository;
 
-    public function __construct(DoctrineProductionFinishedRepository $repository)
-    {
+    public function __construct(
+        DoctrineProductionFinishedRepository $repository,
+        AgreementLineRepository $agreementLineRepository,
+        FactorCalculator $factorCalculator,
+    ) {
+        parent::__construct($agreementLineRepository, $factorCalculator);
         $this->repository = $repository;
     }
 
@@ -21,7 +28,8 @@ class OrdersFinishedRecordSupplier implements RecordSupplierInterface
 
     public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
-        return $this->repository->getDetails($start, $end);
+        $rows = $this->repository->getDetails($start, $end);
+        return $this->transformRows($rows, FactorSource::AGREEMENT_LINE);
     }
 
     public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array

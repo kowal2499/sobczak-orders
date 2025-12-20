@@ -1,7 +1,7 @@
 <script>
 import { defineComponent } from 'vue'
 import StatusIcon from '../../StatusIcon.vue'
-import DepartmentFactorValue from '../../DepartmentFactorValue.vue';
+import DepartmentFactorValue from './DepartmentFactorValue.vue';
 const DEFAULT_ROW = () => ({
     context: null,
     factor: 0,
