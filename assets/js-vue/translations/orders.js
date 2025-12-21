@@ -150,8 +150,8 @@ export default {
         contact: 'Kontakt',
         products: 'Produkty',
         orders: {
-            factor: 'Współczynnik',
-            factorDesc: 'Współczynnik dla premii. Wartość \'100\' oznacza współczynnik w wysokości \'1\'. Można podawać wartości wyższe niż 100.',
+            factor: 'Współczynnik bazowy',
+            factorDesc: 'Współczynnik dla premii i planowania produkcji. Wartość \'100\' oznacza współczynnik w wysokości \'1\'. Można podawać wartości wyższe niż 100.',
             requirements: 'Opis wymagań',
             requestedRealizationDate: 'Oczekiwany termin realizacji',
             addProduct: 'Dodaj produkt',

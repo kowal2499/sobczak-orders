@@ -1,110 +1,128 @@
 <template>
-    <b-dropdown size="sm" variant="outline-primary" no-caret>
-        <template #button-content>
-            <i class="fa fa-bars" aria-hidden="true" />
-        </template>
-        <template v-if="isTrashed">
-            <!-- 1.1 delete order line -->
-            <confirmable-action
-                :action-fn="deleteAction"
-                :label="$t('deleteOrder')"
-                icon-class="fa fa-exclamation-circle text-danger"
-                v-if="canDelete"
-            >
-                <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
-                <ul class="list-unstyled">
-                    <li>{{ line.Product.name }}</li>
-                </ul>
-                <div class="alert alert-danger" v-if="hasProduction">
-                    <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                    {{ $t('willAlsoDeleteProduction') }}
-                </div>
-            </confirmable-action>
+    <div>
+        <b-dropdown size="sm" variant="outline-primary" no-caret>
+            <template #button-content>
+                <i class="fa fa-bars" aria-hidden="true" />
+            </template>
+            <template v-if="isTrashed">
+                <!-- 1.1 delete order line -->
+                <confirmable-action
+                    :action-fn="deleteAction"
+                    :label="$t('deleteOrder')"
+                    icon-class="fa fa-exclamation-circle text-danger"
+                    v-if="canDelete"
+                >
+                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
+                    <ul class="list-unstyled">
+                        <li>{{ line.Product.name }}</li>
+                    </ul>
+                    <div class="alert alert-danger" v-if="hasProduction">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                        {{ $t('willAlsoDeleteProduction') }}
+                    </div>
+                </confirmable-action>
 
-            <!-- 1.2 restore order line -->
-            <confirmable-action
-                :action-fn="restoreOrderAction"
-                :label="$t('restoreOrder')"
-                icon-class="fa fa-undo"
-            >
-                <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.Agreement.orderNumber }}'?</p>
-                <ul class="list-unstyled">
-                    <li>{{ line.Product.name }}</li>
-                </ul>
-            </confirmable-action>
-        </template>
+                <!-- 1.2 restore order line -->
+                <confirmable-action
+                    :action-fn="restoreOrderAction"
+                    :label="$t('restoreOrder')"
+                    icon-class="fa fa-undo"
+                >
+                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.Agreement.orderNumber }}'?</p>
+                    <ul class="list-unstyled">
+                        <li>{{ line.Product.name }}</li>
+                    </ul>
+                </confirmable-action>
+            </template>
 
-        <template v-if="false === isTrashed">
-            <!-- sekcja wspólna -->
-            <template v-if="$user.can('production.panel')">
-                <b-dropdown-item :href="`/agreement/line/${line.id}`" >
+            <template v-if="false === isTrashed">
+                <!-- sekcja wspólna -->
+                <b-dropdown-item v-if="$user.can('production.panel')" :href="`/agreement/line/${line.id}`" >
                     <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
                 </b-dropdown-item>
 
-                <b-dropdown-divider />
-            </template>
-            <!-- 1. sekcja zamówienie -->
-
-            <!-- 1.1 edit order -->
-            <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
-                <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
-            </b-dropdown-item>
-
-            <!-- 1.1 set warehouse status -->
-            <confirmable-action
-                :action-fn="warehouseAction"
-                :label="$t('setWarehouseStatus')"
-                icon-class="fa fa-archive"
-                v-if="canWarehouse"
-            >
-                <p class="text-info">{{ $t('setAsWarehoused') }}</p>
-                <ul class="list-unstyled">
-                    <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
-                    <li>{{ $t('product') }}: {{ line.Product.name }}</li>
-                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
-                </ul>
-            </confirmable-action>
-
-            <!-- 1.2 set archive status -->
-            <confirmable-action
-                :action-fn="archiveAction"
-                :label="$t('setArchivedStatus')"
-                icon-class="fa fa-archive"
-                v-if="canArchive"
-            >
-                <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
-                <ul class="list-unstyled">
-                    <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
-                    <li>{{ $t('product') }}: {{ line.Product.name }}</li>
-                    <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
-                </ul>
-            </confirmable-action>
-
-            <!-- 1.3 set trash status -->
-            <confirmable-action
-                :action-fn="trashAction"
-                :label="$t('agreement_line_list.trashOrder')"
-                icon-class="fa fa-trash text-danger"
-                anchor-class="text-danger"
-            >
-                <p class="text-info">
-                    {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.Agreement.orderNumber}) }}</p>
-                <ul class="list-unstyled">
-                    <li>{{ line.Product.name }}</li>
-                </ul>
-            </confirmable-action>
-
-            <template v-if="canStartProduction">
-                <b-dropdown-divider />
-                <b-dropdown-item>
-                <start-production-action
-                    :agreement-line="line"
-                    v-on="$listeners"
-                />
+                <b-dropdown-item
+                    v-if="canManageFactors"
+                    @click="sidebarFactorsState = !sidebarFactorsState"
+                >
+                    <i class="fa fa-percent"/>{{ $t('agreement_line_list.factorsForm.sidebarTitle') }}
                 </b-dropdown-item>
+
+                <b-dropdown-divider v-if="$user.can('production.panel') || canManageFactors"/>
+                <!-- 1. sekcja zamówienie -->
+
+                <!-- 1.1 edit order -->
+                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+                    <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
+                </b-dropdown-item>
+
+                <!-- 1.1 set warehouse status -->
+                <confirmable-action
+                    :action-fn="warehouseAction"
+                    :label="$t('setWarehouseStatus')"
+                    icon-class="fa fa-archive"
+                    v-if="canWarehouse"
+                >
+                    <p class="text-info">{{ $t('setAsWarehoused') }}</p>
+                    <ul class="list-unstyled">
+                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
+                        <li>{{ $t('product') }}: {{ line.Product.name }}</li>
+                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
+                    </ul>
+                </confirmable-action>
+
+                <!-- 1.2 set archive status -->
+                <confirmable-action
+                    :action-fn="archiveAction"
+                    :label="$t('setArchivedStatus')"
+                    icon-class="fa fa-archive"
+                    v-if="canArchive"
+                >
+                    <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
+                    <ul class="list-unstyled">
+                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
+                        <li>{{ $t('product') }}: {{ line.Product.name }}</li>
+                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
+                    </ul>
+                </confirmable-action>
+
+                <!-- 1.3 set trash status -->
+                <confirmable-action
+                    :action-fn="trashAction"
+                    :label="$t('agreement_line_list.trashOrder')"
+                    icon-class="fa fa-trash text-danger"
+                    anchor-class="text-danger"
+                >
+                    <p class="text-info">
+                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.Agreement.orderNumber}) }}</p>
+                    <ul class="list-unstyled">
+                        <li>{{ line.Product.name }}</li>
+                    </ul>
+                </confirmable-action>
+
+                <template v-if="canStartProduction">
+                    <b-dropdown-divider />
+                    <b-dropdown-item>
+                    <start-production-action
+                        :agreement-line="line"
+                        v-on="$listeners"
+                    />
+                    </b-dropdown-item>
+                </template>
             </template>
-        </template>
-    </b-dropdown>
+        </b-dropdown>
+
+        <Sidebar
+            v-if="canManageFactors"
+            v-model="sidebarFactorsState"
+            :title="$t('agreement_line_list.factorsForm.sidebarTitle')"
+            sidebar-class="size-100 size-lg-75"
+        >
+            <template #sidebar-content="{ close }">
+                <FactorsView :agreement-line-id="line.id" @close="close" />
+            </template>
+        </Sidebar>
+    </div>
 </template>
 
 <script>
@@ -118,7 +136,8 @@ import {
 import {isValid} from "../../services/datesService";
 import ConfirmableAction from "../../modules/agreementLineList/Actions/ConfirmableAction";
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
-
+import Sidebar from '@/components/base/Sidebar.vue'
+import FactorsView from '@/modules/agreementLineList/view/FactorsView'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -132,6 +151,8 @@ export default {
         Dropdown,
         ConfirmableAction,
         StartProductionAction,
+        Sidebar,
+        FactorsView,
     },
     props: {
         line: {
@@ -178,9 +199,21 @@ export default {
         hasProduction() {
             return Array.isArray(this.line.productions) && this.line.productions.length !== 0;
         },
+
+        canManageFactors() {
+            return this.$user.can('production.factor_adjustment_bonus:create') ||
+                this.$user.can('production.factor_adjustment_bonus:update') ||
+                this.$user.can('production.factor_adjustment_bonus:delete') ||
+                this.$user.can('production.factor_adjustment_ratio:create') ||
+                this.$user.can('production.factor_adjustment_ratio:update') ||
+                this.$user.can('production.factor_adjustment_ratio:delete')
+            ;
+        }
     },
 
-    data: () => ({}),
+    data: () => ({
+        sidebarFactorsState: false
+    }),
 
     methods: {
         trashAction() {

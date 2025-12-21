@@ -7,5 +7,8 @@ export default {
         startProduction: 'Rozpocznij produkcję',
         startDate: 'Data rozpoczęcia',
         endDate: 'Data zakończenia',
+    },
+    factorsForm: {
+        sidebarTitle: 'Współczynniki',
     }
 }

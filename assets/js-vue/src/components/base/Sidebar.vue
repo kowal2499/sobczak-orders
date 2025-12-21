@@ -13,6 +13,10 @@ export default defineComponent({
         noCloseOnBackdrop: {
             type: Boolean,
             default: true
+        },
+        value: {
+            type: Boolean,
+            default: false
         }
     },
     watch: {
@@ -43,6 +47,14 @@ export default defineComponent({
                 document.body.style.paddingRight = ''
                 window.scrollTo(0, this.scrollY)
             }
+            this.$emit('input', val)
+        },
+
+        value: {
+            handler() {
+                this.isOpen = this.value
+            },
+            immediate: true
         }
     },
     beforeUnmount() {
