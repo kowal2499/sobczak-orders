@@ -24,6 +24,18 @@ export default {
     '_confirmation_required': 'Confirmation required',
     '_logout': 'Logout',
     '_noData': 'No data',
+    '_department': 'Department',
+    '_description': 'Description',
+    '_add': 'Add',
+    '_edit': 'Edit',
+    '_delete': 'Delete',
+    '_save': 'Save',
+    '_cancel': 'Cancel',
+    '_close': 'Close',
+    '_search': 'Search',
+    '_reset': 'Reset',
+    '_loading': 'Loading...',
+    '_select': 'Select',
 
     '_impersonate': {
         'title': 'Impersonate user',
@@ -41,5 +53,7 @@ export default {
         'numeric': 'Field "{_field_}" must contain a numeric value',
         'min_value': 'Field "{_field_}" must be greater than or equal to {min}',
         'max_value': 'Field "{_field_}" must be less than or equal to {max}',
+        'excluded': 'Field "{_field_}" must be different than "{_value_}"',
+
     }
 }

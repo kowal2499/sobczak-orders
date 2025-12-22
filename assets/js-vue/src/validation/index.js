@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { ValidationProvider, ValidationObserver } from 'vee-validate';
 import { extend } from 'vee-validate';
-import { required, email, numeric, min_value, max_value } from 'vee-validate/dist/rules';
+import { required, email, numeric, min_value, max_value, excluded } from 'vee-validate/dist/rules';
 import i18n from '../../i18n';
 import { parseYMD } from '../services/datesService';
 
@@ -14,12 +14,15 @@ const rulesToRegister = [
     ['numeric', numeric],
     ['min_value', min_value],
     ['max_value', max_value],
+    ['excluded', excluded],
 ]
 rulesToRegister.forEach(([name, rule]) => {
     extend(name, {
         ...rule,
         message: (field, params) =>
-            i18n.t(`_validation.${name}`, { ...params, _field_: field })
+        {
+            return i18n.t(`_validation.${name}`, { ...params, _field_: field })
+        }
     })
 })
 

@@ -14,5 +14,6 @@ export default {
         adjustmentRatioName: 'Adjustment ratio value',
         adjustmentRatioDescription: 'Range 0-100%',
         factorPerDpt: 'Factor value per department',
+        adjustmentBonusSectionTitle: 'Bonuses & Penalties',
     }
 }

@@ -24,6 +24,18 @@ export default {
     '_confirmation_required': 'Wymagane potwierdzenie',
     '_logout': 'Wyloguj',
     '_noData': 'Brak danych',
+    '_department': 'Dział',
+    '_description': 'Opis',
+    '_add': 'Dodaj',
+    '_edit': 'Edytuj',
+    '_delete': 'Usuń',
+    '_save': 'Zapisz',
+    '_cancel': 'Anuluj',
+    '_close': 'Zamknij',
+    '_search': 'Szukaj',
+    '_reset': 'Resetuj',
+    '_loading': 'Ładowanie...',
+    '_select': 'Wybierz',
 
     '_impersonate': {
         'title': 'Zmień użytkownika',
@@ -42,5 +54,6 @@ export default {
         'numeric': 'Pole "{_field_}" musi zawierać wartość numeryczną',
         'min_value': 'Pole "{_field_}" musi być większe lub równe {min}',
         'max_value': 'Pole "{_field_}" musi być mniejsze lub równe {max}',
+        'excluded': 'Pole "{_field_}" musi być różne od "{_value_}"',
     }
 }

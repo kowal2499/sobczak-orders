@@ -14,5 +14,7 @@ export default {
         adjustmentRatioName: 'Wartość modyfikatora',
         adjustmentRatioDescription: 'Zakres 0-100%',
         factorPerDpt: 'Wartość współczynnika dla działu',
+        adjustmentBonusSectionTitle: 'Bonusy & kary',
+        bonusValue: 'Wartość',
     }
 }

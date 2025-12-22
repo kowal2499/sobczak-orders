@@ -6,7 +6,7 @@
         v-slot="{ errors }"
     >
         <b-form-group
-            :label="label || name"
+            :label="(!noLabel && (label || name)) || null"
             v-bind="formGroupConfig"
             :label-class="[formGroupConfig.labelClass, errors.length && 'text-danger'].filter(Boolean)"
         >
@@ -32,6 +32,10 @@ export default {
         formGroupConfig: {
             type: Object,
             default: () => ({})
+        },
+        noLabel: {
+            type: Boolean,
+            default: false
         }
 
     },

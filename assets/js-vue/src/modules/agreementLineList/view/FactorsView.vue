@@ -59,6 +59,7 @@ export default {
                 factorAdjustmentRatio: getUserDepartments().reduce(
                     (prev, current) => {
                         prev[current.slug] = {
+                            id: null,
                             slug: current.slug,
                             name: current.name,
                             active: false,
