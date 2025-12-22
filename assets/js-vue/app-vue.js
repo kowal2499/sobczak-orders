@@ -2,6 +2,7 @@ import Vue from 'vue';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import components from './src/components/root-components';
+import FormLayout from '@/components/base/Form/FormLayout.vue'
 import { privileges, Tasks, User, Roles } from "./src/services/privilages";
 import helpers from "./src/helpers";
 import routing from "./src/api/routing";
@@ -53,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.filter('roundFloat', value => {
         return (Math.round(value * 100)/100).toFixed(2)
     })
+
+    Vue.component('FormLayout', FormLayout)
 
     init(user).then(() => {
         new Vue({

@@ -1,18 +1,28 @@
 import Vue from 'vue'
 import { ValidationProvider, ValidationObserver } from 'vee-validate';
 import { extend } from 'vee-validate';
-import { required, email } from 'vee-validate/dist/rules';
+import { required, email, numeric, min_value, max_value } from 'vee-validate/dist/rules';
 import i18n from '../../i18n';
 import { parseYMD } from '../services/datesService';
 
 Vue.component('ValidationProvider', ValidationProvider)
 Vue.component('ValidationObserver', ValidationObserver)
 
-extend('email', email)
-extend('required', {
-	...required,
-	message: i18n.t('_validation.required')
-});
+const rulesToRegister = [
+    ['required', required],
+    ['email', email],
+    ['numeric', numeric],
+    ['min_value', min_value],
+    ['max_value', max_value],
+]
+rulesToRegister.forEach(([name, rule]) => {
+    extend(name, {
+        ...rule,
+        message: (field, params) =>
+            i18n.t(`_validation.${name}`, { ...params, _field_: field })
+    })
+})
+
 
 const isValidDate = d => d instanceof Date && !isNaN(d.getTime())
 

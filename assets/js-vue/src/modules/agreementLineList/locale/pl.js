@@ -10,5 +10,9 @@ export default {
     },
     factorsForm: {
         sidebarTitle: 'Współczynniki',
+        adjustmentRatioSectionTitle: 'Modyfikatory współczynnika bazowego dla działów',
+        adjustmentRatioName: 'Wartość modyfikatora',
+        adjustmentRatioDescription: 'Zakres 0-100%',
+        factorPerDpt: 'Wartość współczynnika dla działu',
     }
 }

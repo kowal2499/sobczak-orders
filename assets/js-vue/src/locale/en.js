@@ -36,7 +36,10 @@ export default {
         'dateFrom': 'The start date must be earlier than the end date',
         'dateTo': 'The end date must be later than the start date',
         'dateEarlierThan': 'The date cannot exceed the deadline',
-
-        'fixFormErrors': 'Fix form errors'
+        'fixFormErrors': 'Fix form errors',
+        'email': 'Field "{_field_}" must contain a valid email address',
+        'numeric': 'Field "{_field_}" must contain a numeric value',
+        'min_value': 'Field "{_field_}" must be greater than or equal to {min}',
+        'max_value': 'Field "{_field_}" must be less than or equal to {max}',
     }
 }
