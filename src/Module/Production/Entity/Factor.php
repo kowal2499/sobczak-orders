@@ -21,7 +21,7 @@ class Factor
     private AgreementLine $agreementLine;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $departmentSlug;
+    private ?string $departmentSlug;
 
     #[ORM\Column(type: 'string', enumType: FactorSource::class)]
     private FactorSource $source;
@@ -46,7 +46,7 @@ class Factor
         return $this->agreementLine;
     }
 
-    public function getDepartmentSlug(): string
+    public function getDepartmentSlug(): ?string
     {
         return $this->departmentSlug;
     }
@@ -86,7 +86,7 @@ class Factor
         $this->description = $description;
     }
 
-    public function setDepartmentSlug(string $departmentSlug): void
+    public function setDepartmentSlug(?string $departmentSlug): void
     {
         $this->departmentSlug = $departmentSlug;
     }

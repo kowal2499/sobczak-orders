@@ -69,6 +69,7 @@ export default {
                 description: null,
                 value: 0,
                 departmentSlug: null,
+                source: 'factor_adjustment_bonus'
             })
         },
         onDeleteRow(idx) {

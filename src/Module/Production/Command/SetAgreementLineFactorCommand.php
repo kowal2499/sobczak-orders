@@ -4,11 +4,11 @@ namespace App\Module\Production\Command;
 
 use App\Module\Production\DTO\FactorRatioDTO;
 
-class CreateFactorRatioCommand
+class SetAgreementLineFactorCommand
 {
     public function __construct(
         private readonly int $agreementLineId,
-        private readonly FactorRatioDTO $ratioDTO
+        private readonly float $factorValue,
     ) {
     }
 
@@ -17,8 +17,9 @@ class CreateFactorRatioCommand
         return $this->agreementLineId;
     }
 
-    public function getRatioDTO(): FactorRatioDTO
+    public function getFactorValue(): float
     {
-        return $this->ratioDTO;
+        return $this->factorValue;
     }
+
 }

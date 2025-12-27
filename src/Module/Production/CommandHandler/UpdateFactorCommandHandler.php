@@ -2,10 +2,10 @@
 
 namespace App\Module\Production\CommandHandler;
 
-use App\Module\Production\Command\UpdateFactorRatioCommand;
+use App\Module\Production\Command\UpdateFactorCommand;
 use App\Module\Production\Repository\FactorRepository;
 
-class UpdateFactorRatioCommandHandler
+class UpdateFactorCommandHandler
 {
 
     public function __construct(
@@ -13,11 +13,11 @@ class UpdateFactorRatioCommandHandler
     ) {
     }
 
-    public function __invoke(updateFactorRatioCommand $command): void
+    public function __invoke(UpdateFactorCommand $command): void
     {
         $dto = $command->getRatioDTO();
         if (!$dto->getId()) {
-            throw new \RuntimeException('RatioDTO must have an ID');
+            throw new \RuntimeException('FactorDTO must have an ID');
         }
 
         $factor = $this->factorRepository->find($dto->getId());
@@ -28,6 +28,7 @@ class UpdateFactorRatioCommandHandler
         $factor->setFactorValue($dto->getValue());
         $factor->setDescription($dto->getDescription());
         $factor->setDepartmentSlug($dto->getDepartmentSlug());
+        $factor->setSource($dto->getFactorSource());
         $this->factorRepository->save($factor);
     }
 }

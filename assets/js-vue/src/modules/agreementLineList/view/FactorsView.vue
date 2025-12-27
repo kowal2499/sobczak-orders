@@ -78,7 +78,6 @@ export default {
                 value: Number(item.value || 0) / 100
             }))
 
-            console.log(factors)
             this.isBusy = true
             return storeFactors(this.agreementLine.id, { factors })
                 .then(() => {
@@ -101,13 +100,17 @@ export default {
             let agreementLine = data.find(item => item.source === 'agreement_line') || {
                 ...emptyFactor(),
                 source: 'agreement_line',
-                value: Number(this.agreementLine.factor || 0) * 10000 / 100
+                value: Number(this.agreementLine.factor || 0)
             }
-            const factorAdjustmentBonus = data.filter(item => item.source === 'factor_adjustment_bonus') || []
+            agreementLine.value = Number(agreementLine.value) * 10000 / 100
+
+            console.log(agreementLine)
+            const factorAdjustmentBonus = (data.filter(item => item.source === 'factor_adjustment_bonus') || [])
                 .map(item => ({
                     ...item,
                     value: (Number(item.value) || 0) * 10000 / 100
                 }))
+
             const factorAdjustmentRatio = getUserDepartments()
                 .reduce(
                     (prev, current) => {

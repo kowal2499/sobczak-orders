@@ -2,10 +2,10 @@
 
 namespace App\Module\Production\CommandHandler;
 
-use App\Module\Production\Command\DeleteFactorRatioCommand;
+use App\Module\Production\Command\DeleteFactorCommand;
 use App\Module\Production\Repository\FactorRepository;
 
-class DeleteFactorRatioCommandHandler
+class DeleteFactorCommandHandler
 {
 
     public function __construct(
@@ -13,10 +13,10 @@ class DeleteFactorRatioCommandHandler
     ) {
     }
 
-    public function __invoke(DeleteFactorRatioCommand $command): void
+    public function __invoke(DeleteFactorCommand $command): void
     {
 
-        $factor = $this->factorRepository->find($command->getFactorRatioId());
+        $factor = $this->factorRepository->find($command->getFactorId());
         if (!$factor) {
             throw new \InvalidArgumentException('Factor not found');
         }

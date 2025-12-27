@@ -3,9 +3,10 @@
 namespace App\Module\Production\Service;
 
 use App\Entity\AgreementLine;
-use App\Module\Production\Command\CreateFactorRatioCommand;
-use App\Module\Production\Command\DeleteFactorRatioCommand;
-use App\Module\Production\Command\UpdateFactorRatioCommand;
+use App\Module\Production\Command\CreateFactorCommand;
+use App\Module\Production\Command\DeleteFactorCommand;
+use App\Module\Production\Command\SetAgreementLineFactorCommand;
+use App\Module\Production\Command\UpdateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\Factor;
 use App\Module\Production\Entity\FactorSource;
@@ -34,47 +35,60 @@ class FactorWriteService
             throw new \InvalidArgumentException("Agreement line with ID $agreementLineId not found.");
         }
 
-        $this->processRatioData(
+        $this->processAgreementLineFactor(
             $agreementLine,
-            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_RATIO)
+            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::AGREEMENT_LINE)[0] ?? null
         );
 
-        $this->processBonusData(
+        $this->processFactorData(
             $agreementLine,
-            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_BONUS)
+            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_RATIO),
+            FactorSource::FACTOR_ADJUSTMENT_RATIO
         );
 
+        $this->processFactorData(
+            $agreementLine,
+            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_BONUS),
+            FactorSource::FACTOR_ADJUSTMENT_BONUS
+        );
+    }
+
+    protected function processAgreementLineFactor(AgreementLine $agreementLine, ?FactorRatioDTO $dto): void
+    {
+        if (!$dto) {
+            return;
+        }
+        $this->commandBus->dispatch(new SetAgreementLineFactorCommand(
+            $agreementLine->getId(),
+            $dto->getValue()
+        ));
     }
 
     /**
      * @param AgreementLine $agreementLine
-     * @param FactorRatioDTO[] $ratioData
+     * @param FactorRatioDTO[] $factorDataList
+     * @param FactorSource $source
      * @return void
      */
-    protected function processRatioData(AgreementLine $agreementLine, array $ratioData): void
+    protected function processFactorData(AgreementLine $agreementLine, array $factorDataList, FactorSource $source): void
     {
         $existingFactors = array_map(fn (Factor $factor) => $factor->getId(),
-            $this->factorRepository->findBy(['agreementLine' => $agreementLine, 'source' => FactorSource::FACTOR_ADJUSTMENT_RATIO])
+            $this->factorRepository->findBy(['agreementLine' => $agreementLine, 'source' => $source])
         );
         $processedFactorIds = [];
 
-        foreach ($ratioData as $factorData) {
+        foreach ($factorDataList as $factorData) {
             if ($factorData->getId()) {
-                $command = new UpdateFactorRatioCommand($agreementLine->getId(), $factorData);
+                $command = new UpdateFactorCommand($agreementLine->getId(), $factorData);
                 $processedFactorIds[] = $factorData->getId();
             } else {
-                $command = new CreateFactorRatioCommand($agreementLine->getId(), $factorData);
+                $command = new CreateFactorCommand($agreementLine->getId(), $factorData);
             }
             $this->commandBus->dispatch($command);
         }
         $factorsToDelete = array_diff($existingFactors, $processedFactorIds);
         foreach ($factorsToDelete as $factorId) {
-            $this->commandBus->dispatch(new DeleteFactorRatioCommand($factorId));
+            $this->commandBus->dispatch(new DeleteFactorCommand($factorId));
         }
-    }
-
-    protected function processBonusData(AgreementLine $agreementLine, array $ratioData): void
-    {
-
     }
 }

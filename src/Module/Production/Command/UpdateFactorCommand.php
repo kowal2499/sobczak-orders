@@ -4,7 +4,7 @@ namespace App\Module\Production\Command;
 
 use App\Module\Production\DTO\FactorRatioDTO;
 
-class UpdateFactorRatioCommand
+class UpdateFactorCommand
 {
     public function __construct(
         private readonly int $agreementLineId,
