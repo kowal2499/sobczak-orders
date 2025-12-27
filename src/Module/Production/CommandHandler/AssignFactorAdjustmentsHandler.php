@@ -14,6 +14,7 @@ use App\System\CommandBus;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 
+/** @deprecated  */
 class AssignFactorAdjustmentsHandler
 {
     public function __construct(

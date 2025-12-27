@@ -17,7 +17,7 @@ class Factor
     private int $id;
 
     #[ORM\JoinColumn(nullable: false)]
-    #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'factors', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'factors', cascade: ['persist'])]
     private AgreementLine $agreementLine;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -49,11 +49,6 @@ class Factor
     public function getDepartmentSlug(): string
     {
         return $this->departmentSlug;
-    }
-
-    public function getType(): FactorSource
-    {
-        return $this->type;
     }
 
     public function getFactorValue(): ?float
@@ -94,5 +89,10 @@ class Factor
     public function setDepartmentSlug(string $departmentSlug): void
     {
         $this->departmentSlug = $departmentSlug;
+    }
+
+    public function setAgreementLine(AgreementLine $agreementLine): void
+    {
+        $this->agreementLine = $agreementLine;
     }
 }

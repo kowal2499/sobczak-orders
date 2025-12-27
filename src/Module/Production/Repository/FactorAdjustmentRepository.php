@@ -9,6 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
+ * @deprecated
  * @extends ServiceEntityRepository<FactorAdjustment>
  *
  * @method FactorAdjustment|null find($id, $lockMode = null, $lockVersion = null)

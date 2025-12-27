@@ -2,6 +2,7 @@
 
 namespace App\Module\Production\Command;
 
+/** @deprecated */
 class CreateFactorAdjustment
 {
     public function __construct(

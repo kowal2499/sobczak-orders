@@ -36,6 +36,8 @@ export default {
     '_reset': 'Resetuj',
     '_loading': 'Ładowanie...',
     '_select': 'Wybierz',
+    '_saveSuccess': 'Zapisano',
+    '_saveError': 'Błąd podczas zapisu',
 
     '_impersonate': {
         'title': 'Zmień użytkownika',

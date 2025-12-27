@@ -16,8 +16,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/** @deprecated */
 #[Route(path: '/factor-adjustment', name: 'production_factor_adjustment')]
-
 class FactorAdjustmentController extends BaseController
 {
     #[Route(path: '/create/{production}',  methods: ['POST'])]

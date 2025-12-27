@@ -119,7 +119,7 @@
             sidebar-class="size-100 size-lg-75"
         >
             <template #sidebar-content="{ close }">
-                <FactorsView :agreement-line-id="line.id" @close="close" />
+                <FactorsView :agreement-line="line" @close="close" />
             </template>
         </Sidebar>
     </div>

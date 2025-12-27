@@ -2,6 +2,7 @@
 
 namespace App\Module\Production\Command;
 
+/** @deprecated */
 class DeleteFactorAdjustment
 {
     public function __construct(

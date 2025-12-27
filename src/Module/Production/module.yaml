@@ -33,6 +33,11 @@ app_module:
         slug: production.panel
         type: boolean
 
+      - name: Współczynniki produkcji w działach produkcyjnych
+        description: Zarządzanie poziomami współczynnika produkcji w działach produkcyjnych
+        slug: production.factor_adjustment
+        type: boolean
+
       - name: Współczynniki produkcji w systemie premiowym
         description: Modyfikacja poziomu współczynnika w kontekście bonusów i kar dla działów produkcyjnych
         slug: production.factor_adjustment_bonus

@@ -1,5 +1,6 @@
 <script>
 import proxyValue from '@/mixins/proxyValue'
+import { DEPARTMENTS } from '@/helpers'
 
 export default {
     name: "AdjustmentRatioForm",
@@ -16,8 +17,16 @@ export default {
                 return factor
             }
             return factor * (this.proxyData[dptSlug].value || 0) / 100
+        },
+        getDepartment(slug) {
+            return DEPARTMENTS.find(dpt => dpt.slug === slug)
+        },
+        onActiveChange(itemKey, value) {
+            if (!value) {
+                this.proxyData[itemKey].value = 0
+            }
         }
-    }
+    },
 }
 </script>
 
@@ -29,12 +38,13 @@ export default {
     >
         <b-row v-for="itemKey in Object.keys(proxyData)" :key="itemKey" align-v="start">
             <b-col cols="2">
-                <div class="text-nowrap font-weight-bold">{{ proxyData[itemKey].name }}</div>
+                <div class="text-nowrap font-weight-bold">{{ getDepartment(itemKey).name }}</div>
                 <b-form-checkbox
-                    :name="proxyData[itemKey].name"
+                    :name="getDepartment(itemKey).name"
                     :unchecked-value="false"
                     switch
                     v-model="proxyData[itemKey].active"
+                    @change="onActiveChange(itemKey, $event)"
                 />
             </b-col>
 

@@ -36,6 +36,9 @@ export default {
     '_reset': 'Reset',
     '_loading': 'Loading...',
     '_select': 'Select',
+    '_saveSuccess': 'Saved',
+    '_saveError': 'Error while saving',
+
 
     '_impersonate': {
         'title': 'Impersonate user',

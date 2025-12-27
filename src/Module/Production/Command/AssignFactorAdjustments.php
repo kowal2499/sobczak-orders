@@ -4,6 +4,7 @@ namespace App\Module\Production\Command;
 
 use App\Module\Production\DTO\FactorAdjustmentDTO;
 
+/** @deprecated */
 class AssignFactorAdjustments
 {
     public function __construct(

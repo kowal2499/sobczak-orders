@@ -7,6 +7,7 @@ use App\Module\Production\Repository\FactorAdjustmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+/** @deprecated */
 #[ORM\Entity(repositoryClass: FactorAdjustmentRepository::class)]
 #[ORM\Table(name: "production_factor_adjustment")]
 class FactorAdjustment

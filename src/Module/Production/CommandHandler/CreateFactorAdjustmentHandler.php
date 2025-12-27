@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+/** @deprecated  */
 class CreateFactorAdjustmentHandler
 {
 
