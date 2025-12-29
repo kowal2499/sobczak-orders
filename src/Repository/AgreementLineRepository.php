@@ -263,4 +263,12 @@ class AgreementLineRepository extends ServiceEntityRepository
 
         return $query->getResult();
     }
+
+    public function save(AgreementLine $agreementLine, bool $flush = true): void
+    {
+        $this->_em->persist($agreementLine);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 }

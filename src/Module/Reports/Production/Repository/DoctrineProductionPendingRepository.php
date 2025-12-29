@@ -7,16 +7,13 @@ use App\Entity\Definitions\TaskTypes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\Security;
 
 class DoctrineProductionPendingRepository extends ServiceEntityRepository
 {
-    private $security;
 
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AgreementLine::class);
-        $this->security = $security;
     }
 
     public function getSummary(
@@ -90,10 +87,8 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
     private function withPendingProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
-            ->join('al.productions', 'pr')
+            ->leftJoin('al.productions', 'pr', 'WITH', 'pr.departmentSlug IN (:departments) AND pr.status IN (:qualifiedStatuses)')
             ->addSelect('pr.completedAt')
-            ->andWhere('pr.status NOT IN (:qualifiedStatuses)')
-            ->andWhere('pr.departmentSlug IN (:departments)')
             ->setParameter('departments', [
                 TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_SLUG_CNC,
                 TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,

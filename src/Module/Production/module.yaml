@@ -37,27 +37,3 @@ app_module:
         description: Zarządzanie poziomami współczynnika produkcji w działach produkcyjnych
         slug: production.factor_adjustment
         type: boolean
-
-      - name: Współczynniki produkcji w systemie premiowym
-        description: Modyfikacja poziomu współczynnika w kontekście bonusów i kar dla działów produkcyjnych
-        slug: production.factor_adjustment_bonus
-        type: select
-        options:
-          - label: Tworzenie
-            optionSlug: create
-          - label: Edycja i usuwanie
-            optionSlug: update
-          - label: Odczyt
-            optionSlug: read
-
-      - name: Współczynniki produkcji w rozbiciu na dział
-        description: Poziom oddziaływania współczynnika na zakres prac działu
-        slug: production.factor_adjustment_ratio
-        type: select
-        options:
-          - label: Tworzenie
-            optionSlug: create
-          - label: Edycja i usuwanie
-            optionSlug: update
-          - label: Odczyt
-            optionSlug: read

@@ -201,13 +201,7 @@ export default {
         },
 
         canManageFactors() {
-            return this.$user.can('production.factor_adjustment_bonus:create') ||
-                this.$user.can('production.factor_adjustment_bonus:update') ||
-                this.$user.can('production.factor_adjustment_bonus:delete') ||
-                this.$user.can('production.factor_adjustment_ratio:create') ||
-                this.$user.can('production.factor_adjustment_ratio:update') ||
-                this.$user.can('production.factor_adjustment_ratio:delete')
-            ;
+            return this.$user.can('production.factor_adjustment');
         }
     },
 

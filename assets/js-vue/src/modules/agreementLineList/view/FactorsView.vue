@@ -104,11 +104,10 @@ export default {
             }
             agreementLine.value = Number(agreementLine.value) * 10000 / 100
 
-            console.log(agreementLine)
             const factorAdjustmentBonus = (data.filter(item => item.source === 'factor_adjustment_bonus') || [])
                 .map(item => ({
                     ...item,
-                    value: (Number(item.value) || 0) * 10000 / 100
+                    value: Math.round(Number(item.value || 0) * 10000) / 100
                 }))
 
             const factorAdjustmentRatio = getUserDepartments()
@@ -116,7 +115,7 @@ export default {
                     (prev, current) => {
                         const existing = data.find(item => item.source === 'factor_adjustment_ratio' && item.departmentSlug === current.slug) || null
                         if (existing) {
-                            existing.value = Number(existing.value) * 10000 / 100
+                            existing.value = Math.round(existing.value * 10000) / 100
                             existing.active = true
                         }
 

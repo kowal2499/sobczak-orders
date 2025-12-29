@@ -9,11 +9,16 @@ use App\Entity\Customer;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Form\AgreementsType;
+use App\Module\Production\Command\CreateFactorCommand;
+use App\Module\Production\Command\UpdateFactorCommand;
+use App\Module\Production\DTO\FactorRatioDTO;
+use App\Module\Production\Entity\FactorSource;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
 use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
+use App\System\CommandBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -120,6 +125,7 @@ class AgreementsController extends AbstractController
      * @param UploaderHelper $uploaderHelper
      * @param TranslatorInterface $t
      * @param Security $security
+     * @param CommandBus $commandBus
      * @return JsonResponse
      * @throws \Exception
      */
@@ -131,7 +137,8 @@ class AgreementsController extends AbstractController
         EntityManagerInterface $em,
         UploaderHelper $uploaderHelper,
         TranslatorInterface $t,
-        Security $security
+        Security $security,
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $data = $request->request->all();
@@ -160,12 +167,12 @@ class AgreementsController extends AbstractController
                 ->setProduct($product)
                 ->setConfirmedDate(new \DateTime($productData['requiredDate']))
                 ->setDescription($productData['description'])
-                ->setAgreement($agreement)
                 ->setFactor($productData['factor'])
                 ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
                 ->setDeleted(false)
                 ->setArchived(false)
             ;
+            $agreement->addAgreementLine($agreementLine);
             $em->persist($agreementLine);
         }
 
@@ -186,11 +193,22 @@ class AgreementsController extends AbstractController
         }
         $em->flush();
 
+        // add factor
+        foreach ($agreement->getAgreementLines() as $line) {
+            $commandBus->dispatch(new CreateFactorCommand(
+                $line->getId(),
+                new FactorRatioDTO(
+                    FactorSource::AGREEMENT_LINE,
+                    $line->getFactor(),
+                )
+            ));
+        }
+
         if ($em->contains($agreement)) {
             $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
         }
         else {
-            $this->addFlash('error', $t->trans('Błąd dodawania zamówiena.', [], 'agreements'));
+            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
         }
 
         return new JsonResponse([$agreement->getId()]);
@@ -212,6 +230,7 @@ class AgreementsController extends AbstractController
                          ProductRepository $productRepository,
                          EntityManagerInterface $em,
                          UploaderHelper $uploaderHelper,
+                         CommandBus $commandBus,
                          TranslatorInterface $t): JsonResponse
     {
         /**
@@ -253,8 +272,9 @@ class AgreementsController extends AbstractController
                 throw new \Exception('Wrong input data');
             }
 
+            $factorCommands = [];
             foreach ($incomingLines as $incomingLine) {
-
+                $isNew = false;
                 if (isset($incomingLine['id']) && !empty($incomingLine['id'])) {
                     $line = $agreementLineRepository->find($incomingLine['id']);
 
@@ -267,9 +287,10 @@ class AgreementsController extends AbstractController
                 } else {
                     $line = new AgreementLine();
                     $line->setDeleted(false)
-                        ->setAgreement($agreement)
                         ->setArchived(false)
                     ;
+                    $agreement->addAgreementLine($line);
+                    $isNew = true;
                 }
 
                 $line->setConfirmedDate(new \DateTime($incomingLine['requiredDate']));
@@ -279,6 +300,19 @@ class AgreementsController extends AbstractController
 
                 $em->persist($line);
 
+                if ($isNew) {
+                    $em->flush();
+                    $factorCommands[] = new CreateFactorCommand($line->getId(), new FactorRatioDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $line->getFactor(),
+                    ));
+                } else {
+                    $factorCommands[] = new UpdateFactorCommand($line->getId(), new FactorRatioDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $line->getFactor(),
+                        $line->getFactorFromCollection()->getId(),
+                    ));
+                }
             }
 
             // file upload logic
@@ -304,6 +338,11 @@ class AgreementsController extends AbstractController
 
         $em->persist($agreement);
         $em->flush();
+
+        // dispatch factor commands
+        foreach ($factorCommands as $command) {
+            $commandBus->dispatch($command);
+        }
 
         // usuwanie linii
         if (!empty($oldAgreementLineIds)) {

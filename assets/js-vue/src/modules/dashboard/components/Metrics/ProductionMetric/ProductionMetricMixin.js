@@ -9,11 +9,11 @@ export default {
                         factor: item.agreementLine.factor,
                         customerName: item.customer.name,
                         completedAt: item.completedAt,
-                        involved_dpt01: {factor: 0, factorsStack: []},
-                        involved_dpt02: {factor: 0, factorsStack: []},
-                        involved_dpt03: {factor: 0, factorsStack: []},
-                        involved_dpt04: {factor: 0, factorsStack: []},
-                        involved_dpt05: {factor: 0, factorsStack: []},
+                        involved_dpt01: {factor: null, factorsStack: []},
+                        involved_dpt02: {factor: null, factorsStack: []},
+                        involved_dpt03: {factor: null, factorsStack: []},
+                        involved_dpt04: {factor: null, factorsStack: []},
+                        involved_dpt05: {factor: null, factorsStack: []},
                     })
                 }
 

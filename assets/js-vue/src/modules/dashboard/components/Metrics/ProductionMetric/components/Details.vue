@@ -51,11 +51,11 @@ export default defineComponent({
             this.rows.forEach(row => {
                 let factor = row.factor || 0;
                 summaryRow.factor += factor;
-                summaryRow.dpt01 += row.dpt01.factor;
-                summaryRow.dpt02 += row.dpt02.factor;
-                summaryRow.dpt03 += row.dpt03.factor;
-                summaryRow.dpt04 += row.dpt04.factor;
-                summaryRow.dpt05 += row.dpt05.factor;
+                summaryRow.dpt01 += row.dpt01.factor || 0;
+                summaryRow.dpt02 += row.dpt02.factor || 0;
+                summaryRow.dpt03 += row.dpt03.factor || 0;
+                summaryRow.dpt04 += row.dpt04.factor || 0;
+                summaryRow.dpt05 += row.dpt05.factor || 0;
             })
             return summaryRow;
         },

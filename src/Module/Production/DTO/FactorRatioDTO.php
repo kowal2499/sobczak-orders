@@ -9,9 +9,9 @@ class FactorRatioDTO
     public function __construct(
         private readonly FactorSource $factorSource,
         private readonly float $value,
-        private readonly ?int $id,
-        private readonly ?string $departmentSlug,
-        private readonly ?string $description,
+        private readonly ?int $id = null,
+        private readonly ?string $departmentSlug = null,
+        private readonly ?string $description = null,
     ) {
     }
 

@@ -12,11 +12,11 @@ export default {
     mixins: [proxyValue],
     methods: {
         computeDepartmentFactor(dptSlug) {
-            const factor = this.factor || 0
-            if (!this.proxyData[dptSlug].active) {
-                return factor
+            let factor = this.factor || 0
+            if (this.proxyData[dptSlug].active) {
+                factor =  Math.round(factor * (this.proxyData[dptSlug].value || 0)) / 100
             }
-            return factor * (this.proxyData[dptSlug].value || 0) / 100
+            return factor
         },
         getDepartment(slug) {
             return DEPARTMENTS.find(dpt => dpt.slug === slug)
@@ -69,7 +69,7 @@ export default {
             <b-col cols="12" md="5" align-h="end" class="ml-auto">
                 <b-form-group :label="$t('agreement_line_list.factorsForm.factorPerDpt')" label-class="text-right">
                     <div class="text-primary font-weight-bold text-right" style="font-size: 1.1rem">
-                        {{ computeDepartmentFactor(itemKey).toFixed(2) }}
+                        {{ computeDepartmentFactor(itemKey) }}
                     </div>
 <!--                    <b-form-input disabled :value="computeDepartmentFactor(itemKey)" />-->
                 </b-form-group>

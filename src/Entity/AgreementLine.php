@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Module\Production\Entity\Factor;
+use App\Module\Production\Entity\FactorSource;
 use App\Repository\AgreementLineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -268,5 +269,15 @@ class AgreementLine
     public function getFactors(): Collection
     {
         return $this->factors;
+    }
+
+    public function getFactorFromCollection(): ?Factor
+    {
+        foreach ($this->factors as $factor) {
+            if ($factor->getSource() === FactorSource::AGREEMENT_LINE) {
+                return $factor;
+            }
+        }
+        return null;
     }
 }

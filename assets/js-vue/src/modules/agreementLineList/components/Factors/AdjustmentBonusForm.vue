@@ -8,19 +8,16 @@
             <button class="btn btn-primary btn-sm" @click="addRow">{{ $t('_add') }}</button>
         </div>
         <b-row v-for="(record, idx) in proxyData">
-            <b-col cols="12" md="5">
-                <FormLayout rules="required" :label="$t('_description')" no-label #default="{ state }">
-                    <b-form-textarea
-                        type="text"
-                        v-model="record.description"
-                        :placeholder="$t('_description')"
-                        :state="state"
-                        rows="2"
-                    />
-                </FormLayout>
-            </b-col>
-            <b-col cols="6" md="2">
-                <FormLayout rules="required|excluded:0" :label="$t('agreement_line_list.factorsForm.bonusValue')" no-label #default="{ state }">
+
+            <b-col cols="6" md="3">
+                <FormLayout rules="required|excluded:0"
+                            :label="$t('agreement_line_list.factorsForm.bonusValue')"
+                            :form-group-config="{
+                                description: $t('agreement_line_list.factorsForm.adjustmentBonusValueDescription')
+                            }"
+                            no-label
+                            #default="{ state }"
+                >
                     <b-form-input
                         type="number"
                         :placeholder="$t('agreement_line_list.factorsForm.bonusValue')"
@@ -40,6 +37,17 @@
                             {{ dept.name }}
                         </b-form-select-option>
                     </b-form-select>
+                </FormLayout>
+            </b-col>
+            <b-col cols="12" md="4">
+                <FormLayout rules="required" :label="$t('_description')" no-label #default="{ state }">
+                    <b-form-textarea
+                        type="text"
+                        v-model="record.description"
+                        :placeholder="$t('_description')"
+                        :state="state"
+                        rows="2"
+                    />
                 </FormLayout>
             </b-col>
             <b-col cols="12" md="2" class="text-right">

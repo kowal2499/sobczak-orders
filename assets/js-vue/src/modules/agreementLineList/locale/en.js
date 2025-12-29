@@ -15,5 +15,7 @@ export default {
         adjustmentRatioDescription: 'Range 0-100%',
         factorPerDpt: 'Factor value per department',
         adjustmentBonusSectionTitle: 'Bonuses & Penalties',
+        adjustmentBonusValueDescription: 'For bonuses use positive values, for penalties use negative values',
+        bonusValue: 'Value',
     }
 }

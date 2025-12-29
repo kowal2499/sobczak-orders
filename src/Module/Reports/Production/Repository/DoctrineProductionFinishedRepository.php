@@ -46,7 +46,8 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
             ->addSelect('al.confirmedDate')
             ->addSelect('p.name as productName')
             ->addSelect('c.name as customerName')
-            ->addSelect('a.orderNumber');
+            ->addSelect('a.orderNumber')
+            ->addSelect('pr.departmentSlug');
         $this->withConnectedCustomers($query);
         return $query->getQuery()->getArrayResult();
     }
@@ -103,10 +104,11 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
     private function withCompletedProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
-            ->join('al.productions', 'pr')
+            ->leftJoin('al.productions', 'pr', 'WITH', 'pr.departmentSlug IN (:departments) AND pr.status = :qualifiedStatus')
+//            ->join('al.productions', 'pr')
             ->addSelect('pr.completedAt')
-            ->andWhere('pr.status = :qualifiedStatus')
-            ->andWhere('pr.departmentSlug IN (:departments)')
+//            ->andWhere('pr.status = :qualifiedStatus')
+//            ->andWhere('pr.departmentSlug IN (:departments)')
             ->setParameter('departments', [
                 TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_SLUG_CNC,
                 TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,

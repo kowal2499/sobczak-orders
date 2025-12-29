@@ -10,5 +10,13 @@ export default {
     'factorLimit': 'Limit współczynników w miesiącu',
     'totalFactors': 'Suma współczynników dla wszystkich zamówień',
     'firstFreeDay': 'Planowany dzień zrealizowania wszystkich zamówień',
-    'tasksCompleted': 'Ukończone zadania produkcyjne'
+    'tasksCompleted': 'Ukończone zadania produkcyjne',
+
+    'productionMetric': {
+        'baseFactor': 'Współczynnik bazowy',
+        'bonus': 'Bonus',
+        'penalty': 'Kara',
+        'percentageModifier': 'Modyfikator procentowy',
+        'unsupportedValue': 'Nieobsługiwana wartość',
+    }
 }

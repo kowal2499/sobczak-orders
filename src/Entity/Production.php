@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ProductionRepository;
-use App\Module\Production\Entity\FactorAdjustment;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -58,10 +57,6 @@ class Production
     #[Groups(['_main', '_linePanel'])]
     private $statusLogs;
 
-    #[ORM\OneToMany(mappedBy: 'production', targetEntity: FactorAdjustment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $factorAdjustments;
-
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $description;
@@ -85,7 +80,6 @@ class Production
     public function __construct()
     {
         $this->statusLogs = new ArrayCollection();
-        $this->factorAdjustments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,14 +200,6 @@ class Production
         }
 
         return $this;
-    }
-
-    /**
-     * @return Collection|FactorAdjustment[]
-     */
-    public function getFactorAdjustments(): Collection
-    {
-        return $this->factorAdjustments;
     }
 
     public function getDescription(): ?string

@@ -11,10 +11,11 @@ export default {
     factorsForm: {
         sidebarTitle: 'Współczynniki',
         adjustmentRatioSectionTitle: 'Modyfikatory współczynnika bazowego dla działów',
-        adjustmentRatioName: 'Wartość modyfikatora',
+        adjustmentRatioName: 'Wartość modyfikatora procentowego',
         adjustmentRatioDescription: 'Zakres 0-100%',
-        factorPerDpt: 'Wartość współczynnika dla działu',
-        adjustmentBonusSectionTitle: 'Bonusy & kary',
+        factorPerDpt: 'Wartość współczynnika bazowego dla działu',
+        adjustmentBonusSectionTitle: 'Bonusy i kary',
+        adjustmentBonusValueDescription: 'Dla bonusów wartości dodatnie, dla kar wartości ujemne',
         bonusValue: 'Wartość',
     }
 }

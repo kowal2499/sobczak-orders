@@ -24,24 +24,24 @@ class SetAgreementLineFactorCommandHandler
         if (!$agreementLine) {
             throw new \InvalidArgumentException('Agreement Line not found');
         }
-        $agreementLine->setFactor($command->getFactorValue());
 
+        // save factor on agreement line
+        if ($agreementLine->getFactor() !== $command->getFactorValue()) {
+            $agreementLine->setFactor($command->getFactorValue());
+            $this->agreementLineRepository->save($agreementLine, false);
+        }
 
-        foreach ($agreementLine->getFactors() as $factor) {
-            if ($factor->getSource() !== FactorSource::AGREEMENT_LINE) {
-                continue;
-            }
+        // handle factor in collection
+        $collectionFactor = $agreementLine->getFactorFromCollection();
 
-            if ($factor->getFactorValue() === $command->getFactorValue()) {
-                return;
-            }
-
-            $this->commandBus->dispatch(new UpdateFactorCommand(
+        // create if not exists
+        if (!$collectionFactor) {
+            $this->commandBus->dispatch(new CreateFactorCommand(
                 $agreementLine->getId(),
                 new FactorRatioDTO(
                     FactorSource::AGREEMENT_LINE,
                     $command->getFactorValue(),
-                    $factor->getId(),
+                    null,
                     null,
                     null,
                 )
@@ -49,17 +49,18 @@ class SetAgreementLineFactorCommandHandler
             return;
         }
 
-        $this->commandBus->dispatch(new CreateFactorCommand(
-            $agreementLine->getId(),
-            new FactorRatioDTO(
-                FactorSource::AGREEMENT_LINE,
-                $command->getFactorValue(),
-                null,
-                null,
-                null,
-            )
-        ));
-
+        // update if value changed
+        if ($collectionFactor->getFactorValue() !== $command->getFactorValue()) {
+            $this->commandBus->dispatch(new UpdateFactorCommand(
+                $agreementLine->getId(),
+                new FactorRatioDTO(
+                    FactorSource::AGREEMENT_LINE,
+                    $command->getFactorValue(),
+                    $collectionFactor->getId(),
+                    null,
+                    null,
+                )
+            ));
+        }
     }
-
 }

@@ -5,10 +5,11 @@
                 <div class="order-spec-list--item-title">{{ $t('name') }}</div>
                 <div>{{ product.name }}</div>
             </div>
-            <div v-if="product.factor && userCanProduction()" >
-                <div class="order-spec-list--item-title">{{ $t('orders.factor') }}</div>
-                <div>{{ product.factor }}</div>
-            </div>
+<!--            TODO: Powinniśmy zwracać factor z zamówienia a nie z produktu -->
+<!--            <div v-if="product.factor && userCanProduction()" >-->
+<!--                <div class="order-spec-list&#45;&#45;item-title">{{ $t('orders.factor') }}</div>-->
+<!--                <div>{{ product.factor }}</div>-->
+<!--            </div>-->
             <div v-if="product.description">
                 <div class="order-spec-list--item-title">{{ $t('orders.description') }}</div>
                 <div>{{ product.description }}</div>

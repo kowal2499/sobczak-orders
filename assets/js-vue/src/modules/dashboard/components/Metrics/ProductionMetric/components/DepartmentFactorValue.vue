@@ -18,21 +18,21 @@ export default defineComponent({
         getName(source, value) {
             switch (source) {
                 case 'agreement_line':
-                    return 'Podstawa zamówienia'
+                    return this.$t('dashboard.productionMetric.baseFactor')
                 case 'factor_adjustment_bonus':
-                    return value > 0 ? 'Bonus' : 'Kara'
+                    return value > 0 ? this.$t('dashboard.productionMetric.bonus') : this.$t('dashboard.productionMetric.penalty')
                 case 'factor_adjustment_ratio':
-                    return 'Waga podstawy'
+                    return this.$t('dashboard.productionMetric.percentageModifier')
                 default:
-                    return 'Nieobsłużona wartość'
+                    return this.$t('dashboard.productionMetric.unsupportedValue')
             }
         },
         getValue(source, value) {
             switch (source) {
                 case 'factor_adjustment_ratio':
-                    return String(parseFloat(value * 100).toFixed(1)).concat('%')
+                    return String(Math.round(value * 10000) / 100).concat('%')
                 default:
-                    return parseFloat(value).toFixed(1)
+                    return Math.round(value * 100) / 100
             }
         }
     }
@@ -42,10 +42,10 @@ export default defineComponent({
 <template>
     <div>
         <div class="d-flex justify-content-center align-items-center gap-1">
-            <div :class="!factorData.factor ? 'text-muted' : 'font-weight-bold'">{{ factorData.factor }}</div>
+            <div :class="factorData.factor === null ? 'text-muted' : 'font-weight-bold'">{{ Math.round(factorData.factor * 100) / 100 }}</div>
             <font-awesome-icon
-                :icon="factorData.factor ? 'check-circle' : 'times'"
-                :class="[factorData.factor ? 'text-success' : 'text-danger', 'opacity-75']"
+                :icon="factorData.factor === null ? 'times' : 'check-circle'"
+                :class="[factorData.factor === null ? 'text-danger' : 'text-success', 'opacity-75']"
                 style="font-size: 18px"
             />
         </div>

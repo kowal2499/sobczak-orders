@@ -7,9 +7,6 @@ use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\Task\UpdateStatusCommand;
-use App\Module\Production\Command\AssignFactorAdjustments;
-use App\Module\Production\DTO\FactorAdjustmentDTO;
-use App\System\CommandBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -134,7 +131,6 @@ class AgreementLineController extends BaseController
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
         MessageBusInterface $messageBus,
-        CommandBus $commandBus,
         AgreementLineRepository $agreementLineRepository,
     ): JsonResponse
     {
@@ -169,18 +165,6 @@ class AgreementLineController extends BaseController
                     $production->getId(),
                     $record['status']
                 ));
-
-                if (isset($record['factorAdjustments'])) {
-                    $commandBus->dispatch(new AssignFactorAdjustments(
-                        $production->getId(),
-                        array_map(fn($adjustment) => new FactorAdjustmentDTO(
-                            $adjustment['id'] ?? null,
-                            $production->getId(),
-                            $adjustment['description'],
-                            $adjustment['factor']
-                        ), $record['factorAdjustments']),
-                    ));
-                }
             }
 
             $tags = $payload['tags'] ?? [];
