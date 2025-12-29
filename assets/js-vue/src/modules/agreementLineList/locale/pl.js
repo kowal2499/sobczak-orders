@@ -17,5 +17,6 @@ export default {
         adjustmentBonusSectionTitle: 'Bonusy i kary',
         adjustmentBonusValueDescription: 'Dla bonusów wartości dodatnie, dla kar wartości ujemne',
         bonusValue: 'Wartość',
+        manageFactorsButton: 'Zarządzaj współczynnikami',
     }
 }

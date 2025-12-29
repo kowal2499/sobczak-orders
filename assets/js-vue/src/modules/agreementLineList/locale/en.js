@@ -17,5 +17,6 @@ export default {
         adjustmentBonusSectionTitle: 'Bonuses & Penalties',
         adjustmentBonusValueDescription: 'For bonuses use positive values, for penalties use negative values',
         bonusValue: 'Value',
+        manageFactorsButton: 'Zarządzaj współczynnikami'
     }
 }

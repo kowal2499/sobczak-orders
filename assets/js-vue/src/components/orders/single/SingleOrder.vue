@@ -38,6 +38,23 @@
                     <agreement-widget :agreement="orderData.Agreement" />
                 </collapsible-card>
 
+
+                <collapsible-card :title="$t('agreement_line_list.factorsForm.sidebarTitle')" :locked="locked" v-if="canManageFactors">
+                    <Sidebar
+                        :title="$t('agreement_line_list.factorsForm.sidebarTitle')"
+                        sidebar-class="size-100 size-lg-75"
+                    >
+                        <template #sidebar-action="{ open }">
+                            <button class="btn btn-outline-primary btn-sm" @click="open">
+                                {{ $t('agreement_line_list.factorsForm.manageFactorsButton') }}
+                            </button>
+                        </template>
+                        <template #sidebar-content="{ close }">
+                            <FactorsView :agreement-line="orderData" @close="close" />
+                        </template>
+                    </Sidebar>
+                </collapsible-card>
+
                 <collapsible-card :title="$t('orders.attachments')" :locked="locked" v-if="orderData.Agreement">
                     <attachments-widget
                         :attachments="orderData.Agreement.attachments || []"
@@ -60,10 +77,15 @@
     import AgreementWidget from "./AgreementWidget";
     import _ from 'lodash';
     import moment from "moment";
+    import Sidebar from '@/components/base/Sidebar.vue'
+    import FactorsView from '@/modules/agreementLineList/view/FactorsView'
 
     export default {
         name: "SingleOrder",
-        components: { CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget },
+        components: {
+            CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
+            Sidebar, FactorsView,
+        },
         props: ['lineId', 'statuses'],
 
         data() {
@@ -161,6 +183,7 @@
                     if (data.data && Array.isArray(data.data) && data.data.length === 1) {
                         const src = data.data[0];
                         this.orderData = {
+                            id: src.id,
                             confirmedDate: src.confirmedDate,
                             factor: src.factor,
                             status: src.status,
@@ -199,6 +222,9 @@
             },
             canAddNewTask() {
                 return this.orderData && false === this.orderData.productions.tasks.some(task => task.id === null)
+            },
+            canManageFactors() {
+                return this.$user.can('production.factor_adjustment');
             }
         }
     }
