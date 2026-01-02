@@ -46,11 +46,11 @@ class AgreementLineRepository extends ServiceEntityRepository
                 $qb->innerJoin('l.productions', 'pr')
                     ->leftJoin('pr.statusLogs', 's')
                     ->leftJoin('s.user', 'u')
-                    ->leftJoin('pr.factorAdjustments', 'fa')
+//                    ->leftJoin('pr.factorAdjustments', 'fa')
                     ->addSelect('pr')
                     ->addSelect('s')
                     ->addSelect('u')
-                    ->addSelect('fa')
+//                    ->addSelect('fa')
                 ;
             }
 

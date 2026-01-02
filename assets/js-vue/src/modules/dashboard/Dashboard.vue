@@ -54,6 +54,12 @@
                     :data="sourcesState.src03.data"
                 />
             </div>
+            <div class="col-md-10 col-lg-9" v-if="canCapacityMetric">
+                <CapacityMetric
+                    :is-busy="sourcesState.src04.isBusy"
+                    :data="sourcesState.src04.data"
+                />
+            </div>
         </div>
 
     </collapsible-card>
@@ -67,12 +73,13 @@ import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
 import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric.vue"
 import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
+import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue"
 import PRIVILEGES from "../../definitions/userRoles";
 
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
-    getOldSummary
+    getOldSummary, getDepartmentsCapacity
 } from "./repository";
 
 const START_YEAR = 2018;
@@ -94,6 +101,12 @@ const DATA_SOURCES = [
         fetcher: getProductionTasksCompletionSummary,
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
         active: true,
+    },
+    {
+        id: 'src04',
+        fetcher: getDepartmentsCapacity,
+        grant: 'reports.dashboard:capacity-utilization',
+        active: true,
     }
 ]
 
@@ -107,6 +120,7 @@ export default {
         CompletionDateMetric,
         OrdersCountMetric,
         DepartmentsBonusMetric,
+        CapacityMetric,
     },
 
     computed: {
@@ -140,6 +154,9 @@ export default {
         },
         canDashboardMetrics() {
             return this.$user.can(PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW);
+        },
+        canCapacityMetric() {
+            return this.$user.can('reports.dashboard:capacity-utilization')
         }
     },
 

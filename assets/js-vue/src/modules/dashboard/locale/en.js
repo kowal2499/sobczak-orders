@@ -10,5 +10,14 @@ export default {
     'factorLimit': 'Monthly factors limit',
     'totalFactors': 'Factors summary for all orders',
     'firstFreeDay': 'Estimated date for the completion of all orders',
-    'tasksCompleted': 'Completed production tasks'
+    'tasksCompleted': 'Completed production tasks',
+    'capacityMetric': 'Production departments capacity',
+
+    'productionMetric': {
+        'baseFactor': 'Base factor',
+        'bonus': 'Bonus',
+        'penalty': 'Penalty',
+        'percentageModifier': 'Percentage modifier',
+        'unsupportedValue': 'Unsupported value',
+    }
 }

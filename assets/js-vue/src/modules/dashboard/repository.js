@@ -15,6 +15,7 @@ export function getProductionTasksCompletionSummary(start, end) {
     return axios.get(`/reports/production/production-tasks-completion-summary`, {params: {start, end}});
 }
 
+
 export function getOldSummary(start, end) {
     return axios.post(`production/summary`, {
         month: (new Date(start)).getMonth() + 1,
@@ -28,4 +29,8 @@ export function getProductionPendingDetails(start, end) {
 
 export function getProductionFinishedDetails(start, end) {
     return axios.get(`/reports/production/production-finished-details`, {params: {start, end}});
+}
+
+export function getDepartmentsCapacity(start, end) {
+    return axios.get(`/reports/production/production-capacity`, {params: {start, end}});
 }

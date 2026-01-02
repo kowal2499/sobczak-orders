@@ -6,6 +6,7 @@ use App\Controller\BaseController;
 use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
+use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
 use App\Modules\Reports\Production\ProductionReport;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,7 +74,22 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
-    public function productionTasksCompletionSummary(Request $request, ProductionBonusSupplier $supplier): Response
+    public function productionTasksCompletionSummary(
+        Request $request,
+        ProductionBonusSupplier $supplier
+    ): Response
+    {
+        $start = new \DateTimeImmutable($request->query->get('start'));
+        $end = new \DateTimeImmutable($request->query->get('end'));
+
+        return $this->json($supplier->getRecords($start, $end));
+    }
+
+    #[Route(path: '/production-capacity', methods: ['GET'])]
+    public function productionCapacity(
+        Request $request,
+        ProductionCapacitySupplier $supplier
+    ): Response
     {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));

@@ -4,29 +4,21 @@ import { defineComponent } from 'vue'
 import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
-import { getUserDepartments } from '@/helpers'
 import Details from './components/Details.vue'
-import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
+import ProductionMetricMixin from './ProductionMetricMixin'
+import DepartmentMetricMixin from './DepartmentMetricMixin'
+
 export default defineComponent({
     name: 'DepartmentsFactorMetric',
     extends: BaseMetric,
-    mixins: [ProductionMetricMixin],
+    mixins: [ProductionMetricMixin, DepartmentMetricMixin],
     components: {
         MetricLayout, Sidebar, Details,
     },
 
     computed: {
         perDepartmentData() {
-            return getUserDepartments().map((department) => ({
-                name: department.name,
-                slug: department.slug,
-                value: this.data?.reduce((acc, item) => {
-                    if (item.departmentSlug === department.slug) {
-                        return acc + item.factors.factor
-                    }
-                    return acc
-                }, 0)
-            }))
+            return this.aggregateByDepartment(this.data)
         },
         perAgreementData() {
             return this.mapDetails(this.data)

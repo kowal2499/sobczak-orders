@@ -2,4 +2,13 @@ app_module:
   namespace: reports
   description: Moduł raportów
   active: true
-      
+  grants:
+    - name: Raporty na pulpicie
+      description: Raporty i informacje na pulpicie systemu
+      slug: reports.dashboard
+      type: select
+      options:
+          - label: Ukończone zadania produkcyjne
+            optionSlug: completedTasks
+          - label: Zapełnienie listy produkcyjnej
+            optionSlug: capacity-utilization
