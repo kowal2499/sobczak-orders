@@ -9,6 +9,9 @@ class ProductionReportRecordDTO
 
     public function __construct(
         private readonly string              $departmentSlug = '',
+        private readonly ?\DateTimeInterface  $dateStart = null,
+        private readonly ?\DateTimeInterface  $dateEnd = null,
+        private readonly ?string              $status = null,
         private readonly ?\DateTimeInterface $completedAt = null,
         private readonly ?AgreementLineDTO   $agreementLine = null,
         private readonly ?AgreementDTO       $agreement = null,
@@ -46,5 +49,20 @@ class ProductionReportRecordDTO
     public function getCustomer(): ?CustomerDTO
     {
         return $this->customer;
+    }
+
+    public function getDateStart(): ?\DateTimeInterface
+    {
+        return $this->dateStart;
+    }
+
+    public function getDateEnd(): ?\DateTimeInterface
+    {
+        return $this->dateEnd;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
     }
 }

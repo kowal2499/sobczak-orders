@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-const statuses = [
+export const statuses = [
     { value: 0, name: 'oczekuje', color: '#FFF', className: 'dropdown-white' },
     { value: 1, name: 'rozpoczęte', color: '#FFA07A', className: 'dropdown-orange' },
     { value: 2, name: 'w trakcie', color: '#87CEFA', className: 'dropdown-blue' },

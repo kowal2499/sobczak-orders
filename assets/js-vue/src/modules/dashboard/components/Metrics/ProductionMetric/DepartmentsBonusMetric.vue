@@ -11,7 +11,7 @@ import DepartmentMetricMixin from './DepartmentMetricMixin'
 export default defineComponent({
     name: 'DepartmentsFactorMetric',
     extends: BaseMetric,
-    mixins: [ProductionMetricMixin, DepartmentMetricMixin],
+    mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
         MetricLayout, Sidebar, Details,
     },

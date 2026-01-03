@@ -8,6 +8,10 @@ export default defineComponent({
             type: Object,
             validator: (val) => Object.hasOwn(val, 'factor') && Object.hasOwn(val, 'factorsStack'),
         },
+        noStatusIcon: {
+            type: Boolean,
+            default: false,
+        }
     },
     computed: {
         popoverTarget() {
@@ -40,10 +44,11 @@ export default defineComponent({
 </script>
 
 <template>
-    <div>
+    <div class="d-flex gap-1">
         <div class="d-flex justify-content-center align-items-center gap-1">
             <div :class="factorData.factor === null ? 'text-muted' : 'font-weight-bold'">{{ Math.round(factorData.factor * 100) / 100 }}</div>
             <font-awesome-icon
+                v-if="!noStatusIcon"
                 :icon="factorData.factor === null ? 'times' : 'check-circle'"
                 :class="[factorData.factor === null ? 'text-danger' : 'text-success', 'opacity-75']"
                 style="font-size: 18px"

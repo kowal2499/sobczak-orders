@@ -79,6 +79,9 @@ class BaseSupplier
 
         return new ProductionReportRecordDTO(
             $row['departmentSlug'] ?? '',
+            $row['dateStart'] ?? null,
+            $row['dateEnd'] ?? null,
+            $row['status'] ?? null,
             $row['completedAt'] ?? null,
             $agreementLine,
             $agreement,
