@@ -5,30 +5,44 @@ import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
 import Details from './components/Details.vue'
+import DetailsNavbar from './components/DetailsNavbar.vue'
 import ProductionMetricMixin from './ProductionMetricMixin'
 import DepartmentMetricMixin from './DepartmentMetricMixin'
+import SidebarLayout from '../SidebarLayout.vue'
 
 export default defineComponent({
     name: 'DepartmentsFactorMetric',
     extends: BaseMetric,
     mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
-        MetricLayout, Sidebar, Details,
+        MetricLayout, Sidebar, Details, DetailsNavbar, SidebarLayout,
+    },
+
+    watch: {
+        data: {
+            deep: true,
+            handler() {
+                // set inner data
+                if (!Array.isArray(this.data)) {
+                    return
+                }
+                if (!this.data.length) {
+                    return;
+                }
+                this.innerData = this.mapDetails(this.data).map(item => this.addSearchKey(item));
+            }
+        }
     },
 
     computed: {
         perDepartmentData() {
             return this.aggregateByDepartment(this.data)
         },
-        perAgreementData() {
-            return this.mapDetails(this.data)
-        }
     },
 
     methods: {
-        calcDetails(callback) {
-            // Placeholder for future detail calculation logic
-            callback();
+        beforeOpen() {
+            this.q = null
         }
     }
 })
@@ -51,7 +65,7 @@ export default defineComponent({
                             <tr v-for="department in perDepartmentData">
                                 <td>{{ department.name }}</td>
                                 <td class="text-right">
-                                    <a href="#" @click.prevent="calcDetails(open)">
+                                    <a href="#" @click.prevent="beforeOpen(); open()">
                                         {{ department.value | roundFloat }}
                                     </a>
                                 </td>
@@ -61,7 +75,14 @@ export default defineComponent({
                 </template>
 
                 <template #sidebar-content="{ height }">
-                    <Details :data="perAgreementData" :height="height" class="px-2 pb-2" />
+                    <SidebarLayout>
+                        <template #header>
+                            <DetailsNavbar @search="q = $event"/>
+                        </template>
+                        <template #content>
+                            <Details :data="filteredInnerData" :height="height" class="px-2 pb-2" />
+                        </template>
+                    </SidebarLayout>
                 </template>
             </Sidebar>
         </template>

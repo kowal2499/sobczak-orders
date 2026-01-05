@@ -4,8 +4,10 @@ import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import Sidebar from '@/components/base/Sidebar.vue'
 import DetailsDepartment from '../components/DetailsDepartment.vue'
+import DetailsNavbar from '../components/DetailsNavbar.vue'
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
+import SidebarLayout from '../../SidebarLayout.vue'
 import Chart from './Chart.js'
 import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
 
@@ -27,6 +29,25 @@ export default defineComponent({
         Chart,
         Sidebar,
         DetailsDepartment,
+        DetailsNavbar,
+        SidebarLayout,
+    },
+    watch: {
+        data: {
+            deep: true,
+            handler() {
+                // set inner data
+                if (!Array.isArray(this.data)) {
+                    return
+                }
+                if (!this.data.length) {
+                    return
+                }
+                this.innerData = this.mapDetails(this.data)
+                    .map(item => this.addSearchKey(item))
+                ;
+            }
+        }
     },
     computed: {
         perDepartmentData() {
@@ -37,7 +58,7 @@ export default defineComponent({
                 return []
             }
             const dptKey = `involved_${this.activeDepartmentSlug}`
-            return this.mapDetails(this.data)
+            return this.filteredInnerData
                 .map(data => {
                     const {involved_dpt01, involved_dpt02, involved_dpt03, involved_dpt04, involved_dpt05, ...rest} = data
                     return {...rest, data: data[dptKey] || {} }
@@ -71,7 +92,11 @@ export default defineComponent({
     methods: {
         onBarClick({ index }) {
             this.activeDepartmentSlug = this.perDepartmentData[index].slug
+            this.beforeOpen()
             this.showSidebar = true
+        },
+        beforeOpen() {
+            this.q = null
         }
     },
     data: () => ({
@@ -116,13 +141,19 @@ export default defineComponent({
             sidebar-class="size-100 size-lg-50"
         >
             <template #sidebar-content>
-                <div class="d-flex flex-column gap-3 mx-3">
-                    <DetailsDepartment
-                        v-for="record in perDptAgreementData"
-                        :key="record.id"
-                        :record="record"
-                    />
-                </div>
+                <SidebarLayout>
+                    <template #header>
+                        <DetailsNavbar @search="q = $event"/>
+                    </template>
+                    <template #content>
+                        <DetailsDepartment
+                            v-for="record in perDptAgreementData"
+                            :key="record.id"
+                            :record="record"
+
+                        />
+                    </template>
+                </SidebarLayout>
             </template>
         </Sidebar>
     </MetricLayout>

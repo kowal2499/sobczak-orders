@@ -3,8 +3,10 @@ import { defineComponent } from 'vue'
 import MetricLayout from "../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../BaseMetric.js'
+import DetailsNavbar from './components/DetailsNavbar.vue'
 import Details from './components/Details.vue'
 import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
+import SidebarLayout from '../SidebarLayout.vue'
 
 import {
     getProductionPendingDetails,
@@ -23,7 +25,7 @@ export default defineComponent({
         }
     },
     components: {
-        MetricLayout, Sidebar, Details,
+        MetricLayout, Sidebar, Details, DetailsNavbar, SidebarLayout,
     },
     computed: {
         canSeeProduction() {
@@ -44,6 +46,7 @@ export default defineComponent({
 
     methods: {
         fetchDetails(callback) {
+            this.reset()
             this.isFetchingDetails = true
             const promise = this.status === 'orders_pending'
                 ? getProductionPendingDetails(null, this.filters?.dateEnd)
@@ -51,7 +54,7 @@ export default defineComponent({
 
             return promise
                 .then(({data}) => {
-                    this.detailsData = this.mapDetails(data);
+                    this.innerData = this.mapDetails(data).map(item => this.addSearchKey(item));
                     callback()
                 })
                 .finally(() => this.isFetchingDetails = false)
@@ -60,7 +63,6 @@ export default defineComponent({
 
     data: () => ({
         isFetchingDetails: false,
-        detailsData: []
     })
 })
 </script>
@@ -87,7 +89,14 @@ export default defineComponent({
                 </template>
 
                 <template #sidebar-content="{ height }">
-                    <Details :data="detailsData" :height="height" class="p-2" />
+                    <SidebarLayout>
+                        <template #header>
+                            <DetailsNavbar @search="q = $event"/>
+                        </template>
+                        <template #content>
+                            <Details :data="filteredInnerData" :height="height" class="p-2" />
+                        </template>
+                    </SidebarLayout>
                 </template>
             </Sidebar>
             <div v-else>

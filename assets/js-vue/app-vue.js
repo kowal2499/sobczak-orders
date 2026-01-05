@@ -15,10 +15,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
-    faClock, faCalendarDay, faCogs, faSquare } from '@fortawesome/free-solid-svg-icons'
+    faClock, faCalendarDay, faCogs, faSquare, faDownload
+} from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
-    faClock, faCalendarDay, faCogs, faSquare)
+    faClock, faCalendarDay, faCogs, faSquare, faDownload)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();

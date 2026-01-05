@@ -29,7 +29,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="details">
+    <div class="details mx-3">
         <div class="d-flex justify-content-between">
         <div>
             <div><font-awesome-icon icon="user" /> {{ record.customerName }}</div>
