@@ -1,4 +1,5 @@
 import { deburr } from 'lodash'
+import ExcelExport from '@/services/ExcelExport/ExcelExport'
 
 export default {
     props: {
@@ -44,11 +45,18 @@ export default {
                 ...row,
                 _search: this.searchKeys.map(key => deburr(String(row[key] || '')).toLowerCase()).join(' ')
             }
+        },
+
+        exportExcel(title, fields, data) {
+            const worksheet = this.excel.addWorksheet(title, fields.filter(f => f.active))
+            data.forEach(item => worksheet.addData(item))
+            return this.excel.save().finally(() => this.excel.clear())
         }
     },
 
     data: () => ({
         q: null,
         innerData: [],
+        excel: new ExcelExport()
     })
 }

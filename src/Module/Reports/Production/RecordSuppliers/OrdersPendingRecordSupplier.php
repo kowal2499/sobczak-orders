@@ -29,7 +29,7 @@ class OrdersPendingRecordSupplier extends BaseSupplier implements RecordSupplier
     public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
         $rows = $this->repository->getDetails(null, $end);
-        return $this->transformRows($rows, FactorSource::AGREEMENT_LINE);
+        return $this->transformRows($rows, FactorSource::FACTOR_ADJUSTMENT_RATIO);
     }
 
     public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array

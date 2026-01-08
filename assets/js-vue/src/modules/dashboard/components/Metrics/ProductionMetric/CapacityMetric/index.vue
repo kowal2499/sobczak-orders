@@ -10,6 +10,7 @@ import MetricLayout from '../../MetricLayout.vue'
 import SidebarLayout from '../../SidebarLayout.vue'
 import Chart from './Chart.js'
 import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
+import exportFields from './exportFields'
 
 const BAR_COLORS = {
     [DPT_GLUEING]:     { bg: 'rgba(78, 121, 167, 0.7)',  border: '#4E79A7' },
@@ -97,6 +98,9 @@ export default defineComponent({
         },
         beforeOpen() {
             this.q = null
+        },
+        onExportExcel() {
+            return this.exportExcel('Obłożenie działów produkcji', exportFields, this.perDptAgreementData)
         }
     },
     data: () => ({
@@ -143,14 +147,16 @@ export default defineComponent({
             <template #sidebar-content>
                 <SidebarLayout>
                     <template #header>
-                        <DetailsNavbar @search="q = $event"/>
+                        <DetailsNavbar
+                            @search="q = $event"
+                            @exportExcel="onExportExcel"
+                        />
                     </template>
                     <template #content>
                         <DetailsDepartment
                             v-for="record in perDptAgreementData"
                             :key="record.id"
                             :record="record"
-
                         />
                     </template>
                 </SidebarLayout>

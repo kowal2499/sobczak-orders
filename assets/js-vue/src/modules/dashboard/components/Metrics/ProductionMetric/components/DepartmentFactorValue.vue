@@ -1,6 +1,6 @@
 <script>
 import { defineComponent } from 'vue'
-
+import { getFactorName, getFactorValue } from '../../../../services/FactorHelper'
 export default defineComponent({
     name: 'DepartmentFactorValue',
     props: {
@@ -20,24 +20,10 @@ export default defineComponent({
     },
     methods: {
         getName(source, value) {
-            switch (source) {
-                case 'agreement_line':
-                    return this.$t('dashboard.productionMetric.baseFactor')
-                case 'factor_adjustment_bonus':
-                    return value > 0 ? this.$t('dashboard.productionMetric.bonus') : this.$t('dashboard.productionMetric.penalty')
-                case 'factor_adjustment_ratio':
-                    return this.$t('dashboard.productionMetric.percentageModifier')
-                default:
-                    return this.$t('dashboard.productionMetric.unsupportedValue')
-            }
+            return getFactorName(source, value)
         },
         getValue(source, value) {
-            switch (source) {
-                case 'factor_adjustment_ratio':
-                    return String(Math.round(value * 10000) / 100).concat('%')
-                default:
-                    return Math.round(value * 100) / 100
-            }
+            return getFactorValue(source, value)
         }
     }
 })

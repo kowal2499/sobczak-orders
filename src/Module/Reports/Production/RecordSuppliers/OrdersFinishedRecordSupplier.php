@@ -29,7 +29,7 @@ class OrdersFinishedRecordSupplier extends BaseSupplier implements RecordSupplie
     public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
     {
         $rows = $this->repository->getDetails($start, $end);
-        return $this->transformRows($rows, FactorSource::AGREEMENT_LINE);
+        return $this->transformRows($rows, FactorSource::FACTOR_ADJUSTMENT_RATIO);
     }
 
     public function getSummary(?\DateTimeInterface $start, ?\DateTimeInterface $end): array

@@ -70,8 +70,8 @@ import CollapsibleCard from "../../components/base/CollapsibleCard";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
 import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
-import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric.vue"
-import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric.vue";
+import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric/index.vue"
+import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
 import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue"
 import PRIVILEGES from "../../definitions/userRoles";

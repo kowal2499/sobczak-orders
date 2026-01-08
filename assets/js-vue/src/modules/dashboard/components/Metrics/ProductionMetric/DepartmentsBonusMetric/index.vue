@@ -1,14 +1,15 @@
 
 <script>
 import { defineComponent } from 'vue'
-import MetricLayout from "../MetricLayout.vue"
+import MetricLayout from "../../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
-import BaseMetric from '../BaseMetric.js'
-import Details from './components/Details.vue'
-import DetailsNavbar from './components/DetailsNavbar.vue'
-import ProductionMetricMixin from './ProductionMetricMixin'
-import DepartmentMetricMixin from './DepartmentMetricMixin'
-import SidebarLayout from '../SidebarLayout.vue'
+import BaseMetric from '../../BaseMetric.js'
+import Details from '../components/Details.vue'
+import DetailsNavbar from '../components/DetailsNavbar.vue'
+import ProductionMetricMixin from '../ProductionMetricMixin'
+import DepartmentMetricMixin from '../DepartmentMetricMixin'
+import SidebarLayout from '../../SidebarLayout.vue'
+import fields from '../fields'
 
 export default defineComponent({
     name: 'DepartmentsFactorMetric',
@@ -43,6 +44,9 @@ export default defineComponent({
     methods: {
         beforeOpen() {
             this.q = null
+        },
+        onExportExcel() {
+            return this.exportExcel(this.$t('dashboard.tasksCompleted'), fields, this.innerData)
         }
     }
 })
@@ -77,7 +81,10 @@ export default defineComponent({
                 <template #sidebar-content="{ height }">
                     <SidebarLayout>
                         <template #header>
-                            <DetailsNavbar @search="q = $event"/>
+                            <DetailsNavbar
+                                @search="q = $event"
+                                @exportExcel="onExportExcel"
+                            />
                         </template>
                         <template #content>
                             <Details :data="filteredInnerData" :height="height" class="px-2 pb-2" />

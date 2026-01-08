@@ -1,17 +1,18 @@
 <script>
 import { defineComponent } from 'vue'
-import MetricLayout from "../MetricLayout.vue"
+import MetricLayout from "../../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
-import BaseMetric from '../BaseMetric.js'
-import DetailsNavbar from './components/DetailsNavbar.vue'
-import Details from './components/Details.vue'
-import ProductionMetricMixin from '../ProductionMetric/ProductionMetricMixin'
-import SidebarLayout from '../SidebarLayout.vue'
+import BaseMetric from '../../BaseMetric.js'
+import DetailsNavbar from '../components/DetailsNavbar.vue'
+import Details from '../components/Details.vue'
+import ProductionMetricMixin from '../../ProductionMetric/ProductionMetricMixin'
+import SidebarLayout from '../../SidebarLayout.vue'
+import fields from '../fields'
 
 import {
     getProductionPendingDetails,
     getProductionFinishedDetails,
-} from "../../../repository";
+} from "../../../../repository";
 
 export default defineComponent({
     name: 'PendingOrdersMetric',
@@ -41,7 +42,8 @@ export default defineComponent({
             if (!this.data) {
                 return 0
             }
-            return this.data && this.data[this.status] && this.data[this.status].factors_summary || 0        }
+            return this.data && this.data[this.status] && this.data[this.status].factors_summary || 0
+        },
     },
 
     methods: {
@@ -59,6 +61,10 @@ export default defineComponent({
                 })
                 .finally(() => this.isFetchingDetails = false)
         },
+
+        onExportExcel() {
+            return this.exportExcel(this.$t(`dashboard.${this.status}`), fields, this.innerData)
+        }
     },
 
     data: () => ({
@@ -91,7 +97,10 @@ export default defineComponent({
                 <template #sidebar-content="{ height }">
                     <SidebarLayout>
                         <template #header>
-                            <DetailsNavbar @search="q = $event"/>
+                            <DetailsNavbar
+                                @search="q = $event"
+                                @exportExcel="onExportExcel"
+                            />
                         </template>
                         <template #content>
                             <Details :data="filteredInnerData" :height="height" class="p-2" />

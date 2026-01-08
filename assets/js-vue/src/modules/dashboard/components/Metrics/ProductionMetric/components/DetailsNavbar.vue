@@ -4,6 +4,12 @@ import { debounce } from 'lodash'
 
 export default defineComponent({
     name: "DetailsNavbar",
+    props: {
+        showExcelExportBtn: {
+            type: Boolean,
+            default: true
+        }
+    },
     watch: {
         q: {
             handler(newValue) {
@@ -28,9 +34,9 @@ export default defineComponent({
             <input type="text" class="form-control form-control-sm" placeholder="Szukaj..." v-model="q" />
         </div>
         <div>
-<!--            <button class="btn btn-outline-primary btn-sm">-->
-<!--                <font-awesome-icon icon="download" /> Excel-->
-<!--            </button>-->
+            <button v-if="showExcelExportBtn" class="btn btn-outline-primary btn-sm" @click.prevent="$emit('exportExcel')">
+                <font-awesome-icon icon="download" /> Excel
+            </button>
         </div>
     </div>
 </template>
