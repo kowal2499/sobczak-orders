@@ -64,20 +64,11 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
         ?\DateTimeInterface $end = null
     ): void
     {
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    // cały czas w zakresie
-                    $qb->expr()->andX('p.dateStart >= :dateStart', 'p.dateEnd <= :dateEnd'),
-                    // start przed zakresem, koniec w zakresie
-                    $qb->expr()->andX('p.dateStart < :dateStart', 'p.dateEnd >= :dateStart', 'p.dateEnd <= :dateEnd'),
-                    // start w zakresie, koniec poza zakresem
-                    $qb->expr()->andX('p.dateStart >= :dateStart', 'p.dateStart <= :dateEnd', 'p.dateEnd > :dateEnd')
-                )
-            )
-
+        $qb
+            ->andWhere('p.dateEnd >= :dateStart')
+            ->andWhere('p.dateEnd <= :dateEnd')
             ->setParameter('dateStart', (clone $start)->setTime(0, 0))
-            ->setParameter('dateEnd', (clone $end)->setTime(23, 59, 59)
-        );
+            ->setParameter('dateEnd', (clone $end)->setTime(23, 59, 59));
     }
 
     public function withProductionDepartments(QueryBuilder $qb): void

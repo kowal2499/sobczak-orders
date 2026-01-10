@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-dropdown size="sm" variant="outline-primary" no-caret>
+        <b-dropdown size="sm" variant="outline-primary" no-caret boundary="window">
             <template #button-content>
                 <i class="fa fa-bars" aria-hidden="true" />
             </template>

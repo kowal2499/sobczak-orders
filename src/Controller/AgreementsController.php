@@ -300,7 +300,9 @@ class AgreementsController extends AbstractController
 
                 $em->persist($line);
 
-                if ($isNew) {
+                $agreementLineFactor = $line->getFactorFromCollection();
+
+                if ($isNew || !$agreementLineFactor) {
                     $em->flush();
                     $factorCommands[] = new CreateFactorCommand($line->getId(), new FactorRatioDTO(
                         FactorSource::AGREEMENT_LINE,
@@ -310,7 +312,7 @@ class AgreementsController extends AbstractController
                     $factorCommands[] = new UpdateFactorCommand($line->getId(), new FactorRatioDTO(
                         FactorSource::AGREEMENT_LINE,
                         $line->getFactor(),
-                        $line->getFactorFromCollection()->getId(),
+                        $agreementLineFactor->getId(),
                     ));
                 }
             }
