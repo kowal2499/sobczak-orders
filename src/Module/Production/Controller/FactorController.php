@@ -4,10 +4,12 @@ namespace App\Module\Production\Controller;
 
 use App\Controller\BaseController;
 use App\Entity\AgreementLine;
+use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\Factor;
 use App\Module\Production\Repository\FactorRepository;
 use App\Module\Production\Service\FactorWriteService;
+use App\System\EventBus;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +25,7 @@ class FactorController extends BaseController
         Request $request,
         AgreementLine $agreementLine,
         FactorWriteService $factorWriteService,
+        EventBus $eventBus,
     ): JsonResponse
     {
         $factors = (array)$request->request->get('factors', []);
@@ -31,6 +34,8 @@ class FactorController extends BaseController
             $agreementLine->getId(),
             array_map(fn ($data) => FactorRatioDTO::fromArray($data), $factors),
         );
+
+        $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
 
         return $this->json([], Response::HTTP_OK);
     }

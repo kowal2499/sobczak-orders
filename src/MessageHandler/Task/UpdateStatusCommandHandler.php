@@ -5,8 +5,10 @@ namespace App\MessageHandler\Task;
 use App\Entity\StatusLog;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
 use App\Repository\ProductionRepository;
 use App\Service\Production\TaskStatusService;
+use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -19,19 +21,23 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
     private $security;
     private $statusService;
     private $messageBus;
+    private EventBus $eventBus;
 
     public function __construct(
         ProductionRepository $taskRepository,
         EntityManagerInterface $em,
         Security $security,
         TaskStatusService $statusService,
-        MessageBusInterface $messageBus)
+        MessageBusInterface $messageBus,
+        EventBus $eventBus,
+    )
     {
         $this->taskRepository = $taskRepository;
         $this->em = $em;
         $this->security = $security;
         $this->statusService = $statusService;
         $this->messageBus = $messageBus;
+        $this->eventBus = $eventBus;
     }
 
     public function __invoke(UpdateStatusCommand $command)
@@ -57,5 +63,6 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
         $this->em->flush();
 
         $this->messageBus->dispatch(new UpdateProductionCompletionDate($task->getAgreementLine()->getId()));
+        $this->eventBus->dispatch(new AgreementLineWasUpdatedEvent($task->getAgreementLine()->getId()) );
     }
 }

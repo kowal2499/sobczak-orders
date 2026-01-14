@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -123,6 +125,7 @@ class AgreementLineController extends BaseController
      * @param EntityManagerInterface $em
      * @param MessageBusInterface $messageBus
      * @param AgreementLineRepository $agreementLineRepository
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/update/{id}', name: 'agreement_line_update', options: ['expose' => true], methods: ['PUT'])]
@@ -132,6 +135,7 @@ class AgreementLineController extends BaseController
         EntityManagerInterface $em,
         MessageBusInterface $messageBus,
         AgreementLineRepository $agreementLineRepository,
+        EventBus $eventBus,
     ): JsonResponse
     {
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
@@ -174,6 +178,8 @@ class AgreementLineController extends BaseController
                 'production',
                 $user->getId()
             ));
+
+            $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
 
         } catch (Exception $e) {
             return $this->composeErrorResponse($e);

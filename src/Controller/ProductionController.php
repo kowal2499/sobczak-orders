@@ -12,6 +12,7 @@ use App\Message\Task\UpdateStatusCommand;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
 use App\Service\WorkingScheduleService;
+use App\System\EventBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -140,7 +141,7 @@ class ProductionController extends BaseController
     public function updateStatus(
         Request $request,
         MessageBusInterface $messageBus,
-        ProductionRepository $taskRepository
+        ProductionRepository $taskRepository,
     ): JsonResponse
     {
         $messageBus->dispatch(new UpdateStatusCommand(

@@ -42,6 +42,12 @@ doctrine:
                 prefix: 'App\Module\Production\Entity'
                 alias: Production
                 type: attribute
+            AgreementLine:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/AgreementLine/Entity'
+                prefix: 'App\Module\AgreementLine\Entity'
+                alias: AgreementLine
+                type: attribute
 
 when@test:
     doctrine:
