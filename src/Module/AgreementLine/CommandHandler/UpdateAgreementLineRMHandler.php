@@ -34,6 +34,7 @@ class UpdateAgreementLineRMHandler
         if (!$agreementLine) {
             throw new \RuntimeException('AgreementLine not found with ID ' . $command->getAgreementLineId());
         }
+
         /** @var ?AgreementLineRM $model */
         $model = $this->modelRepository->find($command->getAgreementLineId());
         if (!$model) {
@@ -63,15 +64,15 @@ class UpdateAgreementLineRMHandler
         ]);
     }
 
-    private function getUser(AgreementLine $agreementLine): UserRM
+    private function getUser(AgreementLine $agreementLine): ?UserRM
     {
         $user = $agreementLine->getAgreement()->getUser();
-        return new UserRM(
+        return $user ? new UserRM(
             $user->getId(),
             $user->getFirstName(),
             $user->getLastName(),
             $user->getEmail(),
-        );
+        ) : null;
     }
 
     private function getProduct(AgreementLine $agreementLine): ProductRM
@@ -147,8 +148,7 @@ class UpdateAgreementLineRMHandler
             $agreementLine->getFactors()->toArray(),
             FactorSource::FACTOR_ADJUSTMENT_BONUS
         );
-
-
+        
         $productionModel->setFactorRatio($factorRatio->factor);
         $productionModel->setFactorBonus($factorBonus->factor);
 

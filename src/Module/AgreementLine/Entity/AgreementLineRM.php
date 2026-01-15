@@ -38,7 +38,7 @@ class AgreementLineRM
     private ?DateTimeInterface $productionEndDate;
 
     #[ORM\Embedded(class: UserRM::class, columnPrefix: 'user_')]
-    private UserRM $user;
+    private ?UserRM $user;
 
     #[ORM\Embedded(class: CustomerRM::class, columnPrefix: 'customer_')]
     private CustomerRM $customer;
@@ -105,7 +105,7 @@ class AgreementLineRM
         return $this->productionEndDate;
     }
 
-    public function getUser(): UserRM
+    public function getUser(): ?UserRM
     {
         return $this->user;
     }
@@ -155,7 +155,7 @@ class AgreementLineRM
         $this->productionEndDate = $productionEndDate;
     }
 
-    public function setUser(UserRM $user): void
+    public function setUser(?UserRM $user): void
     {
         $this->user = $user;
     }

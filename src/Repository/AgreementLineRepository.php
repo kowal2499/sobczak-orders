@@ -271,4 +271,9 @@ class AgreementLineRepository extends ServiceEntityRepository
             $this->_em->flush();
         }
     }
+
+    public function refresh(AgreementLine $agreementLine): void
+    {
+        $this->_em->refresh($agreementLine);
+    }
 }

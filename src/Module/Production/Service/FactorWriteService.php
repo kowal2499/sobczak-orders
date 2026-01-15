@@ -51,6 +51,9 @@ class FactorWriteService
             array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_BONUS),
             FactorSource::FACTOR_ADJUSTMENT_BONUS
         );
+
+        // konieczne jeśli w trakcie tego samego requestu wyliczone wartości mają być ponownie pobierane z encji
+        $this->agreementLineRepository->refresh($agreementLine);
     }
 
     protected function processAgreementLineFactor(AgreementLine $agreementLine, ?FactorRatioDTO $dto): void
