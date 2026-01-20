@@ -1,6 +1,6 @@
 <?php
 
-namespace App\ConsoleCommand;
+namespace App\Module\AgreementLine\CLI;
 
 use App\Entity\AgreementLine;
 use App\Repository\AgreementLineRepository;
@@ -8,20 +8,17 @@ use App\Service\AgreementLine\ProductionCompletionDateResolverService;
 use App\Service\AgreementLine\ProductionStartDateResolverService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateAgreementLineDates extends Command
 {
     protected static $defaultName = 'app:agreement-line:update-dates';
-    /** @var ProductionCompletionDateResolverService */
-    private $completionDateResolverService;
-    /** @var ProductionStartDateResolverService */
-    private $startDateResolverService;
-    /** @var AgreementLineRepository */
-    private $agreementLineRepository;
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private ProductionCompletionDateResolverService $completionDateResolverService;
+    private ProductionStartDateResolverService $startDateResolverService;
+    private AgreementLineRepository $agreementLineRepository;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         ProductionStartDateResolverService $startDateResolverService,
@@ -46,10 +43,13 @@ class UpdateAgreementLineDates extends Command
     {
         $lines = $this->fetchAgreementLines();
         $output->writeln(['', 'AgreementLine productionStartDate and productionCompletionDate Updater', '========================']);
-        $output->writeln(sprintf('agreementLines to verify: %d', count($lines)));
 
         $recordsStartDateUpdated = 0;
         $recordsCompletionDateUpdated = 0;
+
+        $progressBar = new ProgressBar($output, count($lines));
+        $progressBar->start();
+
         foreach ($lines as $line) {
             $startDate = $this->startDateResolverService->getStartDate($line->getProductions());
             if ($startDate != $line->getProductionStartDate()) {
@@ -62,10 +62,13 @@ class UpdateAgreementLineDates extends Command
                 $this->saveNewCompletionDate($line, $completionDate);
                 $recordsCompletionDateUpdated++;
             }
+            $progressBar->advance();
         }
         if ($recordsStartDateUpdated || $recordsCompletionDateUpdated) {
             $this->entityManager->flush();
         }
+        $progressBar->finish();
+        $output->writeln('');
         $output->writeln([
             'Finished!',
             sprintf('agreementLines startDate updated: %d', $recordsStartDateUpdated),

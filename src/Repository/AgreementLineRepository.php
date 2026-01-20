@@ -46,11 +46,9 @@ class AgreementLineRepository extends ServiceEntityRepository
                 $qb->innerJoin('l.productions', 'pr')
                     ->leftJoin('pr.statusLogs', 's')
                     ->leftJoin('s.user', 'u')
-//                    ->leftJoin('pr.factorAdjustments', 'fa')
                     ->addSelect('pr')
                     ->addSelect('s')
                     ->addSelect('u')
-//                    ->addSelect('fa')
                 ;
             }
 
@@ -62,7 +60,6 @@ class AgreementLineRepository extends ServiceEntityRepository
             foreach ($term['search'] as $key => $value) {
                 switch ($key) {
                     case 'dateStart':
-
                         if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("a.createDate >= :dateStart0");
                             $qb->setParameter('dateStart0', new \DateTime($value['start'] . ' 23:59:59'));
@@ -74,7 +71,6 @@ class AgreementLineRepository extends ServiceEntityRepository
                         break;
 
                     case 'dateDelivery':
-
                         if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
                             $qb->andWhere("l.confirmedDate >= :dateConfirmed0");
                             $qb->setParameter('dateConfirmed0', (new \DateTime($value['start'])));

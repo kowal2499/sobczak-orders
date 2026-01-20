@@ -2,30 +2,16 @@
 
 namespace App\Module\AgreementLine\Entity;
 
+use DateTime;
 use DateTimeInterface;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable]
 class AgreementRM
 {
-    #[ORM\Column(type: 'integer')]
     private int $id;
-
-    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     private ?string $status;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $orderNumber;
-
-    #[ORM\Column(type: 'datetime')]
     private DateTimeInterface $createdDate;
 
-    /**
-     * @param int $id
-     * @param string|null $status
-     * @param string|null $orderNumber
-     * @param DateTimeInterface $createdDate
-     */
     public function __construct(
         int $id,
         DateTimeInterface $createdDate,
@@ -56,5 +42,25 @@ class AgreementRM
     public function getCreatedDate(): DateTimeInterface
     {
         return $this->createdDate;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'status' => $this->status,
+            'orderNumber' => $this->orderNumber,
+            'createdDate' => $this->createdDate->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            id: $data['id'],
+            createdDate: new DateTime($data['createdDate']),
+            status: $data['status'] ?? null,
+            orderNumber: $data['orderNumber'] ?? null,
+        );
     }
 }

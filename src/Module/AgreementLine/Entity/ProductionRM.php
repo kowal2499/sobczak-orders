@@ -1,54 +1,24 @@
 <?php
 
 namespace App\Module\AgreementLine\Entity;
-use DateTimeInterface;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable]
+use App\Module\Production\Factor\DTO\AssembledFactorDTO;
+use DateTime;
+use DateTimeInterface;
+
 class ProductionRM
 {
-    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $id;
-
-    #[ORM\Column(type: 'string', length: 255)]
     private string $departmentSlug;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $dateStart;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $dateEnd;
-
-    #[ORM\Column(type: 'string', length: 64, nullable: true)]
     private ?string $status;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $isStartDelayed;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $isCompleted;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $completedAt;
+    private ?AssembledFactorDTO $factorRatio;
+    private ?AssembledFactorDTO $factorBonus;
 
-    #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $factorRatio = null;
-
-    #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $factorBonus = null;
-
-    /**
-     * @param string $departmentSlug
-     * @param int|null $id
-     * @param DateTimeInterface|null $dateStart
-     * @param DateTimeInterface|null $dateEnd
-     * @param string|null $status
-     * @param bool|null $isStartDelayed
-     * @param bool|null $isCompleted
-     * @param DateTimeInterface|null $completedAt
-     * @param float|null $factorRatio
-     * @param float|null $factorBonus
-     */
     public function __construct(
         string $departmentSlug,
         ?int $id = null,
@@ -58,8 +28,8 @@ class ProductionRM
         ?bool $isStartDelayed = null,
         ?bool $isCompleted = null,
         ?DateTimeInterface $completedAt = null,
-        ?float $factorRatio = null,
-        ?float $factorBonus = null,
+        ?AssembledFactorDTO $factorRatio = null,
+        ?AssembledFactorDTO $factorBonus = null,
     ) {
         $this->id = $id;
         $this->departmentSlug = $departmentSlug;
@@ -71,6 +41,56 @@ class ProductionRM
         $this->completedAt = $completedAt;
         $this->factorRatio = $factorRatio;
         $this->factorBonus = $factorBonus;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getDepartmentSlug(): string
+    {
+        return $this->departmentSlug;
+    }
+
+    public function getDateStart(): ?DateTimeInterface
+    {
+        return $this->dateStart;
+    }
+
+    public function getDateEnd(): ?DateTimeInterface
+    {
+        return $this->dateEnd;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function isStartDelayed(): ?bool
+    {
+        return $this->isStartDelayed;
+    }
+
+    public function isCompleted(): ?bool
+    {
+        return $this->isCompleted;
+    }
+
+    public function getCompletedAt(): ?DateTimeInterface
+    {
+        return $this->completedAt;
+    }
+
+    public function getFactorRatio(): ?AssembledFactorDTO
+    {
+        return $this->factorRatio;
+    }
+
+    public function getFactorBonus(): ?AssembledFactorDTO
+    {
+        return $this->factorBonus;
     }
 
     public function setId(?int $id): void
@@ -113,15 +133,45 @@ class ProductionRM
         $this->completedAt = $completedAt;
     }
 
-    public function setFactorRatio(?float $factorRatio): void
+    public function setFactorRatio(?AssembledFactorDTO $factorRatio): void
     {
         $this->factorRatio = $factorRatio;
     }
 
-    public function setFactorBonus(?float $factorBonus): void
+    public function setFactorBonus(?AssembledFactorDTO $factorBonus): void
     {
         $this->factorBonus = $factorBonus;
     }
 
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'departmentSlug' => $this->departmentSlug,
+            'dateStart' => $this->dateStart?->format('Y-m-d H:i:s'),
+            'dateEnd' => $this->dateEnd?->format('Y-m-d H:i:s'),
+            'status' => $this->status,
+            'isStartDelayed' => $this->isStartDelayed,
+            'isCompleted' => $this->isCompleted,
+            'completedAt' => $this->completedAt?->format('Y-m-d H:i:s'),
+            'factorRatio' => $this->factorRatio?->toArray() ?? null,
+            'factorBonus' => $this->factorBonus?->toArray() ?? null,
+        ];
+    }
 
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            departmentSlug: $data['departmentSlug'],
+            id: $data['id'] ?? null,
+            dateStart: isset($data['dateStart']) ? new DateTime($data['dateStart']) : null,
+            dateEnd: isset($data['dateEnd']) ? new DateTime($data['dateEnd']) : null,
+            status: $data['status'] ?? null,
+            isStartDelayed: $data['isStartDelayed'] ?? null,
+            isCompleted: $data['isCompleted'] ?? null,
+            completedAt: isset($data['completedAt']) ? new DateTime($data['completedAt']) : null,
+            factorRatio: $data['factorRatio'] ?? null,
+            factorBonus: $data['factorBonus'] ?? null,
+        );
+    }
 }

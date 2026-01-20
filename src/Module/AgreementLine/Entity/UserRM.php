@@ -1,21 +1,12 @@
 <?php
 
 namespace App\Module\AgreementLine\Entity;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable]
 class UserRM
 {
-    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $id;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $firstName;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $lastName;
-
-    #[ORM\Column(type: 'string', length: 180, nullable: true)]
     private ?string $email;
 
     public function __construct(
@@ -48,5 +39,53 @@ class UserRM
     public function getEmail(): ?string
     {
         return $this->email;
+    }
+
+    public function getFullName(): ?string
+    {
+        if (!$this->firstName && !$this->lastName) {
+            return null;
+        }
+        return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
+            'email' => $this->email,
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            id: $data['id'] ?? null,
+            firstName: $data['firstName'] ?? null,
+            lastName: $data['lastName'] ?? null,
+            email: $data['email'] ?? null,
+        );
+    }
+
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setFirstName(?string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    public function setLastName(?string $lastName): void
+    {
+        $this->lastName = $lastName;
+    }
+
+    public function setEmail(?string $email): void
+    {
+        $this->email = $email;
     }
 }

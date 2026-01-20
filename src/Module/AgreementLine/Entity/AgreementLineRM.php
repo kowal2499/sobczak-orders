@@ -10,15 +10,33 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(
     name: "agreement_line_rm",
     indexes: [
-        new ORM\Index(columns: ["id"], name: "idx_agreement_line_id"),
-        new ORM\Index(columns: ["confirmed_date"], name: "idx_agreement_line_confirmed_date")
+        new ORM\Index(name: "idx_agreement_id", columns: ["agreement_id"]),
+        new ORM\Index(name: "idx_customer_id", columns: ["customer_id"]),
+        new ORM\Index(name: "idx_status", columns: ["status"]),
+        new ORM\Index(name: "idx_is_deleted", columns: ["is_deleted"]),
+        new ORM\Index(name: "idx_is_archived", columns: ["is_archived"]),
+        new ORM\Index(name: "idx_confirmed_date", columns: ["confirmed_date"]),
+        new ORM\Index(name: "idx_production_start_date", columns: ["production_start_date"]),
+        new ORM\Index(name: "idx_production_end_date", columns: ["production_end_date"]),
+        // Composite indexes for common queries (commented out for now)
+        // new ORM\Index(name: "idx_customer_deleted", columns: ["customer_id", "is_deleted"]),
+        // new ORM\Index(name: "idx_customer_archived", columns: ["customer_id", "is_archived"]),
+        // new ORM\Index(name: "idx_status_confirmed", columns: ["status", "confirmed_date"]),
+        // new ORM\Index(name: "idx_agreement_deleted", columns: ["agreement_id", "is_deleted"]),
     ]
 )]
 class AgreementLineRM
 {
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
-    private int $id;
+    #[ORM\GeneratedValue(strategy: "NONE")]
+    private int $agreementLineId;
+
+    #[ORM\Column(type: 'integer')]
+    private int $agreementId;
+
+    #[ORM\Column(type: 'integer')]
+    private int $customerId;
 
     #[ORM\Column(type: 'smallint', nullable: true)]
     private ?int $status;
@@ -30,49 +48,55 @@ class AgreementLineRM
     private bool $isArchived;
 
     #[ORM\Column(type: 'datetime')]
+    private DateTimeInterface $agreementCreateDate;
+
+    #[ORM\Column(type: 'datetime')]
     private DateTimeInterface $confirmedDate;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $productionStartDate;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $productionEndDate;
 
-    #[ORM\Embedded(class: UserRM::class, columnPrefix: 'user_')]
-    private ?UserRM $user;
+    #[ORM\Column(type: 'json')]
+    private array $userData;
 
-    #[ORM\Embedded(class: CustomerRM::class, columnPrefix: 'customer_')]
-    private CustomerRM $customer;
+    #[ORM\Column(type: 'json')]
+    private array $customerData;
 
-    #[ORM\Embedded(class: ProductRM::class, columnPrefix: 'product_')]
-    private ProductRM $product;
+    #[ORM\Column(type: 'json')]
+    private array $productData;
 
-    #[ORM\Embedded(class: AgreementRM::class, columnPrefix: 'agreement_')]
-    private AgreementRM $agreement;
+    #[ORM\Column(type: 'json')]
+    private array $agreementData;
 
-    #[ORM\Embedded(class: ProductionRM::class, columnPrefix: 'dpt01_')]
-    private ProductionRM $dpt01;
+    #[ORM\Column(type: 'json')]
+    private array $productionsData;
 
-    #[ORM\Embedded(class: ProductionRM::class, columnPrefix: 'dpt02_')]
-    private ProductionRM $dpt02;
-
-    #[ORM\Embedded(class: ProductionRM::class, columnPrefix: 'dpt03_')]
-    private ProductionRM $dpt03;
-
-    #[ORM\Embedded(class: ProductionRM::class, columnPrefix: 'dpt04_')]
-    private ProductionRM $dpt04;
-
-    #[ORM\Embedded(class: ProductionRM::class, columnPrefix: 'dpt05_')]
-    private ProductionRM $dpt05;
-
-
-    public function __construct(int $id)
+    public function __construct(int $agreementLineId)
     {
-        $this->id = $id;
+        $this->agreementLineId = $agreementLineId;
+        $this->userData = [];
+        $this->customerData = [];
+        $this->productData = [];
+        $this->agreementData = [];
+        $this->productionsData = [];
     }
 
-    public function getId(): int
+    public function getAgreementLineId(): int
     {
-        return $this->id;
+        return $this->agreementLineId;
+    }
+
+    public function getAgreementId(): int
+    {
+        return $this->agreementId;
+    }
+
+    public function getCustomerId(): int
+    {
+        return $this->customerId;
     }
 
     public function getStatus(): ?int
@@ -105,24 +129,24 @@ class AgreementLineRM
         return $this->productionEndDate;
     }
 
-    public function getUser(): ?UserRM
+    public function getUser(): UserRM
     {
-        return $this->user;
+        return !empty($this->userData) ? UserRM::fromArray($this->userData) : new UserRM();
+    }
+
+    public function setUser(?UserRM $user): void
+    {
+        $this->userData = $user ? $user->toArray() : [];
     }
 
     public function getCustomer(): CustomerRM
     {
-        return $this->customer;
+        return CustomerRM::fromArray($this->customerData);
     }
 
-    public function getProduct(): ProductRM
+    public function setCustomer(CustomerRM $customer): void
     {
-        return $this->product;
-    }
-
-    public function getAgreement(): AgreementRM
-    {
-        return $this->agreement;
+        $this->customerData = $customer->toArray();
     }
 
     public function setStatus(?int $status): void
@@ -145,6 +169,11 @@ class AgreementLineRM
         $this->confirmedDate = $confirmedDate;
     }
 
+    public function setAgreementCreateDate(DateTimeInterface $agreementCreateDate): void
+    {
+        $this->agreementCreateDate = $agreementCreateDate;
+    }
+
     public function setProductionStartDate(?DateTimeInterface $productionStartDate): void
     {
         $this->productionStartDate = $productionStartDate;
@@ -155,48 +184,69 @@ class AgreementLineRM
         $this->productionEndDate = $productionEndDate;
     }
 
-    public function setUser(?UserRM $user): void
+    public function getProduct(): ProductRM
     {
-        $this->user = $user;
-    }
-
-    public function setCustomer(CustomerRM $customer): void
-    {
-        $this->customer = $customer;
+        return ProductRM::fromArray($this->productData);
     }
 
     public function setProduct(ProductRM $product): void
     {
-        $this->product = $product;
+        $this->productData = $product->toArray();
+    }
+
+    public function getAgreement(): AgreementRM
+    {
+        return AgreementRM::fromArray($this->agreementData);
     }
 
     public function setAgreement(AgreementRM $agreement): void
     {
-        $this->agreement = $agreement;
+        $this->agreementData = $agreement->toArray();
     }
 
-    public function setDpt01(ProductionRM $dpt01): void
+    public function getProductions(): array
     {
-        $this->dpt01 = $dpt01;
+        return array_map(
+            fn(array $data) => ProductionRM::fromArray($data),
+            $this->productionsData
+        );
     }
 
-    public function setDpt02(ProductionRM $dpt02): void
+    public function setProductions(array $productions): void
     {
-        $this->dpt02 = $dpt02;
+        $this->productionsData = array_map(
+            fn(ProductionRM $production) => $production->toArray(),
+            $productions
+        );
     }
 
-    public function setDpt03(ProductionRM $dpt03): void
+    public function addProduction(ProductionRM $production): void
     {
-        $this->dpt03 = $dpt03;
+        $this->productionsData[] = $production->toArray();
     }
 
-    public function setDpt04(ProductionRM $dpt04): void
+    public function getProductionByDepartment(string $departmentSlug): ?ProductionRM
     {
-        $this->dpt04 = $dpt04;
+        foreach ($this->productionsData as $productionData) {
+            if (isset($productionData['departmentSlug']) && $productionData['departmentSlug'] === $departmentSlug) {
+                return ProductionRM::fromArray($productionData);
+            }
+        }
+        return null;
     }
 
-    public function setDpt05(ProductionRM $dpt05): void
+    public function setAgreementId(int $agreementId): void
     {
-        $this->dpt05 = $dpt05;
+        $this->agreementId = $agreementId;
+    }
+
+    public function getAgreementCreateDate(): DateTimeInterface
+    {
+        return $this->agreementCreateDate;
+    }
+
+    public function setCustomerId(int $customerId): void
+    {
+        $this->customerId = $customerId;
     }
 }

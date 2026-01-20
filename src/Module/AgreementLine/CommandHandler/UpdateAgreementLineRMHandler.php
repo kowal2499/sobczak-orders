@@ -3,6 +3,7 @@
 namespace App\Module\AgreementLine\CommandHandler;
 
 use App\Entity\AgreementLine;
+use App\Entity\Definitions\TaskTypes;
 use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
 use App\Module\AgreementLine\Entity\AddressRM;
 use App\Module\AgreementLine\Entity\AgreementLineRM;
@@ -41,22 +42,21 @@ class UpdateAgreementLineRMHandler
             $model = new AgreementLineRM($agreementLine->getId());
         }
 
+        $model->setAgreementId($agreementLine->getAgreement()->getId());
+        $model->setCustomerId($agreementLine->getAgreement()->getCustomer()->getId());
+        $model->setAgreementCreateDate($agreementLine->getAgreement()->getCreateDate());
         $model->setStatus($agreementLine->getStatus());
         $model->setIsDeleted($agreementLine->getDeleted());
         $model->setIsArchived($agreementLine->getArchived());
         $model->setConfirmedDate($agreementLine->getConfirmedDate());
         $model->setProductionStartDate($agreementLine->getProductionStartDate());
         $model->setProductionEndDate($agreementLine->getProductionCompletionDate());
+
         $model->setUser($this->getUser($agreementLine));
         $model->setCustomer($this->getCustomer($agreementLine));
         $model->setProduct($this->getProduct($agreementLine));
         $model->setAgreement($this->getAgreement($agreementLine));
-
-        $model->setDpt01($this->getProduction($agreementLine, 'dpt01'));
-        $model->setDpt02($this->getProduction($agreementLine, 'dpt02'));
-        $model->setDpt03($this->getProduction($agreementLine, 'dpt03'));
-        $model->setDpt04($this->getProduction($agreementLine, 'dpt04'));
-        $model->setDpt05($this->getProduction($agreementLine, 'dpt05'));
+        $model->setProductions($this->getProductionsData($agreementLine));
 
         $this->modelRepository->add($model);
         $this->logger->info('Updated AgreementLine read model', [
@@ -64,15 +64,17 @@ class UpdateAgreementLineRMHandler
         ]);
     }
 
-    private function getUser(AgreementLine $agreementLine): ?UserRM
+    private function getUser(AgreementLine $agreementLine): UserRM
     {
         $user = $agreementLine->getAgreement()->getUser();
-        return $user ? new UserRM(
-            $user->getId(),
-            $user->getFirstName(),
-            $user->getLastName(),
-            $user->getEmail(),
-        ) : null;
+        $model = new UserRM();
+        if ($user) {
+            $model->setId($user->getId());
+            $model->setFirstName($user->getFirstName());
+            $model->setLastName($user->getLastName());
+            $model->setEmail($user->getEmail());
+        }
+        return $model;
     }
 
     private function getProduct(AgreementLine $agreementLine): ProductRM
@@ -119,39 +121,39 @@ class UpdateAgreementLineRMHandler
         );
     }
 
-    private function getProduction(AgreementLine $agreementLine, string $slug): ProductionRM
+    private function getProductionsData(AgreementLine $agreementLine): array
     {
-        $productionModel = new ProductionRM($slug);
+        $data = [];
         foreach ($agreementLine->getProductions() as $production) {
-            if ($production->getDepartmentSlug() === $slug) {
-                $productionModel->setId($production->getId());
-                $productionModel->setDateStart($production->getDateStart());
-                $productionModel->setDateEnd($production->getDateEnd());
-                $productionModel->setStatus($production->getStatus());
-                $productionModel->setIsStartDelayed($production->getIsStartDelayed());
-                $productionModel->setIsCompleted($production->getIsCompleted());
-                $productionModel->setCompletedAt($production->getCompletedAt());
-                break;
+            $productionModel = new ProductionRM($production->getDepartmentSlug());
+            $productionModel->setId($production->getId());
+            $productionModel->setDateStart($production->getDateStart());
+            $productionModel->setDateEnd($production->getDateEnd());
+            $productionModel->setStatus($production->getStatus());
+            $productionModel->setIsStartDelayed($production->getIsStartDelayed());
+            $productionModel->setIsCompleted($production->getIsCompleted());
+            $productionModel->setCompletedAt($production->getCompletedAt());
+
+            if (in_array($production->getDepartmentSlug(), TaskTypes::getDefaultSlugs())) {
+                $factorRatio = $this->factorCalculator->calculate(
+                    $agreementLine,
+                    $production->getDepartmentSlug(),
+                    $agreementLine->getFactors()->toArray(),
+                    FactorSource::FACTOR_ADJUSTMENT_RATIO
+                );
+
+                $factorBonus = $this->factorCalculator->calculate(
+                    $agreementLine,
+                    $production->getDepartmentSlug(),
+                    $agreementLine->getFactors()->toArray(),
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS
+                );
+
+                $productionModel->setFactorRatio($factorRatio);
+                $productionModel->setFactorBonus($factorBonus);
             }
+            $data[] = $productionModel;
         }
-
-        $factorRatio = $this->factorCalculator->calculate(
-            $agreementLine,
-            $slug,
-            $agreementLine->getFactors()->toArray(),
-            FactorSource::FACTOR_ADJUSTMENT_RATIO
-        );
-
-        $factorBonus = $this->factorCalculator->calculate(
-            $agreementLine,
-            $slug,
-            $agreementLine->getFactors()->toArray(),
-            FactorSource::FACTOR_ADJUSTMENT_BONUS
-        );
-        
-        $productionModel->setFactorRatio($factorRatio->factor);
-        $productionModel->setFactorBonus($factorBonus->factor);
-
-        return $productionModel;
+        return $data;
     }
 }

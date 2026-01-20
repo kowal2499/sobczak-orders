@@ -1,27 +1,14 @@
 <?php
 
 namespace App\Module\AgreementLine\Entity;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable]
 class AddressRM
 {
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $street;
-
-    #[ORM\Column(type: 'string', length: 8, nullable: true)]
     private ?string $streetNumber;
-
-    #[ORM\Column(type: 'string', length: 8, nullable: true)]
     private ?string $apartmentNumber;
-
-    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     private ?string $postalCode;
-
-    #[ORM\Column(type: 'string', length: 16, nullable: true)]
     private ?string $city;
-
-    #[ORM\Column(type: 'string', length: 2, nullable: true)]
     private ?string $country;
 
     public function __construct(
@@ -68,5 +55,40 @@ class AddressRM
     public function getCountry(): ?string
     {
         return $this->country;
+    }
+
+    public function getFullAddress(): ?string
+    {
+        $parts = array_filter([
+            trim(($this->street ?? '') . ' ' . ($this->streetNumber ?? '') . ($this->apartmentNumber ? '/' . $this->apartmentNumber : '')),
+            $this->postalCode ? $this->postalCode . ' ' . ($this->city ?? '') : $this->city,
+            $this->country,
+        ]);
+
+        return !empty($parts) ? implode(', ', $parts) : null;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'street' => $this->street,
+            'streetNumber' => $this->streetNumber,
+            'apartmentNumber' => $this->apartmentNumber,
+            'postalCode' => $this->postalCode,
+            'city' => $this->city,
+            'country' => $this->country,
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            street: $data['street'] ?? null,
+            streetNumber: $data['streetNumber'] ?? null,
+            apartmentNumber: $data['apartmentNumber'] ?? null,
+            postalCode: $data['postalCode'] ?? null,
+            city: $data['city'] ?? null,
+            country: $data['country'] ?? null,
+        );
     }
 }

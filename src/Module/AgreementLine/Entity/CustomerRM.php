@@ -1,30 +1,15 @@
 <?php
 
 namespace App\Module\AgreementLine\Entity;
-use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Embeddable]
 class CustomerRM
 {
-    #[ORM\Column(type: 'integer')]
     private int $id;
-
-    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $firstName;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $lastName;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $phone;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $email;
-
-    #[ORM\Embedded(class: AddressRM::class, columnPrefix: 'address_')]
     private ?AddressRM $address;
 
     public function __construct(
@@ -78,5 +63,39 @@ class CustomerRM
     public function getAddress(): ?AddressRM
     {
         return $this->address;
+    }
+
+    public function getFullName(): ?string
+    {
+        if (!$this->firstName && !$this->lastName) {
+            return null;
+        }
+        return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
+            'phone' => $this->phone,
+            'email' => $this->email,
+            'address' => $this->address?->toArray(),
+        ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            id: $data['id'],
+            name: $data['name'],
+            firstName: $data['firstName'] ?? null,
+            lastName: $data['lastName'] ?? null,
+            phone: $data['phone'] ?? null,
+            email: $data['email'] ?? null,
+            address: AddressRM::fromArray($data['address'] ?? [])
+        );
     }
 }
