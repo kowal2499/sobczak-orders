@@ -5,19 +5,16 @@ namespace App\Module\AgreementLine\Entity;
 class UserRM
 {
     private ?int $id;
-    private ?string $firstName;
-    private ?string $lastName;
+    private ?string $name;
     private ?string $email;
 
     public function __construct(
         ?int $id = null,
-        ?string $firstName = null,
-        ?string $lastName = null,
+        ?string $name = null,
         ?string $email = null
     ) {
         $this->id = $id;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
+        $this->name = $name;
         $this->email = $email;
     }
 
@@ -26,14 +23,9 @@ class UserRM
         return $this->id;
     }
 
-    public function getFirstName(): ?string
+    public function getName(): ?string
     {
-        return $this->firstName;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
+        return $this->name;
     }
 
     public function getEmail(): ?string
@@ -41,20 +33,11 @@ class UserRM
         return $this->email;
     }
 
-    public function getFullName(): ?string
-    {
-        if (!$this->firstName && !$this->lastName) {
-            return null;
-        }
-        return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
-    }
-
     public function toArray(): array
     {
         return [
             'id' => $this->id,
-            'firstName' => $this->firstName,
-            'lastName' => $this->lastName,
+            'name' => $this->name,
             'email' => $this->email,
         ];
     }
@@ -63,8 +46,7 @@ class UserRM
     {
         return new self(
             id: $data['id'] ?? null,
-            firstName: $data['firstName'] ?? null,
-            lastName: $data['lastName'] ?? null,
+            name: $data['name'] ?? null,
             email: $data['email'] ?? null,
         );
     }
@@ -74,14 +56,9 @@ class UserRM
         $this->id = $id;
     }
 
-    public function setFirstName(?string $firstName): void
+    public function setName(?string $name): void
     {
-        $this->firstName = $firstName;
-    }
-
-    public function setLastName(?string $lastName): void
-    {
-        $this->lastName = $lastName;
+        $this->name = $name;
     }
 
     public function setEmail(?string $email): void

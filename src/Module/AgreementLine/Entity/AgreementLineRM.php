@@ -59,29 +59,55 @@ class AgreementLineRM
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $productionEndDate;
 
-    #[ORM\Column(type: 'json')]
-    private array $userData;
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $userName;
+
+    #[ORM\Column(type: 'string', length: 64)]
+    private string $orderNumber;
+
+    #[ORM\Column(type: 'string', length: 126)]
+    private string $customerName;
+
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $productName;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $factor;
 
     #[ORM\Column(type: 'json')]
-    private array $customerData;
+    private array $user;
 
     #[ORM\Column(type: 'json')]
-    private array $productData;
+    private array $customer;
 
     #[ORM\Column(type: 'json')]
-    private array $agreementData;
+    private array $product;
 
     #[ORM\Column(type: 'json')]
-    private array $productionsData;
+    private array $agreement;
+
+    #[ORM\Column(type: 'json')]
+    private array $productions;
+
+    #[ORM\Column(type: 'json')]
+    private array $tags;
+
+    #[ORM\Column(type: 'json')]
+    private array $attachments;
 
     public function __construct(int $agreementLineId)
     {
         $this->agreementLineId = $agreementLineId;
-        $this->userData = [];
-        $this->customerData = [];
-        $this->productData = [];
-        $this->agreementData = [];
-        $this->productionsData = [];
+        $this->user = [];
+        $this->customer = [];
+        $this->product = [];
+        $this->agreement = [];
+        $this->productions = [];
+        $this->tags = [];
+        $this->attachments = [];
     }
 
     public function getAgreementLineId(): int
@@ -131,22 +157,22 @@ class AgreementLineRM
 
     public function getUser(): UserRM
     {
-        return !empty($this->userData) ? UserRM::fromArray($this->userData) : new UserRM();
+        return !empty($this->user) ? UserRM::fromArray($this->user) : new UserRM();
     }
 
     public function setUser(?UserRM $user): void
     {
-        $this->userData = $user ? $user->toArray() : [];
+        $this->user = $user ? $user->toArray() : [];
     }
 
     public function getCustomer(): CustomerRM
     {
-        return CustomerRM::fromArray($this->customerData);
+        return CustomerRM::fromArray($this->customer);
     }
 
     public function setCustomer(CustomerRM $customer): void
     {
-        $this->customerData = $customer->toArray();
+        $this->customer = $customer->toArray();
     }
 
     public function setStatus(?int $status): void
@@ -186,35 +212,41 @@ class AgreementLineRM
 
     public function getProduct(): ProductRM
     {
-        return ProductRM::fromArray($this->productData);
+        return ProductRM::fromArray($this->product);
     }
 
     public function setProduct(ProductRM $product): void
     {
-        $this->productData = $product->toArray();
+        $this->product = $product->toArray();
     }
 
     public function getAgreement(): AgreementRM
     {
-        return AgreementRM::fromArray($this->agreementData);
+        return AgreementRM::fromArray($this->agreement);
     }
 
     public function setAgreement(AgreementRM $agreement): void
     {
-        $this->agreementData = $agreement->toArray();
+        $this->agreement = $agreement->toArray();
     }
 
+    /**
+     * @return ProductionRM[]
+     */
     public function getProductions(): array
     {
         return array_map(
             fn(array $data) => ProductionRM::fromArray($data),
-            $this->productionsData
+            $this->productions
         );
     }
 
+    /**
+     * @param ProductionRM[] $productions
+     */
     public function setProductions(array $productions): void
     {
-        $this->productionsData = array_map(
+        $this->productions = array_map(
             fn(ProductionRM $production) => $production->toArray(),
             $productions
         );
@@ -222,12 +254,12 @@ class AgreementLineRM
 
     public function addProduction(ProductionRM $production): void
     {
-        $this->productionsData[] = $production->toArray();
+        $this->productions[] = $production->toArray();
     }
 
     public function getProductionByDepartment(string $departmentSlug): ?ProductionRM
     {
-        foreach ($this->productionsData as $productionData) {
+        foreach ($this->productions as $productionData) {
             if (isset($productionData['departmentSlug']) && $productionData['departmentSlug'] === $departmentSlug) {
                 return ProductionRM::fromArray($productionData);
             }
@@ -248,5 +280,105 @@ class AgreementLineRM
     public function setCustomerId(int $customerId): void
     {
         $this->customerId = $customerId;
+    }
+
+    /**
+     * @return TagRM[]
+     */
+    public function getTags(): array
+    {
+        return array_map(fn ($tag) => TagRM::fromArray($tag), $this->tags);
+    }
+
+    /**
+     * @param TagRM[] $tags
+     * @return void
+     */
+    public function setTags(array $tags): void
+    {
+        $this->tags = array_map(fn (TagRM $tag) => $tag->toArray(), $tags);
+    }
+
+    public function getUserName(): ?string
+    {
+        return $this->userName;
+    }
+
+    public function setUserName(?string $userName): void
+    {
+        $this->userName = $userName;
+    }
+
+    public function getOrderNumber(): string
+    {
+        return $this->orderNumber;
+    }
+
+    public function setOrderNumber(string $orderNumber): void
+    {
+        $this->orderNumber = $orderNumber;
+    }
+
+    public function getCustomerName(): string
+    {
+        return $this->customerName;
+    }
+
+    public function setCustomerName(string $customerName): void
+    {
+        $this->customerName = $customerName;
+    }
+
+    public function getProductName(): ?string
+    {
+        return $this->productName;
+    }
+
+    public function setProductName(?string $productName): void
+    {
+        $this->productName = $productName;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getFactor(): ?float
+    {
+        return $this->factor;
+    }
+
+    public function setFactor(?float $factor): void
+    {
+        $this->factor = $factor;
+    }
+
+    /**
+     * @return AttachmentRM[]
+     */
+    public function getAttachments(): array
+    {
+        return array_map(
+            fn ($attachment) => AttachmentRM::fromArray($attachment),
+            $this->attachments
+        );
+    }
+
+    /**
+     * @param AttachmentRM[] $attachments
+     * @return void
+     */
+    public function setAttachments(array $attachments): void
+    {
+        $this->attachments = array_map(
+            fn (AttachmentRM $attachment) => $attachment->toArray(),
+            $attachments
+        );
     }
 }

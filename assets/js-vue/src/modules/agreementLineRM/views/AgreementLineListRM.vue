@@ -1,16 +1,7 @@
 <template>
     <collapsible-card :title="$t('orders.productionSchedule')">
         <template v-slot:filters>
-            <filters :filters-collection="args.filters">
-<!--                <b-dropdown size="sm" variant="outline-primary">-->
-<!--                    <template #button-content>-->
-<!--                        <i class="fa fa-cog" aria-hidden="true" />-->
-<!--                    </template>-->
-<!--                    <b-dropdown-item-button @click.prevent="onFiltersClear">-->
-<!--                        Wyczyść ustawienia filtrów-->
-<!--                    </b-dropdown-item-button>-->
-<!--                </b-dropdown>-->
-            </filters>
+            <filters :filters-collection="args.filters" />
         </template>
 
         <b-pagination
@@ -28,21 +19,21 @@
                     v-if="order.productions.length > 0"
                     :order="order"
                     :statuses="statuses"
-                    :key="order.id"
-                    :disabled="busyOrders.includes(order.id)"
-                    @statusUpdated="updateStatus($event, order.id)"
+                    :key="order.agreementLineId"
+                    :disabled="busyOrders.includes(order.agreementLineId)"
+                    @statusUpdated="updateStatus($event, order.agreementLineId)"
                     @lineChanged="fetchData"
-                    @expandToggle="prodExpanded === $event ? prodExpanded = null : prodExpanded = $event"
+                    @expandToggle="prodExpanded = prodExpanded === $event ? null : $event"
                 />
 
                 <production-row-details
-                    v-if="order.id === prodExpanded"
+                    v-if="order.agreementLineId === prodExpanded"
                     :order="order"
                     :statuses="statuses"
-                    :key="'details' + order.id"
-                    :disabled="busyOrders.includes(order.id)"
+                    :key="'details' + order.agreementLineId"
+                    :disabled="busyOrders.includes(order.agreementLineId)"
                     :columns-count="tableHeaders.length"
-                    @statusUpdated="updateStatus($event, order.id)"
+                    @statusUpdated="updateStatus($event, order.agreementLineId)"
                 />
             </template>
         </table-plus>
@@ -61,19 +52,19 @@
 <script>
     import qs from 'qs';
     import moment from 'moment';
-    import api from '../../api/neworder';
-    import routing from '../../api/routing';
-    import productionApi from '../../api/production';
-    import Helpers, {DEPARTMENTS} from '../../helpers';
-    import Filters from './Filters';
-    import TablePlus from '../base/TablePlus';
-    import CollapsibleCard from "../base/CollapsibleCard";
-    import ProductionRow from "./ProductionRow";
-    import ProductionRowDetails from "./ProductionRowDetails";
-    import { resolveDefaultOrder } from "../../modules/agreementLineList/services/DefaultSortDateResolver"
+    import routing from '../../../api/routing';
+    import productionApi from '../../../api/production';
+    import Helpers, {DEPARTMENTS} from '../../../helpers';
+    import Filters from '../../../components/production/Filters';
+    import TablePlus from '../../../components/base/TablePlus';
+    import CollapsibleCard from "../../../components/base/CollapsibleCard";
+    import ProductionRow from "../components/ProductionRow2";
+    import ProductionRowDetails from "../components/ProductionRowDetails2";
+    import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
+    import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
 
     export default {
-        name: "ProductionList",
+        name: "AgreementLineListRM",
 
         components: {Filters, TablePlus, CollapsibleCard, ProductionRow, ProductionRowDetails},
 
@@ -187,22 +178,21 @@
             fetchData() {
                 this.loading = true;
 
-                let bag = this.args.filters;
-                bag.page = this.args.meta.page;
-                bag.sort = this.args.meta.sort;
+                let payload = this.args.filters;
+                payload.page = this.args.meta.page;
+                payload.sort = this.args.meta.sort;
 
-                api.fetchAgreements(bag)
+                rmSearch(payload)
                     .then(({data}) => {
                         if (data && data.data) {
-
                             data.data.forEach(order => {
-                                order.buttonExpanded = false;
-                                order.confirmRemove = false;
-                                order.showCustomTasks = false;
+                                order.meta = {
+                                    buttonExpanded: false,
+                                    confirmRemove: false,
+                                    showCustomTasks: false,
+                                }
                             });
-
                             this.orders = data.data;
-
                         } else {
                             this.orders = [];
                         }
@@ -210,7 +200,6 @@
 												this.args.meta.totalCount = data.meta.totalCount || 0;
 												this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
-                    .catch(() => {})
                     .finally(() => this.loading = false)
             },
 
@@ -250,10 +239,10 @@
             },
 
             fetchSingleLine(agreementLineId) {
-                productionApi.fetchSingleLine(agreementLineId)
+                return rmFetchSingle(agreementLineId)
                 .then(({data}) => {
                     this.orders = this.orders.map(order => {
-                        return order.id === data.id ? data : order
+                        return order.agreementLineId === data.agreementLineId ? data : order
                     })
                 })
             },

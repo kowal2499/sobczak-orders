@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+<agreement-line-list-r-m
+    :statuses="{{ statuses|json_encode() }}"
+    :departments="{{ departments|json_encode() }}"
+></agreement-line-list-r-m>
+
+{% endblock %}
+

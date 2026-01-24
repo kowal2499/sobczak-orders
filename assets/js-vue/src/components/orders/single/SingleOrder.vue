@@ -50,7 +50,11 @@
                             </button>
                         </template>
                         <template #sidebar-content="{ close }">
-                            <FactorsView :agreement-line="orderData" @close="close" />
+                            <FactorsView
+                                :agreement-line="orderData"
+                                :agreement-line-id="orderData.id"
+                                @close="close"
+                            />
                         </template>
                     </Sidebar>
                 </collapsible-card>

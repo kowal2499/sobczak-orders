@@ -25,4 +25,15 @@ class FactorDTO
         $this->departmentSlug    = $departmentSlug;
         $this->description       = $description;
     }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            FactorSource::from($data['source']),
+            $data['value'] ?? 0,
+            $data['agreementLineId'] ?? null,
+            $data['departmentSlug'] ?? null,
+            $data['description'] ?? null
+        );
+    }
 }

@@ -170,8 +170,8 @@ class ProductionRM
             isStartDelayed: $data['isStartDelayed'] ?? null,
             isCompleted: $data['isCompleted'] ?? null,
             completedAt: isset($data['completedAt']) ? new DateTime($data['completedAt']) : null,
-            factorRatio: $data['factorRatio'] ?? null,
-            factorBonus: $data['factorBonus'] ?? null,
+            factorRatio: $data['factorRatio'] ? AssembledFactorDTO::fromArray($data['factorRatio']) : null,
+            factorBonus: $data['factorBonus'] ? AssembledFactorDTO::fromArray($data['factorBonus']) : null,
         );
     }
 }

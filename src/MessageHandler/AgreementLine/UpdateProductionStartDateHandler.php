@@ -11,8 +11,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class UpdateProductionStartDateHandler implements MessageHandlerInterface
 {
-    /** @var AgreementLineRepository $agreementLineRepository */
-    private $agreementLineRepository;
+    private $lineRepository;
     /** @var EntityManagerInterface */
     private $entityManager;
     private $startDateResolverService;
@@ -20,14 +19,14 @@ class UpdateProductionStartDateHandler implements MessageHandlerInterface
     public function __construct(EntityManagerInterface $entityManager, ProductionStartDateResolverService $startDateResolverService)
     {
         $this->entityManager = $entityManager;
-        $this->agreementLineRepository = $this->entityManager->getRepository(AgreementLine::class);
+        $this->lineRepository = $this->entityManager->getRepository(AgreementLine::class);
         $this->startDateResolverService = $startDateResolverService;
     }
 
     public function __invoke(UpdateProductionStartDate $command)
     {
         /** @var AgreementLine $agreementLine */
-        $agreementLine = $this->agreementLineRepository->findWithProductionAndStatuses($command->getAgreementLineId());
+        $agreementLine = $this->lineRepository->findWithProductionAndStatuses($command->getAgreementLineId());
 
         if (!$agreementLine) {
             throw new \RuntimeException('AgreementLine not found');
@@ -40,5 +39,7 @@ class UpdateProductionStartDateHandler implements MessageHandlerInterface
             $agreementLine->setProductionStartDate($earliestStartDate);
             $this->entityManager->flush();
         }
+
+        $this->entityManager->detach($agreementLine);
     }
 }

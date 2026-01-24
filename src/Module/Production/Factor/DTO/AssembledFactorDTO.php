@@ -22,7 +22,7 @@ class AssembledFactorDTO
     {
         return [
             'factor' => $this->factor,
-            'pool' => array_map(function(FactorDTO $factorDTO) {
+            'factorsStack' => array_map(function(FactorDTO $factorDTO) {
                 return [
                     'source' => $factorDTO->source->value,
                     'value' => $factorDTO->value,
@@ -32,6 +32,18 @@ class AssembledFactorDTO
                 ];
             }, $this->factorsStack)
         ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        $factorsStack = array_map(function(array $factorData) {
+            return FactorDTO::fromArray($factorData);
+        }, $data['factorsStack'] ?? []);
+
+        return new self(
+            $data['factor'] ?? 0,
+            $factorsStack
+        );
     }
 
 }

@@ -44,6 +44,10 @@ export default {
     props: {
         agreementLine: {
             type: Object
+        },
+        agreementLineId: {
+            type: [Number, String],
+            required: true
         }
     },
 
@@ -55,7 +59,7 @@ export default {
 
     mounted() {
         this.isBusy = true
-        return fetchFactors(this.agreementLine.id)
+        return fetchFactors(this.agreementLineId)
             .then(({data}) => this.form = this.resetForm(data))
             .finally(() => this.isBusy = false)
     },
@@ -79,7 +83,7 @@ export default {
             }))
 
             this.isBusy = true
-            return storeFactors(this.agreementLine.id, { factors })
+            return storeFactors(this.agreementLineId, { factors })
                 .then(() => {
                     EventBus.$emit('message', {
                         type: 'success',

@@ -4,18 +4,22 @@ namespace App\Module\AgreementLine\CommandHandler;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
+use App\Entity\TagAssignment;
 use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
 use App\Module\AgreementLine\Entity\AddressRM;
 use App\Module\AgreementLine\Entity\AgreementLineRM;
 use App\Module\AgreementLine\Entity\AgreementRM;
+use App\Module\AgreementLine\Entity\AttachmentRM;
 use App\Module\AgreementLine\Entity\CustomerRM;
 use App\Module\AgreementLine\Entity\ProductionRM;
 use App\Module\AgreementLine\Entity\ProductRM;
+use App\Module\AgreementLine\Entity\TagRM;
 use App\Module\AgreementLine\Entity\UserRM;
 use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\FactorCalculator;
 use App\Repository\AgreementLineRepository;
+use App\Service\UploaderHelper;
 use Psr\Log\LoggerInterface;
 
 class UpdateAgreementLineRMHandler
@@ -25,6 +29,7 @@ class UpdateAgreementLineRMHandler
         private readonly AgreementLineRepository $agreementLineRepository,
         private readonly AgreementLineRMRepository $modelRepository,
         private readonly FactorCalculator $factorCalculator,
+        private readonly UploaderHelper $uploaderHelper,
     ) {
     }
 
@@ -51,12 +56,23 @@ class UpdateAgreementLineRMHandler
         $model->setConfirmedDate($agreementLine->getConfirmedDate());
         $model->setProductionStartDate($agreementLine->getProductionStartDate());
         $model->setProductionEndDate($agreementLine->getProductionCompletionDate());
+        $model->setUserName($agreementLine->getAgreement()->getUser()
+            ? $agreementLine->getAgreement()->getUser()->getUserFullName()
+            : null
+        );
+        $model->setOrderNumber($agreementLine->getAgreement()->getOrderNumber());
+        $model->setCustomerName($this->getCustomerName($agreementLine));
+        $model->setProductName($agreementLine->getProduct() ? $agreementLine->getProduct()->getName() : null);
+        $model->setDescription($agreementLine->getDescription());
+        $model->setFactor($agreementLine->getFactor());
 
         $model->setUser($this->getUser($agreementLine));
         $model->setCustomer($this->getCustomer($agreementLine));
         $model->setProduct($this->getProduct($agreementLine));
         $model->setAgreement($this->getAgreement($agreementLine));
         $model->setProductions($this->getProductionsData($agreementLine));
+        $model->setTags($this->getTags($agreementLine));
+        $model->setAttachments($this->getAttachments($agreementLine));
 
         $this->modelRepository->add($model);
         $this->logger->info('Updated AgreementLine read model', [
@@ -70,8 +86,7 @@ class UpdateAgreementLineRMHandler
         $model = new UserRM();
         if ($user) {
             $model->setId($user->getId());
-            $model->setFirstName($user->getFirstName());
-            $model->setLastName($user->getLastName());
+            $model->setName($user->getUserFullName());
             $model->setEmail($user->getEmail());
         }
         return $model;
@@ -121,6 +136,43 @@ class UpdateAgreementLineRMHandler
         );
     }
 
+    private function getTags(AgreementLine $agreementLine): array
+    {
+        return array_map(
+            fn (TagAssignment $tag) => new TagRM(
+                $tag->getTagDefinition()->getName(),
+                $tag->getTagDefinition()->getIcon(),
+                $tag->getTagDefinition()->getColor()
+            ),
+            $agreementLine->getTags()->toArray()
+        );
+    }
+
+    /**
+     * @param AgreementLine $agreementLine
+     * @return AttachmentRM[]
+     */
+    private function getAttachments(AgreementLine $agreementLine): array
+    {
+        $data = [];
+        foreach ($agreementLine->getAgreement()->getAttachments() as $attachment) {
+            $data[] = new AttachmentRM(
+                $attachment->getId(),
+                $attachment->getName(),
+                $attachment->getOriginalName(),
+                $attachment->getExtension(),
+                $attachment->getPath(),
+                $this->uploaderHelper->getPublicPathThumbnail($attachment->getPath())
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param AgreementLine $agreementLine
+     * @return ProductionRM[]
+     */
     private function getProductionsData(AgreementLine $agreementLine): array
     {
         $data = [];
@@ -155,5 +207,12 @@ class UpdateAgreementLineRMHandler
             $data[] = $productionModel;
         }
         return $data;
+    }
+
+    private function getCustomerName(AgreementLine $agreementLine): string
+    {
+        $customer = $agreementLine->getAgreement()->getCustomer();
+        $person = implode(' ', array_filter([$customer->getFirstName(), $customer->getLastName()]));
+        return trim($customer->getName() . ($person ? " ($person)" : ''));
     }
 }

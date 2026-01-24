@@ -12,9 +12,9 @@
                     icon-class="fa fa-exclamation-circle text-danger"
                     v-if="canDelete"
                 >
-                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
+                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.agreement.orderNumber }}'?</strong></p>
                     <ul class="list-unstyled">
-                        <li>{{ line.Product.name }}</li>
+                        <li>{{ line.product.name }}</li>
                     </ul>
                     <div class="alert alert-danger" v-if="hasProduction">
                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
@@ -28,16 +28,16 @@
                     :label="$t('restoreOrder')"
                     icon-class="fa fa-undo"
                 >
-                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.Agreement.orderNumber }}'?</p>
+                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.agreement.orderNumber }}'?</p>
                     <ul class="list-unstyled">
-                        <li>{{ line.Product.name }}</li>
+                        <li>{{ line.product.name }}</li>
                     </ul>
                 </confirmable-action>
             </template>
 
             <template v-if="false === isTrashed">
                 <!-- sekcja wspólna -->
-                <b-dropdown-item v-if="$user.can('production.panel')" :href="`/agreement/line/${line.id}`" >
+                <b-dropdown-item v-if="$user.can('production.panel')" :href="`/agreement/line/${line.agreementLineId}`" >
                     <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
                 </b-dropdown-item>
 
@@ -52,7 +52,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.agreement.id">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 
@@ -65,9 +65,9 @@
                 >
                     <p class="text-info">{{ $t('setAsWarehoused') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
-                        <li>{{ $t('product') }}: {{ line.Product.name }}</li>
-                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
+                        <li>{{ $t('id') }}: {{ line.agreement.orderNumber }}</li>
+                        <li>{{ $t('product') }}: {{ line.product.name }}</li>
+                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                     </ul>
                 </confirmable-action>
 
@@ -80,9 +80,9 @@
                 >
                     <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
-                        <li>{{ $t('product') }}: {{ line.Product.name }}</li>
-                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
+                        <li>{{ $t('id') }}: {{ line.agreement.orderNumber }}</li>
+                        <li>{{ $t('product') }}: {{ line.product.name }}</li>
+                        <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                     </ul>
                 </confirmable-action>
 
@@ -94,9 +94,9 @@
                     anchor-class="text-danger"
                 >
                     <p class="text-info">
-                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.Agreement.orderNumber}) }}</p>
+                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.agreement.orderNumber}) }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ line.Product.name }}</li>
+                        <li>{{ line.product.name }}</li>
                     </ul>
                 </confirmable-action>
 
@@ -119,22 +119,22 @@
             sidebar-class="size-100 size-lg-75"
         >
             <template #sidebar-content="{ close }">
-                <FactorsView :agreement-line="line" :agreement-line-id="line.id" @close="close" />
+                <FactorsView :agreement-line="line" :agreement-line-id="line.agreementLineId" @close="close" />
             </template>
         </Sidebar>
     </div>
 </template>
 
 <script>
-import Dropdown from '../base/Dropdown';
-import ApiNewOrder from "../../api/neworder"
+import Dropdown from '../../../components/base/Dropdown';
+import ApiNewOrder from "../../../api/neworder"
 import {
     AGREEMENT_LINE_STATUS_ARCHIVED,
     AGREEMENT_LINE_STATUS_DELETED, AGREEMENT_LINE_STATUS_MANUFACTURING, AGREEMENT_LINE_STATUS_WAITING,
     AGREEMENT_LINE_STATUS_WAREHOUSE
-} from "../../definitions/agreementLineStatuses";
-import {isValid} from "../../services/datesService";
-import ConfirmableAction from "../../modules/agreementLineList/Actions/ConfirmableAction";
+} from "@/definitions/agreementLineStatuses";
+import {isValid} from "@/services/datesService";
+import ConfirmableAction from "../../agreementLineList/Actions/ConfirmableAction";
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
@@ -167,7 +167,7 @@ export default {
         },
 
         isProductionCompleted() {
-            return isValid(this.line.productionCompletionDate)
+            return isValid(this.line.productionEndDate)
         },
 
         canWarehouse() {
@@ -223,7 +223,7 @@ export default {
         },
 
         deleteAction() {
-            return ApiNewOrder.deleteAgreementLine(this.line.id)
+            return ApiNewOrder.deleteAgreementLine(this.line.agreementLineId)
                 .then(() => {
                     EventBus.$emit('message', {
                         type: 'success',
@@ -243,7 +243,7 @@ export default {
         },
 
         updateAgreementStatus(statusCode) {
-            return ApiNewOrder.setAgreementStatus(this.line.id, statusCode)
+            return ApiNewOrder.setAgreementStatus(this.line.agreementLineId, statusCode)
                 .then(() => {
                     EventBus.$emit('message', {
                         type: 'success',

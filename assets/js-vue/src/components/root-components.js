@@ -1,6 +1,7 @@
 import NewOrder from './orders/NewOrder';
 import OrdersList from './orders/list/OrdersList';
 import ProductionList from './production/ProductionList';
+import AgreementLineListRM from '../modules/agreementLineRM/views/AgreementLineListRM';
 import SingleOrder from './orders/single/SingleOrder';
 // import Dashboard from './dashboard/Dashboard';
 import UsersList from './users/UsersList';
@@ -26,6 +27,7 @@ export default {
     NewOrder,
     OrdersList,
     ProductionList,
+    AgreementLineListRM,
     SingleOrder,
     // Dashboard,
     UsersList,
