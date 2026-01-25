@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
         new ORM\Index(name: "idx_status", columns: ["status"]),
         new ORM\Index(name: "idx_is_deleted", columns: ["is_deleted"]),
         new ORM\Index(name: "idx_is_archived", columns: ["is_archived"]),
+        new ORM\Index(name: "idx_has_production", columns: ["has_production"]),
         new ORM\Index(name: "idx_confirmed_date", columns: ["confirmed_date"]),
         new ORM\Index(name: "idx_production_start_date", columns: ["production_start_date"]),
         new ORM\Index(name: "idx_production_end_date", columns: ["production_end_date"]),
@@ -47,6 +48,9 @@ class AgreementLineRM
     #[ORM\Column(type: 'boolean')]
     private bool $isArchived;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $hasProduction;
+
     #[ORM\Column(type: 'datetime')]
     private DateTimeInterface $agreementCreateDate;
 
@@ -77,6 +81,36 @@ class AgreementLineRM
     #[ORM\Column(type: 'float', nullable: true)]
     private ?float $factor;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt01StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt01EndDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt02StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt02EndDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt03StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt03EndDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt04StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt04EndDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt05StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt05EndDate;
+
     #[ORM\Column(type: 'json')]
     private array $user;
 
@@ -97,6 +131,9 @@ class AgreementLineRM
 
     #[ORM\Column(type: 'json')]
     private array $attachments;
+
+    #[ORM\Column(type: 'text')]
+    private string $q;
 
     public function __construct(int $agreementLineId)
     {
@@ -380,5 +417,125 @@ class AgreementLineRM
             fn (AttachmentRM $attachment) => $attachment->toArray(),
             $attachments
         );
+    }
+
+    public function hasProduction(): bool
+    {
+        return $this->hasProduction;
+    }
+
+    public function setHasProduction(bool $hasProduction): void
+    {
+        $this->hasProduction = $hasProduction;
+    }
+
+    public function getDpt01StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt01StartDate;
+    }
+
+    public function setDpt01StartDate(?DateTimeInterface $dpt01StartDate): void
+    {
+        $this->dpt01StartDate = $dpt01StartDate;
+    }
+
+    public function getDpt01EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt01EndDate;
+    }
+
+    public function setDpt01EndDate(?DateTimeInterface $dpt01EndDate): void
+    {
+        $this->dpt01EndDate = $dpt01EndDate;
+    }
+
+    public function getDpt02StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt02StartDate;
+    }
+
+    public function setDpt02StartDate(?DateTimeInterface $dpt02StartDate): void
+    {
+        $this->dpt02StartDate = $dpt02StartDate;
+    }
+
+    public function getDpt02EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt02EndDate;
+    }
+
+    public function setDpt02EndDate(?DateTimeInterface $dpt02EndDate): void
+    {
+        $this->dpt02EndDate = $dpt02EndDate;
+    }
+
+    public function getDpt03StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt03StartDate;
+    }
+
+    public function setDpt03StartDate(?DateTimeInterface $dpt03StartDate): void
+    {
+        $this->dpt03StartDate = $dpt03StartDate;
+    }
+
+    public function getDpt03EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt03EndDate;
+    }
+
+    public function setDpt03EndDate(?DateTimeInterface $dpt03EndDate): void
+    {
+        $this->dpt03EndDate = $dpt03EndDate;
+    }
+
+    public function getDpt04StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt04StartDate;
+    }
+
+    public function setDpt04StartDate(?DateTimeInterface $dpt04StartDate): void
+    {
+        $this->dpt04StartDate = $dpt04StartDate;
+    }
+
+    public function getDpt04EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt04EndDate;
+    }
+
+    public function setDpt04EndDate(?DateTimeInterface $dpt04EndDate): void
+    {
+        $this->dpt04EndDate = $dpt04EndDate;
+    }
+
+    public function getDpt05StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt05StartDate;
+    }
+
+    public function setDpt05StartDate(?DateTimeInterface $dpt05StartDate): void
+    {
+        $this->dpt05StartDate = $dpt05StartDate;
+    }
+
+    public function getDpt05EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt05EndDate;
+    }
+
+    public function setDpt05EndDate(?DateTimeInterface $dpt05EndDate): void
+    {
+        $this->dpt05EndDate = $dpt05EndDate;
+    }
+
+    public function getQ(): string
+    {
+        return $this->q;
+    }
+
+    public function setQ(string $q): void
+    {
+        $this->q = $q;
     }
 }

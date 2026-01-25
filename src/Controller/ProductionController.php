@@ -43,19 +43,6 @@ class ProductionController extends BaseController
                 \App\Entity\Department::names())
         ]);
     }
-    /**
-     * @isGranted("ROLE_PRODUCTION_VIEW")
-     */
-    #[Route(path: '/production2', name: 'production_show2')]
-    public function index2(TranslatorInterface $t): Response
-    {
-        return $this->render('production/production_show2.html.twig', [
-            'title' => $t->trans('Harmonogram produkcji', [], 'production'),
-            'statuses' => AgreementLine::getStatuses(),
-            'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
-                \App\Entity\Department::names())
-        ]);
-    }
 
     /**
      * @IsGranted("ROLE_PRODUCTION")

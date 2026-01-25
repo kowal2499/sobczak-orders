@@ -11,11 +11,20 @@ export default defineComponent({
         noStatusIcon: {
             type: Boolean,
             default: false,
+        },
+        showOnlyAdjustmentInfo: {
+            type: Boolean,
+            default: false,
         }
     },
     computed: {
         popoverTarget() {
             return 'popover-' + this._uid
+        },
+        hasAdjustments() {
+            return this.factorData.factorsStack.some(item =>
+                ['factor_adjustment_ratio', 'factor_adjustment_bonus'].includes(item.source)
+            )
         }
     },
     methods: {
@@ -40,8 +49,8 @@ export default defineComponent({
                 style="font-size: 18px"
             />
         </div>
-        <div v-if="factorData.factorsStack.length" class="text-center">
-            <font-awesome-icon icon="info-circle" class="opacity-25 text-primary" :id="popoverTarget"/>
+        <div v-if="factorData.factorsStack.length && (!showOnlyAdjustmentInfo || hasAdjustments)" class="text-center">
+            <font-awesome-icon icon="info-circle" class="opacity-25 " :id="popoverTarget"/>
             <b-popover v-if="factorData.factorsStack.length" custom-class="factor-data-popover" :target="popoverTarget" placement="bottom" triggers="hover">
                 <table class="table table-sm mb-0">
                     <thead>

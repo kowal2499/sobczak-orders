@@ -109,13 +109,10 @@
                         :date-deadline="order.confirmedDate"
                     />
 
-                    <div class="d-flex justify-content-end">
-                        <department-factor-value
-                            v-if="production.factorBonus"
-                            :factor-data="production.factorBonus"
-                            no-status-icon
-                        />
-                    </div>
+                    <FactorDisplay
+                        v-if="production.factorBonus"
+                        :factor-data="production.factorBonus"
+                    />
 
                 </div>
             </div>
@@ -130,15 +127,14 @@
     import Tag from "../../tags/widget/Tag";
     import helpers, { getDepartmentName, DEPARTMENTS } from "../../../helpers";
     import ProductionTaskNotification from "../../../components/production/ProductionTaskNotification";
-    import DepartmentFactorValue
-        from "@/modules/dashboard/components/Metrics/ProductionMetric/components/DepartmentFactorValue.vue";
+    import FactorDisplay from './FactorDisplay'
 
     export default {
         name: "ProductionRow",
 
         extends: ProductionRowBase,
 
-        components: { Tooltip, LineActions, Tag, ProductionTaskNotification, DepartmentFactorValue },
+        components: { Tooltip, LineActions, Tag, ProductionTaskNotification, FactorDisplay, },
 
         data() {
             return {}

@@ -70,10 +70,32 @@ class UpdateAgreementLineRMHandler
         $model->setCustomer($this->getCustomer($agreementLine));
         $model->setProduct($this->getProduct($agreementLine));
         $model->setAgreement($this->getAgreement($agreementLine));
-        $model->setProductions($this->getProductionsData($agreementLine));
         $model->setTags($this->getTags($agreementLine));
         $model->setAttachments($this->getAttachments($agreementLine));
 
+        $productions = $this->getProductionsData($agreementLine);
+        $model->setProductions(array_values($productions));
+        $model->setHasProduction(count(array_values($productions)) > 0);
+
+        $model->setDpt01StartDate(($productions['dpt01'] ?? null)?->getDateStart());
+        $model->setDpt01EndDate(($productions['dpt01'] ?? null)?->getDateEnd());
+        $model->setDpt02StartDate(($productions['dpt02'] ?? null)?->getDateStart());
+        $model->setDpt02EndDate(($productions['dpt02'] ?? null)?->getDateEnd());
+        $model->setDpt03StartDate(($productions['dpt03'] ?? null)?->getDateStart());
+        $model->setDpt03EndDate(($productions['dpt03'] ?? null)?->getDateEnd());
+        $model->setDpt04StartDate(($productions['dpt04'] ?? null)?->getDateStart());
+        $model->setDpt04EndDate(($productions['dpt04'] ?? null)?->getDateEnd());
+        $model->setDpt05StartDate(($productions['dpt05'] ?? null)?->getDateStart());
+        $model->setDpt05EndDate(($productions['dpt05'] ?? null)?->getDateEnd());
+
+        $model->setQ(
+            trim(implode(' ', array_filter([
+                $model->getOrderNumber(),
+                $model->getCustomerName(),
+                $model->getProductName(),
+                $model->getUserName()
+            ])))
+        );
         $this->modelRepository->add($model);
         $this->logger->info('Updated AgreementLine read model', [
             'agreementLineId' => $command->getAgreementLineId(),
@@ -204,7 +226,7 @@ class UpdateAgreementLineRMHandler
                 $productionModel->setFactorRatio($factorRatio);
                 $productionModel->setFactorBonus($factorBonus);
             }
-            $data[] = $productionModel;
+            $data[$production->getDepartmentSlug()] = $productionModel;
         }
         return $data;
     }

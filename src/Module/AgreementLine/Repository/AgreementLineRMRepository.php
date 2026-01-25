@@ -108,6 +108,10 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     $qb->andWhere("l.status NOT IN (:$key)");
                     $qb->setParameter($key, [AgreementLine::STATUS_DELETED]);
                     break;
+                case 'q':
+                    $qb->andWhere("l.q Like :q");
+                    $qb->setParameter('q', '%'.$value.'%');
+                    break;
             }
         }
 
@@ -142,7 +146,46 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     $qb->orderBy('l.userName', $order)
                         ->addOrderBy('l.agreementLineId', $order);
                     break;
-
+                case 'dpt01DateStart':
+                    $qb->orderBy('l.dpt01StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt01DateEnd':
+                    $qb->orderBy('l.dpt01EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt02DateStart':
+                    $qb->orderBy('l.dpt02StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt02DateEnd':
+                    $qb->orderBy('l.dpt02EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt03DateStart':
+                    $qb->orderBy('l.dpt03StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt03DateEnd':
+                    $qb->orderBy('l.dpt03EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt04DateStart':
+                    $qb->orderBy('l.dpt04StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt04DateEnd':
+                    $qb->orderBy('l.dpt04EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt05DateStart':
+                    $qb->orderBy('l.dpt05StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt05DateEnd':
+                    $qb->orderBy('l.dpt05EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
 //                    todo: departmentDates
             }
 

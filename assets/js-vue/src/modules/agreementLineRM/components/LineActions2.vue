@@ -119,7 +119,11 @@
             sidebar-class="size-100 size-lg-75"
         >
             <template #sidebar-content="{ close }">
-                <FactorsView :agreement-line="line" :agreement-line-id="line.agreementLineId" @close="close" />
+                <FactorsView
+                    :agreement-line="line"
+                    :agreement-line-id="line.agreementLineId"
+                    @close="$emit('lineChanged'); close()"
+                />
             </template>
         </Sidebar>
     </div>
