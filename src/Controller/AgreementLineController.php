@@ -213,18 +213,23 @@ class AgreementLineController extends BaseController
     /**
      * @isGranted("ROLE_PRODUCTION")
      *
-     * @param Request $request
      * @param AgreementLine $agreementLine
      * @param $statusId
      * @param EntityManagerInterface $em
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/archive/{id}/{statusId}', name: 'agreement_line_archive', options: ['expose' => true], methods: ['POST'])]
-    public function setStatus(AgreementLine $agreementLine, $statusId, EntityManagerInterface $em): JsonResponse
+    public function setStatus(
+        AgreementLine $agreementLine,
+        $statusId,
+        EntityManagerInterface $em,
+        EventBus $eventBus,
+    ): JsonResponse
     {
         $agreementLine->setStatus((int)$statusId);
         $em->flush();
-
+        $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
         return $this->json([]);
     }
 
@@ -233,14 +238,19 @@ class AgreementLineController extends BaseController
      *
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/delete/{agreementLine}', name: 'agreement_line_delete', options: ['expose' => true], methods: ['POST'])]
-    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em): JsonResponse
+    public function delete(
+        AgreementLine $agreementLine,
+        EntityManagerInterface $em,
+        EventBus $eventBus,
+    ): JsonResponse
     {
         $agreementLine->setDeleted(true);
         $em->flush();
-
+        $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
         return new JsonResponse();
     }
 }

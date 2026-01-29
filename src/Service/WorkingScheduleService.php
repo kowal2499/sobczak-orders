@@ -21,18 +21,20 @@ class WorkingScheduleService
     ];
 
     private $entityManager;
-    private $scheduledDays = [];
-    private $scheduledDaysByDate = [];
+
+    /** @var WorkingSchedule[]  */
+    private array $scheduledDays = [];
+    private array $scheduledDaysByDate = [];
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @param EntityManagerInterface|null $entityManager
      */
     public function __construct(?EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
     }
 
-    public function initialize($day)
+    public function initialize($day): void
     {
         $date = \DateTimeImmutable::createFromFormat('Y-m-d', $day);
         $valid = \DateTimeImmutable::getLastErrors();
