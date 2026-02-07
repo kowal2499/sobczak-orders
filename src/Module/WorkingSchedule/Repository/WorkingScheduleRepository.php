@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Repository;
+namespace App\Module\WorkingSchedule\Repository;
 
-use App\Entity\WorkingSchedule;
+use App\Module\WorkingSchedule\Entity\WorkingSchedule;
+use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,14 +20,19 @@ class WorkingScheduleRepository extends ServiceEntityRepository
         parent::__construct($registry, WorkingSchedule::class);
     }
 
-    public function findByRange(\DateTimeImmutable $start, \DateTimeImmutable $end)
+    public function findByRange(\DateTimeImmutable $start, \DateTimeImmutable $end, ?ScheduleDayType $dayType = null)
     {
-        return $this->createQueryBuilder('w')
+        $query = $this->createQueryBuilder('w')
             ->andWhere('w.date >= :start')
             ->andWhere('w.date <= :end')
             ->setParameter('start', $start)
-            ->setParameter('end', $end)
-            ->getQuery()
-            ->getResult();
+            ->setParameter('end', $end);
+
+        if ($dayType !== null) {
+            $query->andWhere('w.dayType = :dayType')
+                  ->setParameter('dayType', $dayType);
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

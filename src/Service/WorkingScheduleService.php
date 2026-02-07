@@ -4,7 +4,7 @@
 namespace App\Service;
 
 
-use App\Entity\WorkingSchedule;
+use App\Module\WorkingSchedule\Entity\WorkingSchedule;
 use Doctrine\ORM\EntityManagerInterface;
 
 class WorkingScheduleService
@@ -56,7 +56,7 @@ class WorkingScheduleService
 
     private function loadDays()
     {
-        /* @var \App\Repository\WorkingScheduleRepository $repository */
+        /* @var \App\Module\WorkingSchedule\Repository\WorkingScheduleRepository $repository */
         $repository = $this->entityManager->getRepository(WorkingSchedule::class);
         $this->scheduledDays = $repository->findByRange($this->start, $this->end);
 
