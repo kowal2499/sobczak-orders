@@ -74,4 +74,14 @@ class WorkingSchedule
     {
         $this->description = $description;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'date' => $this->date?->format('Y-m-d'),
+            'dayType' => $this->dayType->value,
+            'description' => $this->description,
+        ];
+    }
 }

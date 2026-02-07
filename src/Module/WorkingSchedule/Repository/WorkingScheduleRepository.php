@@ -36,7 +36,8 @@ class WorkingScheduleRepository extends ServiceEntityRepository
             ->andWhere('w.date >= :start')
             ->andWhere('w.date <= :end')
             ->setParameter('start', $start)
-            ->setParameter('end', $end);
+            ->setParameter('end', $end)
+            ->orderBy('w.date', 'ASC');
 
         if ($dayType !== null) {
             $query->andWhere('w.dayType = :dayType')
@@ -44,5 +45,41 @@ class WorkingScheduleRepository extends ServiceEntityRepository
         }
 
         return $query->getQuery()->getResult();
+    }
+
+    public function save(WorkingSchedule $workingSchedule, bool $flush = true): void
+    {
+        $this->_em->persist($workingSchedule);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+    public function delete(WorkingSchedule $workingSchedule, bool $flush = true): void
+    {
+        $this->_em->remove($workingSchedule);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+    /**
+     * Upsert - if entry for given date exists, update it, otherwise create new one
+     */
+    public function upsert(\DateTimeImmutable $date, ScheduleDayType $dayType, ?string $description = null, bool $flush = true): WorkingSchedule
+    {
+        $existing = $this->findOneBy(['date' => $date]);
+
+        if ($existing) {
+            $existing->setDayType($dayType);
+            $existing->setDescription($description);
+            $workingSchedule = $existing;
+        } else {
+            $workingSchedule = new WorkingSchedule($date, $dayType, $description);
+        }
+
+        $this->save($workingSchedule, $flush);
+
+        return $workingSchedule;
     }
 }
