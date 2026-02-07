@@ -15,7 +15,7 @@ use Doctrine\Persistence\ObjectManager;
 class ProductionFixtures extends BaseFixture implements DependentFixtureInterface
 {
 
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
         for($i=0; $i < $this->agreementsNumber; $i++) {
 
@@ -86,7 +86,7 @@ class ProductionFixtures extends BaseFixture implements DependentFixtureInterfac
      *
      * @return array
      */
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             AgreementFixtures::class,

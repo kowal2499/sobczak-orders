@@ -21,6 +21,21 @@ class WorkingSchedule
     #[ORM\Column(type: 'string', enumType: ScheduleDayType::class)]
     private ScheduleDayType $dayType;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $description;
+
+    /**
+     * @param $date
+     * @param ScheduleDayType $dayType
+     * @param string|null $description
+     */
+    public function __construct($date, ScheduleDayType $dayType, ?string $description = null)
+    {
+        $this->date = $date;
+        $this->dayType = $dayType;
+        $this->description = $description;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -50,4 +65,13 @@ class WorkingSchedule
         return $this;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
 }

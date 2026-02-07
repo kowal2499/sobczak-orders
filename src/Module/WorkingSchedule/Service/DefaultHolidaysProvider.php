@@ -2,9 +2,8 @@
 
 namespace App\Module\WorkingSchedule\Service;
 
-use App\Module\WorkingSchedule\ValueObject\ScheduleDay;
+use App\Module\WorkingSchedule\Entity\WorkingSchedule;
 use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
-use Carbon\Carbon;
 use Spatie\Holidays\Holidays;
 
 class DefaultHolidaysProvider
@@ -12,7 +11,7 @@ class DefaultHolidaysProvider
     /**
      * @param \DateTimeImmutable $dateStart
      * @param \DateTimeImmutable $dateEnd
-     * @return ScheduleDay[]
+     * @return WorkingSchedule[]
      */
     public function getHolidays(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd): array
     {
@@ -33,11 +32,7 @@ class DefaultHolidaysProvider
         );
 
         $mapped = array_map(
-            fn (array $holiday) => new ScheduleDay(
-                date: $holiday['date']->toDateTimeImmutable(),
-                dayType: ScheduleDayType::Holiday,
-                description: $holiday['name'] ?? '',
-            ),
+            fn (array $holiday) => new WorkingSchedule($holiday['date'], ScheduleDayType::Holiday, $holiday['name'] ?? ''),
             $holidaysInRange
         );
 

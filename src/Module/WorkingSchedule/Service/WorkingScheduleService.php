@@ -2,9 +2,10 @@
 
 namespace App\Module\WorkingSchedule\Service;
 
+use App\Module\WorkingSchedule\Entity\WorkingSchedule;
 use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDay;
 use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use DateTimeImmutable;
 
 class WorkingScheduleService
 {
@@ -15,9 +16,14 @@ class WorkingScheduleService
     ) {
     }
 
-    public function getSchedule(int $year, ?int $month, ?ScheduleDayType $dayType = null): array
+    /**
+     * @param int $year
+     * @param ?int $month
+     * @return WorkingSchedule[]
+     */
+    public function getFreeDays(int $year, ?int $month): array
     {
-        $dateStart = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month ?? 1));
+        $dateStart = DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month ?? 1));
         if ($month !== null) {
             $dateEnd = $dateStart->modify('last day of this month');
         } else {
@@ -25,6 +31,7 @@ class WorkingScheduleService
         }
 
         $result = [];
+        // get holidays
         foreach ([
             $this->getWeekendsInRange($dateStart, $dateEnd),
             $this->getDefaultHolidaysInRange($dateStart, $dateEnd),
@@ -34,28 +41,75 @@ class WorkingScheduleService
                 $result[$day->getDate()->format('Y-m-d')] = $day;
             }
         }
+
+        // remove holidays which are marked as working days in repository
+        foreach ($this->getCustomWorkingDaysInRange($dateStart, $dateEnd) as $day) {
+            if (isset($result[$day->getDate()->format('Y-m-d')])) {
+                unset($result[$day->getDate()->format('Y-m-d')]);
+            }
+        }
+
         $result = array_values($result);
         // sort by date
-        usort($result, function (ScheduleDay $a, ScheduleDay $b) {
+        usort($result, function (WorkingSchedule $a, WorkingSchedule $b) {
             return $a->getDate() <=> $b->getDate();
         });
 
         return $result;
-
     }
 
-    private function getDefaultHolidaysInRange(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd): array
+    /**
+     * @param int $year
+     * @param ?int $month
+     * @return WorkingSchedule[]
+     */
+    public function getWorkingDays(int $year, ?int $month): array
+    {
+        $dateStart = DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month ?? 1));
+        if ($month !== null) {
+            $dateEnd = $dateStart->modify('last day of this month');
+        } else {
+            $dateEnd = $dateStart->modify('last day of December');
+        }
+
+        $result = [];
+        $holidays = array_map(fn (WorkingSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($year, $month));
+        $currentDate = clone $dateStart;
+        while ($currentDate <= $dateEnd) {
+            if (!in_array($currentDate->format('Y-m-d'), $holidays)) {
+                $result[] = new WorkingSchedule(
+                    date: $currentDate,
+                    dayType: ScheduleDayType::Working,
+                );
+            }
+            $currentDate = $currentDate->modify('+1 day');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
+     * @return WorkingSchedule[]
+     */
+    private function getDefaultHolidaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
         return $this->defaultHolidaysProvider->getHolidays($dateStart, $dateEnd);
     }
 
-    private function getWeekendsInRange(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd)
+    /**
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
+     * @return WorkingSchedule[]
+     */
+    private function getWeekendsInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
         $weekends = [];
         $currentDate = clone $dateStart;
         while ($currentDate <= $dateEnd) {
             if (in_array($currentDate->format('N'), [6, 7])) { // 6 = Saturday, 7 = Sunday
-                $weekends[] = new ScheduleDay(
+                $weekends[] = new WorkingSchedule(
                     date: $currentDate,
                     dayType: ScheduleDayType::Holiday,
                     description: 'weekend',
@@ -64,11 +118,25 @@ class WorkingScheduleService
             $currentDate = $currentDate->modify('+1 day');
         }
         return $weekends;
-
     }
 
-    private function getCustomHolidaysInRange(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd): array
+    /**
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
+     * @return WorkingSchedule[]
+     */
+    private function getCustomHolidaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        return [];
+        return $this->workingScheduleRepository->findHolidaysByRange($dateStart, $dateEnd) ?? [];
+    }
+
+    /**
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
+     * @return WorkingSchedule[]
+     */
+    private function getCustomWorkingDaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
+    {
+        return $this->workingScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
     }
 }

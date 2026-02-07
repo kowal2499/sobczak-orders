@@ -9,9 +9,10 @@ use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\WorkingSchedule\Entity\WorkingSchedule;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
-use App\Service\WorkingScheduleService;
+use App\Module\WorkingSchedule\Service\WorkingScheduleService;
 use App\System\EventBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -212,11 +213,7 @@ class ProductionController extends BaseController
             /**
              * Wyznaczanie ilości dni roboczych
              */
-            $workingScheduleService->initialize("${argYear}-${argMonth}-01");
-            if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                $workingScheduleService->initializeHolidays();
-            }
-            $summary['workingDays'] = $workingScheduleService->getWorkingDaysCount();
+            $summary['workingDays'] = count($workingScheduleService->getWorkingDays($argYear, $argMonth));
 
             /**
              * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczych,
@@ -271,26 +268,32 @@ class ProductionController extends BaseController
             }
 
             /**
-             * Dzień zakończenia bieżącej produkcji
+             * Dzień zakończenia bieżącej produkcji z uwzględnieniem dni roboczych
              */
             $daysToFinish = ceil($summary['production']['factorsInProduction'] / $factorsPerDay);
 
-            $endDate = new \DateTime();
-            $cachedMonth = null;
-            $index = 0;
-            while ($index < $daysToFinish) {
-                $endDate->modify('+1 day');
-                if ($cachedMonth !== $endDate->format('m')) {
-                    $workingScheduleService->initialize($endDate->format('Y-m') . '-01');
-                    if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                        $workingScheduleService->initializeHolidays();
-                    }
+            $current = new \DateTime();
+            $currentMonthKey = null;
+            $remaining = (int) $daysToFinish;
+            $workingDaysSet = [];
+
+            while ($remaining > 0) {
+                $current->modify('+1 day');
+                $monthKey = $current->format('Y-m');
+                if ($currentMonthKey !== $monthKey) {
+                    $workingDays = $workingScheduleService->getWorkingDays($current->format('Y'), $current->format('m'));
+                    $workingDaysSet = array_flip(array_map(
+                        fn (WorkingSchedule $ws) => $ws->getDate()->format('Y-m-d'),
+                        $workingDays
+                    ));
+                    $currentMonthKey = $monthKey;
                 }
-                if ($workingScheduleService->isWorkingDay($endDate->format('Y-m-d'))) {
-                    $index++;
+
+                if (isset($workingDaysSet[$current->format('Y-m-d')])) {
+                    $remaining--;
                 }
             }
-            $summary['firstFreeDay'] = $endDate->format('Y-m-d');
+            $summary['firstFreeDay'] = $current->format('Y-m-d');
 
         } catch (\Exception $e) {
             return $this->composeErrorResponse($e);

@@ -20,7 +20,17 @@ class WorkingScheduleRepository extends ServiceEntityRepository
         parent::__construct($registry, WorkingSchedule::class);
     }
 
-    public function findByRange(\DateTimeImmutable $start, \DateTimeImmutable $end, ?ScheduleDayType $dayType = null)
+    public function findHolidaysByRange(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        return $this->findByRange($start, $end, ScheduleDayType::Holiday);
+    }
+
+    public function findWorkingDaysByRange(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        return $this->findByRange($start, $end, ScheduleDayType::Working);
+    }
+
+    public function findByRange(\DateTimeImmutable $start, \DateTimeImmutable $end, ?ScheduleDayType $dayType = null): array
     {
         $query = $this->createQueryBuilder('w')
             ->andWhere('w.date >= :start')

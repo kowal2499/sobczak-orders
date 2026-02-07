@@ -7,7 +7,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class TagFixtures extends BaseFixture
 {
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
         $tagDoc = new TagDefinition(
             'Dokumentacja produkcyjna',

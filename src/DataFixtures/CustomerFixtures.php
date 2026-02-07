@@ -7,7 +7,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class CustomerFixtures extends BaseFixture
 {
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
 
         $this->createMany(Customer::class, 100, function(Customer $customer, $count) {

@@ -12,7 +12,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class AgreementFixtures extends BaseFixture implements DependentFixtureInterface
 {
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
         $this->createMany(Agreement::class, $this->agreementsNumber, function(Agreement $agreement, $count) use ($manager) {
             /** @var Product $product */
@@ -49,7 +49,7 @@ class AgreementFixtures extends BaseFixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             CustomerFixtures::class,

@@ -13,7 +13,7 @@ class ProductFixtures extends BaseFixture
         'Stół z płyty laminowany', 'Stół średni', 'Krzesło drewniane', 'Krzesło z płyty', 'Schody', 'Parapet',
     ];
 
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
         foreach (self::$productNames as $key => $item) {
             $product = new Product();
