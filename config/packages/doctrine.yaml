@@ -48,11 +48,11 @@ doctrine:
                 prefix: 'App\Module\AgreementLine\Entity'
                 alias: AgreementLine
                 type: attribute
-            WorkSchedule:
+            WorkConfiguration:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Module/WorkConfiguration/Entity'
                 prefix: 'App\Module\WorkConfiguration\Entity'
-                alias: WorkSchedule
+                alias: WorkConfiguration
                 type: attribute
 
 when@test:

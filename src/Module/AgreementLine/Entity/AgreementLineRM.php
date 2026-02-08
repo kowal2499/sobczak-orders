@@ -8,24 +8,34 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AgreementLineRMRepository::class)]
 #[ORM\Table(
-    name: "agreement_line_rm",
-    indexes: [
-        new ORM\Index(name: "idx_agreement_id", columns: ["agreement_id"]),
-        new ORM\Index(name: "idx_customer_id", columns: ["customer_id"]),
-        new ORM\Index(name: "idx_status", columns: ["status"]),
-        new ORM\Index(name: "idx_is_deleted", columns: ["is_deleted"]),
-        new ORM\Index(name: "idx_is_archived", columns: ["is_archived"]),
-        new ORM\Index(name: "idx_has_production", columns: ["has_production"]),
-        new ORM\Index(name: "idx_confirmed_date", columns: ["confirmed_date"]),
-        new ORM\Index(name: "idx_production_start_date", columns: ["production_start_date"]),
-        new ORM\Index(name: "idx_production_end_date", columns: ["production_end_date"]),
+    name: "agreement_line_rm"
+//    indexes: [
+//        new ORM\Index(name: "idx_agreement_id", columns: ["agreement_id"]),
+//        new ORM\Index(name: "idx_customer_id", columns: ["customer_id"]),
+//        new ORM\Index(name: "idx_status", columns: ["status"]),
+//        new ORM\Index(name: "idx_is_deleted", columns: ["is_deleted"]),
+//        new ORM\Index(name: "idx_is_archived", columns: ["is_archived"]),
+//        new ORM\Index(name: "idx_has_production", columns: ["has_production"]),
+//        new ORM\Index(name: "idx_confirmed_date", columns: ["confirmed_date"]),
+//        new ORM\Index(name: "idx_production_start_date", columns: ["production_start_date"]),
+//        new ORM\Index(name: "idx_production_end_date", columns: ["production_end_date"]),
         // Composite indexes for common queries (commented out for now)
         // new ORM\Index(name: "idx_customer_deleted", columns: ["customer_id", "is_deleted"]),
         // new ORM\Index(name: "idx_customer_archived", columns: ["customer_id", "is_archived"]),
         // new ORM\Index(name: "idx_status_confirmed", columns: ["status", "confirmed_date"]),
         // new ORM\Index(name: "idx_agreement_deleted", columns: ["agreement_id", "is_deleted"]),
-    ]
+//    ]
 )]
+#[ORM\Index(name: "idx_agreement_line_rm_agreement_id", columns: ["agreement_id"])]
+#[ORM\Index(name: "idx_agreement_line_rm_customer_id", columns: ["customer_id"])]
+#[ORM\Index(name: "idx_agreement_line_rm_status", columns: ["status"])]
+#[ORM\Index(name: "idx_agreement_line_rm_is_deleted", columns: ["is_deleted"])]
+#[ORM\Index(name: "idx_agreement_line_rm_is_archived", columns: ["is_archived"])]
+#[ORM\Index(name: "idx_agreement_line_rm_has_production", columns: ["has_production"])]
+#[ORM\Index(name: "idx_agreement_line_rm_confirmed_date", columns: ["confirmed_date"])]
+#[ORM\Index(name: "idx_agreement_line_rm_production_start_date", columns: ["production_start_date"])]
+#[ORM\Index(name: "idx_agreement_line_rm_production_end_date", columns: ["production_end_date"])]
+
 class AgreementLineRM
 {
     #[ORM\Id]

@@ -10,6 +10,7 @@ use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
@@ -187,14 +188,22 @@ class ProductionController extends BaseController
      * @param Request $request
      * @param WorkScheduleService $workScheduleService
      * @param ProductionRepository $repository
+     * @param WorkCapacityRepository $workCapacityRepository
      * @return JsonResponse
      */
     #[Route(path: '/production/summary', name: 'production_summary', options: ['expose' => true], methods: ['POST'])]
-    public function summary(Request $request, WorkScheduleService $workScheduleService, ProductionRepository $repository)
+    public function summary(
+        Request                $request,
+        WorkScheduleService    $workScheduleService,
+        ProductionRepository   $repository,
+        WorkCapacityRepository $workCapacityRepository,
+    ): JsonResponse
     {
         $argMonth = $request->request->getInt('month');
         $argYear = $request->request->getInt('year');
-        $factorsPerDay = 1.5238;
+        $factorsPerDay = $workCapacityRepository->findOneByDate(
+            \DateTimeImmutable::createFromFormat('Y-m-d', sprintf("%d-%02d-01", $argYear, $argMonth))
+        )?->getCapacity() ?? 1.5238;
 
         $summary = [
             'production' => [
