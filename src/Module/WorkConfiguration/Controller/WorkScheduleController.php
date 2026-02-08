@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Module\WorkingSchedule\Controller;
+namespace App\Module\WorkConfiguration\Controller;
 
 use App\Controller\BaseController;
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
-use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use DateTimeImmutable;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,14 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/working-schedule', name: 'working_schedule_')]
-class WorkingScheduleController extends BaseController
+#[Route(path: '/schedule', name: 'work_configuration_schedule_')]
+class WorkScheduleController extends BaseController
 {
     #[Route(path: '', name: 'create', methods: ['POST'])]
-    #[IsGranted('working-schedule.day.define')]
+    #[IsGranted('work-configuration.schedule')]
     public function create(
         Request $request,
-        WorkingScheduleRepository $workingScheduleRepository
+        WorkScheduleRepository $workScheduleRepository
     ): JsonResponse
     {
         $date = $request->request->get('date');
@@ -52,15 +52,15 @@ class WorkingScheduleController extends BaseController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $workingSchedule = $workingScheduleRepository->upsert($dateObj, $dayTypeEnum, $description);
+        $workSchedule = $workScheduleRepository->upsert($dateObj, $dayTypeEnum, $description);
 
-        return $this->json($workingSchedule->toArray(), Response::HTTP_CREATED);
+        return $this->json($workSchedule->toArray(), Response::HTTP_CREATED);
     }
 
     #[Route(path: '', name: 'list', methods: ['GET'])]
     public function list(
         Request $request,
-        WorkingScheduleRepository $workingScheduleRepository
+        WorkScheduleRepository $workSchedule
     ): JsonResponse
     {
         $startDate = $request->query->get('startDate');
@@ -91,19 +91,19 @@ class WorkingScheduleController extends BaseController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $schedules = $workingScheduleRepository->findByRange($startDateObj, $endDateObj);
+        $schedules = $workSchedule->findByRange($startDateObj, $endDateObj);
 
-        return $this->json(array_map(fn (WorkingSchedule $schedule) => $schedule->toArray(), $schedules), Response::HTTP_OK);
+        return $this->json(array_map(fn (WorkSchedule $schedule) => $schedule->toArray(), $schedules), Response::HTTP_OK);
     }
 
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]
-    #[IsGranted('working-schedule.day.define')]
+    #[IsGranted('work-configuration.schedule')]
     public function delete(
-        WorkingSchedule $workingSchedule,
-        WorkingScheduleRepository $workingScheduleRepository
+        WorkSchedule           $workSchedule,
+        WorkScheduleRepository $workScheduleRepository
     ): JsonResponse
     {
-        $workingScheduleRepository->delete($workingSchedule);
+        $workScheduleRepository->delete($workSchedule);
 
         return $this->json([], Response::HTTP_NO_CONTENT);
     }

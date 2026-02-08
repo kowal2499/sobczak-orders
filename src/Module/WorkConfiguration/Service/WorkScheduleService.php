@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Module\WorkingSchedule\Service;
+namespace App\Module\WorkConfiguration\Service;
 
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
-use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use DateTimeImmutable;
 
-class WorkingScheduleService
+class WorkScheduleService
 {
 
     public function __construct(
-        private readonly WorkingScheduleRepository $workingScheduleRepository,
+        private readonly WorkScheduleRepository  $workScheduleRepository,
         private readonly DefaultHolidaysProvider $defaultHolidaysProvider,
     ) {
     }
@@ -19,7 +19,7 @@ class WorkingScheduleService
     /**
      * @param int $year
      * @param ?int $month
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     public function getFreeDays(int $year, ?int $month): array
     {
@@ -51,7 +51,7 @@ class WorkingScheduleService
 
         $result = array_values($result);
         // sort by date
-        usort($result, function (WorkingSchedule $a, WorkingSchedule $b) {
+        usort($result, function (WorkSchedule $a, WorkSchedule $b) {
             return $a->getDate() <=> $b->getDate();
         });
 
@@ -61,7 +61,7 @@ class WorkingScheduleService
     /**
      * @param int $year
      * @param ?int $month
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     public function getWorkingDays(int $year, ?int $month): array
     {
@@ -73,11 +73,11 @@ class WorkingScheduleService
         }
 
         $result = [];
-        $holidays = array_map(fn (WorkingSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($year, $month));
+        $holidays = array_map(fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($year, $month));
         $currentDate = clone $dateStart;
         while ($currentDate <= $dateEnd) {
             if (!in_array($currentDate->format('Y-m-d'), $holidays)) {
-                $result[] = new WorkingSchedule(
+                $result[] = new WorkSchedule(
                     date: $currentDate,
                     dayType: ScheduleDayType::Working,
                 );
@@ -91,7 +91,7 @@ class WorkingScheduleService
     /**
      * @param DateTimeImmutable $dateStart
      * @param DateTimeImmutable $dateEnd
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     private function getDefaultHolidaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
@@ -101,7 +101,7 @@ class WorkingScheduleService
     /**
      * @param DateTimeImmutable $dateStart
      * @param DateTimeImmutable $dateEnd
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     private function getWeekendsInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
@@ -109,7 +109,7 @@ class WorkingScheduleService
         $currentDate = clone $dateStart;
         while ($currentDate <= $dateEnd) {
             if (in_array($currentDate->format('N'), [6, 7])) { // 6 = Saturday, 7 = Sunday
-                $weekends[] = new WorkingSchedule(
+                $weekends[] = new WorkSchedule(
                     date: $currentDate,
                     dayType: ScheduleDayType::Holiday,
                     description: 'weekend',
@@ -123,20 +123,20 @@ class WorkingScheduleService
     /**
      * @param DateTimeImmutable $dateStart
      * @param DateTimeImmutable $dateEnd
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     private function getCustomHolidaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        return $this->workingScheduleRepository->findHolidaysByRange($dateStart, $dateEnd) ?? [];
+        return $this->workScheduleRepository->findHolidaysByRange($dateStart, $dateEnd) ?? [];
     }
 
     /**
      * @param DateTimeImmutable $dateStart
      * @param DateTimeImmutable $dateEnd
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     private function getCustomWorkingDaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        return $this->workingScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
+        return $this->workScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
     }
 }

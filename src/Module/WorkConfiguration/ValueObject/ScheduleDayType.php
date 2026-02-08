@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Module\WorkingSchedule\ValueObject;
+namespace App\Module\WorkConfiguration\ValueObject;
 
 enum ScheduleDayType: string
 {

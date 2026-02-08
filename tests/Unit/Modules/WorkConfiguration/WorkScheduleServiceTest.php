@@ -1,35 +1,35 @@
 <?php
 
-namespace App\Tests\Unit\Modules\WorkingSchedule;
+namespace App\Tests\Unit\Modules\WorkConfiguration;
 
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
-use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
-use App\Module\WorkingSchedule\Service\DefaultHolidaysProvider;
-use App\Module\WorkingSchedule\Service\WorkingScheduleService;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\Service\DefaultHolidaysProvider;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class WorkingScheduleServiceTest extends TestCase
+class WorkScheduleServiceTest extends TestCase
 {
-    private WorkingScheduleRepository|MockObject $repository;
+    private WorkScheduleRepository|MockObject $repository;
     private DefaultHolidaysProvider|MockObject $defaultHolidaysProvider;
-    private WorkingScheduleService $sut;
+    private WorkScheduleService $sut;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = $this->createMock(WorkingScheduleRepository::class);
+        $this->repository = $this->createMock(WorkScheduleRepository::class);
         $this->defaultHolidaysProvider = new DefaultHolidaysProvider();
-        $this->sut = new WorkingScheduleService($this->repository, $this->defaultHolidaysProvider);
+        $this->sut = new WorkScheduleService($this->repository, $this->defaultHolidaysProvider);
     }
 
     public function testShouldGetFreeDays(): void
     {
         // Given
         $days = array_map(
-            fn (WorkingSchedule $day) => $day->getDate()->format('Y-m-d'),
+            fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'),
             $this->sut->getFreeDays(2025, 12)
         );
         // When & Then
@@ -40,7 +40,7 @@ class WorkingScheduleServiceTest extends TestCase
     {
         // Given
         $workingDays = array_map(
-            fn(WorkingSchedule $day) => $day->getDate()->format('Y-m-d'),
+            fn(WorkSchedule $day) => $day->getDate()->format('Y-m-d'),
             $this->sut->getWorkingDays(2025, 12)
         );
         // When & Then
@@ -115,7 +115,7 @@ class WorkingScheduleServiceTest extends TestCase
         $days = $this->sut->getFreeDays(2025, 12);
 
         // Then
-        $holidays = array_map(fn(WorkingSchedule $day) => $day->getDate()->format('Y-m-d'), $days);
+        $holidays = array_map(fn(WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $days);
         $this->assertNotContains('2025-12-24', $holidays);
         $this->assertNotContains('2025-12-25', $holidays);
         $this->assertNotContains('2025-12-26', $holidays);
@@ -124,9 +124,9 @@ class WorkingScheduleServiceTest extends TestCase
 
 
 
-    private function getEntity(string $date, ScheduleDayType $type): WorkingSchedule
+    private function getEntity(string $date, ScheduleDayType $type): WorkSchedule
     {
-        return new WorkingSchedule(DateTimeImmutable::createFromFormat('Y-m-d', $date), $type);
+        return new WorkSchedule(DateTimeImmutable::createFromFormat('Y-m-d', $date), $type);
     }
 
     private function december2025Holidays(array $additionalHolidays = []): array

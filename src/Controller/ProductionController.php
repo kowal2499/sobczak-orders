@@ -9,10 +9,10 @@ use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
-use App\Module\WorkingSchedule\Service\WorkingScheduleService;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use App\System\EventBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -185,12 +185,12 @@ class ProductionController extends BaseController
 
     /**
      * @param Request $request
-     * @param WorkingScheduleService $workingScheduleService
+     * @param WorkScheduleService $workScheduleService
      * @param ProductionRepository $repository
      * @return JsonResponse
      */
     #[Route(path: '/production/summary', name: 'production_summary', options: ['expose' => true], methods: ['POST'])]
-    public function summary(Request $request, WorkingScheduleService $workingScheduleService, ProductionRepository $repository)
+    public function summary(Request $request, WorkScheduleService $workScheduleService, ProductionRepository $repository)
     {
         $argMonth = $request->request->getInt('month');
         $argYear = $request->request->getInt('year');
@@ -213,7 +213,7 @@ class ProductionController extends BaseController
             /**
              * Wyznaczanie ilości dni roboczych
              */
-            $summary['workingDays'] = count($workingScheduleService->getWorkingDays($argYear, $argMonth));
+            $summary['workingDays'] = count($workScheduleService->getWorkingDays($argYear, $argMonth));
 
             /**
              * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczych,
@@ -281,9 +281,9 @@ class ProductionController extends BaseController
                 $current->modify('+1 day');
                 $monthKey = $current->format('Y-m');
                 if ($currentMonthKey !== $monthKey) {
-                    $workingDays = $workingScheduleService->getWorkingDays($current->format('Y'), $current->format('m'));
+                    $workingDays = $workScheduleService->getWorkingDays($current->format('Y'), $current->format('m'));
                     $workingDaysSet = array_flip(array_map(
-                        fn (WorkingSchedule $ws) => $ws->getDate()->format('Y-m-d'),
+                        fn (WorkSchedule $ws) => $ws->getDate()->format('Y-m-d'),
                         $workingDays
                     ));
                     $currentMonthKey = $monthKey;

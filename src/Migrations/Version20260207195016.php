@@ -20,7 +20,7 @@ final class Version20260207195016 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE working_schedule ADD day_type VARCHAR(16) NOT NULL, ADD description VARCHAR(255) DEFAULT NULL, DROP time_start, DROP time_end, DROP is_working');
+        $this->addSql('ALTER TABLE working_schedule ADD day_type VARCHAR(16) NOT NULL DEFAULT \'holiday\' , ADD description VARCHAR(255) DEFAULT NULL, DROP time_start, DROP time_end, DROP is_working');
     }
 
     public function down(Schema $schema): void

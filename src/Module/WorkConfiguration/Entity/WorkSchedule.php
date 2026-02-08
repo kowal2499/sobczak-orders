@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Module\WorkingSchedule\Entity;
+namespace App\Module\WorkConfiguration\Entity;
 
-use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
+use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 
-#[ORM\Entity(repositoryClass: WorkingScheduleRepository::class)]
-class WorkingSchedule
+#[ORM\Entity(repositoryClass: WorkScheduleRepository::class)]
+#[ORM\Table(name: "work_schedule")]
+class WorkSchedule
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,7 +19,7 @@ class WorkingSchedule
     #[ORM\Column(type: 'date')]
     private $date;
 
-    #[ORM\Column(type: 'string', enumType: ScheduleDayType::class)]
+    #[ORM\Column(type: 'string', length: 16, enumType: ScheduleDayType::class)]
     private ScheduleDayType $dayType;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

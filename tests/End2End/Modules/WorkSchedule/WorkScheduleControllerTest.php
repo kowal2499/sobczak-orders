@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Tests\End2End\Modules\WorkingSchedule;
+namespace App\Tests\End2End\Modules\WorkSchedule;
 
-use App\Module\WorkingSchedule\Repository\WorkingScheduleRepository;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Test\ApiTestCase;
 use DateTimeImmutable;
 
-class WorkingScheduleControllerTest extends ApiTestCase
+class WorkScheduleControllerTest extends ApiTestCase
 {
-    private WorkingScheduleRepository $workingScheduleRepository;
+    private WorkScheduleRepository $workScheduleRepository;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->getManager()->beginTransaction();
-        $this->workingScheduleRepository = $this->get(WorkingScheduleRepository::class);
+        $this->workScheduleRepository = $this->get(WorkScheduleRepository::class);
     }
 
     protected function tearDown(): void
@@ -24,10 +24,10 @@ class WorkingScheduleControllerTest extends ApiTestCase
         parent::tearDown();
     }
 
-    public function testShouldCreateWorkingScheduleDay(): void
+    public function testShouldCreateWorkScheduleDay(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
@@ -36,7 +36,7 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $description = 'Test holiday';
 
         // When
-        $client->xmlHttpRequest('POST', '/working-schedule', [
+        $client->xmlHttpRequest('POST', '/work-configuration/schedule', [
             'date' => $date,
             'dayType' => $dayType,
             'description' => $description,
@@ -53,21 +53,21 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $this->assertEquals($description, $responseData['description']);
 
         // Verify in database
-        $entity = $this->workingScheduleRepository->find($responseData['id']);
+        $entity = $this->workScheduleRepository->find($responseData['id']);
         $this->assertNotNull($entity);
         $this->assertEquals($date, $entity->getDate()->format('Y-m-d'));
         $this->assertEquals(ScheduleDayType::Holiday, $entity->getDayType());
         $this->assertEquals($description, $entity->getDescription());
     }
 
-    public function testShouldUpdateExistingWorkingScheduleDay(): void
+    public function testShouldUpdateExistingWorkScheduleDay(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
 
         $date = DateTimeImmutable::createFromFormat('Y-m-d', '2026-03-20');
-        $existingSchedule = $this->workingScheduleRepository->upsert(
+        $existingSchedule = $this->workScheduleRepository->upsert(
             $date,
             ScheduleDayType::Holiday,
             'Original description'
@@ -78,7 +78,7 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $newDescription = 'Updated to working day';
 
         // When
-        $client->xmlHttpRequest('POST', '/working-schedule', [
+        $client->xmlHttpRequest('POST', '/work-configuration/schedule', [
             'date' => '2026-03-20',
             'dayType' => $newDayType,
             'description' => $newDescription,
@@ -93,7 +93,7 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $this->assertEquals($newDescription, $responseData['description']);
 
         // Verify update in database
-        $entity = $this->workingScheduleRepository->find($existingSchedule->getId());
+        $entity = $this->workScheduleRepository->find($existingSchedule->getId());
         $this->assertEquals(ScheduleDayType::Working, $entity->getDayType());
         $this->assertEquals($newDescription, $entity->getDescription());
     }
@@ -101,12 +101,12 @@ class WorkingScheduleControllerTest extends ApiTestCase
     public function testShouldFailCreateWithoutRequiredFields(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When - missing dayType
-        $client->xmlHttpRequest('POST', '/working-schedule', [
+        $client->xmlHttpRequest('POST', '/work-configuration/schedule', [
             'date' => '2026-03-15',
         ]);
 
@@ -119,12 +119,12 @@ class WorkingScheduleControllerTest extends ApiTestCase
     public function testShouldFailCreateWithInvalidDateFormat(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('POST', '/working-schedule', [
+        $client->xmlHttpRequest('POST', '/work-configuration/schedule', [
             'date' => '15-03-2026', // Invalid format
             'dayType' => 'holiday',
         ]);
@@ -139,12 +139,12 @@ class WorkingScheduleControllerTest extends ApiTestCase
     public function testShouldFailCreateWithInvalidDayType(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('POST', '/working-schedule', [
+        $client->xmlHttpRequest('POST', '/work-configuration/schedule', [
             'date' => '2026-03-15',
             'dayType' => 'invalid_type',
         ]);
@@ -156,10 +156,10 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $this->assertStringContainsString('working, holiday, other', $responseData['error']);
     }
 
-    public function testShouldListWorkingSchedulesByRange(): void
+    public function testShouldListWorkSchedulesByRange(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
 
         $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-15 00:00:00');
@@ -167,9 +167,9 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
 
         $manager = $this->getManager();
-        $schedule1 = new \App\Module\WorkingSchedule\Entity\WorkingSchedule($date1, ScheduleDayType::Holiday, 'Day 1');
-        $schedule2 = new \App\Module\WorkingSchedule\Entity\WorkingSchedule($date2, ScheduleDayType::Working, 'Day 2');
-        $schedule3 = new \App\Module\WorkingSchedule\Entity\WorkingSchedule($date3, ScheduleDayType::Holiday, 'Day 3');
+        $schedule1 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date1, ScheduleDayType::Holiday, 'Day 1');
+        $schedule2 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date2, ScheduleDayType::Working, 'Day 2');
+        $schedule3 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date3, ScheduleDayType::Holiday, 'Day 3');
 
         $manager->persist($schedule1);
         $manager->persist($schedule2);
@@ -178,7 +178,7 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $manager->clear();
 
         // When
-        $client->xmlHttpRequest('GET', '/working-schedule?startDate=2030-11-15&endDate=2030-11-20');
+        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=2030-11-15&endDate=2030-11-20');
 
         // Then
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -199,12 +199,12 @@ class WorkingScheduleControllerTest extends ApiTestCase
     public function testShouldFailListWithoutRequiredParameters(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When - missing endDate
-        $client->xmlHttpRequest('GET', '/working-schedule?startDate=2026-04-01');
+        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=2026-04-01');
 
         // Then
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
@@ -215,12 +215,12 @@ class WorkingScheduleControllerTest extends ApiTestCase
     public function testShouldFailListWithInvalidDateFormat(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('GET', '/working-schedule?startDate=01-04-2026&endDate=2026-04-30');
+        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=01-04-2026&endDate=2026-04-30');
 
         // Then
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
@@ -228,14 +228,14 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $this->assertArrayHasKey('error', $responseData);
     }
 
-    public function testShouldDeleteWorkingSchedule(): void
+    public function testShouldDeleteWorkSchedule(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
 
         $date = DateTimeImmutable::createFromFormat('Y-m-d', '2026-05-01');
-        $schedule = $this->workingScheduleRepository->upsert(
+        $schedule = $this->workScheduleRepository->upsert(
             $date,
             ScheduleDayType::Holiday,
             'To be deleted'
@@ -244,26 +244,26 @@ class WorkingScheduleControllerTest extends ApiTestCase
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('DELETE', '/working-schedule/' . $scheduleId);
+        $client->xmlHttpRequest('DELETE', '/work-configuration/schedule/' . $scheduleId);
 
         // Then
         $this->assertEquals(204, $client->getResponse()->getStatusCode());
 
         // Verify deletion in database
         $this->getManager()->clear();
-        $entity = $this->workingScheduleRepository->find($scheduleId);
+        $entity = $this->workScheduleRepository->find($scheduleId);
         $this->assertNull($entity);
     }
 
     public function testShouldFailDeleteNonExistentSchedule(): void
     {
         // Given
-        $user = $this->createUser([], [], ['working-schedule.day.define']);
+        $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
         $this->getManager()->clear();
 
         // When
-        $client->xmlHttpRequest('DELETE', '/working-schedule/99999');
+        $client->xmlHttpRequest('DELETE', '/work-configuration/schedule/99999');
 
         // Then
         $this->assertEquals(404, $client->getResponse()->getStatusCode());

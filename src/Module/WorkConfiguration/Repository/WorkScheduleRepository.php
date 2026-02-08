@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Module\WorkingSchedule\Repository;
+namespace App\Module\WorkConfiguration\Repository;
 
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method WorkingSchedule|null find($id, $lockMode = null, $lockVersion = null)
- * @method WorkingSchedule|null findOneBy(array $criteria, array $orderBy = null)
- * @method WorkingSchedule[]    findAll()
- * @method WorkingSchedule[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method WorkSchedule|null find($id, $lockMode = null, $lockVersion = null)
+ * @method WorkSchedule|null findOneBy(array $criteria, array $orderBy = null)
+ * @method WorkSchedule[]    findAll()
+ * @method WorkSchedule[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class WorkingScheduleRepository extends ServiceEntityRepository
+class WorkScheduleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, WorkingSchedule::class);
+        parent::__construct($registry, WorkSchedule::class);
     }
 
     public function findHolidaysByRange(\DateTimeImmutable $start, \DateTimeImmutable $end): array
@@ -47,17 +47,17 @@ class WorkingScheduleRepository extends ServiceEntityRepository
         return $query->getQuery()->getResult();
     }
 
-    public function save(WorkingSchedule $workingSchedule, bool $flush = true): void
+    public function save(WorkSchedule $workSchedule, bool $flush = true): void
     {
-        $this->_em->persist($workingSchedule);
+        $this->_em->persist($workSchedule);
         if ($flush) {
             $this->_em->flush();
         }
     }
 
-    public function delete(WorkingSchedule $workingSchedule, bool $flush = true): void
+    public function delete(WorkSchedule $workSchedule, bool $flush = true): void
     {
-        $this->_em->remove($workingSchedule);
+        $this->_em->remove($workSchedule);
         if ($flush) {
             $this->_em->flush();
         }
@@ -66,20 +66,20 @@ class WorkingScheduleRepository extends ServiceEntityRepository
     /**
      * Upsert - if entry for given date exists, update it, otherwise create new one
      */
-    public function upsert(\DateTimeImmutable $date, ScheduleDayType $dayType, ?string $description = null, bool $flush = true): WorkingSchedule
+    public function upsert(\DateTimeImmutable $date, ScheduleDayType $dayType, ?string $description = null, bool $flush = true): WorkSchedule
     {
         $existing = $this->findOneBy(['date' => $date]);
 
         if ($existing) {
             $existing->setDayType($dayType);
             $existing->setDescription($description);
-            $workingSchedule = $existing;
+            $workSchedule = $existing;
         } else {
-            $workingSchedule = new WorkingSchedule($date, $dayType, $description);
+            $workSchedule = new WorkSchedule($date, $dayType, $description);
         }
 
-        $this->save($workingSchedule, $flush);
+        $this->save($workSchedule, $flush);
 
-        return $workingSchedule;
+        return $workSchedule;
     }
 }

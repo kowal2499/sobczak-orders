@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Module\WorkingSchedule\Service;
+namespace App\Module\WorkConfiguration\Service;
 
-use App\Module\WorkingSchedule\Entity\WorkingSchedule;
-use App\Module\WorkingSchedule\ValueObject\ScheduleDayType;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use Spatie\Holidays\Holidays;
 
 class DefaultHolidaysProvider
@@ -11,7 +11,7 @@ class DefaultHolidaysProvider
     /**
      * @param \DateTimeImmutable $dateStart
      * @param \DateTimeImmutable $dateEnd
-     * @return WorkingSchedule[]
+     * @return WorkSchedule[]
      */
     public function getHolidays(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd): array
     {
@@ -32,7 +32,7 @@ class DefaultHolidaysProvider
         );
 
         $mapped = array_map(
-            fn (array $holiday) => new WorkingSchedule($holiday['date'], ScheduleDayType::Holiday, $holiday['name'] ?? ''),
+            fn (array $holiday) => new WorkSchedule($holiday['date'], ScheduleDayType::Holiday, $holiday['name'] ?? ''),
             $holidaysInRange
         );
 
