@@ -4,10 +4,10 @@ import * as TYPES from '@/store/types'
 import store from '@/store'
 
 export default defineComponent({
-    name: "ConfigurationModuleWrapper",
+    name: "AuthWrapper",
 
     async beforeCreate() {
-        await store.dispatch('ui/' + TYPES.ACTION_ENABLE_BUSY_STATE, 'Inicjalizacja modułu konfiguracji...')
+        await store.dispatch('ui/' + TYPES.ACTION_ENABLE_BUSY_STATE, 'Inicjalizacja modułu konfiguracji użytkowników i ról...')
         await Promise.all([
             store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_MODULES),
             store.dispatch('auth/' + TYPES.ACTION_AUTH_FETCH_GRANTS),

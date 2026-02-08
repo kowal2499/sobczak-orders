@@ -204,7 +204,6 @@
                 handler() {
                     return mergeRoles(this.newRoles).then(({data}) => {
                         this.grantsPerRole = data
-                        console.log(this.grantsPerRole)
                     })
                 },
                 deep: true,
