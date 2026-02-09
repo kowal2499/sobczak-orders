@@ -36,7 +36,6 @@
                         required: true,
                         dateTo: { target: row.dateStart },
                         dateEarlierThan: { deadline: confirmedDate }
-
                     }"
                 >
                     <b-form-group

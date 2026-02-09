@@ -161,7 +161,7 @@ class WorkCapacityControllerTest extends ApiTestCase
         $this->assertArrayHasKey('error', $responseData);
     }
 
-    public function testShouldListWorkCapacitiesByRange(): void
+    public function testShouldListAllWorkCapacitiesWhenNoRangeProvided(): void
     {
         // Given
         $user = $this->createUser([], [], ['work-configuration.capacity']);
@@ -182,7 +182,48 @@ class WorkCapacityControllerTest extends ApiTestCase
         $manager->flush();
         $manager->clear();
 
-        // When
+        // When - no range parameters
+        $client->xmlHttpRequest('GET', '/work-configuration/capacity');
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($responseData);
+        $this->assertCount(3, $responseData, 'Expected all 3 capacities, got: ' . json_encode($responseData));
+
+        $this->assertEquals('2030-11-25', $responseData[0]['dateFrom']);
+        $this->assertEquals(12.0, $responseData[0]['capacity']);
+
+        $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[1]['capacity']);
+
+        $this->assertEquals('2030-11-15', $responseData[2]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[2]['capacity']);
+    }
+
+    public function testShouldListWorkCapacitiesByRangeFromAndTo(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['work-configuration.capacity']);
+        $client = $this->login($user);
+
+        $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-15 00:00:00');
+        $date2 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-18 00:00:00');
+        $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
+
+        $manager = $this->getManager();
+        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
+        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
+        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+
+        $manager->persist($capacity1);
+        $manager->persist($capacity2);
+        $manager->persist($capacity3);
+        $manager->flush();
+        $manager->clear();
+
+        // When - range from 2030-11-15 to 2030-11-20
         $client->xmlHttpRequest('GET', '/work-configuration/capacity?startDate=2030-11-15&endDate=2030-11-20');
 
         // Then
@@ -192,27 +233,87 @@ class WorkCapacityControllerTest extends ApiTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(2, $responseData, 'Expected 2 capacities in range, got: ' . json_encode($responseData));
 
-        $this->assertEquals('2030-11-15', $responseData[0]['dateFrom']);
-        $this->assertEquals(8.0, $responseData[0]['capacity']);
+        $this->assertEquals('2030-11-18', $responseData[0]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[0]['capacity']);
+
+        $this->assertEquals('2030-11-15', $responseData[1]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[1]['capacity']);
+    }
+
+    public function testShouldListWorkCapacitiesByRangeFrom(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['work-configuration.capacity']);
+        $client = $this->login($user);
+
+        $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-15 00:00:00');
+        $date2 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-18 00:00:00');
+        $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
+
+        $manager = $this->getManager();
+        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
+        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
+        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+
+        $manager->persist($capacity1);
+        $manager->persist($capacity2);
+        $manager->persist($capacity3);
+        $manager->flush();
+        $manager->clear();
+
+        // When - only startDate provided
+        $client->xmlHttpRequest('GET', '/work-configuration/capacity?startDate=2030-11-18');
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($responseData);
+        $this->assertCount(2, $responseData, 'Expected 2 capacities from startDate, got: ' . json_encode($responseData));
+
+        $this->assertEquals('2030-11-25', $responseData[0]['dateFrom']);
+        $this->assertEquals(12.0, $responseData[0]['capacity']);
 
         $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
         $this->assertEquals(10.5, $responseData[1]['capacity']);
     }
 
-    public function testShouldFailListWithoutRequiredParameters(): void
+    public function testShouldListWorkCapacitiesByRangeTo(): void
     {
         // Given
         $user = $this->createUser([], [], ['work-configuration.capacity']);
         $client = $this->login($user);
-        $this->getManager()->clear();
 
-        // When - missing endDate
-        $client->xmlHttpRequest('GET', '/work-configuration/capacity?startDate=2026-04-01');
+        $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-15 00:00:00');
+        $date2 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-18 00:00:00');
+        $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
+
+        $manager = $this->getManager();
+        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
+        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
+        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+
+        $manager->persist($capacity1);
+        $manager->persist($capacity2);
+        $manager->persist($capacity3);
+        $manager->flush();
+        $manager->clear();
+
+        // When - only endDate provided
+        $client->xmlHttpRequest('GET', '/work-configuration/capacity?endDate=2030-11-18');
 
         // Then
-        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
         $responseData = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('error', $responseData);
+        $this->assertIsArray($responseData);
+        $this->assertCount(2, $responseData, 'Expected 2 capacities up to endDate, got: ' . json_encode($responseData));
+
+        $this->assertEquals('2030-11-18', $responseData[0]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[0]['capacity']);
+
+        $this->assertEquals('2030-11-15', $responseData[1]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[1]['capacity']);
     }
 
     public function testShouldFailListWithInvalidDateFormat(): void

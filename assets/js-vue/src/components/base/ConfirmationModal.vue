@@ -4,7 +4,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLiveLabel">{{ $t('confirmationIsNeeded') }}</h5>
+                    <h5 class="modal-title" id="exampleModalLiveLabel">{{ $t('_confirmation') }}</h5>
                     <button type="button" class="close" @click.prevent="closeModal()">
                         <span aria-hidden="true">×</span>
                     </button>

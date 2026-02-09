@@ -34,7 +34,7 @@ export default {
     AuthConfigurationWrapper: () => import('../modules/configuration/views/AuthConfigurationWrapper.vue'),
     UserSingle: () => import('../modules/configuration/views/UserSingle.vue'),
     Roles: () => import('../modules/configuration/views/Roles.vue'),
-    ProductionConfiguration: () => import('../modules/configuration/views/ProductionConfiguration.vue'),
+    ProductionConfiguration: () => import('../modules/configuration/views/Production.vue'),
 
     ...TagsModule,
     ContextMenu,

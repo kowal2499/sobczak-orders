@@ -1,11 +1,13 @@
 <script>
 export default {
-    name: "ProductionConfiguration"
+    name: "WorkScheduleCalendar"
 }
 </script>
 
 <template>
-    <div>To jest konfiguracja produkcji</div>
+    <div>
+        To jest kalendarz dni roboczych
+    </div>
 </template>
 
 <style scoped lang="scss">

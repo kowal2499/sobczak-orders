@@ -17,7 +17,7 @@ export default {
 <template>
     <b-row>
         <b-col cols="3" >
-            <b-nav pills card vertical class="p-2 background-light">
+            <b-nav pills card vertical class="p-2 background-light h-100">
                 <slot name="actions" />
                 <b-nav-item
                     v-for="role in allRoles"

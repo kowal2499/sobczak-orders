@@ -33,14 +33,21 @@ class WorkCapacityRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findByRange(\DateTimeInterface $start, \DateTimeInterface $end): array
+    public function findByRange(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
     {
-        return $this->createQueryBuilder('w')
-            ->andWhere('w.dateFrom >= :start')
-            ->andWhere('w.dateFrom <= :end')
-            ->setParameter('start', $start)
-            ->setParameter('end', $end)
-            ->orderBy('w.dateFrom', 'ASC')
+        $qb = $this->createQueryBuilder('w');
+
+        if ($start) {
+            $qb->andWhere('w.dateFrom >= :start')
+               ->setParameter('start', $start);
+        }
+        if ($end) {
+            $qb->andWhere('w.dateFrom <= :end')
+               ->setParameter('end', $end);
+        }
+
+        return $qb
+            ->orderBy('w.dateFrom', 'DESC')
             ->getQuery()
             ->getResult();
     }

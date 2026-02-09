@@ -62,25 +62,26 @@ class WorkCapacityController extends BaseController
         $startDate = $request->query->get('startDate');
         $endDate = $request->query->get('endDate');
 
-        if (!$startDate || !$endDate) {
-            return $this->json([
-                'error' => 'startDate and endDate are required'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
         try {
-            $startDateObj = DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
-            $endDateObj = DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
-
-            if (!$startDateObj || $startDateObj->format('Y-m-d') !== $startDate) {
-                throw new \InvalidArgumentException('Invalid startDate format');
-            }
-            if (!$endDateObj || $endDateObj->format('Y-m-d') !== $endDate) {
-                throw new \InvalidArgumentException('Invalid endDate format');
+            $startDateObj = $startDate ? DateTimeImmutable::createFromFormat('Y-m-d', $startDate) : null;
+            $endDateObj = $endDate ? DateTimeImmutable::createFromFormat('Y-m-d', $endDate) : null;
+            if ($startDateObj === false || $endDateObj === false) {
+                throw new \InvalidArgumentException('Invalid date format');
             }
 
-            $startDateObj = $startDateObj->setTime(0, 0, 0);
-            $endDateObj = $endDateObj->setTime(23, 59, 59);
+            if ($startDateObj) {
+                if ($startDateObj->format('Y-m-d') !== $startDate) {
+                    throw new \InvalidArgumentException('Invalid startDate format');
+                }
+                $startDateObj = $startDateObj->setTime(0, 0, 0);
+            }
+
+            if ($endDateObj) {
+                if ($endDateObj->format('Y-m-d') !== $endDate) {
+                    throw new \InvalidArgumentException('Invalid endDate format');
+                }
+                $endDateObj = $endDateObj->setTime(23, 59, 59);
+            }
         } catch (\Exception $e) {
             return $this->json([
                 'error' => 'Invalid date format. Expected Y-m-d'
