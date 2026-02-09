@@ -4,13 +4,14 @@ export default {
     computed: {
         items() {
             return [
-                { name: this.$t('config.production.capacityTitle'), id: 'daily-capacity' },
                 { name: this.$t('config.production.calendarTitle'), id: 'working-days-calendar' },
+                { name: this.$t('config.production.capacityTitle'), id: 'daily-capacity' },
             ]
         }
     },
     data: () => ({
-        activeItemId: 'daily-capacity',
+        activeItemId: 'working-days-calendar',
+        // activeItemId: 'daily-capacity',
     })
 }
 </script>
