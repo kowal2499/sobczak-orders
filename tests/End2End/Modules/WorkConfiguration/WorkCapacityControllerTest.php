@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\End2End\Modules\WorkSchedule;
+namespace App\Tests\End2End\Modules\WorkConfiguration;
 
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\System\Test\ApiTestCase;
