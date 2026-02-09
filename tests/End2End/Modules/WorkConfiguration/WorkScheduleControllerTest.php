@@ -162,9 +162,9 @@ class WorkScheduleControllerTest extends ApiTestCase
         $user = $this->createUser([], [], ['work-configuration.schedule']);
         $client = $this->login($user);
 
-        $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-15 00:00:00');
-        $date2 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-18 00:00:00');
-        $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
+        $date1 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2026-02-18 00:00:00');
+        $date2 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2026-02-21 00:00:00');
+        $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2026-02-25 00:00:00');
 
         $manager = $this->getManager();
         $schedule1 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date1, ScheduleDayType::Holiday, 'Day 1');
@@ -178,22 +178,21 @@ class WorkScheduleControllerTest extends ApiTestCase
         $manager->clear();
 
         // When
-        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=2030-11-15&endDate=2030-11-20');
+        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=2026-02-18&endDate=2026-02-23&type=holiday');
 
         // Then
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($responseData);
-        $this->assertCount(2, $responseData, 'Expected 2 schedules in range, got: ' . json_encode($responseData));
+        $this->assertCount(2, $responseData, 'Expected 2 holiday schedule in range, got: ' . json_encode($responseData));
 
-        $this->assertEquals('2030-11-15', $responseData[0]['date']);
+        $this->assertEquals('2026-02-18', $responseData[0]['date']);
         $this->assertEquals('holiday', $responseData[0]['dayType']);
         $this->assertEquals('Day 1', $responseData[0]['description']);
-
-        $this->assertEquals('2030-11-18', $responseData[1]['date']);
-        $this->assertEquals('working', $responseData[1]['dayType']);
-        $this->assertEquals('Day 2', $responseData[1]['description']);
+        $this->assertEquals('2026-02-22', $responseData[1]['date']);
+        $this->assertEquals('holiday', $responseData[1]['dayType']);
+        $this->assertEquals('weekend', $responseData[1]['description']);
     }
 
     public function testShouldFailListWithoutRequiredParameters(): void

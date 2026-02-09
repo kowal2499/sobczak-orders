@@ -222,7 +222,9 @@ class ProductionController extends BaseController
             /**
              * Wyznaczanie ilości dni roboczych
              */
-            $summary['workingDays'] = count($workScheduleService->getWorkingDays($argYear, $argMonth));
+            $dateStart = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $argYear, $argMonth));
+            $dateEnd = $dateStart->modify('last day of this month');
+            $summary['workingDays'] = count($workScheduleService->getWorkingDays($dateStart, $dateEnd));
 
             /**
              * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczych,
@@ -290,7 +292,10 @@ class ProductionController extends BaseController
                 $current->modify('+1 day');
                 $monthKey = $current->format('Y-m');
                 if ($currentMonthKey !== $monthKey) {
-                    $workingDays = $workScheduleService->getWorkingDays($current->format('Y'), $current->format('m'));
+                    $dateStart = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $current->format('Y'), $current->format('m')));
+                    $dateEnd = $dateStart->modify('last day of this month');
+                    $workingDays = $workScheduleService->getWorkingDays($dateStart, $dateEnd);
+
                     $workingDaysSet = array_flip(array_map(
                         fn (WorkSchedule $ws) => $ws->getDate()->format('Y-m-d'),
                         $workingDays

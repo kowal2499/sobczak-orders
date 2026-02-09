@@ -30,7 +30,10 @@ class WorkScheduleServiceTest extends TestCase
         // Given
         $days = array_map(
             fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'),
-            $this->sut->getFreeDays(2025, 12)
+            $this->sut->getFreeDays(
+                \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-01'),
+                \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-31')
+            )
         );
         // When & Then
         $this->assertSame($this->december2025Holidays(), $days);
@@ -41,7 +44,10 @@ class WorkScheduleServiceTest extends TestCase
         // Given
         $workingDays = array_map(
             fn(WorkSchedule $day) => $day->getDate()->format('Y-m-d'),
-            $this->sut->getWorkingDays(2025, 12)
+            $this->sut->getWorkingDays(
+                \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-01'),
+                \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-31')
+            )
         );
         // When & Then
         $this->assertSame([
@@ -88,7 +94,10 @@ class WorkScheduleServiceTest extends TestCase
             ]);
 
         // When
-        $days = $this->sut->getFreeDays(2025, 12);
+        $days = $this->sut->getFreeDays(
+            \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-01'),
+            \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-31')
+        );
         // Then
         $this->assertCount(count($holidays), $days);
         foreach ($days as $index => $day) {
@@ -112,7 +121,10 @@ class WorkScheduleServiceTest extends TestCase
             ])
         ;
         // When
-        $days = $this->sut->getFreeDays(2025, 12);
+        $days = $this->sut->getFreeDays(
+            \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-01'),
+            \DateTimeImmutable::createFromFormat('Y-m-d', '2025-12-31')
+        );
 
         // Then
         $holidays = array_map(fn(WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $days);
@@ -121,7 +133,6 @@ class WorkScheduleServiceTest extends TestCase
         $this->assertNotContains('2025-12-26', $holidays);
         $this->assertCount(count($this->december2025Holidays()) - 3, $days);
     }
-
 
 
     private function getEntity(string $date, ScheduleDayType $type): WorkSchedule

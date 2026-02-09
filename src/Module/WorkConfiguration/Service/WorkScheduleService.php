@@ -17,19 +17,12 @@ class WorkScheduleService
     }
 
     /**
-     * @param int $year
-     * @param ?int $month
+     * @param \DateTimeInterface $dateStart
+     * @param \DateTimeInterface $dateEnd
      * @return WorkSchedule[]
      */
-    public function getFreeDays(int $year, ?int $month): array
+    public function getFreeDays(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        $dateStart = DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month ?? 1));
-        if ($month !== null) {
-            $dateEnd = $dateStart->modify('last day of this month');
-        } else {
-            $dateEnd = $dateStart->modify('last day of December');
-        }
-
         $result = [];
         // get holidays
         foreach ([
@@ -48,7 +41,6 @@ class WorkScheduleService
                 unset($result[$day->getDate()->format('Y-m-d')]);
             }
         }
-
         $result = array_values($result);
         // sort by date
         usort($result, function (WorkSchedule $a, WorkSchedule $b) {
@@ -59,21 +51,14 @@ class WorkScheduleService
     }
 
     /**
-     * @param int $year
-     * @param ?int $month
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
      * @return WorkSchedule[]
      */
-    public function getWorkingDays(int $year, ?int $month): array
+    public function getWorkingDays(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        $dateStart = DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $year, $month ?? 1));
-        if ($month !== null) {
-            $dateEnd = $dateStart->modify('last day of this month');
-        } else {
-            $dateEnd = $dateStart->modify('last day of December');
-        }
-
         $result = [];
-        $holidays = array_map(fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($year, $month));
+        $holidays = array_map(fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($dateStart, $dateEnd));
         $currentDate = clone $dateStart;
         while ($currentDate <= $dateEnd) {
             if (!in_array($currentDate->format('Y-m-d'), $holidays)) {
@@ -86,6 +71,25 @@ class WorkScheduleService
         }
 
         return $result;
+    }
+
+    /**
+     * @param DateTimeImmutable $startDate
+     * @param DateTimeImmutable $endDate
+     * @param ScheduleDayType $type
+     * @return WorkSchedule[]
+     */
+    public function getDays(DateTimeImmutable $startDate, DateTimeImmutable $endDate, ScheduleDayType $type): array
+    {
+        if ($type === ScheduleDayType::Working) {
+            return $this->getWorkingDays($startDate, $endDate);
+        }
+
+        if ($type === ScheduleDayType::Holiday) {
+            return $this->getFreeDays($startDate, $endDate);
+        }
+
+        throw new \InvalidArgumentException('Invalid ScheduleDayType provided.');
     }
 
     /**
@@ -139,4 +143,6 @@ class WorkScheduleService
     {
         return $this->workScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
     }
+
+
 }

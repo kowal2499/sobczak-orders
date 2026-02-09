@@ -19,3 +19,11 @@ export function fetchCapacities(startDate = null, endDate = null) {
 export function deleteCapacity(id) {
     return axios.delete(`/work-configuration/capacity/${id}`);
 }
+
+export function fetchHolidayEvents(startDate, endDate) {
+    const params = new URLSearchParams()
+    params.append('startDate', startDate)
+    params.append('endDate', endDate)
+    params.append('type', 'holiday')
+    return axios.get(`/work-configuration/schedule?${params.toString()}`)
+}

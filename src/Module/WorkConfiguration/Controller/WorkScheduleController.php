@@ -5,6 +5,7 @@ namespace App\Module\WorkConfiguration\Controller;
 use App\Controller\BaseController;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use DateTimeImmutable;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -60,16 +61,27 @@ class WorkScheduleController extends BaseController
     #[Route(path: '', name: 'list', methods: ['GET'])]
     public function list(
         Request $request,
-        WorkScheduleRepository $workSchedule
+        WorkScheduleService $workScheduleService
     ): JsonResponse
     {
         $startDate = $request->query->get('startDate');
         $endDate = $request->query->get('endDate');
+        $type = $request->query->get('type');
 
         if (!$startDate || !$endDate) {
             return $this->json([
                 'error' => 'startDate and endDate are required'
             ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $typeEnum = null;
+        if ($type !== null) {
+            $typeEnum = ScheduleDayType::tryFrom($type);
+            if (!$typeEnum) {
+                return $this->json([
+                    'error' => 'Invalid type. Allowed values: working, holiday'
+                ], Response::HTTP_BAD_REQUEST);
+            }
         }
 
         try {
@@ -91,7 +103,7 @@ class WorkScheduleController extends BaseController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $schedules = $workSchedule->findByRange($startDateObj, $endDateObj);
+        $schedules = $workScheduleService->getDays($startDateObj, $endDateObj, $typeEnum);
 
         return $this->json(array_map(fn (WorkSchedule $schedule) => $schedule->toArray(), $schedules), Response::HTTP_OK);
     }
