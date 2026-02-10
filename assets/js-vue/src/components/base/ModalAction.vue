@@ -53,6 +53,9 @@ export default {
         },
         innerValue() {
             this.$emit('input', this.innerValue)
+            if (!this.innerValue) {
+                this.$emit('close')
+            }
         }
     },
 
