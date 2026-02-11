@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import plLocale from '@fullcalendar/core/locales/pl'
 import enLocale from '@fullcalendar/core/locales/en-gb'
 import { fetchHolidayEvents } from '../../repository/workRepository'
+import { processScheduleChanges } from '../../services/WorkScheduleService'
 import WorkScheduleForm from './WorkScheduleForm.vue'
 import ModalAction from '@/components/base/ModalAction'
 
@@ -39,6 +40,18 @@ export default {
             return this.selectedDates.length > 0
         },
 
+        modalTitle() {
+            if (this.selectedDates.length === 0) {
+                return this.$t('config.production.scheduleFormTitle')
+            }
+            if (this.selectedDates.length === 1) {
+                return `${this.$t('config.production.scheduleFormTitle')} - ${this.formatDateLocal(this.selectedDates[0])}`
+            }
+            const firstDate = this.formatDateLocal(this.selectedDates[0])
+            const lastDate = this.formatDateLocal(this.selectedDates[this.selectedDates.length - 1])
+            return `${this.$t('config.production.scheduleFormTitleRange')} - ${firstDate} - ${lastDate}`
+        },
+
         calendarOptions() {
             return {
                 initialView: 'dayGridMonth',
@@ -46,9 +59,10 @@ export default {
                 plugins: [dayGridPlugin, interactionPlugin],
                 locales: [plLocale, enLocale],
                 locale: this.locale,
-                selectable: true,
+                selectable: !this.isBusy,
+                editable: !this.isBusy,
                 unselectAuto: false,
-                events: this.eventsProvider,
+                events: this.events,
             }
         },
 
@@ -59,27 +73,56 @@ export default {
                 eventDrop: () => {},
                 eventResize: () => {},
                 select: this.onDateClick,
+                datesSet: this.onDatesSet,
             }
         }
     },
 
     methods: {
-        eventsProvider(info, successCallback, failureCallback) {
-            const { startStr, endStr } = info
+        onDatesSet(info) {
+            // Zapobiega wielokrotnemu pobieraniu gdy trwa ładowanie
+            if (this.isBusy) {
+                return
+            }
 
+            const newStart = this.formatDateLocal(info.start)
+            const newEnd = this.formatDateLocal(info.end)
+
+            // Zapobiega wielokrotnemu pobieraniu dla tego samego zakresu
+            if (this.currentRange.start === newStart && this.currentRange.end === newEnd) {
+                return
+            }
+
+            this.currentRange = {
+                start: newStart,
+                end: newEnd,
+            }
+            this.fetchEvents()
+        },
+
+        fetchEvents() {
+            if (!this.currentRange.start || !this.currentRange.end) {
+                return
+            }
+
+            this.isBusy = true
             return fetchHolidayEvents(
-                startStr.split('T').shift(),
-                endStr.split('T').shift()
+                this.currentRange.start,
+                this.currentRange.end
             ).then(({data}) => {
-                successCallback(data.map(event => {
+                this.events = data.map(event => {
                     return {
+                        identifier: event.id,
+                        dayType: event.dayType,
                         title: event.description,
                         start: (new Date(`${event.date}T23:59:59`)),
                         end: (new Date(`${event.date}T00:00:00`)),
                         allDay: true,
                         display: 'background',
                     }
-                }))
+                })
+            }).finally(() => {
+                this.isBusy = false
             })
         },
 
@@ -90,12 +133,53 @@ export default {
             for (let d = start; d < end; d.setDate(d.getDate() + 1)) {
                 this.selectedDates.push(new Date(d))
             }
-            console.log(this.selectedDates)
+
+            // Ustaw dayType w formularzu jeśli wybrano dokładnie 1 dzień
+            if (this.selectedDates.length === 1) {
+                const dateStr = this.formatDateLocal(this.selectedDates[0])
+                const existingEvent = this.events.find(event => {
+                    return this.formatDateLocal(event.start) === dateStr
+                })
+                if (existingEvent) {
+                    this.form.dayType = 'holiday'
+                    this.form.description = existingEvent.title || ''
+                } else {
+                    this.form.dayType = 'working'
+                }
+            }
         },
 
-        onSave() {
-            console.log('saving form', this.form)
-            this.onCloseModal()
+        formatDateLocal(date) {
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        },
+
+        async onSave() {
+            if (this.isBusy) {
+                return
+            }
+
+            const isValid = await this.$refs.formObserver.validate()
+            if (!isValid) {
+                return
+            }
+
+            const payload = this.selectedDates.map(date => {
+                return {
+                    date: this.formatDateLocal(date),
+                    dayType: this.form.dayType,
+                    description: this.form.description,
+                }
+            })
+            this.isBusy = true
+            return processScheduleChanges(payload, this.events).then(() => {
+                this.onCloseModal()
+                this.fetchEvents()
+            }).finally(() => {
+                this.isBusy = false
+            })
         },
 
         onCloseModal() {
@@ -108,12 +192,18 @@ export default {
             if (this.calendarApi) {
                 this.calendarApi.unselect()
             }
-        }
+        },
     },
 
     data: () => ({
         selectedDates: [],
         calendarApi: null,
+        isBusy: false,
+        events: [],
+        currentRange: {
+            start: null,
+            end: null,
+        },
         form: resetForm()
     })
 }
@@ -121,25 +211,29 @@ export default {
 
 <template>
     <div>
-        <FullCalendar
-            ref="fullCalendar"
-            :options="{
-                ...calendarOptions,
-                ...calendarEventHandlers,
-            }"
-        />
+        <b-overlay :show="isBusy" rounded="sm">
+            <FullCalendar
+                ref="fullCalendar"
+                :options="{
+                    ...calendarOptions,
+                    ...calendarEventHandlers,
+                }"
+            />
+        </b-overlay>
 
         <ModalAction
             :value="showModal"
             @close="onCloseModal"
-            title="Ustawienia dnia"
+            :title="modalTitle"
             :configuration="{
                 hideFooter: false,
                 size: 'md',
             }"
         >
             <template #default>
-                <WorkScheduleForm v-model="form" />
+                <ValidationObserver ref="formObserver" v-slot="{ invalid }">
+                    <WorkScheduleForm v-model="form" :is-busy="isBusy" />
+                </ValidationObserver>
             </template>
 
             <template #modal-footer="{ close }">
@@ -154,6 +248,27 @@ export default {
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+.fc {
+    --fc-bg-event-color: #ff5d6b;
+    --fc-bg-event-opacity: 0.7;
+    --fc-button-bg-color: #4e73df;
+    --fc-button-border-color: #4e73df;
+    --fc-button-hover-bg-color: #2e59d9;
+    --fc-button-hover-border-color: #2e59d9;
 
+    .fc-day {
+        cursor: pointer;
+    }
+    .fc-bg-event .fc-event-title {
+        color: #333;
+    }
+    .fc-daygrid-day-number {
+        color: #0A0A0A;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.25rem;
+    }
+}
 </style>

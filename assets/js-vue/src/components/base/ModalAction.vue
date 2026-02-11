@@ -6,7 +6,7 @@
                     <h5 class="modal-title">{{ title }}</h5>
                     <div class="d-flex" v-if="showClose">
                         <b-button
-                            class="text-secondary"
+                            class="text-secondary btn-sm"
                             @click="close"
                             variant="link"
                         >

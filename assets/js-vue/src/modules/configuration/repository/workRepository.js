@@ -27,3 +27,13 @@ export function fetchHolidayEvents(startDate, endDate) {
     params.append('type', 'holiday')
     return axios.get(`/work-configuration/schedule?${params.toString()}`)
 }
+
+export function saveSchedule(payloadCollection) {
+    return Promise.all(payloadCollection.map(payload =>
+        axios.post('/work-configuration/schedule', payload))
+    )
+}
+
+export function deleteSchedule(id) {
+    return axios.delete(`/work-configuration/schedule/${id}`);
+}

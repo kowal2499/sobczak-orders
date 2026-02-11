@@ -6,6 +6,10 @@ export default {
         value: {
             type: Object,
             default: () => ({})
+        },
+        isBusy: {
+            type: Boolean,
+            default: false
         }
     },
     mixins: [proxyValue],
@@ -13,28 +17,35 @@ export default {
 </script>
 
 <template>
-    <div>
+    <b-overlay :show="isBusy" rounded="sm">
         <ValidationProvider
-            :name="'Typ dnia'"
-            #default="{ errors }"
+            :name="$t('config.production.form.dayType')"
             :rules="{ required: true }"
+            #default="{ errors }"
         >
-            <b-form-group :label="'Typ dnia'" :invalid-feedback="errors.join(' ')" :state="errors.length ? false : null">
-                <b-form-radio v-model="proxyData.dayType" value="working">Dzień roboczy</b-form-radio>
-                <b-form-radio v-model="proxyData.dayType" value="holiday">Dzień wolny</b-form-radio>
+            <b-form-group
+                :label="$t('config.production.form.dayType')"
+                :invalid-feedback="errors.join(' ')"
+                :state="errors.length ? false : null"
+                :disabled="isBusy"
+            >
+                <b-form-radio-group v-model="proxyData.dayType">
+                    <b-form-radio value="working">{{ $t('config.production.form.working') }}</b-form-radio>
+                    <b-form-radio value="holiday">{{ $t('config.production.form.holiday') }}</b-form-radio>
+                </b-form-radio-group>
             </b-form-group>
         </ValidationProvider>
 
         <ValidationProvider
-            :name="'Opis'"
-            #default="{ errors }"
+            :name="$t('config.production.form.description')"
             :rules="{ required: false }"
+            #default="{ errors }"
         >
-            <b-form-group :label="'Opis'" :invalid-feedback="errors.join(' ')" :state="errors.length ? false : null">
+            <b-form-group :label="$t('config.production.form.description')" :invalid-feedback="errors.join(' ')" :state="errors.length ? false : null" :disabled="isBusy">
                 <b-form-input v-model.trim="proxyData.description" />
             </b-form-group>
         </ValidationProvider>
-    </div>
+    </b-overlay>
 </template>
 
 <style scoped lang="scss">
