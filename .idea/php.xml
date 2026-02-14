@@ -10,6 +10,11 @@
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpCodeSniffer">
+    <phpcs_settings>
+      <PhpCSConfiguration beautifier_path="$PROJECT_DIR$/app/vendor/bin/phpcbf" tool_path="$PROJECT_DIR$/app/vendor/bin/phpcs" />
+    </phpcs_settings>
+  </component>
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/app/vendor/symfony/event-dispatcher" />
@@ -156,9 +161,15 @@
       <path value="$PROJECT_DIR$/app/vendor/rector/rector" />
       <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php84" />
       <path value="$PROJECT_DIR$/app/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/app/vendor/squizlabs/php_codesniffer" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
+  <component name="PhpStan">
+    <PhpStan_settings>
+      <PhpStanConfiguration tool_path="$PROJECT_DIR$/app/vendor/bin/phpstan" />
+    </PhpStan_settings>
+  </component>
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
