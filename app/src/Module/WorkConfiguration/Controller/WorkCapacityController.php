@@ -20,8 +20,7 @@ class WorkCapacityController extends BaseController
     public function create(
         Request $request,
         WorkCapacityRepository $workCapacityRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $dateFrom = $request->request->get('dateFrom');
         $capacity = $request->request->get('capacity');
 
@@ -42,13 +41,13 @@ class WorkCapacityController extends BaseController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        if (!is_numeric($capacity) || (float)$capacity <= 0) {
+        if (!is_numeric($capacity) || (float) $capacity <= 0) {
             return $this->json([
                 'error' => 'Invalid capacity. Must be greater than 0'
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $workCapacity = $workCapacityRepository->upsert($dateFromObj, (float)$capacity);
+        $workCapacity = $workCapacityRepository->upsert($dateFromObj, (float) $capacity);
 
         return $this->json($workCapacity->toArray(), Response::HTTP_CREATED);
     }
@@ -57,8 +56,7 @@ class WorkCapacityController extends BaseController
     public function list(
         Request $request,
         WorkCapacityRepository $workCapacityRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $startDate = $request->query->get('startDate');
         $endDate = $request->query->get('endDate');
 
@@ -96,10 +94,9 @@ class WorkCapacityController extends BaseController
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted('work-configuration.capacity')]
     public function delete(
-        WorkCapacity           $workCapacity,
+        WorkCapacity $workCapacity,
         WorkCapacityRepository $workCapacityRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $workCapacityRepository->delete($workCapacity);
 
         return $this->json([], Response::HTTP_NO_CONTENT);

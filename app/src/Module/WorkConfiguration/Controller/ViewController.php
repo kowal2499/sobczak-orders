@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ViewController extends BaseController
 {
-    #[Route(path: '',  name: '', methods: ['GET'])]
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('configuration/work_configuration.html.twig');

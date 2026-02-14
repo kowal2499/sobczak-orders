@@ -9,9 +9,8 @@ use DateTimeImmutable;
 
 class WorkScheduleService
 {
-
     public function __construct(
-        private readonly WorkScheduleRepository  $workScheduleRepository,
+        private readonly WorkScheduleRepository $workScheduleRepository,
         private readonly DefaultHolidaysProvider $defaultHolidaysProvider,
     ) {
     }
@@ -25,11 +24,13 @@ class WorkScheduleService
     {
         $result = [];
         // get holidays
-        foreach ([
+        foreach (
+            [
             $this->getWeekendsInRange($dateStart, $dateEnd),
             $this->getDefaultHolidaysInRange($dateStart, $dateEnd),
             $this->getCustomHolidaysInRange($dateStart, $dateEnd),
-        ] as $daysSource) {
+            ] as $daysSource
+        ) {
             foreach ($daysSource as $day) {
                 $result[$day->getDate()->format('Y-m-d')] = $day;
             }
@@ -143,6 +144,4 @@ class WorkScheduleService
     {
         return $this->workScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
     }
-
-
 }

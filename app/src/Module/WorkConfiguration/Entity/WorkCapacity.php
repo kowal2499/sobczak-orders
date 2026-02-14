@@ -4,6 +4,7 @@ namespace App\Module\WorkConfiguration\Entity;
 
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use Doctrine\ORM\Mapping as ORM;
+
 #[ORM\Entity(repositoryClass: WorkCapacityRepository::class)]
 #[ORM\Table(name: "work_capacity")]
 #[ORM\Index(name: "idx_date_from", columns: ["date_from"])]

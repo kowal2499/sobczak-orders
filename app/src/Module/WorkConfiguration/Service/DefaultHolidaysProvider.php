@@ -15,8 +15,8 @@ class DefaultHolidaysProvider
      */
     public function getHolidays(\DateTimeImmutable $dateStart, \DateTimeImmutable $dateEnd): array
     {
-        $yearStart = (int)$dateStart->format('Y');
-        $yearEnd = (int)$dateEnd->format('Y');
+        $yearStart = (int) $dateStart->format('Y');
+        $yearEnd = (int) $dateEnd->format('Y');
         $holidays = [];
         for ($year = $yearStart; $year <= $yearEnd; $year++) {
             $result = Holidays::for(country: 'pl', year: $year)->get();

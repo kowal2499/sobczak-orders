@@ -22,8 +22,7 @@ class WorkScheduleController extends BaseController
     public function create(
         Request $request,
         WorkScheduleRepository $workScheduleRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $date = $request->request->get('date');
         $dayType = $request->request->get('dayType');
         $description = $request->request->get('description');
@@ -62,8 +61,7 @@ class WorkScheduleController extends BaseController
     public function list(
         Request $request,
         WorkScheduleService $workScheduleService
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $startDate = $request->query->get('startDate');
         $endDate = $request->query->get('endDate');
         $type = $request->query->get('type');
@@ -111,10 +109,9 @@ class WorkScheduleController extends BaseController
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted('work-configuration.schedule')]
     public function delete(
-        WorkSchedule           $workSchedule,
+        WorkSchedule $workSchedule,
         WorkScheduleRepository $workScheduleRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $workScheduleRepository->delete($workSchedule);
 
         return $this->json([], Response::HTTP_NO_CONTENT);
