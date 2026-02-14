@@ -1,9 +1,639 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="3f5f1105-037d-4ed1-bb1b-62ae824b8ec1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Entity/Tag.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Entity/TagDefinition.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.test" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SECURITY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/babel.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/app.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/app.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/components/_bootstrap-override.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/components/_language-switcher.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/components/_order-spec-list.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/helper/_utils.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/helper/_variables.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_components.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_content.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_forms.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_modal.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_sidebar.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout/_skeleton.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/login/main.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/jest.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-login/app-login.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/__tests__/services/WorkScheduleService.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/app-vue.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/fos_js_routes.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/get_message.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/i18n.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/api/neworder.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/api/production.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/api/routing.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/api/widgets.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/ButtonPlus.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/CollapsibleCard.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/ConfirmationModal.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/CustomerSelect.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/DatePicker.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Dropdown.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Form/FormLayout.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Menu/ContextMenu.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Menu/ContextMenu/ImpersonateUser.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Menu/ContextMenu/ImpersonateUserBack.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/MenuItem.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/ModalAction.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Notifications.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Overlay.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Sidebar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/TablePlus.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Tooltip.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/base/Waiting.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/common/LineActions.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/dev/DevContainer.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/dev/components/StartProductionActionDev.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/navigation/NavOrders.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/Customer.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/NewOrder.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/Products.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/list/Filters.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/list/OrdersList.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/AgreementLineWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/AgreementWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/AttachmentsWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/CustomerDetails.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/DetailsWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/ProductWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/ProductionWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/ProductionWidget/TaskContent.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/orders/single/SingleOrder.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/Badge.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/Filters.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/ProductionList.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/ProductionRow.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/ProductionRowBase.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/ProductionRowDetails.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/production/ProductionTaskNotification.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/root-components.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/users/RolePicker.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/components/users/UsersList.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/definitions/agreementLineStatuses.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/definitions/userRoles.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/definitions/userTasks.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/helpers.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/locale/en.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/locale/pl.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/mixins/proxyValue.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/Actions/ConfirmableAction.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/components/Factors/AdjustmentBonusForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/components/Factors/AdjustmentRatioForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/components/Factors/AgreementLineFactorForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/locale/en.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/locale/pl.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/repository/agreementLineRepository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/services/DefaultSortDateResolver.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineList/view/FactorsView.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/components/FactorDisplay.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/components/LineActions2.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/components/ProductionRow2.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/components/ProductionRowBase.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/components/ProductionRowDetails2.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/repository/readModelRepository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/agreementLineRM/views/AgreementLineListRM.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/app/views/App.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/GrantItem.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/GrantUserValue.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/GrantValue.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/GrantsList.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/UserGrants.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/forms/RoleForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/forms/RoleModalForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/production/CapacityForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/production/CapacityHistory.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/production/ProductionNavigation.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/production/WorkScheduleCalendar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/production/WorkScheduleForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/roles/RoleSelect.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/components/roles/RolesNavigation.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/repository/authorizatonRepository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/repository/rolesRepository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/repository/users.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/repository/workRepository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/services/GrantValueStringify.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/services/WorkScheduleService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/views/AuthConfigurationWrapper.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/views/Production.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/views/Roles.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/configuration/views/UserSingle.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/Dashboard.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/BaseMetric.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/CompletionDateMetric.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/FactorsLimitMetric.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/MetricLayout.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/CapacityMetric/Chart.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/CapacityMetric/exportFields.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/CapacityMetric/index.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/DepartmentMetricMixin.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/OrdersCountMetric/index.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/ProductionMetricMixin.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/components/DepartmentFactorValue.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/components/Details.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/components/DetailsDepartment.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/components/DetailsNavbar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/components/StatusIcon.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/fields.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/SidebarLayout.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/components/Metrics/WorkingDaysMetric.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/locale/en.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/locale/pl.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/repository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/dashboard/services/FactorHelper.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/components/StartProductionAction.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/components/StartProductionForm.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/components/StrategySelect.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/services/productionScheduler/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/services/productionScheduler/strategyCascade.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/production/services/productionScheduler/strategyFast.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/configurator/Modal.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/configurator/TagsConfig.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/definitions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/repository.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/widget/Tag.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/widget/TagsIndicator.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/modules/tags/widget/TagsWidget.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/ExcelExport/ExcelExport.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/ExcelExport/Worksheet.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/Field/Field.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/confirm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/datesService.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/init/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/localstorageCache.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/months.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/services/privilages.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/actions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/auth/actions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/auth/getters.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/auth/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/auth/mutations.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/auth/state.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/getters.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/mutations.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/state.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/types.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/ui/actions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/ui/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/ui/mutations.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/ui/state.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/user/actions.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/user/getters.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/user/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/user/mutations.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/store/user/state.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/src/validation/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/authorization.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/configuration.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/dashboard.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/general.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/orders.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/production.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/tags.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js-vue/translations/user.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/app.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/webpack.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/console" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/phpunit" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/assets.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/cache.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/debug.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/dev/easy_log_handler.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/dev/routing.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/doctrine.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/doctrine_migrations.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/fos_rest.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/framework.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/knp_paginator.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/liip_imagine.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/lock.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/messenger.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/monolog.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/prod/webpack_encore.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/routing.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/sensio_framework_extra.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/stof_doctrine_extensions.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/test/framework.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/test/routing.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/test/webpack_encore.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/translation.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/twig.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/validator.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/web_profiler.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/webpack_encore.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/preload.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/annotations.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/dev/framework.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/fos_js_routing.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/framework.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/liip_imagine.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes/web_profiler.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/secrets/prod/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/phpunit.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/phpunit.xml.dist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/background.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/doc.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/en.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/logo-sobczak.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/pdf.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/pl.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/sobczak.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/imgs/xls.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/uploads/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rector.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ConsoleCommand/UpdateProductionCompletionDate.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AccountController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AgreementLineController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AgreementsController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/BaseController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/CustomersController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/DashboardController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/DevController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/ProductionController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/ProductsController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/SecurityController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/TagDefinitionController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DTO/Production/ProductionTaskDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DTO/TagDefinitionDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/AgreementFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/AppFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/BaseFixture.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/CustomerFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/ProductFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/ProductionFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/TagFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DataFixtures/UserFixtures.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Agreement.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/AgreementLine.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Attachment.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Customer.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Customers2Users.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Definitions/TaskTypes.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Department.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Product.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Production.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/StatusLog.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/TagAssignment.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/TagDefinition.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/User.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EventSubscriber/LocaleSubscriber.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EventSubscriber/ResponseSubscriber.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Exceptions/Production/ProductionAlreadyExistsException.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Exceptions/Production/StatusNotMatchWithTaskTypeException.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/AgreementLineType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/AgreementsType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/BaseType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/CustomerType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/Customers2UsersType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/ProductType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/ProductionType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/StatusLogType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/StatusLogUserType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/TagDefinitionDTOType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Form/UserSecurityFormType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Kernel.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/AgreementLine/UpdateProductionCompletionDate.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/AgreementLine/UpdateProductionStartDate.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/AssignTags.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/CreateTagDefinition.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/DeleteTagDefinition.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/GetAssignedTags.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/Task/UpdateStatusCommand.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message/UpdateTagDefinition.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/AgreementLine/UpdateProductionCompletionDateHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/AgreementLine/UpdateProductionStartDateHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/AssignTagsHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/CreateTagDefinitionHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/DeleteTagDefinitionHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/GetAssignedTagsHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/Task/UpdateStatusCommandHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MessageHandler/UpdateTagDefinitionHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190611210821.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190615213954.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190624190031.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190624190743.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190624192030.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190629154124.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190629154629.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190629161038.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190707063850.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190707161640.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190720085303.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190726103730.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190728175417.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190728182254.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190729212106.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190730202432.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190801205935.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190818104226.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190821084227.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190821091641.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20190905212320.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191005102339.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191105212839.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191121211520.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191123114634.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191224125902.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20191224130457.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20200209084857.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20210201220110.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20210606052640.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20210607043046.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20210912105728.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20210919183856.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20211121075958.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20241231094850.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20241231100732.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20250502213151.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20250916150904.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20251207160457.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20260125193226.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20260207195016.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Migrations/Version20260208183011.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/CLI/SyncReadModel.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/CLI/UpdateAgreementLineDates.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Command/UpdateAgreementLineRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/CommandHandler/UpdateAgreementLineRMHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Controller/AgreementLineController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/AddressRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/AgreementLineRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/AgreementRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/AttachmentRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/CustomerRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/ProductRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/ProductionRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/TagRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Entity/UserRM.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Event/AgreementLineWasCreatedEvent.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Event/AgreementLineWasDeletedEvent.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Event/AgreementLineWasUpdatedEvent.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/EventHandler/DeleteAgreementLineRMHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnCreateHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnUpdateHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/Repository/AgreementLineRMRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/AgreementLine/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Command/CreateRoleGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Command/CreateUserGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Command/DeleteRoleGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Command/DeleteUserGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/CommandHandler/CreateRoleGrantValueHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/CommandHandler/CreateUserGrantValueHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/CommandHandler/DeleteRoleGrantValueHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/CommandHandler/DeleteUserGrantValueHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/AuthorizationController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/GrantController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/GrantRoleController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/GrantRoleValueController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/GrantUserValueController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/RoleController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Controller/RoleUserController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Doctrine/GrantOptionsType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Doctrine/GrantTypeType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthAbstractGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthGrant.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthRole.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthRoleGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthUserGrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Entity/AuthUserRole.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/AuthGrantRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/AuthRoleGrantValueRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/AuthRoleRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/AuthUserGrantValueRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/AuthUserRoleRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Interface/AuthGrantRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Interface/AuthRoleGrantValueRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Interface/AuthRoleRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Interface/AuthUserGrantValueRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Interface/AuthUserRoleRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Test/AuthGrantTestRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Test/AuthRoleGrantValueTestRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Test/AuthRoleTestRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Test/AuthUserGrantValueTestRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Repository/Test/AuthUserRoleTestRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Service/AuthCacheService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Service/GrantValueSupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Service/GrantsResolver.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Service/RolesMerger.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/ValueObject/GrantOption.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/ValueObject/GrantOptionsCollection.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/ValueObject/GrantType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/ValueObject/GrantVO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/ValueObject/GrantValue.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/Voter/CustomGrantsVoter.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/config.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/module.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Authorization/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Customer/module.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/CLI/RegisterModules.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/Controller/ModuleController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/Entity/Module.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/Repository/ModuleRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/config/modules.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/ModuleRegistry/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Command/CreateFactorCommand.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Command/DeleteFactorCommand.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Command/SetAgreementLineFactorCommand.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Command/UpdateFactorCommand.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/CommandHandler/CreateFactorCommandHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/CommandHandler/DeleteFactorCommandHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/CommandHandler/SetAgreementLineFactorCommandHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/CommandHandler/UpdateFactorCommandHandler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Controller/FactorController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/DTO/FactorAdjustmentDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/DTO/FactorRatioDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Entity/Factor.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Entity/FactorSource.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/Assemblers/AgreementLineAssembler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/Assemblers/DepartmentAssembler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/Assemblers/DepartmentBonusAssembler.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/Assemblers/FactorAssemblerInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/DTO/AssembledFactorDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/DTO/FactorDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Factor/FactorCalculator.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Repository/FactorRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Repository/Interface/FactorAdjustmentRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Repository/Interface/FactorRepositoryInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Service/FactorBonusService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Service/FactorRatioWriteService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/Service/FactorWriteService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/module.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Production/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/Controller/ProductionReportsController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/DTO/AgreementDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/DTO/AgreementLineDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/DTO/CustomerDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/DTO/FactorDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/DTO/ProductionReportRecordDTO.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSupplierInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSuppliers/BaseSupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSuppliers/OrdersFinishedRecordSupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSuppliers/OrdersPendingRecordSupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSuppliers/ProductionBonusSupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/RecordSuppliers/ProductionCapacitySupplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/Repository/DoctrineProductionFinishedRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/Repository/DoctrineProductionPendingRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/Repository/DoctrineProductionTasksRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/Production/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/Reports/module.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Controller/ViewController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Controller/WorkCapacityController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Controller/WorkScheduleController.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Entity/WorkCapacity.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Entity/WorkSchedule.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Repository/WorkCapacityRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Repository/WorkScheduleRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Service/DefaultHolidaysProvider.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/Service/WorkScheduleService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/ValueObject/ScheduleDayType.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/module.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Module/WorkConfiguration/routes.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/AgreementLineRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/AgreementRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/AttachmentRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/CustomerRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/ProductRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/ProductionRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/StatusLogRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/TagAssignmentRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/TagDefinitionRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/UserRepository.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/LoginFormAuthenticator.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Security/Voter/CustomerVoter.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Serializer/Normalizer/AttachmentNormalizer.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/AgreementLine/ProductionCompletionDateResolverService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/AgreementLine/ProductionStartDateResolverService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/DateTimeHelper.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/ModuleConfigurationLoader.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/NumberMultiplier.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/Production/ProductionTaskDatesResolver.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/Production/TaskStatusService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Service/UploaderHelper.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/System/CommandBus.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/System/EventBus.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/System/QueryBus.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/System/Test/ApiTestCase.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Utilities/Test/AuthHelper.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/_language_switcher.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/_sidebar.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/account/index.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/agreement_line/index.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/agreement_line/order_details.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/configuration/role.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/configuration/single_user.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/configuration/tags.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/configuration/users.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/configuration/work_configuration.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/customers/customer_single.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/customers/customers_show.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/dashboard/show.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/dev/index.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/full_width.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/orders/order_single.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/orders/order_single_edit.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/orders/orders_show.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/production/production_show.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/products/product_single.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/products/products_show.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/reports/index.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/security/login.html.twig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/testing.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Controller/AgreementControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Controller/AgreementLineControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Controller/ProductionControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Controller/SecurityControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Handler/UpdateProductionCompletionDateHandlerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Authorization/GrantRoleValueControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Authorization/GrantsResolverTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Production/FactorAdjustmentControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Production/FactorControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Reports/ProductionReportTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/Reports/ReportsControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/End2End/Modules/WorkConfiguration/WorkScheduleControllerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Reports/Production/Integration/DoctrineProductionModelRepositoryTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Service/NumberMultiplierTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Service/WorkingScheduleServiceTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/MessageHandler/Task/UpdateStatusCommandHandlerTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Modules/Authorization/GrantVOTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Modules/Authorization/GrantsResolverTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Modules/Production/FactorCalculatorTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Modules/WorkConfiguration/WorkScheduleServiceTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Service/AgreementLine/ProductionCompletionDateResolverTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Service/AgreementLine/ProductionStartDateResolverTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Service/Production/ProductionTaskDatesResolverTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Service/Production/TasksFlagsServiceTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Service/UploaderHelperTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/AgreementLineFixtureHelpers.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Cache/TestCacheItem.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Cache/TestCacheWrapper.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/AgreementLineChainFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/AuthFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/AgreementFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/AgreementLineFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/CustomerFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/FactorAdjustFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/ProductFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/ProductionFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/StatusLogFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/Definition/UserFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/EntityFactory.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/Factory/FactoryDefinitionInterface.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/PrivateProperty.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Utilities/ProductionFixtureHelpers.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/bootstrap.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/agreements.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/authorization.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/authorization.pl.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/base.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/customers.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/dashboard.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/dashboard.pl.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/production.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/products.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/role.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/role.pl.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/security.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/security.pl.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/tags.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/tags.pl.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/validators.en.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/work_configuration.en.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/translations/work_configuration.pl.yml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -11,8 +641,22 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
-    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <pharConfigPath>$PROJECT_DIR$/app/composer.json</pharConfigPath>
     <execution />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/home/roman/projects/sobczak-orders" value="1nLnc4cxx6Ov6Ph0Dp3XqSKSagW" />
+    </persistenceIdMap>
+  </component>
+  <component name="DatabaseLocalColorSettings">
+    <colors>
+      <entry key="6fd44bd9-a961-4e96-b684-4c3a99190cd5" value="Green" />
+    </colors>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="9770" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -24,6 +668,162 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php">
+    <include_path>
+      <path value="$PROJECT_DIR$/app/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/property-info" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/dependency-injection" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/twig-bridge" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/asset" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/validator" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/cache-contracts" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/security-http" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/cache" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/form" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/dotenv" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/serializer" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/stopwatch" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/dom-crawler" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/var-exporter" />
+      <path value="$PROJECT_DIR$/app/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/app/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/twig-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/apache-pack" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/debug-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/security-csrf" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/app/vendor/sensio/framework-extra-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/app/vendor/gedmo/doctrine-extensions" />
+      <path value="$PROJECT_DIR$/app/vendor/knplabs/knp-paginator-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/knplabs/knp-components" />
+      <path value="$PROJECT_DIR$/app/vendor/imagine/imagine" />
+      <path value="$PROJECT_DIR$/app/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/app/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/app/vendor/phpunit/php-token-stream" />
+      <path value="$PROJECT_DIR$/app/vendor/friendsofsymfony/jsrouting-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/friendsofsymfony/rest-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/composer" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/app/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/app/vendor/twig/extra-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/stof/doctrine-extensions-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/liip/imagine-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/app/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/app/vendor/willdurand/jsonp-callback-validator" />
+      <path value="$PROJECT_DIR$/app/vendor/willdurand/negotiation" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/orm" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/common" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/dbal" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/data-fixtures" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/collections" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/doctrine-fixtures-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/annotations" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/event-manager" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/migrations" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/sql-formatter" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/doctrine-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/persistence" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/flex" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/maker-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/security-core" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/options-resolver" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/doctrine-bridge" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/framework-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/doctrine-migrations-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/doctrine/cache" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/phpunit-bridge" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/property-access" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/webpack-encore-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/messenger" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/security-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/browser-kit" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/monolog-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/monolog-bridge" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/app/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/runtime" />
+      <path value="$PROJECT_DIR$/app/vendor/phpstan/phpstan" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/password-hasher" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-intl-icu" />
+      <path value="$PROJECT_DIR$/app/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/app/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/app/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/app/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/app/vendor/spatie/holidays" />
+      <path value="$PROJECT_DIR$/app/vendor/carbonphp/carbon-doctrine-types" />
+      <path value="$PROJECT_DIR$/app/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/lock" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/intl" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/security-guard" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/amqp-messenger" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/redis-messenger" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/doctrine-messenger" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/web-profiler-bundle" />
+      <path value="$PROJECT_DIR$/app/vendor/rector/rector" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php84" />
+      <path value="$PROJECT_DIR$/app/vendor/nesbot/carbon" />
+    </include_path>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 1
+}]]></component>
   <component name="ProjectId" id="1nLnc4cxx6Ov6Ph0Dp3XqSKSagW" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -32,13 +832,107 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="vue.rearranger.settings.migration" value="true" />
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Docker.Docker sobczak.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "202602-implementacja-dockera",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/roman/projects/sobczak-orders",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "npm.test.executor": "Run",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql",
+      "mariadb"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.Docker sobczak">
+    <configuration name="Main" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/app/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Docker sobczak" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="dev" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/app/assets/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.16.0/bin/node" />
+      <envs />
+      <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+        <browser with-js-debugger="true" />
+      </EXTENSION>
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/app/assets/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="test" />
+      </scripts>
+      <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.16.0/bin/node" />
+      <envs />
+      <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+        <browser with-js-debugger="true" />
+      </EXTENSION>
+      <method v="2" />
+    </configuration>
+    <configuration name="watch" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/app/assets/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="watch" />
+      </scripts>
+      <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.16.0/bin/node" />
+      <envs />
+      <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+        <browser with-js-debugger="true" />
+      </EXTENSION>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.Docker sobczak" />
+      <item itemvalue="npm.dev" />
+      <item itemvalue="npm.watch" />
+      <item itemvalue="npm.test" />
+      <item itemvalue="PHPUnit.Main" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.29346.257" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -49,6 +943,7 @@
       <option name="presentableId" value="Default" />
       <updated>1611178314532</updated>
       <workItem from="1611178315675" duration="2402000" />
+      <workItem from="1771097414281" duration="1108000" />
     </task>
     <servers />
   </component>
@@ -68,5 +963,13 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

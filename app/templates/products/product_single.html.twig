@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'products' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
+        </div>
+
+        <div class="card-body">
+
+            {{ form_start(form) }}
+
+                {{ form_widget(form) }}
+
+                <a href="{{ path('products_show') }}" class="btn btn-light mr-3"><i class="fa fa-arrow-left" aria-hidden="true"></i> {{ 'Wstecz'|trans }}</a>
+                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}</button>
+
+            {{ form_end(form) }}
+
+        </div>
+
+    </div>
+
+{% endblock %}
