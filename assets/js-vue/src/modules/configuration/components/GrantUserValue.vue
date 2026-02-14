@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
 import { defineComponent } from 'vue'
 import proxyValue from '@/mixins/proxyValue'
 import GrantValue from './GrantValue'
@@ -9,6 +9,10 @@ export default defineComponent({
         grant: {
             type: Object,
             required: true
+        },
+        valuePerRole: {
+            type: Array,
+            default: () => []
         },
         userId: {
             type: Number,
@@ -29,18 +33,22 @@ export default defineComponent({
                 this.roleMode = this.proxyData.length === 0
             }
         },
-    },
 
-    methods: {
-        onModeChange() {
-            if (this.roleMode) {
+        roleMode(val) {
+            if (val) {
+                this.customModeValuesCache = JSON.stringify(this.proxyData)
                 this.proxyData = []
+            } else if (this.customModeValuesCache) {
+                this.$nextTick(() => {
+                    this.proxyData = JSON.parse(this.customModeValuesCache)
+                })
             }
         }
     },
 
     data: () => ({
         roleMode: true,
+        customModeValuesCache: null
     })
 })
 </script>
@@ -55,14 +63,13 @@ export default defineComponent({
                 :options="[{text: 'Na podstawie ról', value: true}, {text: 'Ustawienie własne', value: false}]"
                 name="radios-btn-default"
                 buttons
-                @change="onModeChange"
             ></b-form-radio-group>
         </b-form-group>
         <GrantValue
             v-if="roleMode"
             :grant="grant"
             :user-id="userId"
-            :value="[]"
+            :value="valuePerRole"
             :is-disabled="true"
             :disabledDescription="'Aby zmienić uprawnienie, przejdź do konfiguracji ról. Możesz też włączyć tryb \'ustawienie własne\' by określić uprawnienia tylko dla tego użytkownika.'"
             class="my-2"

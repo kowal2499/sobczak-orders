@@ -12,3 +12,7 @@ export function fetchGrantRoleValues() {
     return axios.get('/authorization/grant/role/value');
 }
 
+export function mergeRoles(roleIds) {
+    return axios.post('/authorization/grant/role/value/merge', { roles: roleIds });
+}
+

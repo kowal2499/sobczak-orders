@@ -37,15 +37,6 @@ class ApiTestCase extends WebTestCase
     {
         $client = $this->client ?? $this->initializeClient();
         $client->loginUser($user);
-//        $session = $this->get('session');
-//        $firewallName = $firewallContext = 'main';
-//        $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
-//        $this->client->getContainer()->get('security.token_storage')->setToken($token);
-//        $session->set('_security_'.$firewallContext, serialize($token));
-//        $session->save();
-//
-//        $cookie = new Cookie($session->getName(), $session->getId());
-//        $client->getCookieJar()->set($cookie);
         return $client;
     }
 
@@ -93,8 +84,9 @@ class ApiTestCase extends WebTestCase
     protected function createUser(
         array $data = [],
         array $roleNames = [],
-        array $grantNames = []
+        array $grantNames = [],
+        array $legacyRoles = [],
     ): User {
-        return $this->getAuthHelper()->createUser($data, $roleNames, $grantNames);
+        return $this->getAuthHelper()->createUser($data, $roleNames, $grantNames, $legacyRoles);
     }
 }

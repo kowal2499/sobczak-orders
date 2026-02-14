@@ -21,9 +21,14 @@
 
         <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
             <tr v-for="(line, key) in agreementLines" :key="key">
-                <td class="d-flex flex-column">
-                    <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
-                    <tags-indicator :logs="line.tags"/>
+                <td>
+                    <line-actions :line="line" @lineChanged="fetchData()"/>
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
+                        <tags-indicator :logs="line.tags"/>
+                    </div>
                 </td>
                 <td class="text-nowrap">{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
                 <td class="text-nowrap">{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
@@ -49,11 +54,6 @@
                         {{ $t(getProductionStatusData(line.productions)['title']) }}
                     </span>
                 </td>
-
-                <td>
-                    <line-actions :line="line" @lineChanged="fetchData()"/>
-                </td>
-
             </tr>
         </table-plus>
 
@@ -229,24 +229,20 @@
 
             tableHeaders() {
                 return [
-                    [
-                        { name: this.$t('id'), sortKey: 'id' },
-                        { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
-                        { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
-                        { name: this.$t('orders.issuedBy'), sortKey: 'user' },
-                        { name: this.$t('customer'), sortKey: 'customer'},
-                        { name: this.$t('product'), sortKey: 'product' },
-                        { name: this.$t('orderStatus') },
-                        { name: this.$t('productionStatus') },
-                        { name: this.$t('actions') },
-                    ]
-                ];
+                    { name: this.$t('actions') },
+                    { name: this.$t('id'), sortKey: 'id' },
+                    { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
+                    { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
+                    { name: this.$t('orders.issuedBy'), sortKey: 'user' },
+                    { name: this.$t('customer'), sortKey: 'customer'},
+                    { name: this.$t('product'), sortKey: 'product' },
+                    { name: this.$t('orderStatus') },
+                    { name: this.$t('productionStatus') },
+                ].filter(Boolean).map(i => ({ items: [i], thClass: null }))
             },
         },
 
-
         methods: {
-
             fetchData() {
                 this.loading = true;
 

@@ -4,15 +4,16 @@ import { get, set } from "../../services/localstorageCache"
 import UsersApi from "@/modules/configuration/repository/users";
 
 export default {
-    async [TYPES.ACTION_USER_FETCH_GRANTS]({ commit }, force = false) {
+    async [TYPES.ACTION_USER_FETCH_GRANTS]({ commit }, { force = false, userId = null } = {}) {
         let grants
+        const storageKey = `-user-grants-${userId || ''}`;
         if (!force) {
-            grants = get('-user-grants')
+            grants = get(storageKey)
         }
         if (grants === undefined) {
             const response = await axios.get('/authorization/grants')
             grants = response.data.data
-            set('-user-grants', grants, 5)
+            set(storageKey, grants, 5)
         }
         commit(TYPES.MUTATION_SET_USER_GRANTS, grants);
     },

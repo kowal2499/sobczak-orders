@@ -9,11 +9,20 @@ use App\Entity\Customer;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Form\AgreementsType;
+use App\Module\AgreementLine\Event\AgreementLineWasCreatedEvent;
+use App\Module\AgreementLine\Event\AgreementLineWasDeletedEvent;
+use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\Module\Production\Command\CreateFactorCommand;
+use App\Module\Production\Command\UpdateFactorCommand;
+use App\Module\Production\DTO\FactorRatioDTO;
+use App\Module\Production\Entity\FactorSource;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
 use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
+use App\System\CommandBus;
+use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -120,6 +129,8 @@ class AgreementsController extends AbstractController
      * @param UploaderHelper $uploaderHelper
      * @param TranslatorInterface $t
      * @param Security $security
+     * @param CommandBus $commandBus
+     * @param EventBus $eventBus
      * @return JsonResponse
      * @throws \Exception
      */
@@ -131,7 +142,9 @@ class AgreementsController extends AbstractController
         EntityManagerInterface $em,
         UploaderHelper $uploaderHelper,
         TranslatorInterface $t,
-        Security $security
+        Security $security,
+        CommandBus $commandBus,
+        EventBus $eventBus,
     ): JsonResponse
     {
         $data = $request->request->all();
@@ -160,12 +173,12 @@ class AgreementsController extends AbstractController
                 ->setProduct($product)
                 ->setConfirmedDate(new \DateTime($productData['requiredDate']))
                 ->setDescription($productData['description'])
-                ->setAgreement($agreement)
                 ->setFactor($productData['factor'])
                 ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
                 ->setDeleted(false)
                 ->setArchived(false)
             ;
+            $agreement->addAgreementLine($agreementLine);
             $em->persist($agreementLine);
         }
 
@@ -186,11 +199,24 @@ class AgreementsController extends AbstractController
         }
         $em->flush();
 
+        foreach ($agreement->getAgreementLines() as $line) {
+            // add factor
+            $commandBus->dispatch(new CreateFactorCommand(
+                $line->getId(),
+                new FactorRatioDTO(
+                    FactorSource::AGREEMENT_LINE,
+                    $line->getFactor(),
+                )
+            ));
+
+            $eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
+        }
+
         if ($em->contains($agreement)) {
             $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
         }
         else {
-            $this->addFlash('error', $t->trans('Błąd dodawania zamówiena.', [], 'agreements'));
+            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
         }
 
         return new JsonResponse([$agreement->getId()]);
@@ -201,25 +227,35 @@ class AgreementsController extends AbstractController
      * @param Request $request
      * @param CustomerRepository $customerRepository
      * @param AgreementLineRepository $agreementLineRepository
+     * @param ProductRepository $productRepository
      * @param EntityManagerInterface $em
+     * @param UploaderHelper $uploaderHelper
+     * @param CommandBus $commandBus
+     * @param EventBus $eventBus
+     * @param TranslatorInterface $t
      * @return JsonResponse
      * @throws \Exception
      */
     #[Route(path: '/orders/patch/{agreement}', name: 'orders_patch', options: ['expose' => true], methods: ['POST'])]
-    public function edit(Agreement $agreement, Request $request,
-                         CustomerRepository $customerRepository,
-                         AgreementLineRepository $agreementLineRepository,
-                         ProductRepository $productRepository,
-                         EntityManagerInterface $em,
-                         UploaderHelper $uploaderHelper,
-                         TranslatorInterface $t): JsonResponse
+    public function edit(
+        Agreement $agreement,
+        Request $request,
+        CustomerRepository $customerRepository,
+        AgreementLineRepository $agreementLineRepository,
+        ProductRepository $productRepository,
+        EntityManagerInterface $em,
+        UploaderHelper $uploaderHelper,
+        CommandBus $commandBus,
+        EventBus $eventBus,
+        TranslatorInterface $t
+    ): JsonResponse
     {
         /**
-         * 1. operujemy na agreement_line_id
-         * 2. aktualizujemy klienta i numer zamówienia
-         * 3. tworzymy zbiór wszystkich agreement line, które należą do danego agreement
-         * 4. z tych agreement które otrzymaliśmy, aktualizujemy te, które mają id i usuwamy je ze zbioru
-         * 5. z tych agreement które otrzymaliśmy i które nie mają id-dodajemy jako nowe
+         * 1. operujemy na agreement_line_id,
+         * 2. aktualizujemy klienta i numer zamówienia,
+         * 3. tworzymy zbiór wszystkich agreement line, które należą do danego agreement,
+         * 4. z tych agreement, które otrzymaliśmy, aktualizujemy te, które mają id i usuwamy je ze zbioru
+         * 5. z tych agreement, które otrzymaliśmy i które nie mają id-dodajemy jako nowe
          * 6. jeśli zbiór jest niepusty, to znaczy, że te, które zostały trzeba usunąć. Usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
          */
 
@@ -253,8 +289,12 @@ class AgreementsController extends AbstractController
                 throw new \Exception('Wrong input data');
             }
 
+            $factorCommands = [];
+            $eventsCreated = [];
+            $eventsUpdated = [];
+            $eventsDeleted = [];
             foreach ($incomingLines as $incomingLine) {
-
+                $isNew = false;
                 if (isset($incomingLine['id']) && !empty($incomingLine['id'])) {
                     $line = $agreementLineRepository->find($incomingLine['id']);
 
@@ -267,9 +307,10 @@ class AgreementsController extends AbstractController
                 } else {
                     $line = new AgreementLine();
                     $line->setDeleted(false)
-                        ->setAgreement($agreement)
                         ->setArchived(false)
                     ;
+                    $agreement->addAgreementLine($line);
+                    $isNew = true;
                 }
 
                 $line->setConfirmedDate(new \DateTime($incomingLine['requiredDate']));
@@ -279,6 +320,27 @@ class AgreementsController extends AbstractController
 
                 $em->persist($line);
 
+                $agreementLineFactor = $line->getFactorFromCollection();
+
+                if ($isNew || !$agreementLineFactor) {
+                    $em->flush();
+                    $factorCommands[] = new CreateFactorCommand($line->getId(), new FactorRatioDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $line->getFactor(),
+                    ));
+                } else {
+                    $factorCommands[] = new UpdateFactorCommand($line->getId(), new FactorRatioDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $line->getFactor(),
+                        $agreementLineFactor->getId(),
+                    ));
+                }
+
+                if ($isNew) {
+                    $eventsCreated[] = new AgreementLineWasCreatedEvent($line->getId());
+                } else {
+                    $eventsUpdated[] = new AgreementLineWasUpdatedEvent($line->getId());
+                }
             }
 
             // file upload logic
@@ -307,12 +369,22 @@ class AgreementsController extends AbstractController
 
         // usuwanie linii
         if (!empty($oldAgreementLineIds)) {
-
             foreach ($oldAgreementLineIds as $agreementLineId) {
                 $line = $agreementLineRepository->find($agreementLineId);
                 $em->remove($line);
+                $eventsDeleted[] = new AgreementLineWasDeletedEvent($agreementLineId);
             }
             $em->flush();
+        }
+
+        // dispatch factor commands
+        foreach ($factorCommands as $command) {
+            $commandBus->dispatch($command);
+        }
+
+        // dispatch events
+        foreach (array_merge($eventsCreated, $eventsUpdated, $eventsDeleted) as $event) {
+            $eventBus->dispatch($event);
         }
 
         if ($em->contains($agreement)) {
@@ -324,13 +396,27 @@ class AgreementsController extends AbstractController
 
     /**
      * @param Agreement $agreement
+     * @param EntityManagerInterface $em
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/orders/delete/{agreement}', name: 'orders_delete', options: ['expose' => true], methods: ['POST'])]
-    public function delete(Agreement $agreement, EntityManagerInterface $em): JsonResponse
+    public function delete(
+        Agreement $agreement,
+        EntityManagerInterface $em,
+        EventBus $eventBus,
+    ): JsonResponse
     {
+        $lines = array_map(
+            fn (AgreementLine $line) => $line->getId(),
+            $agreement->getAgreementLines()
+        );
         $em->remove($agreement);
         $em->flush();
+
+        foreach ($lines as $lineId) {
+            $eventBus->dispatch(new AgreementLineWasDeletedEvent($lineId));
+        }
         return new JsonResponse();
     }
 

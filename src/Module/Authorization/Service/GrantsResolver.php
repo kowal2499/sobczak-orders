@@ -12,12 +12,16 @@ use Symfony\Component\Security\Core\Security;
 
 class GrantsResolver
 {
+    const ADMIN_GRANT = 'authorization.admin';
+
     public function __construct(
         private readonly AuthRoleGrantValueRepositoryInterface $roleGrantValueRepository,
         private readonly AuthUserGrantValueRepositoryInterface $userGrantValueRepository,
         private readonly AuthUserRoleRepositoryInterface       $userRoleRepository,
         private readonly Security                              $security,
         private readonly AuthCacheService                      $authCacheService,
+        private readonly RolesMerger                           $rolesMerger,
+        private readonly GrantValueSupplier                    $grantValueSupplier,
     ) {
     }
 
@@ -26,11 +30,12 @@ class GrantsResolver
         /** @var User $user */
         $user = $this->security->getUser();
 
-        if (in_array('ROLE_ADMINISTRATOR', $this->getRoleNames($user))){
+        $grants = $this->getGrants($user);
+
+        if (in_array(self::ADMIN_GRANT, $grants)) {
             return true;
         }
 
-        $grants = $this->getGrants($user);
         return in_array($grantName, $grants);
     }
 
@@ -76,16 +81,13 @@ class GrantsResolver
     protected function getFromRoles(array $userRoles): array
     {
         $result = [];
-        foreach ($userRoles as $userRole) {
-            $grantValues = $this->roleGrantValueRepository->findAllByRole($userRole->getRole());
-            foreach ($grantValues as $grantValue) {
-                $value = $this->getGrantValue($grantValue);
-                // keep only true values from roles, false values should be set only by user grants
-                if ($value) {
-                    $result[$grantValue->getGrantVO()->toString()] = true;
-                }
-            }
+        $values = $this->rolesMerger->merge(
+            ...array_map(fn ($userRoles) => $userRoles->getRole(), $userRoles)
+        );
+        foreach ($values as $roleGrantValue) {
+            $result[$roleGrantValue->getGrantVO()->toString()] = true;
         }
+
         return $result;
     }
 
@@ -94,7 +96,7 @@ class GrantsResolver
         $result = [];
         foreach ($this->userGrantValueRepository->findAllByUser($user) as $grantValue) {
             // keep both true and false values from user grants
-            $result[$grantValue->getGrantVO()->toString()] = $this->getGrantValue($grantValue);
+            $result[$grantValue->getGrantVO()->toString()] = $this->grantValueSupplier->getValue($grantValue);
         }
         return $result;
     }
@@ -113,10 +115,5 @@ class GrantsResolver
             }
         }
         return $result;
-    }
-
-    protected function getGrantValue(AuthAbstractGrantValue $grantValue): bool
-    {
-        return $grantValue->getValue() && $grantValue->getGrant()->getModule()->isActive();
     }
 }

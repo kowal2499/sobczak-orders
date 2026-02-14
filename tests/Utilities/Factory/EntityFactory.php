@@ -2,10 +2,10 @@
 /** @author: Roman Kowalski */
 
 namespace App\Tests\Utilities\Factory;
-use App\Entity\StatusLog;
 use App\Tests\Utilities\Factory\Definition\AgreementFactory;
 use App\Tests\Utilities\Factory\Definition\AgreementLineFactory;
 use App\Tests\Utilities\Factory\Definition\CustomerFactory;
+use App\Tests\Utilities\Factory\Definition\FactorAdjustFactory;
 use App\Tests\Utilities\Factory\Definition\ProductFactory;
 use App\Tests\Utilities\Factory\Definition\ProductionFactory;
 use App\Tests\Utilities\Factory\Definition\StatusLogFactory;
@@ -26,7 +26,8 @@ class EntityFactory
         AgreementFactory::class,
         AgreementLineFactory::class,
         ProductionFactory::class,
-        StatusLogFactory::class
+        StatusLogFactory::class,
+        FactorAdjustFactory::class,
     ];
 
     public function __construct(
@@ -62,7 +63,7 @@ class EntityFactory
             if (method_exists($className, $setterName)) {
                 $instance->{$setterName}($propValue);
             } else {
-                throw new \RuntimeException("No defined setter for `{$propId}` in `{$className}` class.");
+                throw new \RuntimeException("No defined setter for `$propId` in `$className` class.");
             }
         }
 

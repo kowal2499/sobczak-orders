@@ -7,6 +7,7 @@
 
     export default {
         name: "ProductionRowBase",
+
         props: {
             order: {
                 type: Object,
@@ -21,20 +22,18 @@
                 default: false
             }
         },
-        data() {
-            return {
-                helpers: helpers,
-            }
-        },
-        methods: {
+
+        computed: {
             userCanProduction() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
+        },
+
+        methods: {
             getCustomTasks(production) {
                 return production.filter(p => { return p.departmentSlug === 'custom_task' ? p : false; })
             },
             getStatusStyle(production) {
-
                 let status = this.helpers.statuses.find(item => item.value === production.status);
                 if (status) {
                     return 'background-color: '.concat(status.color);
@@ -42,14 +41,18 @@
 
                 return '';
             },
+        },
+
+        data() {
+            return {
+                helpers: helpers,
+            }
         }
     }
 </script>
 
 <style lang="scss">
     td.prod {
-
-
         .task {
             label {
                 font-size: 0.75rem;

@@ -7,5 +7,16 @@ export default {
         startProduction: 'Rozpocznij produkcję',
         startDate: 'Data rozpoczęcia',
         endDate: 'Data zakończenia',
+    },
+    factorsForm: {
+        sidebarTitle: 'Współczynniki',
+        adjustmentRatioSectionTitle: 'Modyfikatory współczynnika bazowego dla działów',
+        adjustmentRatioName: 'Wartość modyfikatora procentowego',
+        adjustmentRatioDescription: 'Zakres 0-100%',
+        factorPerDpt: 'Wartość współczynnika bazowego dla działu',
+        adjustmentBonusSectionTitle: 'Bonusy i kary',
+        adjustmentBonusValueDescription: 'Dla bonusów wartości dodatnie, dla kar wartości ujemne',
+        bonusValue: 'Wartość',
+        manageFactorsButton: 'Zarządzaj współczynnikami',
     }
 }

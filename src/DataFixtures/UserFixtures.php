@@ -22,7 +22,7 @@ class UserFixtures extends BaseFixture
         $this->adminPass = $fixtureAdminPassword;
     }
 
-    protected function loadData(ObjectManager $manager)
+    protected function loadData(ObjectManager $manager): void
     {
         $user = new User();
         $user

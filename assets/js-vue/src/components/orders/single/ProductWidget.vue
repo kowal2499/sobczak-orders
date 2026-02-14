@@ -5,10 +5,11 @@
                 <div class="order-spec-list--item-title">{{ $t('name') }}</div>
                 <div>{{ product.name }}</div>
             </div>
-            <div v-if="product.factor && userCanProduction()" >
-                <div class="order-spec-list--item-title">{{ $t('orders.factor') }}</div>
-                <div>{{ product.factor }}</div>
-            </div>
+<!--            TODO: Powinniśmy zwracać factor z zamówienia a nie z produktu -->
+<!--            <div v-if="product.factor && userCanProduction()" >-->
+<!--                <div class="order-spec-list&#45;&#45;item-title">{{ $t('orders.factor') }}</div>-->
+<!--                <div>{{ product.factor }}</div>-->
+<!--            </div>-->
             <div v-if="product.description">
                 <div class="order-spec-list--item-title">{{ $t('orders.description') }}</div>
                 <div>{{ product.description }}</div>
@@ -30,6 +31,10 @@
             product: {
                 type: Object,
                 required: true
+            },
+            disableEdit: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -41,11 +46,11 @@
 
         methods: {
             userCan() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTS);
+                return !this.disableEdit && this.$user.can(this.$privilages.CAN_PRODUCTS);
             },
 
             userCanProduction() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION);
+                return !this.disableEdit && this.$user.can(this.$privilages.CAN_PRODUCTION);
             }
         }
 

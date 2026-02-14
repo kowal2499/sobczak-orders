@@ -12,6 +12,10 @@ export default defineComponent({
             type: Number,
             required: true
         },
+        grantsPerRole: {
+            type: Array,
+            default: () => []
+        }
     },
     mixins: [ proxyValue ],
 
@@ -41,6 +45,16 @@ export default defineComponent({
                     return prev
                 }, {})
             }
+        },
+        grantsPerRole: {
+            deep: true,
+            immediate: true,
+            handler() {
+                this.valuesPerRole = this.allGrants.reduce((prev, current) => {
+                    prev[current.id] = this.grantsPerRole.filter(item => item.grant_id === current.id)
+                    return prev
+                }, {})
+            }
         }
     },
 
@@ -55,7 +69,8 @@ export default defineComponent({
     },
 
     data: () => ({
-        valuesPerGrant: {}
+        valuesPerGrant: {},
+        valuesPerRole: {}, // read only
     })
 })
 
@@ -67,6 +82,7 @@ export default defineComponent({
             :user-id="userId"
             :grant="grant"
             :value="valuesPerGrant[grant.id]"
+            :value-per-role="valuesPerRole[grant.id]"
             @input="value => setValuesPerGrant(grant.id, value)"
         />
     </GrantsList>

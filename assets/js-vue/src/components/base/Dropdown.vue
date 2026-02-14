@@ -1,5 +1,6 @@
 <template>
     <div class="dropdown s-dropdown"
+
          v-click-outside="onClickOutside"
     >
         <button class="btn btn-light dropdown-toggle" type="button"
@@ -9,10 +10,14 @@
         </button>
 
         <div class="dropdown-menu"
-             :class="{show: expanded}"
-             @click="expanded = false"
+            :class="{
+                'dropdown-menu-right': direction === 'right',
+                'dropdown-menu-left': direction === 'left',
+                'show': expanded
+            }"
+            @click="expanded = false"
         >
-            <slot></slot>
+            <slot />
         </div>
     </div>
 </template>
@@ -29,6 +34,14 @@
 
             btnText: {
                 type: String
+            },
+
+            direction: {
+                type: String,
+                default: 'left',
+                validator: function (value) {
+                    return ['left', 'right'].includes(value);
+                }
             }
         },
 
@@ -81,10 +94,15 @@
     }
 
     .dropdown {
-        .dropdown-menu {
+        .dropdown-menu-left {
             left: auto;
             right: 0;
-            top: 110%;
+            top: 120%;
+        }
+        .dropdown-menu-right {
+            right: auto;
+            left: 0;
+            top: 120%;
         }
 
         button {

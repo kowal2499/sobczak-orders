@@ -56,7 +56,7 @@ class RoleController extends BaseController
         return new JsonResponse([]);
     }
 
-    #[Route(path: '/view',  name: '_role_view', methods: ['GET'])]
+    #[Route(path: '/view',  name: '_view', methods: ['GET'])]
     public function view(): Response
     {
         return $this->render('configuration/role.html.twig');

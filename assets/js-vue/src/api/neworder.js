@@ -28,6 +28,8 @@ export default {
         return axios.post('/api/agreement-line/fetch', { search });
     },
 
+
+
     setAgreementStatus(agreementId, statusId) {
         return axios.post(Routing.get('agreement_line_archive') + '/' + agreementId + '/' + statusId);
     },
@@ -85,4 +87,8 @@ export default {
         return axios.post(Routing.get('validate_number'), {number} );
     }
 
+}
+
+export function rmSearch(search) {
+    return axios.post('/agreement-line/rm/search', { search });
 }

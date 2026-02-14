@@ -114,9 +114,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (empty($roles)) {
             $roles[] = 'ROLE_USER';
         }
-        if (in_array('ROLE_ADMIN', $roles) && !in_array('ROLE_ADMINISTRATOR', $roles)) {
-            $roles[] = 'ROLE_ADMINISTRATOR';
-        }
 
         return array_unique($roles);
     }

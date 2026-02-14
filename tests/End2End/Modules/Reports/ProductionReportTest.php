@@ -4,10 +4,11 @@ namespace App\Tests\End2End\Modules\Reports;
 
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\User;
+use App\Module\Reports\Production\Repository\DoctrineProductionFinishedRepository;
+use App\Module\Reports\Production\Repository\DoctrineProductionPendingRepository;
+use App\Module\Reports\Production\Repository\DoctrineProductionTasksRepository;
+use App\Modules\Reports\Production\Mapper\TaskCompletedRecordMapper;
 use App\Modules\Reports\Production\ProductionReport;
-use App\Modules\Reports\Production\Repository\DoctrineProductionFinishedRepository;
-use App\Modules\Reports\Production\Repository\DoctrineProductionPendingRepository;
-use App\Modules\Reports\Production\Repository\DoctrineProductionTasksRepository;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
@@ -46,7 +47,8 @@ class ProductionReportTest extends ApiTestCase
         $this->reportUnderTest = new ProductionReport(
             $pendingRepository,
             $finishedRepository,
-            $this->createMock(DoctrineProductionTasksRepository::class)
+            $this->createMock(DoctrineProductionTasksRepository::class),
+            new TaskCompletedRecordMapper(),
         );
     }
 

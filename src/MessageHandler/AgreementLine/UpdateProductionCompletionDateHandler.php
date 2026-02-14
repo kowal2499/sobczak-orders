@@ -37,5 +37,7 @@ class UpdateProductionCompletionDateHandler implements MessageHandlerInterface
             $agreementLine->setProductionCompletionDate($completionDate);
             $this->entityManager->flush();
         }
+
+        $this->entityManager->detach($agreementLine);
     }
 }

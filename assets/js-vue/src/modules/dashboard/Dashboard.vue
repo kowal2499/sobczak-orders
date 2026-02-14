@@ -5,45 +5,130 @@
             <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
         </b-form>
 
-        <div class="d-flex mb-4" v-for="group in metricsLayout">
-            <component
-                v-for="metric in group"
-                :key="metric.id"
-                :metric="metric"
-                :is="metric.component"
-                @clicked="activeMetricId = $event"
-            />
+        <div class="row">
+            <div class="col-md-4 col-lg-3">
+                <WorkingDaysMetric
+                    :is-busy="sourcesState.src01.isBusy"
+                    :data="sourcesState.src01.data"
+                />
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <FactorsLimitMetric
+                    :is-busy="sourcesState.src01.isBusy"
+                    :data="sourcesState.src01.data"
+                />
+            </div>
         </div>
 
-        <details-modal v-model="showModal" :records-promise="modalRecordsPromise" :title="activeMetricTitle"/>
+        <div class="row">
+            <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
+                <OrdersCountMetric
+                    :is-busy="sourcesState.src02.isBusy"
+                    :data="sourcesState.src02.data"
+                    :filters="{ dateStart: dateRangeStart, dateEnd: dateRangeEnd }"
+                    status="orders_pending"
+                    class="border-left-primary"
+                />
+            </div>
+            <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
+                <OrdersCountMetric
+                    :is-busy="sourcesState.src02.isBusy"
+                    :data="sourcesState.src02.data"
+                    :filters="{ dateStart: dateRangeStart, dateEnd: dateRangeEnd }"
+                    status="orders_finished"
+                    class="border-left-success"
+                />
+            </div>
+            <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
+                <CompletionDateMetric
+                    :is-busy="sourcesState.src01.isBusy"
+                    :data="sourcesState.src01.data"
+                />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
+                <DepartmentsBonusMetric
+                    :is-busy="sourcesState.src03.isBusy"
+                    :data="sourcesState.src03.data"
+                />
+            </div>
+            <div class="col-md-10 col-lg-9" v-if="canCapacityMetric">
+                <CapacityMetric
+                    :is-busy="sourcesState.src04.isBusy"
+                    :data="sourcesState.src04.data"
+                />
+            </div>
+        </div>
+
     </collapsible-card>
 </template>
 
 <script>
 import CollapsibleCard from "../../components/base/CollapsibleCard";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
+import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
+import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
+import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric/index.vue"
+import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
+import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
+import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue"
+import PRIVILEGES from "../../definitions/userRoles";
+
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
-    getOldSummary
+    getOldSummary, getDepartmentsCapacity
 } from "./repository";
-import DetailsModal from "./components/DetailsModal";
-import MetricsDefinitions from "./MetricsDefinitions";
 
 const START_YEAR = 2018;
 
+const DATA_SOURCES = [
+    {
+        id: 'src01',
+        fetcher: getOldSummary,
+        active: true,
+    },
+    {
+        id: 'src02',
+        fetcher: getAgreementLinesSummary,
+        grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
+        active: true,
+    },
+    {
+        id: 'src03',
+        fetcher: getProductionTasksCompletionSummary,
+        grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
+        active: true,
+    },
+    {
+        id: 'src04',
+        fetcher: getDepartmentsCapacity,
+        grant: 'reports.dashboard:capacity-utilization',
+        active: true,
+    }
+]
+
 export default {
-    name: 'Dashboard2',
+    name: 'Dashboard3',
+
     components: {
         CollapsibleCard,
-        DetailsModal
+        WorkingDaysMetric,
+        FactorsLimitMetric,
+        CompletionDateMetric,
+        OrdersCountMetric,
+        DepartmentsBonusMetric,
+        CapacityMetric,
     },
+
     computed: {
         months: () => MONTHS,
         years() {
             const currentYear = new Date().getFullYear();
             const yearsRange = currentYear - START_YEAR + 2;
-            return Array.from({length: yearsRange }, (item, idx) => idx + START_YEAR)
+            return Array.from({length: yearsRange }, (item, idx) => idx + START_YEAR).reverse()
         },
         yearsOptions() {
             return [
@@ -67,96 +152,69 @@ export default {
                 ? dateToString(lastDay(this.filters.year, this.filters.month))
                 : null
         },
-        showModal: {
-            set(v) {
-                this.activeMetricId = !!v;
-            },
-            get() {
-                return !!this.activeMetricId;
-            }
+        canDashboardMetrics() {
+            return this.$user.can(PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW);
         },
-        modalRecordsPromise() {
-            const metric = this.metrics.find(metric => metric.id === this.activeMetricId);
-            return metric
-                ? metric.fetchDetails(this.dateRangeStart, this.dateRangeEnd, metric.value)
-                : Promise.resolve()
-        },
-        metricsLayout() {
-            const grouped = {}
-            for (let metric of this.metrics) {
-                let groupId = metric.groupId
-                if (!grouped[groupId]) {
-                    grouped[groupId] = [];
-                }
-                if (metric.grants.length === 0 || metric.grants.some(privilege => this.$user.can(privilege))) {
-                    grouped[groupId].push(metric)
-                }
-            }
-            return Object.values(grouped)
-        },
-        activeMetric() {
-            return this.metrics.find(metric => metric.id === this.activeMetricId)
-        },
-        activeMetricTitle() {
-            return this.activeMetric ? this.$t(this.activeMetric.title) : '';
+        canCapacityMetric() {
+            return this.$user.can('reports.dashboard:capacity-utilization')
         }
     },
+
+    created() {
+        this.sourcesState = DATA_SOURCES.map(source => ({
+            id: source.id,
+            isBusy: false,
+            error: null,
+            data: null,
+        })).reduce((acc, item) => {
+            acc[item.id] = item
+            return acc
+        }, {})
+    },
+
     mounted() {
         const today = new Date();
         this.filters.year = today.getFullYear();
         this.filters.month = today.getMonth();
     },
-    methods: {
-        setMetricsData(data) {
-            const metricsMap = this.metrics.reduce((carry, item) => {
-                carry[item.id] = item
-                return carry
-            }, {})
 
-            Object.keys(data).forEach(key => {
-                if (metricsMap.hasOwnProperty(key)) {
-                    metricsMap[key].value = data[key]
-                    metricsMap[key].busy = false
-                }
-            })
-        }
-    },
     watch: {
         filters: {
             deep: true,
             handler() {
-               this.metrics.forEach(metric => metric.busy = true)
-
-                getAgreementLinesSummary(this.dateRangeStart, this.dateRangeEnd)
-                    .then(({data}) => this.setMetricsData(data))
-
-                getProductionTasksCompletionSummary(this.dateRangeStart, this.dateRangeEnd)
-                    .then(({data}) => this.setMetricsData(data))
-
-                getOldSummary(this.dateRangeStart, this.dateRangeEnd)
-                    .then(({data}) => this.setMetricsData(data))
+                DATA_SOURCES.forEach(source => {
+                    if (source.grant && !this.$user.can(source.grant)) {
+                        return;
+                    }
+                    if (!source.active) {
+                        return;
+                    }
+                    this.sourcesState[source.id].isBusy = true;
+                    this.sourcesState[source.id].error = null;
+                    source.fetcher(this.dateRangeStart, this.dateRangeEnd)
+                        .then(({data}) => {
+                            this.sourcesState[source.id].data = data;
+                        })
+                        .catch((error) => {
+                            this.sourcesState[source.id].error = error;
+                        })
+                        .finally(() => {
+                            this.sourcesState[source.id].isBusy = false;
+                        });
+                })
             }
         }
     },
     data: () => ({
+        sourcesState: {},
+
         filters: {
             month: null,
             year: null
         },
-        agreementLinesSummaryData: {},
-        activeMetricId: '',
-        isModalOn: false,
-        metrics: MetricsDefinitions
     }),
 }
 </script>
 
 <style scoped lang="scss">
- .clickable-metric {
-     display: inline-block;
-     &:hover {
-         cursor: pointer;
-         border-bottom: 1px solid #365DCD;
-     }
- }
 </style>

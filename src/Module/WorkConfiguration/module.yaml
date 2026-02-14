@@ -1,0 +1,14 @@
+app_module:
+  namespace: work-configuration
+  description: Moduł konfiguracji zdolności produkcyjnych
+  active: true
+  grants:
+    - name: Zarządzanie typami dni w kalendarzu
+      description: Możliwość definiowania czy dany dzień jest dniem roboczym, czy świętem
+      slug: work-configuration.schedule
+      type: boolean
+
+    - name: Zarządzanie wartościami zdolności produkcyjnych
+      description: Możliwość definiowania zdolności produkcyjnych dla poszczególnych dni
+      slug: work-configuration.capacity
+      type: boolean

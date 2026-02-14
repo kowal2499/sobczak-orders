@@ -1,12 +1,13 @@
 <template>
     <div class="card shadow mb-4" :class="[noPadding && 'border-0']">
-        <div class="card-header py-2 d-flex flex-wrap align-items-center justify-content-between">
+        <div class="card-header py-2 d-flex flex-nowrap align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary" v-text="title"
             ></h6>
             <div class="d-flex flex-wrap align-items-center justify-content-between">
                 <slot name="header" v-if="!collapsed"></slot>
                 <i class="fa fa-chevron-down ml-3" aria-hidden="true"
                    :class="{'fa-rotate-180': collapsed}"
+                   style="cursor: pointer"
                    @click="collapsed = !collapsed"
                 ></i>
             </div>
@@ -34,6 +35,16 @@
             noPadding: {
                 type: Boolean,
                 default: false
+            },
+            collapsedOnStart: {
+                type: Boolean,
+                default: false
+            }
+        },
+
+        created() {
+            if (this.collapsedOnStart) {
+                this.collapsed = true;
             }
         },
 

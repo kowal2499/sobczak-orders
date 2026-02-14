@@ -33,41 +33,7 @@ app_module:
         slug: production.panel
         type: boolean
 
-      - name: Kolumny tabeli produkcji
-        description: Możliwość wyboru kolumn w tabeli produkcji
-        slug: production.show.columns
-        type: select
-        options:
-          - label: Data produkcji
-            optionSlug: production_date
-          - label: Klejenie - data rozpoczęcia
-            optionSlug: gluing_start
-          - label: Klejenie - data zakończenia
-            optionSlug: gluing_end
-          - label: CNC - data rozpoczęcia
-            optionSlug: cnc_start
-          - label: CNC - data zakończenia
-            optionSlug: cnc_end
-          - label: Szlifowanie - data rozpoczęcia
-            optionSlug: grinding_start
-          - label: Szlifowanie - data zakończenia
-            optionSlug: grinding_end
-          - label: Lakierowanie - data rozpoczęcia
-            optionSlug: laquering_start
-          - label: Lakierowanie - data zakończenia
-            optionSlug: laquering_end
-          - label: Pakowanie - data rozpoczęcia
-            optionSlug: packing_start
-          - label: Pakowanie - data zakończenia
-            optionSlug: packing_end
-
-          - label: Klejenie - status
-            optionSlug: gluing_status
-          - label: CNC - status
-            optionSlug: cnc_status
-          - label: Szlifowanie - status
-            optionSlug: grinding_status
-          - label: Lakierowanie - status
-            optionSlug: laquering_status
-          - label: Pakowanie - status
-            optionSlug: packing_status
+      - name: Współczynniki produkcji w działach produkcyjnych
+        description: Zarządzanie poziomami współczynnika produkcji w działach produkcyjnych
+        slug: production.factor_adjustment
+        type: boolean

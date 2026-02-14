@@ -118,6 +118,7 @@
                     <div class="col">
                         <user-grants
                             :userId="userId"
+                            :grants-per-role="grantsPerRole"
                             v-model="grants"
                         />
                     </div>
@@ -151,7 +152,7 @@
     import ButtonPlus from "@/components/base/ButtonPlus";
     import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/configuration/components/roles/RoleSelect'
-    import { assignRoles } from '@/modules/configuration/repository/rolesRepository'
+    import { assignRoles, mergeRoles } from '@/modules/configuration/repository/rolesRepository'
     import {
         fetchGrantUserValues,
         setGrantUserValues,
@@ -197,6 +198,15 @@
                     this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
                 },
                 deep: true
+            },
+
+            newRoles: {
+                handler() {
+                    return mergeRoles(this.newRoles).then(({data}) => {
+                        this.grantsPerRole = data
+                    })
+                },
+                deep: true,
             }
         },
 
@@ -296,6 +306,7 @@
                 },
                 newRoles: [],
                 grants: [],
+                grantsPerRole: [],
                 canSave: true,
             }
         },

@@ -1,5 +1,21 @@
 <template>
     <tr :class="{'is-disabled': disabled}">
+        <td class="d-flex flex-column align-items-start gap-2">
+            <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
+
+            <button class="btn btn-light d-flex flex-nowrap gap-2" style="padding: 0 0.5rem" v-if="userCanProduction && hasDetails" @click.prevent="$emit('expandToggle', order.id)">
+                <span v-if="order.Agreement.attachments.length > 0" class="d-flex gap-1">
+                    <i class="fa fa-paperclip sb-color"/>
+                    <span class="badge badge-pill text-primary">{{ order.Agreement.attachments.length }}</span>
+                </span>
+
+                <span v-if="getCustomTasks(order.productions).length && userCanProduction" class="d-flex gap-1">
+                    <i class="fa fa-check-square-o sb-color"/>
+                    <span class="badge badge-pill text-primary">{{ getCustomTasks(order.productions).length }}</span>
+                </span>
+            </button>
+        </td>
+
         <td>
             <span class="text-nowrap">{{ order.Agreement.orderNumber || order.id }}</span>
             <tags-indicator :logs="order.tags"/>
@@ -31,50 +47,51 @@
             </tooltip>
         </td>
 
-        <td v-text="order.factor" class="text-center" v-if="userCanProduction()"/>
+        <td v-text="order.factor" class="text-center" v-if="userCanProduction"/>
 
-        <td class="prod" v-for="(production, prodKey) in productionsByGrants"
+        <td
+            v-for="production in productionsByGrants"
             v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1"
+            class="prod"
         >
             <div class="task">
-                <div class="d-flex flex-column gap-2">
+                <div class="d-flex flex-column gap-1">
                     <b-dropdown
-                            :text="$t(getStatusData(production.status).name)"
-                            size="sm"
-                            class="w-100"
-                            :class="getStatusData(production.status).className"
-                            variant="light"
-                            split-variant=""
-                            :disabled="disabled"
+                        :text="$t(getStatusData(production.status).name)"
+                        size="sm"
+                        class="w-100"
+                        :class="getStatusData(production.status).className"
+                        variant="light"
+                        split-variant=""
+                        :disabled="disabled"
                     >
                         <b-dropdown-item
-                                v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
-                                :value="status.value"
-                                :key="status.value"
-                                :disabled="!userCanProduction()"
-                                @click="updateProduction(production, status.value)"
+                            v-for="status in helpers.statusesPerTaskType(production.departmentSlug)"
+                            :value="status.value"
+                            :key="status.value"
+                            :disabled="!userCanProduction"
+                            @click="updateProduction(production, status.value)"
                         >{{ $t(status.name) }}</b-dropdown-item>
                     </b-dropdown>
-                    <tooltip v-if="production.dateEnd">
-                        <template #visible-content>
-                            <div class="text-right text-sm text-nowrap hasTooltip">
-                                <i class="fa fa-clock-o mr-1" />
-                                <span v-if="production.dateEnd">{{ production.dateEnd | formatDate('YYYY-MM-DD') }}</span>
-                                <span v-else>{{ $t('noData') }}</span>
-                            </div>
-                        </template>
-                        <div slot="tooltip-content" class="text-left">
-                            {{ $t('realisationDateFor') }} {{ getDepartmentName(production.departmentSlug) }}:
-                            {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
-                        </div>
-                    </tooltip>
-                    <div v-else class="text-right text-sm text-nowrap opacity-75">
-                        <i class="fa fa-clock-o mr-1" />
-                        {{ $t('noData') }}
+
+                    <div class="text-center text-nowrap">
+                        <span v-if="production.dateStart">
+                            {{ production.dateStart | formatDate('YYYY-MM-DD') }}
+                        </span>
+                                <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                            <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                        </span>
                     </div>
 
-                </div>
-                <div>
+                    <div class="text-center text-nowrap">
+                        <span v-if="production.dateEnd">
+                            {{ production.dateEnd | formatDate('YYYY-MM-DD') }}
+                        </span>
+                        <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                            <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
+                        </span>
+                    </div>
+
                     <production-task-notification
                         :date-start="production.dateStart"
                         :date-end="production.dateEnd"
@@ -86,26 +103,6 @@
                 </div>
             </div>
         </td>
-
-        <td>
-            <button class="btn btn-light" style="padding: 0 0.5rem" v-if="hasDetails" @click.prevent="$emit('expandToggle', order.id)">
-
-                <span v-if="order.Agreement.attachments.length > 0">
-                    <i class="fa fa-paperclip sb-color"/>
-                    <span class="badge badge-pill">{{ order.Agreement.attachments.length }}</span>
-                </span>
-
-                <span v-if="getCustomTasks(order.productions).length && userCanProduction()">
-                    <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill">{{ getCustomTasks(order.productions).length }}</span>
-                </span>
-
-            </button>
-        </td>
-
-        <td>
-            <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
-        </td>
     </tr>
 </template>
 
@@ -114,7 +111,7 @@
     import Tooltip from "../base/Tooltip";
     import LineActions from "../common/LineActions";
     import TagsIndicator from "../../modules/tags/widget/TagsIndicator";
-    import helpers, { getDepartmentName, DEPARTMETNS } from "../../helpers";
+    import helpers, { getDepartmentName, DEPARTMENTS } from "../../helpers";
     import ProductionTaskNotification from "./ProductionTaskNotification";
 
     export default {
@@ -130,16 +127,16 @@
 
         computed: {
             hasDetails() {
-                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction());
+                return (this.order.Agreement.attachments.length > 0) || (this.getCustomTasks(this.order.productions).length && this.userCanProduction);
             },
 
             productionsByGrants() {
-                const productionSlugs = DEPARTMETNS.map(d => d.slug)
+                const productionSlugs = DEPARTMENTS.map(d => d.slug)
                 return this.order.productions.filter(prod => {
                     if (!productionSlugs.includes(prod.departmentSlug)) {
                         return true
                     }
-                    const config = DEPARTMETNS.find(d => d.slug === prod.departmentSlug)
+                    const config = DEPARTMENTS.find(d => d.slug === prod.departmentSlug)
                     return this.$user.can(config.grant)
                 })
             }

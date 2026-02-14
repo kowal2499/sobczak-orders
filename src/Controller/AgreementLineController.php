@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\AssignTags;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Gedmo\Sluggable\Util\Urlizer;
@@ -123,6 +125,7 @@ class AgreementLineController extends BaseController
      * @param EntityManagerInterface $em
      * @param MessageBusInterface $messageBus
      * @param AgreementLineRepository $agreementLineRepository
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/update/{id}', name: 'agreement_line_update', options: ['expose' => true], methods: ['PUT'])]
@@ -131,7 +134,8 @@ class AgreementLineController extends BaseController
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
         MessageBusInterface $messageBus,
-        AgreementLineRepository $agreementLineRepository
+        AgreementLineRepository $agreementLineRepository,
+        EventBus $eventBus,
     ): JsonResponse
     {
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
@@ -149,11 +153,22 @@ class AgreementLineController extends BaseController
 
             $payload = json_decode($request->getContent(), true) ?? [];
             $productions = $payload['productions'] ?? [];
-            foreach ($agreementLine->getProductions() as $idx => $task) {
+
+            $productionsBySlug = [];
+            foreach ($agreementLine->getProductions() as $prod) {
+                $productionsBySlug[$prod->getDepartmentSlug()] = $prod;
+            }
+
+            foreach ($productions as $record) {
+                $production = $productionsBySlug[$record['departmentSlug']] ?? null;
+                if ($production === null) {
+                    continue;
+                }
+
                 $messageBus->dispatch(new UpdateStatusCommand(
-                    $task->getId(),
-                    $productions[$idx]['status'])
-                );
+                    $production->getId(),
+                    $record['status']
+                ));
             }
 
             $tags = $payload['tags'] ?? [];
@@ -163,6 +178,8 @@ class AgreementLineController extends BaseController
                 'production',
                 $user->getId()
             ));
+
+            $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
 
         } catch (Exception $e) {
             return $this->composeErrorResponse($e);
@@ -196,18 +213,23 @@ class AgreementLineController extends BaseController
     /**
      * @isGranted("ROLE_PRODUCTION")
      *
-     * @param Request $request
      * @param AgreementLine $agreementLine
      * @param $statusId
      * @param EntityManagerInterface $em
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/archive/{id}/{statusId}', name: 'agreement_line_archive', options: ['expose' => true], methods: ['POST'])]
-    public function setStatus(AgreementLine $agreementLine, $statusId, EntityManagerInterface $em): JsonResponse
+    public function setStatus(
+        AgreementLine $agreementLine,
+        $statusId,
+        EntityManagerInterface $em,
+        EventBus $eventBus,
+    ): JsonResponse
     {
         $agreementLine->setStatus((int)$statusId);
         $em->flush();
-
+        $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
         return $this->json([]);
     }
 
@@ -216,14 +238,19 @@ class AgreementLineController extends BaseController
      *
      * @param AgreementLine $agreementLine
      * @param EntityManagerInterface $em
+     * @param EventBus $eventBus
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/delete/{agreementLine}', name: 'agreement_line_delete', options: ['expose' => true], methods: ['POST'])]
-    public function delete(AgreementLine $agreementLine, EntityManagerInterface $em): JsonResponse
+    public function delete(
+        AgreementLine $agreementLine,
+        EntityManagerInterface $em,
+        EventBus $eventBus,
+    ): JsonResponse
     {
         $agreementLine->setDeleted(true);
         $em->flush();
-
+        $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
         return new JsonResponse();
     }
 }

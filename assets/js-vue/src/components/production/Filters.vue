@@ -1,7 +1,5 @@
 <template>
-
     <div class="form-row">
-
         <div class="form-group col-md-3">
             <label>{{ $t('search') }}</label><br>
             <input type="text" class="form-control" v-model="filtersCollection.q" style="height: 34px;">
@@ -12,20 +10,18 @@
             <date-picker v-model="filtersCollection.dateStart" style="width: 100%;"/>
         </div>
 
-        <div class="form-group col-md-3">
+        <div class="form-group col-md-3" v-if="canShowDeliveryDateFilter">
             <label>{{ $t('deliveryDate') }}</label><br>
             <date-picker v-model="filtersCollection.dateDelivery" style="width: 100%"/>
         </div>
 
         <div class="form-group col-sm-3">
-            <label>{{ $t('orders.hideArchivedOrder') }}</label><br>
-            <input type="checkbox" v-model="filtersCollection.hideArchive">
+            <b-form-checkbox v-model="filtersCollection.hideArchive" switch>{{ $t('orders.hideArchivedOrder') }}</b-form-checkbox>
         </div>
 
         <div class="col">
-            <slot></slot>
+            <slot />
         </div>
-
     </div>
 </template>
 
@@ -42,6 +38,12 @@
                 default: () => {}
             }
         },
+
+        computed: {
+            canShowDeliveryDateFilter() {
+                return this.$user && this.$user.can('production.show.production_date');
+            }
+        }
     }
 </script>
 

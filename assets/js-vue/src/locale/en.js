@@ -24,6 +24,21 @@ export default {
     '_confirmation_required': 'Confirmation required',
     '_logout': 'Logout',
     '_noData': 'No data',
+    '_department': 'Department',
+    '_description': 'Description',
+    '_add': 'Add',
+    '_edit': 'Edit',
+    '_delete': 'Delete',
+    '_save': 'Save',
+    '_cancel': 'Cancel',
+    '_close': 'Close',
+    '_search': 'Search',
+    '_reset': 'Reset',
+    '_loading': 'Loading...',
+    '_select': 'Select',
+    '_saveSuccess': 'Saved',
+    '_saveError': 'Error while saving',
+
 
     '_impersonate': {
         'title': 'Impersonate user',
@@ -35,7 +50,13 @@ export default {
         'required': 'This field is required',
         'dateFrom': 'The start date must be earlier than the end date',
         'dateTo': 'The end date must be later than the start date',
+        'dateEarlierThan': 'The date cannot exceed the deadline',
+        'fixFormErrors': 'Fix form errors',
+        'email': 'Field "{_field_}" must contain a valid email address',
+        'numeric': 'Field "{_field_}" must contain a numeric value',
+        'min_value': 'Field "{_field_}" must be greater than or equal to {min}',
+        'max_value': 'Field "{_field_}" must be less than or equal to {max}',
+        'excluded': 'Field "{_field_}" must be different than "{_value_}"',
 
-        'fixFormErrors': 'Fix form errors'
     }
 }

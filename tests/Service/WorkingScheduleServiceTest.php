@@ -2,7 +2,6 @@
 
 
 namespace App\Tests\Service;
-use App\Entity\WorkingSchedule;
 use App\Service\WorkingScheduleService;
 use PHPUnit\Framework\TestCase;
 

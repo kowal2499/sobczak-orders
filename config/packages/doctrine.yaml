@@ -36,6 +36,24 @@ doctrine:
                 prefix: 'App\Module\ModuleRegistry\Entity'
                 alias: ModuleRegistry
                 type: attribute
+            Production:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/Production/Entity'
+                prefix: 'App\Module\Production\Entity'
+                alias: Production
+                type: attribute
+            AgreementLine:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/AgreementLine/Entity'
+                prefix: 'App\Module\AgreementLine\Entity'
+                alias: AgreementLine
+                type: attribute
+            WorkConfiguration:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/WorkConfiguration/Entity'
+                prefix: 'App\Module\WorkConfiguration\Entity'
+                alias: WorkConfiguration
+                type: attribute
 
 when@test:
     doctrine:

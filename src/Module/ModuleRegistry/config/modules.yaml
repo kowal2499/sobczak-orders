@@ -11,3 +11,6 @@ app_modules:
     - namespace: reports
       description: Moduł raportów
       active: true
+    - namespace: work-configuration
+      description: Moduł konfiguracji zdolności produkcyjnych
+      active: true

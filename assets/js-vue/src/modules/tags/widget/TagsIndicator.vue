@@ -1,17 +1,18 @@
 <template>
     <span>
-        <div class="tag-wrapper"
-             v-for="log in logs"
-             v-b-tooltip.hover :title="log.tagDefinition.name"
-        >
-            <b-icon
-                :icon="log.tagDefinition.icon"
-                :style="{color: log.tagDefinition.color}"/>
-        </div>
+        <tag
+            v-for="({tagDefinition}, key) in logs"
+            :key="key"
+            :color="tagDefinition.color"
+            :icon="tagDefinition.icon"
+            :name="tagDefinition.name"
+        />
     </span>
 </template>
 
 <script>
+import Tag from "./Tag.vue"
+
 export default {
     name: "TagsIndicator",
     props: {
@@ -19,7 +20,8 @@ export default {
             type: Array,
             default: () => ([])
         }
-    }
+    },
+    components: { Tag }
 }
 </script>
 

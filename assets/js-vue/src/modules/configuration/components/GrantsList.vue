@@ -63,7 +63,8 @@ export default {
 </template>
 
 <style scoped lang="scss">
-@import "~/css/helper/variables";
+//@import "~/css/helper/variables";
+@use "css/helper/variables" as *;
 
 .module-header {
     width: 100%;

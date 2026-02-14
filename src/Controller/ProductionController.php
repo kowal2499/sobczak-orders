@@ -9,9 +9,12 @@ use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
-use App\Service\WorkingScheduleService;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
+use App\System\EventBus;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -140,7 +143,7 @@ class ProductionController extends BaseController
     public function updateStatus(
         Request $request,
         MessageBusInterface $messageBus,
-        ProductionRepository $taskRepository
+        ProductionRepository $taskRepository,
     ): JsonResponse
     {
         $messageBus->dispatch(new UpdateStatusCommand(
@@ -183,16 +186,24 @@ class ProductionController extends BaseController
 
     /**
      * @param Request $request
-     * @param WorkingScheduleService $workingScheduleService
+     * @param WorkScheduleService $workScheduleService
      * @param ProductionRepository $repository
+     * @param WorkCapacityRepository $workCapacityRepository
      * @return JsonResponse
      */
     #[Route(path: '/production/summary', name: 'production_summary', options: ['expose' => true], methods: ['POST'])]
-    public function summary(Request $request, WorkingScheduleService $workingScheduleService, ProductionRepository $repository)
+    public function summary(
+        Request                $request,
+        WorkScheduleService    $workScheduleService,
+        ProductionRepository   $repository,
+        WorkCapacityRepository $workCapacityRepository,
+    ): JsonResponse
     {
         $argMonth = $request->request->getInt('month');
         $argYear = $request->request->getInt('year');
-        $factorsPerDay = 1.5238;
+        $factorsPerDay = $workCapacityRepository->findOneByDate(
+            \DateTimeImmutable::createFromFormat('Y-m-d', sprintf("%d-%02d-01", $argYear, $argMonth))
+        )?->getCapacity() ?? 1.5238;
 
         $summary = [
             'production' => [
@@ -211,11 +222,9 @@ class ProductionController extends BaseController
             /**
              * Wyznaczanie ilości dni roboczych
              */
-            $workingScheduleService->initialize("${argYear}-${argMonth}-01");
-            if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                $workingScheduleService->initializeHolidays();
-            }
-            $summary['workingDays'] = $workingScheduleService->getWorkingDaysCount();
+            $dateStart = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $argYear, $argMonth));
+            $dateEnd = $dateStart->modify('last day of this month');
+            $summary['workingDays'] = count($workScheduleService->getWorkingDays($dateStart, $dateEnd));
 
             /**
              * Miesięczna norma produkcji to 32 współczynniki. W miesiącu jest średnio 21 dni roboczych,
@@ -270,26 +279,35 @@ class ProductionController extends BaseController
             }
 
             /**
-             * Dzień zakończenia bieżącej produkcji
+             * Dzień zakończenia bieżącej produkcji z uwzględnieniem dni roboczych
              */
             $daysToFinish = ceil($summary['production']['factorsInProduction'] / $factorsPerDay);
 
-            $endDate = new \DateTime();
-            $cachedMonth = null;
-            $index = 0;
-            while ($index < $daysToFinish) {
-                $endDate->modify('+1 day');
-                if ($cachedMonth !== $endDate->format('m')) {
-                    $workingScheduleService->initialize($endDate->format('Y-m') . '-01');
-                    if (false === $workingScheduleService->hasHolidaysInitialized()) {
-                        $workingScheduleService->initializeHolidays();
-                    }
+            $current = new \DateTime();
+            $currentMonthKey = null;
+            $remaining = (int) $daysToFinish;
+            $workingDaysSet = [];
+
+            while ($remaining > 0) {
+                $current->modify('+1 day');
+                $monthKey = $current->format('Y-m');
+                if ($currentMonthKey !== $monthKey) {
+                    $dateStart = \DateTimeImmutable::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', $current->format('Y'), $current->format('m')));
+                    $dateEnd = $dateStart->modify('last day of this month');
+                    $workingDays = $workScheduleService->getWorkingDays($dateStart, $dateEnd);
+
+                    $workingDaysSet = array_flip(array_map(
+                        fn (WorkSchedule $ws) => $ws->getDate()->format('Y-m-d'),
+                        $workingDays
+                    ));
+                    $currentMonthKey = $monthKey;
                 }
-                if ($workingScheduleService->isWorkingDay($endDate->format('Y-m-d'))) {
-                    $index++;
+
+                if (isset($workingDaysSet[$current->format('Y-m-d')])) {
+                    $remaining--;
                 }
             }
-            $summary['firstFreeDay'] = $endDate->format('Y-m-d');
+            $summary['firstFreeDay'] = $current->format('Y-m-d');
 
         } catch (\Exception $e) {
             return $this->composeErrorResponse($e);

@@ -3,7 +3,7 @@
         <div class="task-icon" :class="{'anim': anim}">
             <slot name="icon"></slot>
         </div>
-        <div class="task-message">
+        <div class="task-message w-100">
             <slot name="message"></slot>
         </div>
     </div>
@@ -41,6 +41,11 @@ export default {
         &.info {
             color: #0056b3;
             border-color: rgba(0, 86, 179, 0.3);
+        }
+
+        &.text {
+            color: #666;
+            border-color: rgba(102, 102, 102, 0.3);
         }
 
         .task-icon {

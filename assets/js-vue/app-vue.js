@@ -2,6 +2,7 @@ import Vue from 'vue';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import components from './src/components/root-components';
+import FormLayout from '@/components/base/Form/FormLayout.vue'
 import { privileges, Tasks, User, Roles } from "./src/services/privilages";
 import helpers from "./src/helpers";
 import routing from "./src/api/routing";
@@ -12,9 +13,13 @@ import validation from './src/validation/index'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag } from '@fortawesome/free-solid-svg-icons'
-
-library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle, faCheckCircle, faShoppingCart, faHashtag)
+import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
+    faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
+    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash
+} from '@fortawesome/free-solid-svg-icons'
+library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
+    faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
+    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();
@@ -55,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return (Math.round(value * 100)/100).toFixed(2)
     })
 
-    init().then(() => {
+    Vue.component('FormLayout', FormLayout)
+
+    init(user).then(() => {
         new Vue({
             el: '#app',
             components,
