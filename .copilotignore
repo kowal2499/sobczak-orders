@@ -1,0 +1,48 @@
+# Copilot Ignore File
+# Pliki i katalogi, które Copilot powinien ignorować podczas analizy kontekstu
+
+# Vendory i zależności
+app/vendor/**
+app/node_modules/**
+**/node_modules/**
+
+# Cache i logi
+app/var/cache/**
+app/var/log/**
+services/mysql/**
+
+# Buildy
+app/public/build/**
+**/dist/**
+**/build/**
+
+# Backupy
+backup/**
+*.gz
+*.sql
+
+# IDE
+.idea/**
+*.swp
+*.swo
+
+# Pliki tymczasowe
+*.tmp
+*.temp
+*.bak
+
+# Duże pliki danych
+*.csv
+*.xlsx
+*.xls
+
+# Media i uploady
+app/public/uploads/**
+app/public/media/**
+
+# Testy - stare dane
+app/tests/fixtures/**
+
+# Docker volumes
+services/**
+
