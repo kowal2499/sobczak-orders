@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  php-apache:
+    container_name: container-php-apache
+    build:
+      context: .
+      dockerfile: ./services/php-apache/Dockerfile
+    restart: 'no'
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - ${API_HTTP_PORT}:80
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - ./services/mysql:/var/lib/mysql
+    environment:
+      TZ: "${TIMEZONE}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+
+volumes:
+    mysql:
