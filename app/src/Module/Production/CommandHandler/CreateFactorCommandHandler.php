@@ -10,7 +10,6 @@ use App\Repository\AgreementLineRepository;
 
 class CreateFactorCommandHandler
 {
-
     public function __construct(
         private readonly AgreementLineRepository $agreementLineRepository,
         private readonly FactorRepository $factorRepository,

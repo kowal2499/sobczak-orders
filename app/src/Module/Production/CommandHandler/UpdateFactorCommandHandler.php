@@ -7,7 +7,6 @@ use App\Module\Production\Repository\FactorRepository;
 
 class UpdateFactorCommandHandler
 {
-
     public function __construct(
         private readonly FactorRepository $factorRepository,
     ) {

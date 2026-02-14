@@ -58,8 +58,7 @@ class UpdateAgreementLineRMHandler
         $model->setProductionEndDate($agreementLine->getProductionCompletionDate());
         $model->setUserName($agreementLine->getAgreement()->getUser()
             ? $agreementLine->getAgreement()->getUser()->getUserFullName()
-            : null
-        );
+            : null);
         $model->setOrderNumber($agreementLine->getAgreement()->getOrderNumber());
         $model->setCustomerName($this->getCustomerName($agreementLine));
         $model->setProductName($agreementLine->getProduct() ? $agreementLine->getProduct()->getName() : null);

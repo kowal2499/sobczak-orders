@@ -36,8 +36,7 @@ class ProductionReportsController extends BaseController
         Request $request,
         OrdersPendingRecordSupplier $ordersPendingRecordSupplier,
         OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier,
-    ): Response
-    {
+    ): Response {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));
 
@@ -53,8 +52,7 @@ class ProductionReportsController extends BaseController
     public function productionFinishedDetails(
         Request $request,
         OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier
-    ): Response
-    {
+    ): Response {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));
 
@@ -65,8 +63,7 @@ class ProductionReportsController extends BaseController
     public function productionPendingDetails(
         Request $request,
         OrdersPendingRecordSupplier $ordersPendingRecordSupplier
-    ): Response
-    {
+    ): Response {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));
 
@@ -77,8 +74,7 @@ class ProductionReportsController extends BaseController
     public function productionTasksCompletionSummary(
         Request $request,
         ProductionBonusSupplier $supplier
-    ): Response
-    {
+    ): Response {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));
 
@@ -89,8 +85,7 @@ class ProductionReportsController extends BaseController
     public function productionCapacity(
         Request $request,
         ProductionCapacitySupplier $supplier
-    ): Response
-    {
+    ): Response {
         $start = new \DateTimeImmutable($request->query->get('start'));
         $end = new \DateTimeImmutable($request->query->get('end'));
 

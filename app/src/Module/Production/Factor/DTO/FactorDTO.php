@@ -7,10 +7,10 @@ use App\Module\Production\Entity\FactorSource;
 class FactorDTO
 {
     public FactorSource $source;
-    public float        $value = 0;
-    public ?int         $agreementLineId;
-    public ?string      $departmentSlug;
-    public ?string      $description;
+    public float $value = 0;
+    public ?int $agreementLineId;
+    public ?string $departmentSlug;
+    public ?string $description;
 
     public function __construct(
         FactorSource $source,

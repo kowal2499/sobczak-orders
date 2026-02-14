@@ -269,7 +269,11 @@ class WorkCapacityControllerTest extends ApiTestCase
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($responseData);
-        $this->assertCount(2, $responseData, 'Expected 2 capacities from startDate, got: ' . json_encode($responseData));
+        $this->assertCount(
+            2,
+            $responseData,
+            'Expected 2 capacities from startDate, got: ' . json_encode($responseData)
+        );
 
         $this->assertEquals('2030-11-25', $responseData[0]['dateFrom']);
         $this->assertEquals(12.0, $responseData[0]['capacity']);

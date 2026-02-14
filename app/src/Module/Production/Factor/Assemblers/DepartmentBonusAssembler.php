@@ -27,8 +27,7 @@ class DepartmentBonusAssembler implements FactorAssemblerInterface
         AgreementLine $agreementLine,
         ?string $departmentSlug,
         array $factorsPool
-    ): ?AssembledFactorDTO
-    {
+    ): ?AssembledFactorDTO {
         if (count($factorsPool) === 0) {
             return null;
         }

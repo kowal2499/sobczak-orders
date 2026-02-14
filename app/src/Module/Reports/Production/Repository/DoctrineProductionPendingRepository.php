@@ -10,7 +10,6 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class DoctrineProductionPendingRepository extends ServiceEntityRepository
 {
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AgreementLine::class);
@@ -19,8 +18,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
     public function getSummary(
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end
-    )
-    {
+    ) {
         $query = $this->getQuery($start, $end)
             ->select('SUM(al.factor) as factors_summary')
             ->addSelect('COUNT(al.id) as count');
@@ -30,8 +28,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
     public function getDetails(
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end
-    ): array
-    {
+    ): array {
         $query = $this->getQuery($start, $end);
         $this->withPendingProductionTask($query)
             ->join('al.Product', 'p')
@@ -52,8 +49,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
     private function getQuery(
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end
-    ): QueryBuilder
-    {
+    ): QueryBuilder {
         $query = $this->createQueryBuilder('al');
         return $this->withinProductionStartDate($query, $start, $end)
             ->andWhere('al.deleted = 0')
@@ -87,14 +83,22 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
     private function withPendingProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
-            ->leftJoin('al.productions', 'pr', 'WITH', 'pr.departmentSlug IN (:departments) AND pr.status IN (:qualifiedStatuses)')
+            ->leftJoin(
+                'al.productions',
+                'pr',
+                'WITH',
+                'pr.departmentSlug IN (:departments) AND pr.status IN (:qualifiedStatuses)'
+            )
             ->addSelect('pr.completedAt')
             ->setParameter('departments', [
                 TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_SLUG_CNC,
                 TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,
                 TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING
             ])
-            ->setParameter('qualifiedStatuses', [TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED, TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE])
+            ->setParameter('qualifiedStatuses', [
+                TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,
+                TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE
+            ])
         ;
     }
 }

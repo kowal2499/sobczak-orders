@@ -19,16 +19,15 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/factor', name: 'production_factor')]
 class FactorController extends BaseController
 {
-    #[Route(path: '/{agreementLine}',  methods: ['POST'])]
+    #[Route(path: '/{agreementLine}', methods: ['POST'])]
     #[IsGranted('production.factor_adjustment')]
     public function storeFromForm(
         Request $request,
         AgreementLine $agreementLine,
         FactorWriteService $factorWriteService,
         EventBus $eventBus,
-    ): JsonResponse
-    {
-        $factors = (array)$request->request->get('factors', []);
+    ): JsonResponse {
+        $factors = (array) $request->request->get('factors', []);
 
         $factorWriteService->store(
             $agreementLine->getId(),
@@ -40,7 +39,7 @@ class FactorController extends BaseController
         return $this->json([], Response::HTTP_OK);
     }
 
-    #[Route(path: '/{agreementLine}',  methods: ['GET'])]
+    #[Route(path: '/{agreementLine}', methods: ['GET'])]
     public function readAsForm(AgreementLine $agreementLine, FactorRepository $factorRepository): JsonResponse
     {
         return $this->json(array_map(fn (Factor $factor) => [

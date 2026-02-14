@@ -103,7 +103,13 @@ class WorkScheduleController extends BaseController
 
         $schedules = $workScheduleService->getDays($startDateObj, $endDateObj, $typeEnum);
 
-        return $this->json(array_map(fn (WorkSchedule $schedule) => $schedule->toArray(), $schedules), Response::HTTP_OK);
+        return $this->json(
+            array_map(
+                fn (WorkSchedule $schedule) => $schedule->toArray(),
+                $schedules
+            ),
+            Response::HTTP_OK
+        );
     }
 
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]

@@ -6,16 +6,15 @@ use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
 class ProductionReportRecordDTO
 {
-
     public function __construct(
-        private readonly string              $departmentSlug = '',
-        private readonly ?\DateTimeInterface  $dateStart = null,
-        private readonly ?\DateTimeInterface  $dateEnd = null,
-        private readonly ?string              $status = null,
+        private readonly string $departmentSlug = '',
+        private readonly ?\DateTimeInterface $dateStart = null,
+        private readonly ?\DateTimeInterface $dateEnd = null,
+        private readonly ?string $status = null,
         private readonly ?\DateTimeInterface $completedAt = null,
-        private readonly ?AgreementLineDTO   $agreementLine = null,
-        private readonly ?AgreementDTO       $agreement = null,
-        private readonly ?CustomerDTO        $customer = null,
+        private readonly ?AgreementLineDTO $agreementLine = null,
+        private readonly ?AgreementDTO $agreement = null,
+        private readonly ?CustomerDTO $customer = null,
         private readonly ?AssembledFactorDTO $factors = null,
     ) {
     }

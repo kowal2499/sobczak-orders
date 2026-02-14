@@ -8,7 +8,11 @@ use App\Module\Authorization\Entity\AuthRoleGrantValue;
 
 interface AuthRoleGrantValueRepositoryInterface
 {
-    public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue;
+    public function findOneByRoleAndGrant(
+        AuthRole $authRole,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthRoleGrantValue;
 
     /**
      * @param AuthRole $authRole
@@ -24,5 +28,4 @@ interface AuthRoleGrantValueRepositoryInterface
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void;
 
     public function remove(AuthRoleGrantValue $userGrantValue, bool $flush = true): void;
-
 }

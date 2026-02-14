@@ -5,11 +5,11 @@ namespace App\Module\Authorization\Command;
 class CreateRoleGrantValue
 {
     public function __construct(
-        private readonly int     $roleId,
-        private readonly int     $grantId,
+        private readonly int $roleId,
+        private readonly int $grantId,
         private readonly ?string $grantOptionSlug,
-        private readonly bool    $value
-    ){
+        private readonly bool $value
+    ) {
     }
 
     public function getRoleId(): int

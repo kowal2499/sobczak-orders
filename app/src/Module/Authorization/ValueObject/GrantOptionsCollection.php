@@ -4,7 +4,6 @@ namespace App\Module\Authorization\ValueObject;
 
 class GrantOptionsCollection implements \Iterator
 {
-
     private array $options;
     private int $currentIndex = 0;
     public function __construct(GrantOption ...$options)

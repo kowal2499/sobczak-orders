@@ -7,7 +7,8 @@ class AgreementDTO
     public function __construct(
         private readonly ?string $orderNumber = null,
         private readonly ?\DateTimeInterface $confirmedDate = null
-    ) {}
+    ) {
+    }
 
     public function getOrderNumber(): ?string
     {

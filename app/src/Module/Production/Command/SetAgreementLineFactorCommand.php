@@ -21,5 +21,4 @@ class SetAgreementLineFactorCommand
     {
         return $this->factorValue;
     }
-
 }

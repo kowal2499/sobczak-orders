@@ -102,8 +102,13 @@
         ],
         "cs": "phpcs",
         "cs-fix": "phpcbf",
-        "cs-report": "phpcs --report=summary",
-        "check": "composer cs-fix"
+        "cs-report": "phpcs --report=full",
+        "cs-summary": "phpcs --report=summary",
+        "cs-full": "phpcs --report=full",
+        "cs-diff": "phpcs --report=diff",
+        "check": "composer cs-fix; composer cs-report",
+        "check-summary": "phpcs --report=summary",
+        "fix": "phpcbf"
     },
     "conflict": {
         "symfony/symfony": "*"

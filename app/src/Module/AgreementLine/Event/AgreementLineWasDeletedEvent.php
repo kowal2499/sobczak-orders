@@ -6,7 +6,7 @@ class AgreementLineWasDeletedEvent
 {
     public function __construct(
         private readonly int $agreementLineId,
-    ){
+    ) {
     }
 
     public function getAgreementLineId(): int

@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\Security;
 
 class DoctrineProductionTasksRepository extends ServiceEntityRepository
 {
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Production::class);
@@ -20,8 +19,7 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
     public function getProductions(
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end
-    ): array
-    {
+    ): array {
         $query = $this->createQueryBuilder('p');
         $this->withProductionDepartments($query);
         $this->withinTaskCompletionDate($query, $start, $end);
@@ -31,8 +29,7 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
     public function getCapacityInTime(
         \DateTimeInterface $start,
         \DateTimeInterface $end
-    ): array
-    {
+    ): array {
         $query = $this->createQueryBuilder('p');
         $this->withProductionDepartments($query);
         $this->withinTaskDuration($query, $start, $end);
@@ -62,8 +59,7 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
         QueryBuilder $qb,
         ?\DateTimeInterface $start = null,
         ?\DateTimeInterface $end = null
-    ): void
-    {
+    ): void {
         $qb
             ->andWhere('p.dateEnd >= :dateStart')
             ->andWhere('p.dateEnd <= :dateEnd')

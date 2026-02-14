@@ -9,5 +9,4 @@ interface AuthRoleRepositoryInterface
     public function add(AuthRole $role, bool $flush = true): void;
     public function findOneByName(string $name): ?AuthRole;
     public function remove(AuthRole $role, bool $flush = true): void;
-
 }

@@ -60,21 +60,33 @@ class ReportsControllerTest extends ApiTestCase
         $dateEnd = '2021-09-30';
 
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-08-20'), 'productionCompletionDate' => new \DateTime('2021-08-30')
+            'productionStartDate' => new \DateTime('2021-08-20'),
+            'productionCompletionDate' => new \DateTime('2021-08-30')
         ]);
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-09-10'), 'productionCompletionDate' => new \DateTime('2021-09-15')
+            'productionStartDate' => new \DateTime('2021-09-10'),
+            'productionCompletionDate' => new \DateTime('2021-09-15')
         ]);
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-09-10'), 'productionCompletionDate' => new \DateTime('2021-09-20')
+            'productionStartDate' => new \DateTime('2021-09-10'),
+            'productionCompletionDate' => new \DateTime('2021-09-20')
         ]);
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-10-10'), 'productionCompletionDate' => new \DateTime('2021-10-21')
+            'productionStartDate' => new \DateTime('2021-10-10'),
+            'productionCompletionDate' => new \DateTime('2021-10-21')
         ]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-02-20')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-10')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-10')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-10-10')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-02-20')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-10')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-10')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-10-10')
+        ]);
         // When
         $this->client->xmlHttpRequest('GET', '/api/reports/agreement-line-production-summary', [
             'start' => $dateStart,

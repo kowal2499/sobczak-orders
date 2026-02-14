@@ -45,7 +45,7 @@ class FactorRatioDTO
         return new self(
             FactorSource::from($data['source']),
             $data['value'],
-        $data['id'] ?? null,
+            $data['id'] ?? null,
             $data['departmentSlug'] ?? null,
             $data['description'] ?? null,
         );

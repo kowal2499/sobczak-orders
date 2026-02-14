@@ -21,6 +21,4 @@ class UpdateFactorCommand
     {
         return $this->ratioDTO;
     }
-
-
 }

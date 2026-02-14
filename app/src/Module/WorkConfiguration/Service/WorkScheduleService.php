@@ -59,7 +59,10 @@ class WorkScheduleService
     public function getWorkingDays(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
         $result = [];
-        $holidays = array_map(fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'), $this->getFreeDays($dateStart, $dateEnd));
+        $holidays = array_map(
+            fn (WorkSchedule $day) => $day->getDate()->format('Y-m-d'),
+            $this->getFreeDays($dateStart, $dateEnd)
+        );
         $currentDate = clone $dateStart;
         while ($currentDate <= $dateEnd) {
             if (!in_array($currentDate->format('Y-m-d'), $holidays)) {

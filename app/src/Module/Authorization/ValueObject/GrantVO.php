@@ -52,6 +52,4 @@ class GrantVO
     {
         return implode(':', array_filter([$this->getSlug(), $this->getOptionSlug()]));
     }
-
-
 }

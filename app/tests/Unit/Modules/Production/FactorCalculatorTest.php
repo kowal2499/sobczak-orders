@@ -122,14 +122,28 @@ class FactorCalculatorTest extends TestCase
             $agreement,
             'dpt01',
             [
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.9, 'dpt01', 'some desc one'),
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.5, 'dpt01'), // should be ignored
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.7, 'dpt01', 'some desc two'),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_RATIO,
+                    0.9,
+                    'dpt01',
+                    'some desc one'
+                ),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                    0.5,
+                    'dpt01'
+                ), // should be ignored
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_RATIO,
+                    0.7,
+                    'dpt01',
+                    'some desc two'
+                ),
             ],
             FactorSource::FACTOR_ADJUSTMENT_RATIO
         );
         // Then
-        $this->assertEquals(round(3.5*0.9*0.7,2), $result->factor);
+        $this->assertEquals(round(3.5 * 0.9 * 0.7, 2), $result->factor);
         $this->assertCount(3, $result->factorsStack);
         $this->assertEquals(FactorSource::AGREEMENT_LINE, $result->factorsStack[0]->source);
         $this->assertEquals(3.5, $result->factorsStack[0]->value);
@@ -156,9 +170,24 @@ class FactorCalculatorTest extends TestCase
             $agreement,
             'dpt01',
             [
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.2, 'dpt01', 'some desc one'),
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.5, 'dpt03', 'some desc one dpt03'),
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.3, 'dpt01', 'some desc two'),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                    0.2,
+                    'dpt01',
+                    'some desc one'
+                ),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                    0.5,
+                    'dpt03',
+                    'some desc one dpt03'
+                ),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                    0.3,
+                    'dpt01',
+                    'some desc two'
+                ),
             ],
             FactorSource::FACTOR_ADJUSTMENT_BONUS
         );
@@ -186,8 +215,18 @@ class FactorCalculatorTest extends TestCase
             $agreement,
             'dpt01',
             [
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.2, 'dpt01', 'some desc two'),
-                $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.5, 'dpt01', 'some desc one'),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                    0.2,
+                    'dpt01',
+                    'some desc two'
+                ),
+                $this->makeFactor(
+                    FactorSource::FACTOR_ADJUSTMENT_RATIO,
+                    0.5,
+                    'dpt01',
+                    'some desc one'
+                ),
             ],
             FactorSource::FACTOR_ADJUSTMENT_BONUS
         );
@@ -204,7 +243,6 @@ class FactorCalculatorTest extends TestCase
         $this->assertEquals(0.2, $result->factorsStack[2]->value);
         $this->assertEquals('dpt01', $result->factorsStack[2]->departmentSlug);
         $this->assertEquals('some desc two', $result->factorsStack[2]->description);
-
     }
 
     private function makeAgreementLineWithFactor(float $factor): AgreementLine
@@ -215,8 +253,12 @@ class FactorCalculatorTest extends TestCase
         return $agreementLine;
     }
 
-    private function makeFactor(FactorSource $source, float $value, ?string $dpt = null, string $description = ''): Factor
-    {
+    private function makeFactor(
+        FactorSource $source,
+        float $value,
+        ?string $dpt = null,
+        string $description = ''
+    ): Factor {
         $factor = new Factor();
         PrivateProperty::setId($factor);
         $factor->setSource($source);

@@ -11,7 +11,6 @@ use Symfony\Component\Lock\LockFactory;
 
 class AuthCacheService
 {
-
     private CacheInterface $cache;
     private LockFactory $lockFactory;
     private const KEYS_TRACKING = 'auth_cache_keys_tracking';

@@ -10,7 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
     name: "auth_role_grant_value",
     uniqueConstraints: [
         new ORM\UniqueConstraint(name: "unique_role_grant_value", columns: ["role_id", "grant_id", "grant_option_slug"])
-])]
+    ]
+)]
 class AuthRoleGrantValue extends AuthAbstractGrantValue
 {
     #[ORM\ManyToOne(targetEntity: AuthRole::class, inversedBy: null)]

@@ -88,7 +88,13 @@ class WorkCapacityController extends BaseController
 
         $capacities = $workCapacityRepository->findByRange($startDateObj, $endDateObj);
 
-        return $this->json(array_map(fn (WorkCapacity $capacity) => $capacity->toArray(), $capacities), Response::HTTP_OK);
+        return $this->json(
+            array_map(
+                fn (WorkCapacity $capacity) => $capacity->toArray(),
+                $capacities
+            ),
+            Response::HTTP_OK
+        );
     }
 
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]

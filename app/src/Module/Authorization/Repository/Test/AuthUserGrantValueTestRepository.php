@@ -13,14 +13,20 @@ class AuthUserGrantValueTestRepository implements AuthUserGrantValueRepositoryIn
     /** @var AuthUserGrantValue[] */
     private array $storage = [];
 
-    public function findOneByUserAndGrant(User $user, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthUserGrantValue
-    {
+    public function findOneByUserAndGrant(
+        User $user,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthUserGrantValue {
         return null;
     }
 
     public function findAllByUser(User $user): array
     {
-        return array_filter($this->storage, fn(AuthUserGrantValue $item) => $item->getUser()->getId() === $user->getId());
+        return array_filter(
+            $this->storage,
+            fn(AuthUserGrantValue $item) => $item->getUser()->getId() === $user->getId()
+        );
     }
 
     public function add(AuthUserGrantValue $userGrantValue): void

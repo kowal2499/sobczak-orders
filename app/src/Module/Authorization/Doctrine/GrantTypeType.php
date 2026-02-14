@@ -8,7 +8,6 @@ use Doctrine\DBAL\Types\StringType;
 
 class GrantTypeType extends StringType
 {
-
     public function convertToPHPValue($value, AbstractPlatform $platform): ?GrantType
     {
         return !is_null($value) ? GrantType::tryFrom($value) : null;

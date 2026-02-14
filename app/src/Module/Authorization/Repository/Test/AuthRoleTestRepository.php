@@ -8,7 +8,6 @@ use App\Tests\Utilities\PrivateProperty;
 
 class AuthRoleTestRepository implements AuthRoleRepositoryInterface
 {
-
     /** @var AuthRole[] $roles */
     private array $rolesMap = [];
 
@@ -40,6 +39,4 @@ class AuthRoleTestRepository implements AuthRoleRepositoryInterface
             unset($this->rolesMap[$foundRole->getId()]);
         }
     }
-
-
 }

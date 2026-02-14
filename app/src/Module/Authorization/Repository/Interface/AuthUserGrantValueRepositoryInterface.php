@@ -9,9 +9,12 @@ use App\Module\Authorization\Repository\Test\AuthUserGrantValueTestRepository;
 
 interface AuthUserGrantValueRepositoryInterface
 {
-    public function findOneByUserAndGrant(User $user, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthUserGrantValue;
+    public function findOneByUserAndGrant(
+        User $user,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthUserGrantValue;
     public function findAllByUser(User $user): array;
     public function add(AuthUserGrantValue $userGrantValue): void;
     public function remove(AuthUserGrantValue $userGrantValue): void;
-
 }

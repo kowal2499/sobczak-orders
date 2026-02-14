@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\WorkConfiguration;
 
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
 use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Test\ApiTestCase;
@@ -167,9 +168,9 @@ class WorkScheduleControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2026-02-25 00:00:00');
 
         $manager = $this->getManager();
-        $schedule1 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date1, ScheduleDayType::Holiday, 'Day 1');
-        $schedule2 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date2, ScheduleDayType::Working, 'Day 2');
-        $schedule3 = new \App\Module\WorkConfiguration\Entity\WorkSchedule($date3, ScheduleDayType::Holiday, 'Day 3');
+        $schedule1 = new WorkSchedule($date1, ScheduleDayType::Holiday, 'Day 1');
+        $schedule2 = new WorkSchedule($date2, ScheduleDayType::Working, 'Day 2');
+        $schedule3 = new WorkSchedule($date3, ScheduleDayType::Holiday, 'Day 3');
 
         $manager->persist($schedule1);
         $manager->persist($schedule2);
@@ -178,14 +179,21 @@ class WorkScheduleControllerTest extends ApiTestCase
         $manager->clear();
 
         // When
-        $client->xmlHttpRequest('GET', '/work-configuration/schedule?startDate=2026-02-18&endDate=2026-02-23&type=holiday');
+        $client->xmlHttpRequest(
+            'GET',
+            '/work-configuration/schedule?startDate=2026-02-18&endDate=2026-02-23&type=holiday'
+        );
 
         // Then
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertIsArray($responseData);
-        $this->assertCount(2, $responseData, 'Expected 2 holiday schedule in range, got: ' . json_encode($responseData));
+        $this->assertCount(
+            2,
+            $responseData,
+            'Expected 2 holiday schedule in range, got: ' . json_encode($responseData)
+        );
 
         $this->assertEquals('2026-02-18', $responseData[0]['date']);
         $this->assertEquals('holiday', $responseData[0]['dayType']);

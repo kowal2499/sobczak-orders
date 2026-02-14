@@ -28,7 +28,9 @@ class CreateUserGrantValueHandler
             throw new InvalidArgumentException('User or Grant not found');
         }
         $grantValue = $this->authUserGrantValueRepository->findOneByUserAndGrant(
-            $user, $grant, $command->getGrantOptionSlug()
+            $user,
+            $grant,
+            $command->getGrantOptionSlug()
         );
 
         if (!$grantValue) {

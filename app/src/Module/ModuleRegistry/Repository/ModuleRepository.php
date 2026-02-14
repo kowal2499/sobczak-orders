@@ -82,5 +82,4 @@ class ModuleRepository extends ServiceEntityRepository
         }
         return $result;
     }
-
 }

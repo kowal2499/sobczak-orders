@@ -10,7 +10,8 @@ class AgreementLineDTO
         private readonly ?string $productName = null,
         private readonly ?\DateTimeInterface $productionStartDate = null,
         private readonly ?\DateTimeInterface $productionCompletionDate = null
-    ) {}
+    ) {
+    }
 
     public function getId(): ?int
     {

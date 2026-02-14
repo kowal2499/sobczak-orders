@@ -8,7 +8,6 @@ use App\System\CommandBus;
 
 class UpdateAgreementLineRMOnCreateHandler
 {
-
     public function __construct(
         private readonly CommandBus $commandBus,
     ) {

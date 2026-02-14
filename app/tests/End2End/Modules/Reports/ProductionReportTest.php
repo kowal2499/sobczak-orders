@@ -108,13 +108,19 @@ class ProductionReportTest extends ApiTestCase
         $dateStart = new \DateTime('2021-09-01');
         $dateEnd = new \DateTime('2021-09-30');
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-08-01'), 'productionCompletionDate' => new \DateTime('2021-08-10')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-09-01'), 'productionCompletionDate' => new \DateTime('2021-09-10')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
-            'productionStartDate' => new \DateTime('2021-09-10'), 'productionCompletionDate' => new \DateTime('2021-09-15')], [
-            TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
+            'productionStartDate' => new \DateTime('2021-08-01'),
+            'productionCompletionDate' => new \DateTime('2021-08-10')
         ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
+            'productionStartDate' => new \DateTime('2021-09-01'),
+            'productionCompletionDate' => new \DateTime('2021-09-10')
+        ]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            [
+            'productionStartDate' => new \DateTime('2021-09-10'),
+            'productionCompletionDate' => new \DateTime('2021-09-15')],
+            [ TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_AWAITS, ]
+        );
         // When
         $result = $this->reportUnderTest->getOrdersFinishedDetails($dateStart, $dateEnd);
         // Then
@@ -137,9 +143,15 @@ class ProductionReportTest extends ApiTestCase
         // Given
         $dateStart = new \DateTime('2021-09-01');
         $dateEnd = new \DateTime('2021-09-30');
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-08-30')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-15')]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-09-20')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            ['productionStartDate' => new \DateTime('2021-08-30')]
+        );
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            ['productionStartDate' => new \DateTime('2021-09-15')]
+        );
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            ['productionStartDate' => new \DateTime('2021-09-20')]
+        );
         $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks([
             'productionStartDate' => new \DateTime('2021-09-20'),
             'productionCompletionDate' => new \DateTime('2021-09-22'),
@@ -148,7 +160,9 @@ class ProductionReportTest extends ApiTestCase
             'productionStartDate' => new \DateTime('2021-08-20'),
             'productionCompletionDate' => new \DateTime('2021-09-22'),
         ]);
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-10-01')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            ['productionStartDate' => new \DateTime('2021-10-01')]
+        );
         // When
         $result = $this->reportUnderTest->getSummary($dateStart, $dateEnd);
         // Then
@@ -174,7 +188,9 @@ class ProductionReportTest extends ApiTestCase
             'productionStartDate' => new \DateTime('2021-09-20')
         ], [TaskTypes::TYPE_DEFAULT_SLUG_GLUING => TaskTypes::TYPE_DEFAULT_STATUS_PENDING]);
 
-        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(['productionStartDate' => new \DateTime('2021-10-01')]);
+        $this->agreementLineFixturesHelper->makeAgreementLineWithProductionTasks(
+            ['productionStartDate' => new \DateTime('2021-10-01')]
+        );
         // When
         $result = $this->reportUnderTest->getOrdersPendingDetails($dateStart, $dateEnd);
         // Then

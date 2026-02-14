@@ -6,7 +6,8 @@ class CustomerDTO
 {
     public function __construct(
         private readonly ?string $name = null
-    ) {}
+    ) {
+    }
 
     public function getName(): ?string
     {

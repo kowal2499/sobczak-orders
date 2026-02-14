@@ -23,8 +23,7 @@ class AgreementLineController extends BaseController
         Request $request,
         AgreementLineRMRepository $agreementLineRepository,
         PaginatorInterface $paginator,
-    ): Response
-    {
+    ): Response {
         $payload = $request->request->all();
         if (!isset($payload['search']) || !is_array($payload['search'])) {
             $payload['search'] = [];

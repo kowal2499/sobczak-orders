@@ -60,7 +60,12 @@ class AddressRM
     public function getFullAddress(): ?string
     {
         $parts = array_filter([
-            trim(($this->street ?? '') . ' ' . ($this->streetNumber ?? '') . ($this->apartmentNumber ? '/' . $this->apartmentNumber : '')),
+            trim(
+                ($this->street ?? '')
+                . ' '
+                . ($this->streetNumber ?? '')
+                . ($this->apartmentNumber ? '/' . $this->apartmentNumber : '')
+            ),
             $this->postalCode ? $this->postalCode . ' ' . ($this->city ?? '') : $this->city,
             $this->country,
         ]);

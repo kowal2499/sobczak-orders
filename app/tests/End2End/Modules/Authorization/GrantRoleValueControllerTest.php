@@ -66,4 +66,3 @@ class GrantRoleValueControllerTest extends ApiTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 }
-

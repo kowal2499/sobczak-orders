@@ -4,14 +4,130 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f5f1105-037d-4ed1-bb1b-62ae824b8ec1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/PHPCS_README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+    <list default="true" id="3f5f1105-037d-4ed1-bb1b-62ae824b8ec1" name="Default Changelist" comment="refactor code style for consistency and readability">
+      <change afterPath="$PROJECT_DIR$/app/PHPCS_COMMANDS.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/app/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/app/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/app/symfony.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/CLI/SyncReadModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/CLI/SyncReadModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/CLI/UpdateAgreementLineDates.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/CLI/UpdateAgreementLineDates.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Command/UpdateAgreementLineRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Command/UpdateAgreementLineRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/CommandHandler/UpdateAgreementLineRMHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/CommandHandler/UpdateAgreementLineRMHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Controller/AgreementLineController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Controller/AgreementLineController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AddressRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AddressRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AgreementLineRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AgreementLineRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AgreementRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AgreementRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AttachmentRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/AttachmentRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/CustomerRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/CustomerRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/ProductRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/ProductRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/ProductionRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/ProductionRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/TagRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/TagRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/UserRM.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Entity/UserRM.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasCreatedEvent.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasCreatedEvent.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasDeletedEvent.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasDeletedEvent.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasUpdatedEvent.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Event/AgreementLineWasUpdatedEvent.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/DeleteAgreementLineRMHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/DeleteAgreementLineRMHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnCreateHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnCreateHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnUpdateHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/EventHandler/UpdateAgreementLineRMOnUpdateHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/AgreementLine/Repository/AgreementLineRMRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/AgreementLine/Repository/AgreementLineRMRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Command/CreateRoleGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Command/CreateRoleGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Command/CreateUserGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Command/CreateUserGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Command/DeleteRoleGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Command/DeleteRoleGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Command/DeleteUserGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Command/DeleteUserGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/CreateRoleGrantValueHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/CreateRoleGrantValueHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/CreateUserGrantValueHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/CreateUserGrantValueHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/DeleteRoleGrantValueHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/DeleteRoleGrantValueHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/DeleteUserGrantValueHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/CommandHandler/DeleteUserGrantValueHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantRoleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantRoleController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantRoleValueController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantRoleValueController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantUserValueController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/GrantUserValueController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/RoleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/RoleController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/RoleUserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Controller/RoleUserController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Doctrine/GrantOptionsType.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Doctrine/GrantOptionsType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Doctrine/GrantTypeType.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Doctrine/GrantTypeType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthAbstractGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthAbstractGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthRoleGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthRoleGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthUserGrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthUserGrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthUserRole.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Entity/AuthUserRole.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthRoleGrantValueRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthRoleGrantValueRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthUserGrantValueRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthUserGrantValueRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthUserRoleRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/AuthUserRoleRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthGrantRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthGrantRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthRoleGrantValueRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthRoleGrantValueRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthRoleRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthRoleRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthUserGrantValueRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthUserGrantValueRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthUserRoleRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Interface/AuthUserRoleRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthGrantTestRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthGrantTestRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthRoleGrantValueTestRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthRoleGrantValueTestRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthRoleTestRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthRoleTestRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthUserGrantValueTestRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthUserGrantValueTestRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthUserRoleTestRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Repository/Test/AuthUserRoleTestRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Service/AuthCacheService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Service/AuthCacheService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Service/GrantValueSupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Service/GrantValueSupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Service/GrantsResolver.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Service/GrantsResolver.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Service/RolesMerger.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Service/RolesMerger.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantOptionsCollection.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantOptionsCollection.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantVO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantVO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantValue.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/ValueObject/GrantValue.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Authorization/Voter/CustomGrantsVoter.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Authorization/Voter/CustomGrantsVoter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/CLI/RegisterModules.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/CLI/RegisterModules.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/Controller/ModuleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/Controller/ModuleController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/Repository/ModuleRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/ModuleRegistry/Repository/ModuleRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Command/CreateFactorCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Command/CreateFactorCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Command/DeleteFactorCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Command/DeleteFactorCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Command/SetAgreementLineFactorCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Command/SetAgreementLineFactorCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Command/UpdateFactorCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Command/UpdateFactorCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/CreateFactorCommandHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/CreateFactorCommandHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/DeleteFactorCommandHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/DeleteFactorCommandHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/SetAgreementLineFactorCommandHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/SetAgreementLineFactorCommandHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/UpdateFactorCommandHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/CommandHandler/UpdateFactorCommandHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Controller/FactorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Controller/FactorController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/DTO/FactorAdjustmentDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/DTO/FactorAdjustmentDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/DTO/FactorRatioDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/DTO/FactorRatioDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Entity/Factor.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Entity/Factor.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/AgreementLineAssembler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/AgreementLineAssembler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/DepartmentAssembler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/DepartmentAssembler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/DepartmentBonusAssembler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/DepartmentBonusAssembler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/FactorAssemblerInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/Assemblers/FactorAssemblerInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/DTO/AssembledFactorDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/DTO/AssembledFactorDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/DTO/FactorDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/DTO/FactorDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Factor/FactorCalculator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Factor/FactorCalculator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Repository/FactorRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Repository/FactorRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Repository/Interface/FactorAdjustmentRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Repository/Interface/FactorAdjustmentRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Repository/Interface/FactorRepositoryInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Repository/Interface/FactorRepositoryInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorBonusService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorBonusService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorRatioWriteService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorRatioWriteService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorWriteService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Production/Service/FactorWriteService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/Controller/ProductionReportsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/Controller/ProductionReportsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/AgreementDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/AgreementDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/AgreementLineDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/AgreementLineDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/CustomerDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/CustomerDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/FactorDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/FactorDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/ProductionReportRecordDTO.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/DTO/ProductionReportRecordDTO.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSupplierInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSupplierInterface.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/BaseSupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/BaseSupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/OrdersFinishedRecordSupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/OrdersFinishedRecordSupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/OrdersPendingRecordSupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/OrdersPendingRecordSupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/ProductionBonusSupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/ProductionBonusSupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/ProductionCapacitySupplier.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/RecordSuppliers/ProductionCapacitySupplier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionFinishedRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionFinishedRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionPendingRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionPendingRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionTasksRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/Reports/Production/Repository/DoctrineProductionTasksRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Controller/WorkCapacityController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Controller/WorkCapacityController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Controller/WorkScheduleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Controller/WorkScheduleController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Repository/WorkScheduleRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Repository/WorkScheduleRepository.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Service/WorkScheduleService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/Module/WorkConfiguration/Service/WorkScheduleService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Authorization/GrantRoleValueControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Authorization/GrantRoleValueControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Authorization/GrantsResolverTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Authorization/GrantsResolverTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Production/FactorAdjustmentControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Production/FactorAdjustmentControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Production/FactorControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Production/FactorControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Reports/ProductionReportTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Reports/ProductionReportTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/Reports/ReportsControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/Reports/ReportsControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/End2End/Modules/WorkConfiguration/WorkScheduleControllerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/End2End/Modules/WorkConfiguration/WorkScheduleControllerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/Unit/Modules/Authorization/GrantVOTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/Unit/Modules/Authorization/GrantVOTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/Unit/Modules/Authorization/GrantsResolverTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/Unit/Modules/Authorization/GrantsResolverTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tests/Unit/Modules/Production/FactorCalculatorTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/tests/Unit/Modules/Production/FactorCalculatorTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +149,7 @@
     </colors>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="9770" />
+    <option name="cachedIndexableFilesCount" value="8706" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -220,6 +336,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHELLCHECK.PATH": "I do mind",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "202602-implementacja-dockera",
     "junie.onboarding.icon.badge.shown": "true",
@@ -322,8 +439,17 @@
       <option name="presentableId" value="Default" />
       <updated>1611178314532</updated>
       <workItem from="1611178315675" duration="2402000" />
-      <workItem from="1771097414281" duration="3483000" />
+      <workItem from="1771097414281" duration="6291000" />
     </task>
+    <task id="LOCAL-00001" summary="refactor code style for consistency and readability">
+      <option name="closed" value="true" />
+      <created>1771101265928</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1771101265928</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,6 +468,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="refactor code style for consistency and readability" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor code style for consistency and readability" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

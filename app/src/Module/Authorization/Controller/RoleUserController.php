@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/role/user', name: 'authorization_role_user')]
 class RoleUserController extends BaseController
 {
-    #[Route(path: '/{user}',  methods: ['GET'])]
+    #[Route(path: '/{user}', methods: ['GET'])]
     public function read(User $user, AuthUserRoleRepository $roleRepository): JsonResponse
     {
         return new JsonResponse(
@@ -35,8 +35,7 @@ class RoleUserController extends BaseController
         AuthUserRoleRepository $userRoleRepository,
         AuthRoleRepository $roleRepository,
         AuthCacheService $cacheService,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $newRoleIds = $request->request->all('roles', []);
         if (!is_array($newRoleIds)) {
             return new JsonResponse(['error' => 'Invalid roles'], 400);

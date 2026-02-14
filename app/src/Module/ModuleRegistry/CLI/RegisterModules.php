@@ -24,7 +24,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'app:module:register', description: 'Register modules defined in YAML file')]
 class RegisterModules extends Command
 {
-
     public function __construct(
         private readonly ModuleConfigurationLoader $configurationLoader,
         private readonly ModuleRepository $moduleRepository,
@@ -76,7 +75,10 @@ class RegisterModules extends Command
                     $options
                 ));
                 $dbGrant->setOptions($grantOptions);
-                $existingGrants = array_filter($existingGrants, fn(AuthGrant $g) => $g->getSlug() !== $grantData['slug']);
+                $existingGrants = array_filter(
+                    $existingGrants,
+                    fn(AuthGrant $g) => $g->getSlug() !== $grantData['slug']
+                );
             }
             // Remove grants that are no longer present in configuration
             foreach ($existingGrants as $obsoleteGrant) {
@@ -101,7 +103,7 @@ class RegisterModules extends Command
 
         $this->entityManager->flush();
         $io->progressFinish();
-        
+
         $io->success('Zakończono rejestrację modułów');
         return self::SUCCESS;
     }

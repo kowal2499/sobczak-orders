@@ -4,7 +4,6 @@ namespace App\Module\Authorization\ValueObject;
 
 class GrantValue
 {
-
     private GrantVO $grantVO;
     private bool $value;
 
@@ -23,6 +22,4 @@ class GrantValue
     {
         return $this->value;
     }
-
-
 }

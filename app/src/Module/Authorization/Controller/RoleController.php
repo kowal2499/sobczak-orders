@@ -27,11 +27,17 @@ class RoleController extends BaseController
         $name = isset($data['name']) && is_string($data['name']) ? trim($data['name']) : null;
 
         if ($name === null) {
-            return new JsonResponse(['error' => $t->trans('Name is required', [], 'authorization')], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                ['error' => $t->trans('Name is required', [], 'authorization')],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         if ($roleRepository->findOneByName($name) !== null) {
-            return new JsonResponse(['error' => $t->trans('Role with this name already exists', [], 'authorization')], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                ['error' => $t->trans('Role with this name already exists', [], 'authorization')],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $role = new AuthRole();
@@ -56,7 +62,7 @@ class RoleController extends BaseController
         return new JsonResponse([]);
     }
 
-    #[Route(path: '/view',  name: '_view', methods: ['GET'])]
+    #[Route(path: '/view', name: '_view', methods: ['GET'])]
     public function view(): Response
     {
         return $this->render('configuration/role.html.twig');

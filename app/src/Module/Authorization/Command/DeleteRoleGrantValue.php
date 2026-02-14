@@ -5,10 +5,10 @@ namespace App\Module\Authorization\Command;
 class DeleteRoleGrantValue
 {
     public function __construct(
-        private readonly int     $roleId,
-        private readonly int     $grantId,
+        private readonly int $roleId,
+        private readonly int $grantId,
         private readonly ?string $grantOptionSlug,
-    ){
+    ) {
     }
 
     public function getRoleId(): int

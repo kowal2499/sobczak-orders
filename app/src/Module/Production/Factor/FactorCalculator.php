@@ -50,8 +50,7 @@ class FactorCalculator
         ?string $departmentSlug,
         array $factorsPool,
         FactorSource $targetSource,
-    ): AssembledFactorDTO
-    {
+    ): AssembledFactorDTO {
         $recipe = self::RECIPES[$targetSource->value] ?? null;
         if ($recipe === null) {
             throw new \InvalidArgumentException("No recipe found for target source: " . $targetSource->value);

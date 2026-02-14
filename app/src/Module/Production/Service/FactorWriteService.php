@@ -37,22 +37,31 @@ class FactorWriteService
 
         $this->processAgreementLineFactor(
             $agreementLine,
-            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::AGREEMENT_LINE)[0] ?? null
+            array_filter(
+                $factors,
+                fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::AGREEMENT_LINE
+            )[0] ?? null
         );
 
         $this->processFactorData(
             $agreementLine,
-            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_RATIO),
+            array_filter(
+                $factors,
+                fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_RATIO
+            ),
             FactorSource::FACTOR_ADJUSTMENT_RATIO
         );
 
         $this->processFactorData(
             $agreementLine,
-            array_filter($factors, fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_BONUS),
+            array_filter(
+                $factors,
+                fn (FactorRatioDTO $dto) => $dto->getFactorSource() === FactorSource::FACTOR_ADJUSTMENT_BONUS
+            ),
             FactorSource::FACTOR_ADJUSTMENT_BONUS
         );
 
-        // konieczne jeśli w trakcie tego samego requestu wyliczone wartości mają być ponownie pobierane z encji
+        // konieczne, jeśli w trakcie tego samego requestu wyliczone wartości mają być ponownie pobierane z encji
         $this->agreementLineRepository->refresh($agreementLine);
     }
 
@@ -73,9 +82,13 @@ class FactorWriteService
      * @param FactorSource $source
      * @return void
      */
-    protected function processFactorData(AgreementLine $agreementLine, array $factorDataList, FactorSource $source): void
-    {
-        $existingFactors = array_map(fn (Factor $factor) => $factor->getId(),
+    protected function processFactorData(
+        AgreementLine $agreementLine,
+        array $factorDataList,
+        FactorSource $source
+    ): void {
+        $existingFactors = array_map(
+            fn (Factor $factor) => $factor->getId(),
             $this->factorRepository->findBy(['agreementLine' => $agreementLine, 'source' => $source])
         );
         $processedFactorIds = [];

@@ -58,7 +58,9 @@ class FactorAdjustmentControllerTest extends ApiTestCase
         // Then
         $production = $this->getProduction();
         $faRepository = $this->getManager()->getRepository(FactorAdjustment::class);
-        $factorAdjusts = $faRepository->findBy(['description' => 'Adjustment for testing', 'factor' => 1.2, 'production' => $production]);
+        $factorAdjusts = $faRepository->findBy(
+            ['description' => 'Adjustment for testing', 'factor' => 1.2, 'production' => $production]
+        );
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertCount(1, $factorAdjusts);
         $this->assertEquals(1.2, $factorAdjusts[0]->getFactor());
@@ -135,5 +137,4 @@ class FactorAdjustmentControllerTest extends ApiTestCase
         $this->getManager()->flush();
         return $factorAdjust;
     }
-
 }

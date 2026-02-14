@@ -35,14 +35,18 @@ class UpdateAgreementLineDates extends Command
 
     protected function configure()
     {
-        $this
-            ->setDescription('Updates `agreement_line.production_start_date` and `agreement_line.production_completion_date` for all rows.');
+        // phpcs:disable
+        $this->setDescription('Updates `agreement_line.production_start_date` and `agreement_line.production_completion_date` for all rows.');
+        // phpcs:enable
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lines = $this->fetchAgreementLines();
-        $output->writeln(['', 'AgreementLine productionStartDate and productionCompletionDate Updater', '========================']);
+        $output->writeln([
+            '',
+            'AgreementLine productionStartDate and productionCompletionDate Updater',
+            '========================']);
 
         $recordsStartDateUpdated = 0;
         $recordsCompletionDateUpdated = 0;
@@ -73,8 +77,7 @@ class UpdateAgreementLineDates extends Command
             'Finished!',
             sprintf('agreementLines startDate updated: %d', $recordsStartDateUpdated),
             sprintf('agreementLines completionDate updated: %d', $recordsCompletionDateUpdated),
-            '']
-        );
+            '']);
         return Command::SUCCESS;
     }
 

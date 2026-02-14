@@ -27,8 +27,7 @@ class AgreementLineAssembler implements FactorAssemblerInterface
         AgreementLine $agreementLine,
         ?string $departmentSlug,
         array $factorsPool
-    ): ?AssembledFactorDTO
-    {
+    ): ?AssembledFactorDTO {
         $poolResult = $this->resolveFromPool($factorsPool);
         if ($poolResult !== null) {
             return $poolResult;
@@ -65,11 +64,11 @@ class AgreementLineAssembler implements FactorAssemblerInterface
                     $item->getFactorValue(),
                     [
                         new FactorDTO(
-                        FactorSource::AGREEMENT_LINE,
-                        $item->getFactorValue(),
-                        $item->getAgreementLine()->getId(),
-                        null,
-                        null,
+                            FactorSource::AGREEMENT_LINE,
+                            $item->getFactorValue(),
+                            $item->getAgreementLine()->getId(),
+                            null,
+                            null,
                         )
                     ]
                 );

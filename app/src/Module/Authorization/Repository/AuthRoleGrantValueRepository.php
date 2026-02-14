@@ -32,8 +32,11 @@ class AuthRoleGrantValueRepository extends ServiceEntityRepository implements Au
         }
     }
 
-    public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue
-    {
+    public function findOneByRoleAndGrant(
+        AuthRole $authRole,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthRoleGrantValue {
         $qb = $this->createQueryBuilder('argv')
             ->andWhere('argv.role = :valRole')
             ->andWhere('argv.grant = :valGrant')
@@ -70,5 +73,4 @@ class AuthRoleGrantValueRepository extends ServiceEntityRepository implements Au
             $this->_em->flush();
         }
     }
-
 }

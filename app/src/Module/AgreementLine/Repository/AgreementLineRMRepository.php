@@ -55,21 +55,32 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     $qb->andWhere("l.productions != '[]'");
                     break;
                 case 'dateStart':
-                    if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
+                    if (
+                        isset($value['start'])
+                        && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)
+                    ) {
                         $qb->andWhere("l.agreementCreateDate >= :dateStart0");
                         $qb->setParameter('dateStart0', new \DateTime($value['start'] . ' 23:59:59'));
                     }
-                    if (isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)) {
+                    if (
+                        isset($value['end'])
+                        && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)
+                    ) {
                         $qb->andWhere("l.agreementCreateDate <= :dateStart1");
                         $qb->setParameter('dateStart1', new \DateTime($value['end'] . ' 23:59:59'));
                     }
                     break;
                 case 'dateDelivery':
-                    if (isset($value['start']) && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)) {
+                    if (
+                        isset($value['start'])
+                        && (\DateTime::createFromFormat('Y-m-d', $value['start']) !== false)
+                    ) {
                         $qb->andWhere("l.confirmedDate >= :dateConfirmed0");
                         $qb->setParameter('dateConfirmed0', (new \DateTime($value['start'])));
                     }
-                    if (isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)) {
+                    if (
+                        isset($value['end']) && (\DateTime::createFromFormat('Y-m-d', $value['end']) !== false)
+                    ) {
                         $qb->andWhere("l.confirmedDate <= :dateConfirmed1");
                         $qb->setParameter('dateConfirmed1', (new \DateTime($value['end'] . ' 23:59:59')));
                     }
@@ -101,7 +112,11 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                 case 'hideArchive':
                     if ($value) {
                         $qb->andWhere("l.status NOT IN (:$key)");
-                        $qb->setParameter($key, [AgreementLine::STATUS_DELETED, AgreementLine::STATUS_ARCHIVED, AgreementLine::STATUS_WAREHOUSE]);
+                        $qb->setParameter($key, [
+                            AgreementLine::STATUS_DELETED,
+                            AgreementLine::STATUS_ARCHIVED,
+                            AgreementLine::STATUS_WAREHOUSE
+                        ]);
                     }
                     break;
                 case 'hideDeleted':
@@ -110,7 +125,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     break;
                 case 'q':
                     $qb->andWhere("l.q Like :q");
-                    $qb->setParameter('q', '%'.$value.'%');
+                    $qb->setParameter('q', '%' . $value . '%');
                     break;
             }
         }
@@ -120,8 +135,10 @@ class AgreementLineRMRepository extends ServiceEntityRepository
             $order = strtoupper(preg_replace('/^.+_/', '', $criteria['search']['sort']));
             $order = in_array($order, ['ASC', 'DESC']) ? $order : 'ASC';
 
-            switch($sort) {
-                case 'id': $qb->orderBy('l.orderNumber', $order); break;
+            switch ($sort) {
+                case 'id':
+                    $qb->orderBy('l.orderNumber', $order);
+                    break;
                 case 'dateReceive':
                     $qb->orderBy('l.agreementCreateDate', $order)
                         ->addOrderBy('l.agreementLineId', $order);
@@ -188,7 +205,6 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     break;
 //                    todo: departmentDates
             }
-
         }
 
         return $qb->getQuery();

@@ -4,7 +4,6 @@ namespace App\Module\Authorization\Command;
 
 class DeleteUserGrantValue
 {
-
     public function __construct(
         private readonly int $userGrantValueId,
     ) {

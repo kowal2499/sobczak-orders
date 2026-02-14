@@ -38,7 +38,6 @@ class FactorControllerTest extends ApiTestCase
             'dpt04' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
             'dpt05' => TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
         ]);
-
     }
 
     public function testShouldStoreFactorFormData(): void
@@ -47,7 +46,8 @@ class FactorControllerTest extends ApiTestCase
         $user = $this->createUser([], [], ['production.factor_adjustment']);
         $client = $this->login($user);
         // When
-        $client->xmlHttpRequest('POST',
+        $client->xmlHttpRequest(
+            'POST',
             '/production/factor/' . $this->agreementLine->getId(),
             [
                 'factor' => 1.2,
@@ -79,9 +79,6 @@ class FactorControllerTest extends ApiTestCase
         );
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-//        $production = $this->getProduction();
-//        $faRepository = $this->getManager()->getRepository(FactorAdjustment::class);
-//        $factorAdjusts = $faRepository->findBy(['description' => 'Adjustment for testing', 'factor' => 1.2, 'production' => $production]);
     }
 
     public function testShouldReadFactorFormData(): void
@@ -95,10 +92,6 @@ class FactorControllerTest extends ApiTestCase
 
         // Then
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-//        $data = json_decode($client->getResponse()->getContent(), true);
-//        $this->assertEquals('Adjustment for testing', $data['description']);
-//        $this->assertEquals(1.2, $data['factor']);
-//        $this->assertEquals($this->productionId, $data['productionId']);
     }
 
     public function testShouldUpdateFactor(): void
@@ -155,5 +148,4 @@ class FactorControllerTest extends ApiTestCase
 //        $this->getManager()->flush();
 //        return $factorAdjust;
 //    }
-
 }

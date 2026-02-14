@@ -13,8 +13,11 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
     /** @var AuthRoleGrantValue[]  */
     private array $storage = [];
 
-    public function findOneByRoleAndGrant(AuthRole $authRole, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthRoleGrantValue
-    {
+    public function findOneByRoleAndGrant(
+        AuthRole $authRole,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthRoleGrantValue {
         foreach ($this->storage as $rgValue) {
             if (
                 $rgValue->getRole()->getId() === $authRole->getId()
@@ -29,12 +32,21 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
     public function findAllByRole(AuthRole $authRole): array
     {
-        return array_filter($this->storage, fn(AuthRoleGrantValue $item) => $item->getRole()->getId() === $authRole->getId());
+        return array_filter(
+            $this->storage,
+            fn(AuthRoleGrantValue $item) => $item->getRole()->getId() === $authRole->getId()
+        );
     }
 
     public function add(AuthRoleGrantValue $authRoleGrantValue, bool $flush = true): void
     {
-        if (!$this->findOneByRoleAndGrant($authRoleGrantValue->getRole(), $authRoleGrantValue->getGrant(), $authRoleGrantValue->getGrantOptionSlug())) {
+        if (
+            !$this->findOneByRoleAndGrant(
+                $authRoleGrantValue->getRole(),
+                $authRoleGrantValue->getGrant(),
+                $authRoleGrantValue->getGrantOptionSlug()
+            )
+        ) {
             PrivateProperty::setId($authRoleGrantValue);
             $this->storage[] = $authRoleGrantValue;
         }
@@ -55,6 +67,4 @@ class AuthRoleGrantValueTestRepository implements AuthRoleGrantValueRepositoryIn
 
         $this->storage = array_values($this->storage);
     }
-
-
 }

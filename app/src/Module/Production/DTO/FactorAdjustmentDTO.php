@@ -9,7 +9,8 @@ class FactorAdjustmentDTO
         private readonly int $productionId,
         private readonly string $description,
         private readonly float $factor
-    ) {}
+    ) {
+    }
 
     public function getId(): ?int
     {

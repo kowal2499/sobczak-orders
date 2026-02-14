@@ -69,8 +69,7 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
     private function getQuery(
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end
-    ): QueryBuilder
-    {
+    ): QueryBuilder {
         $query = $this->createQueryBuilder('al');
         return $this->withinProductionFinishedDate($query, $start, $end)
             ->andWhere('al.deleted = 0')
@@ -104,7 +103,12 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
     private function withCompletedProductionTask(QueryBuilder $qb): QueryBuilder
     {
         return $qb
-            ->leftJoin('al.productions', 'pr', 'WITH', 'pr.departmentSlug IN (:departments) AND pr.status = :qualifiedStatus')
+            ->leftJoin(
+                'al.productions',
+                'pr',
+                'WITH',
+                'pr.departmentSlug IN (:departments) AND pr.status = :qualifiedStatus'
+            )
 //            ->join('al.productions', 'pr')
             ->addSelect('pr.completedAt')
 //            ->andWhere('pr.status = :qualifiedStatus')

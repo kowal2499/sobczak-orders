@@ -11,7 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
     name: "auth_user_role",
     uniqueConstraints: [
         new ORM\UniqueConstraint(name: "unique_user_role", columns: ["user_id", "role_id"])
-])]
+    ]
+)]
 class AuthUserRole
 {
     #[ORM\Id]

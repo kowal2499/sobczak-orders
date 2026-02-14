@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/auth/grant/role', name: 'authorization')]
 class GrantRoleController extends BaseController
 {
-    #[Route(path: '/{roleId}',  methods: ['GET'])]
+    #[Route(path: '/{roleId}', methods: ['GET'])]
     public function read(): JsonResponse
     {
         // get listing of role's grants

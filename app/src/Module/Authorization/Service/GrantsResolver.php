@@ -12,16 +12,16 @@ use Symfony\Component\Security\Core\Security;
 
 class GrantsResolver
 {
-    const ADMIN_GRANT = 'authorization.admin';
+    public const ADMIN_GRANT = 'authorization.admin';
 
     public function __construct(
         private readonly AuthRoleGrantValueRepositoryInterface $roleGrantValueRepository,
         private readonly AuthUserGrantValueRepositoryInterface $userGrantValueRepository,
-        private readonly AuthUserRoleRepositoryInterface       $userRoleRepository,
-        private readonly Security                              $security,
-        private readonly AuthCacheService                      $authCacheService,
-        private readonly RolesMerger                           $rolesMerger,
-        private readonly GrantValueSupplier                    $grantValueSupplier,
+        private readonly AuthUserRoleRepositoryInterface $userRoleRepository,
+        private readonly Security $security,
+        private readonly AuthCacheService $authCacheService,
+        private readonly RolesMerger $rolesMerger,
+        private readonly GrantValueSupplier $grantValueSupplier,
     ) {
     }
 
@@ -63,7 +63,7 @@ class GrantsResolver
     {
         $cacheKey = $this->authCacheService->getRolesCacheKey($user);
 
-        return $this->authCacheService->get($cacheKey, function() use ($user) {
+        return $this->authCacheService->get($cacheKey, function () use ($user) {
             return array_merge(
                 $user->getRoles(),
                 array_map(

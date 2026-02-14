@@ -22,10 +22,10 @@ class GrantRoleValueController extends BaseController
         Request $request,
         AuthRole $role,
         CommandBus $commandBus,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         foreach ($request->request->all() as $grantRoleValue) {
-            if (!array_key_exists('grant_id', $grantRoleValue) ||
+            if (
+                !array_key_exists('grant_id', $grantRoleValue) ||
                 !array_key_exists('grant_option_slug', $grantRoleValue) ||
                 !array_key_exists('value', $grantRoleValue)
             ) {
@@ -35,7 +35,7 @@ class GrantRoleValueController extends BaseController
                 );
             }
 
-            $grantId = (int)$grantRoleValue['grant_id'];
+            $grantId = (int) $grantRoleValue['grant_id'];
             $optionSlug = $grantRoleValue['grant_option_slug'] ?: null;
 
             if ($grantRoleValue['value']) {
@@ -54,7 +54,8 @@ class GrantRoleValueController extends BaseController
     public function merge(Request $request, AuthRoleRepository $roleRepository, RolesMerger $merger): JsonResponse
     {
         $roles = [];
-        foreach ($request->request->get('roles', []) as $roleId) {;
+        foreach ($request->request->get('roles', []) as $roleId) {
+            ;
             $role = $roleRepository->find($roleId);
             if (!$role) {
                 return new JsonResponse(['error' => "Role with ID $roleId not found"], 404);

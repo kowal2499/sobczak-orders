@@ -29,7 +29,8 @@ class GrantUserValueController extends BaseController
         $existingValues = $authUserGrantValueRepository->findAllByUser($user);
 
         foreach ($request->request->all() as $grantUserValue) {
-            if (!array_key_exists('user_id', $grantUserValue) ||
+            if (
+                !array_key_exists('user_id', $grantUserValue) ||
                 !array_key_exists('grant_id', $grantUserValue) ||
                 !array_key_exists('grant_option_slug', $grantUserValue) ||
                 !array_key_exists('value', $grantUserValue)
@@ -42,14 +43,15 @@ class GrantUserValueController extends BaseController
 
             $commandBus->dispatch(new CreateUserGrantValue(
                 $user->getId(),
-                (int)$grantUserValue['grant_id'],
+                (int) $grantUserValue['grant_id'],
                 $grantUserValue['grant_option_slug'] ?: null,
-                (bool)$grantUserValue['value']
+                (bool) $grantUserValue['value']
             ));
 
             // Remove from existing values to avoid deletion
             foreach ($existingValues as $key => $existingValue) {
-                if ($existingValue->getGrant()->getId() === $grantUserValue['grant_id'] &&
+                if (
+                    $existingValue->getGrant()->getId() === $grantUserValue['grant_id'] &&
                     $existingValue->getGrantOptionSlug() === $grantUserValue['grant_option_slug']
                 ) {
                     unset($existingValues[$key]);
@@ -68,12 +70,11 @@ class GrantUserValueController extends BaseController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route(path: '/grant/user/value/{user}', name: 'authorization_grant_user_value_list',  methods: ['GET'])]
+    #[Route(path: '/grant/user/value/{user}', name: 'authorization_grant_user_value_list', methods: ['GET'])]
     public function list(
         User $user,
         AuthUserGrantValueRepository $authUserGrantValueRepository
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $result = array_map(function (AuthUserGrantValue $item) {
             return [
                 'id' => $item->getId(),

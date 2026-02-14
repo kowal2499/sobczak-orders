@@ -10,8 +10,9 @@ class RolesMerger
 {
     public function __construct(
         protected readonly AuthRoleGrantValueRepositoryInterface $roleGrantValueRepository,
-        protected readonly GrantValueSupplier                    $grantValueSupplier,
-    ) {}
+        protected readonly GrantValueSupplier $grantValueSupplier,
+    ) {
+    }
 
     /**
      * @param AuthRole ...$roles

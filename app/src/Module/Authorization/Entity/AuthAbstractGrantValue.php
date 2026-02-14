@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Module\Authorization\Entity;
+
 use App\Module\Authorization\ValueObject\GrantVO;
 use Doctrine\ORM\Mapping as ORM;
 

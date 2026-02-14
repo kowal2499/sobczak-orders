@@ -26,7 +26,11 @@ class DeleteRoleGrantValueHandler
         if (!$role || !$grant) {
             throw new InvalidArgumentException('Role or Grant not found');
         }
-        $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant($role, $grant, $command->getGrantOptionSlug());
+        $roleGrantValue = $this->roleGrantValueRepository->findOneByRoleAndGrant(
+            $role,
+            $grant,
+            $command->getGrantOptionSlug()
+        );
         if (!$roleGrantValue) {
             return;
         }

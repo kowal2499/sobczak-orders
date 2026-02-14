@@ -31,9 +31,10 @@ class AuthUserRoleTestRepository implements AuthUserRoleRepositoryInterface
         return array_filter(
             array_map(
                 fn(AuthUserRole $auRole) => (
-                    ((!$user || $auRole->getUser()->getId() === $user->getId()) && (!$role || $auRole->getRole()->getId() === $role->getId()))
-                    ? $auRole
-                    : false
+                    (
+                        (!$user || $auRole->getUser()->getId() === $user->getId())
+                        && (!$role || $auRole->getRole()->getId() === $role->getId())
+                    ) ? $auRole : false
                 ),
                 $this->storage
             )

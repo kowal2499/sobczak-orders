@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Tests\Unit\Modules\Authorization;
+
 use App\Module\Authorization\Repository\Test\AuthGrantTestRepository;
 use App\Module\Authorization\Repository\Test\AuthRoleGrantValueTestRepository;
 use App\Module\Authorization\Repository\Test\AuthRoleTestRepository;
@@ -98,14 +99,24 @@ class GrantsResolverTest extends TestCase
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertEqualsCanonicalizing(['production.dateComplete', 'namespace.grant:optionOne', 'namespace.grant:optionTwo'], $grants);
+        $this->assertEqualsCanonicalizing(
+            ['production.dateComplete', 'namespace.grant:optionOne', 'namespace.grant:optionTwo'],
+            $grants
+        );
     }
 
     public function testShouldSkipFalsyRoleGrants(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_PRODUCTION',
-            ['production.grant01=true', 'production.grant02=false', 'production.grant03=true', 'namespace.grant:optionOne=false']);
+        $this->authHelper->createRole(
+            'ROLE_PRODUCTION',
+            [
+                'production.grant01=true',
+                'production.grant02=false',
+                'production.grant03=true',
+                'namespace.grant:optionOne=false'
+            ]
+        );
         $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION']);
 
         // When
@@ -118,7 +129,11 @@ class GrantsResolverTest extends TestCase
     public function testShouldSkipFalsyUserGrants(): void
     {
         // Given
-        $user = $this->authHelper->createUser([], [], ['production.grant01=true', 'production.grant02=false', 'production.grant03=true']);
+        $user = $this->authHelper->createUser(
+            [],
+            [],
+            ['production.grant01=true', 'production.grant02=false', 'production.grant03=true']
+        );
 
         // When
         $grants = $this->rut->getGrants($user);
@@ -130,8 +145,15 @@ class GrantsResolverTest extends TestCase
     public function testShouldMergeRoleAndUserGrants(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_PRODUCTION', ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']);
-        $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'namespace.grant:optionTwo=true']);
+        $this->authHelper->createRole(
+            'ROLE_PRODUCTION',
+            ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']
+        );
+        $user = $this->authHelper->createUser(
+            [],
+            ['ROLE_PRODUCTION'],
+            ['other.grant01=true', 'namespace.grant:optionTwo=true']
+        );
 
         // When
         $grants = $this->rut->getGrants($user);
@@ -148,14 +170,24 @@ class GrantsResolverTest extends TestCase
     public function testShouldRemoveDuplicatedGrantsOnMerging(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_PRODUCTION', ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']);
-        $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['production.grant01=true', 'namespace.grant:optionOne=true']);
+        $this->authHelper->createRole(
+            'ROLE_PRODUCTION',
+            ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']
+        );
+        $user = $this->authHelper->createUser(
+            [],
+            ['ROLE_PRODUCTION'],
+            ['production.grant01=true', 'namespace.grant:optionOne=true']
+        );
 
         // When
         $grants = $this->rut->getGrants($user);
 
         // Then
-        $this->assertEqualsCanonicalizing(['production.grant01', 'production.grant02', 'namespace.grant:optionOne'], $grants);
+        $this->assertEqualsCanonicalizing(
+            ['production.grant01', 'production.grant02', 'namespace.grant:optionOne'],
+            $grants
+        );
     }
 
     public function testShouldSkipFalsyGrantsOnMerge(): void
@@ -176,7 +208,12 @@ class GrantsResolverTest extends TestCase
         // Given
         $this->authHelper->createRole(
             'ROLE_PRODUCTION',
-            ['production.grant01=true', 'production.grant02=false', 'namespace.grant:optionOne=true', 'namespace.grant:optionTwo=true']
+            [
+                'production.grant01=true',
+                'production.grant02=false',
+                'namespace.grant:optionOne=true',
+                'namespace.grant:optionTwo=true'
+            ]
         );
         $user = $this->authHelper->createUser(
             [],
@@ -239,8 +276,15 @@ class GrantsResolverTest extends TestCase
     public function testShouldHaveIsGrantedMethod(): void
     {
         // Given
-        $this->authHelper->createRole('ROLE_PRODUCTION', ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']);
-        $user = $this->authHelper->createUser([], ['ROLE_PRODUCTION'], ['other.grant01=true', 'namespace.grant:optionTwo=true']);
+        $this->authHelper->createRole(
+            'ROLE_PRODUCTION',
+            ['production.grant01=true', 'production.grant02=true', 'namespace.grant:optionOne=true']
+        );
+        $user = $this->authHelper->createUser(
+            [],
+            ['ROLE_PRODUCTION'],
+            ['other.grant01=true', 'namespace.grant:optionTwo=true']
+        );
         $this->securityMock->method('getUser')->willReturn($user);
 
         // When && Then

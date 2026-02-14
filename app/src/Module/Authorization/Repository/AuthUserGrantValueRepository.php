@@ -33,8 +33,11 @@ class AuthUserGrantValueRepository extends ServiceEntityRepository implements Au
         }
     }
 
-    public function findOneByUserAndGrant(User $user, AuthGrant $authGrant, ?string $grantOptionSlug = null): ?AuthUserGrantValue
-    {
+    public function findOneByUserAndGrant(
+        User $user,
+        AuthGrant $authGrant,
+        ?string $grantOptionSlug = null
+    ): ?AuthUserGrantValue {
         $qb = $this->createQueryBuilder('augv')
             ->andWhere('augv.user = :valUser')
             ->andWhere('augv.grant = :valGrant')
