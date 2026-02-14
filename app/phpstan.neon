@@ -1,0 +1,33 @@
+parameters:
+    # Poziom analizy (0-9, gdzie 0 to najbardziej łagodny, 9 to najbardziej rygorystyczny)
+    # Zaczynamy od 5 - rozsądny poziom dla starszego projektu
+    level: 5
+
+    # Katalogi do sprawdzenia
+    paths:
+        - src/Module/WorkConfiguration
+
+    # Wyklucz katalogi/pliki
+    excludePaths:
+        - src/Module/WorkConfiguration/Tests
+        - '*/tests/*'
+        - '*/Tests/*'
+
+    # Ignoruj niektóre błędy dla łatwiejszego startu
+    ignoreErrors:
+        # Doctrine dynamiczne właściwości
+        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9]+\.#'
+        # Doctrine Collections
+        - '#Call to an undefined method Doctrine\\Common\\Collections#'
+        # Doctrine ID fields (automatycznie ustawiane)
+        - '#Property [a-zA-Z0-9\\_]+::\$id is never written, only read\.#'
+        # Ignoruj brakujące typehints dla iterables (array, iterable)
+        -
+            identifier: missingType.iterableValue
+        # Ignoruj brakujące typehints dla generics (Collections, etc)
+        -
+            identifier: missingType.generics
+
+    # Nie raportuj niezignorowanych błędów z ignoreErrors
+    reportUnmatchedIgnoredErrors: false
+

@@ -16,8 +16,8 @@ class WorkScheduleService
     }
 
     /**
-     * @param \DateTimeInterface $dateStart
-     * @param \DateTimeInterface $dateEnd
+     * @param DateTimeImmutable $dateStart
+     * @param DateTimeImmutable $dateEnd
      * @return WorkSchedule[]
      */
     public function getFreeDays(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
@@ -135,7 +135,7 @@ class WorkScheduleService
      */
     private function getCustomHolidaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        return $this->workScheduleRepository->findHolidaysByRange($dateStart, $dateEnd) ?? [];
+        return $this->workScheduleRepository->findHolidaysByRange($dateStart, $dateEnd);
     }
 
     /**
@@ -145,6 +145,6 @@ class WorkScheduleService
      */
     private function getCustomWorkingDaysInRange(DateTimeImmutable $dateStart, DateTimeImmutable $dateEnd): array
     {
-        return $this->workScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd) ?? [];
+        return $this->workScheduleRepository->findWorkingDaysByRange($dateStart, $dateEnd);
     }
 }

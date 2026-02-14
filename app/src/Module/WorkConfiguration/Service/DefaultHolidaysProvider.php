@@ -32,7 +32,11 @@ class DefaultHolidaysProvider
         );
 
         $mapped = array_map(
-            fn (array $holiday) => new WorkSchedule($holiday['date'], ScheduleDayType::Holiday, $holiday['name'] ?? ''),
+            fn (array $holiday) => new WorkSchedule(
+                $holiday['date'],
+                ScheduleDayType::Holiday,
+                $holiday['name']
+            ),
             $holidaysInRange
         );
 

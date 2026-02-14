@@ -20,7 +20,7 @@ class WorkCapacityRepository extends ServiceEntityRepository
         parent::__construct($registry, WorkCapacity::class);
     }
 
-    public function findOneByDate(DateTimeInterface $date): ?WorkCapacity
+    public function findOneByDate(\DateTimeImmutable $date): ?WorkCapacity
     {
         $dateWithoutTime = (clone $date)->setTime(0, 0, 0);
 

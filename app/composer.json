@@ -47,6 +47,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "fakerphp/faker": "^1.9",
         "guzzlehttp/guzzle": "^6.5",
+        "phpstan/phpstan": "^1.12",
         "phpunit/phpunit": "^8.5",
         "rector/rector": "^1.2",
         "squizlabs/php_codesniffer": "^4.0",
@@ -106,9 +107,10 @@
         "cs-summary": "phpcs --report=summary",
         "cs-full": "phpcs --report=full",
         "cs-diff": "phpcs --report=diff",
-        "check": "composer cs-fix; composer cs-report",
+        "check": "composer cs-fix; composer cs-report; composer phpstan",
         "check-summary": "phpcs --report=summary",
-        "fix": "phpcbf"
+        "phpstan": "phpstan analyse --memory-limit=1G",
+        "phpstan-baseline": "phpstan analyse --memory-limit=1G --generate-baseline"
     },
     "conflict": {
         "symfony/symfony": "*"
