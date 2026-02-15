@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ruleset name="Sobczak Orders">
+    <description>PHP_CodeSniffer configuration for Sobczak Orders project</description>
+
+    <!-- Wyświetlaj postęp -->
+    <arg value="p"/>
+
+    <!-- Używaj kolorów w terminalu -->
+    <arg name="colors"/>
+
+    <rule ref="PSR12">
+    </rule>
+
+    <!-- Sprawdzaj podstawowe formatowanie -->
+    <rule ref="Generic.PHP.LowerCaseKeyword"/>
+    <rule ref="Generic.PHP.LowerCaseConstant"/>
+
+    <!-- Sprawdzaj niepotrzebne białe znaki -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Sprawdzaj nazewnictwo -->
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName"/>
+
+    <!-- Podstawowa czytelność kodu -->
+    <rule ref="Generic.Formatting.SpaceAfterCast"/>
+    <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>
+
+    <!-- Katalogi do sprawdzenia -->
+    <file>src/Module</file>
+    <file>tests/End2End/Modules</file>
+    <file>tests/Unit/Modules</file>
+</ruleset>
