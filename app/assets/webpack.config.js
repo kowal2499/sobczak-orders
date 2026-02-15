@@ -42,7 +42,7 @@ Encore
         'css': path.resolve(__dirname, 'css')}
     )
     .addPlugin(new Dotenv({
-        path: path.resolve(__dirname, '.env.local')
+        path: path.resolve(__dirname, '.env')
     }))
 ;
 
