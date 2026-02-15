@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\WorkConfiguration;
 
+use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\System\Test\ApiTestCase;
 use DateTimeImmutable;
@@ -172,9 +173,9 @@ class WorkCapacityControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
 
         $manager = $this->getManager();
-        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
-        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
-        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+        $capacity1 = new WorkCapacity($date1, 8.0);
+        $capacity2 = new WorkCapacity($date2, 10.5);
+        $capacity3 = new WorkCapacity($date3, 12.0);
 
         $manager->persist($capacity1);
         $manager->persist($capacity2);
@@ -213,9 +214,9 @@ class WorkCapacityControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
 
         $manager = $this->getManager();
-        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
-        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
-        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+        $capacity1 = new WorkCapacity($date1, 8.0);
+        $capacity2 = new WorkCapacity($date2, 10.5);
+        $capacity3 = new WorkCapacity($date3, 12.0);
 
         $manager->persist($capacity1);
         $manager->persist($capacity2);
@@ -251,9 +252,9 @@ class WorkCapacityControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
 
         $manager = $this->getManager();
-        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
-        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
-        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+        $capacity1 = new WorkCapacity($date1, 8.0);
+        $capacity2 = new WorkCapacity($date2, 10.5);
+        $capacity3 = new WorkCapacity($date3, 12.0);
 
         $manager->persist($capacity1);
         $manager->persist($capacity2);
@@ -293,9 +294,9 @@ class WorkCapacityControllerTest extends ApiTestCase
         $date3 = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2030-11-25 00:00:00');
 
         $manager = $this->getManager();
-        $capacity1 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date1, 8.0);
-        $capacity2 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date2, 10.5);
-        $capacity3 = new \App\Module\WorkConfiguration\Entity\WorkCapacity($date3, 12.0);
+        $capacity1 = new WorkCapacity($date1, 8.0);
+        $capacity2 = new WorkCapacity($date2, 10.5);
+        $capacity3 = new WorkCapacity($date3, 12.0);
 
         $manager->persist($capacity1);
         $manager->persist($capacity2);
