@@ -226,6 +226,53 @@ Typowe problemy:
 3. **Cache Doctrine** - czyść cache po zmianach w encjach
 4. **CORS** - sprawdź konfigurację w `config/packages/nelmio_cors.yaml`
 
+## Uruchamianie testów
+
+Testy uruchamiamy w kontenerze Dockera. Projekt zawiera testy jednostkowe (Unit) oraz testy integracyjne (End2End).
+
+### Struktura folderów testowych
+
+**Docelowa struktura (wymagana dla nowych testów):**
+- `tests/Unit/` - testy jednostkowe
+- `tests/End2End/` - testy integracyjne/end-to-end
+
+**Aktualne wyjątki (legacy, do refaktoryzacji):**
+- `tests/Service/` - stare testy jednostkowe (docelowo należy przenieść do `tests/Unit/Service/`)
+- `tests/Reports/Production/Integration/` - stare testy integracyjne (docelowo należy przenieść do `tests/End2End/Modules/Reports/`)
+- `tests/Utilities/` - helpery i narzędzia testowe (nie są testami, pozostają w tej lokalizacji)
+
+> ⚠️ **Uwaga:** Przy tworzeniu nowych testów ZAWSZE używaj struktury docelowej (`tests/Unit/` lub `tests/End2End/`). Wyjątki istnieją tylko ze względów historycznych.
+
+### Uruchomienie konkretnego testu
+
+```bash
+cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor/bin/phpunit tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php
+```
+
+### Uruchomienie konkretnej metody testowej
+
+```bash
+cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor/bin/phpunit tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php --filter testShouldCreateWorkCapacity
+```
+
+### Opcje przydatne przy uruchamianiu testów
+
+- `--testdox` - czytelny output z opisami testów
+- `--filter <pattern>` - uruchomienie testów pasujących do wzorca
+- `--stop-on-failure` - zatrzymanie po pierwszym błędzie
+- `--coverage-html coverage` - raport pokrycia kodu (wymaga Xdebug)
+
+Przykład:
+```bash
+cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor/bin/phpunit tests/End2End --testdox --stop-on-failure
+```
+
+### Konfiguracja testów
+
+- Plik konfiguracyjny: `app/phpunit.xml`
+- Bootstrap: `app/tests/bootstrap.php`
+- Środowisko testowe: `APP_ENV=test` (automatycznie ustawiane w phpunit.xml)
+
 ## Deployment
 
 Projekt używa Docker Compose:
