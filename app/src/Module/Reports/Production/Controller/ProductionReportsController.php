@@ -7,29 +7,14 @@ use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
-use App\Modules\Reports\Production\ProductionReport;
+use App\Module\Reports\Production\Service\ProductionCapacityBurnoutService;
+use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductionReportsController extends BaseController
 {
-    /**
-     * @deprecated
-     */
-//    #[Route(path: '/agreement-line-production', methods: ['GET'])]
-//    public function agreementLinesProduction(Request $request, ProductionReport $report): Response
-//    {
-//        $start = $request->query->get('start');
-//        $end = $request->query->get('end');
-//        $departments = $request->query->get('departments', []);
-//
-//        return $this->json($report->calc(
-//            $start ? new \DateTime($start) : null,
-//            $end ? new \DateTime($end) : null,
-//            $departments
-//        ));
-//    }
 
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
     public function agreementLinesProductionSummary(
@@ -90,5 +75,58 @@ class ProductionReportsController extends BaseController
         $end = new \DateTimeImmutable($request->query->get('end'));
 
         return $this->json($supplier->getRecords($start, $end));
+    }
+
+    #[Route(path: '/week-capacity-schedule', methods: ['GET'])]
+    public function capacitySchedule(
+        Request $request,
+        ProductionCapacityBurnoutService $service
+    ): Response
+    {
+        $startStr = $request->query->get('startDate');
+        $endStr = $request->query->get('endDate');
+
+        try {
+            if (!$startStr || !$endStr) {
+                throw new \InvalidArgumentException('startDate and endDate are required');
+            }
+
+            $tz = new \DateTimeZone(date_default_timezone_get());
+            $start = \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr, $tz);
+            $end = \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr, $tz);
+
+            if (!$start || $start->format('Y-m-d') !== $startStr) {
+                throw new \InvalidArgumentException('Invalid startDate format. Expected Y-m-d');
+            }
+            if (!$end || $end->format('Y-m-d') !== $endStr) {
+                throw new \InvalidArgumentException('Invalid endDate format. Expected Y-m-d');
+            }
+
+            if ($start > $end) {
+                throw new \InvalidArgumentException('startDate must be before endDate');
+            }
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $runStart = \DateTime::createFromImmutable($start);
+        $runStart->modify('monday this week');
+        $result = [];
+        while ($runStart <= $end) {
+            $weekEnd = (clone $runStart)->modify('sunday this week');
+            $burnout = $service->calculateBurnout(
+                DateTimeImmutable::createFromMutable($runStart),
+                DateTimeImmutable::createFromMutable($weekEnd)
+            );
+            $result[] = [
+                'weekNumber' => (int)$runStart->format('W'),
+                ...$burnout->toArray(),
+            ];
+            $runStart->modify('+1 week');
+        }
+
+
+
+        return $this->json($result, Response::HTTP_OK);
     }
 }
