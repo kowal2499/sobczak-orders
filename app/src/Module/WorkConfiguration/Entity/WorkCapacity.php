@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: "idx_date_from", columns: ["date_from"])]
 class WorkCapacity
 {
+    public const DEFAULT_CAPACITY = 1.5238;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

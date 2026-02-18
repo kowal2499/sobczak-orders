@@ -91,9 +91,8 @@ class ProductionReportsController extends BaseController
                 throw new \InvalidArgumentException('startDate and endDate are required');
             }
 
-            $tz = new \DateTimeZone(date_default_timezone_get());
-            $start = \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr, $tz);
-            $end = \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr, $tz);
+            $start = \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr);
+            $end = \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr);
 
             if (!$start || $start->format('Y-m-d') !== $startStr) {
                 throw new \InvalidArgumentException('Invalid startDate format. Expected Y-m-d');
@@ -124,8 +123,6 @@ class ProductionReportsController extends BaseController
             ];
             $runStart->modify('+1 week');
         }
-
-
 
         return $this->json($result, Response::HTTP_OK);
     }

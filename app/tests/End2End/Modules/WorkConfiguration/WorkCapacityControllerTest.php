@@ -193,14 +193,14 @@ class WorkCapacityControllerTest extends ApiTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(3, $responseData, 'Expected all 3 capacities, got: ' . json_encode($responseData));
 
-        $this->assertEquals('2030-11-25', $responseData[0]['dateFrom']);
-        $this->assertEquals(12.0, $responseData[0]['capacity']);
+        $this->assertEquals('2030-11-15', $responseData[0]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[0]['capacity']);
 
         $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
         $this->assertEquals(10.5, $responseData[1]['capacity']);
 
-        $this->assertEquals('2030-11-15', $responseData[2]['dateFrom']);
-        $this->assertEquals(8.0, $responseData[2]['capacity']);
+        $this->assertEquals('2030-11-25', $responseData[2]['dateFrom']);
+        $this->assertEquals(12.0, $responseData[2]['capacity']);
     }
 
     public function testShouldListWorkCapacitiesByRangeFromAndTo(): void
@@ -234,11 +234,11 @@ class WorkCapacityControllerTest extends ApiTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(2, $responseData, 'Expected 2 capacities in range, got: ' . json_encode($responseData));
 
-        $this->assertEquals('2030-11-18', $responseData[0]['dateFrom']);
-        $this->assertEquals(10.5, $responseData[0]['capacity']);
+        $this->assertEquals('2030-11-15', $responseData[0]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[0]['capacity']);
 
-        $this->assertEquals('2030-11-15', $responseData[1]['dateFrom']);
-        $this->assertEquals(8.0, $responseData[1]['capacity']);
+        $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[1]['capacity']);
     }
 
     public function testShouldListWorkCapacitiesByRangeFrom(): void
@@ -276,11 +276,11 @@ class WorkCapacityControllerTest extends ApiTestCase
             'Expected 2 capacities from startDate, got: ' . json_encode($responseData)
         );
 
-        $this->assertEquals('2030-11-25', $responseData[0]['dateFrom']);
-        $this->assertEquals(12.0, $responseData[0]['capacity']);
+        $this->assertEquals('2030-11-18', $responseData[0]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[0]['capacity']);
 
-        $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
-        $this->assertEquals(10.5, $responseData[1]['capacity']);
+        $this->assertEquals('2030-11-25', $responseData[1]['dateFrom']);
+        $this->assertEquals(12.0, $responseData[1]['capacity']);
     }
 
     public function testShouldListWorkCapacitiesByRangeTo(): void
@@ -314,11 +314,11 @@ class WorkCapacityControllerTest extends ApiTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(2, $responseData, 'Expected 2 capacities up to endDate, got: ' . json_encode($responseData));
 
-        $this->assertEquals('2030-11-18', $responseData[0]['dateFrom']);
-        $this->assertEquals(10.5, $responseData[0]['capacity']);
+        $this->assertEquals('2030-11-15', $responseData[0]['dateFrom']);
+        $this->assertEquals(8.0, $responseData[0]['capacity']);
 
-        $this->assertEquals('2030-11-15', $responseData[1]['dateFrom']);
-        $this->assertEquals(8.0, $responseData[1]['capacity']);
+        $this->assertEquals('2030-11-18', $responseData[1]['dateFrom']);
+        $this->assertEquals(10.5, $responseData[1]['capacity']);
     }
 
     public function testShouldFailListWithInvalidDateFormat(): void

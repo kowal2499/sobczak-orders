@@ -548,4 +548,45 @@ class AgreementLineRM
     {
         $this->q = $q;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'agreementLineId' => $this->agreementLineId,
+            'agreementId' => $this->agreementId,
+            'customerId' => $this->customerId,
+            'status' => $this->status,
+            'isDeleted' => $this->isDeleted,
+            'isArchived' => $this->isArchived,
+            'hasProduction' => $this->hasProduction,
+            'agreementCreateDate' => $this->agreementCreateDate->format('Y-m-d'),
+            'confirmedDate' => $this->confirmedDate->format('Y-m-d'),
+            'productionStartDate' => $this->productionStartDate?->format('Y-m-d'),
+            'productionEndDate' => $this->productionEndDate?->format('Y-m-d'),
+            'userName' => $this->userName,
+            'orderNumber' => $this->orderNumber,
+            'customerName' => $this->customerName,
+            'productName' => $this->productName,
+            'description' => $this->description,
+            'factor' => $this->factor,
+            'dpt01StartDate' => $this->dpt01StartDate?->format('Y-m-d'),
+            'dpt01EndDate' => $this->dpt01EndDate?->format('Y-m-d'),
+            'dpt02StartDate' => $this->dpt02StartDate?->format('Y-m-d'),
+            'dpt02EndDate' => $this->dpt02EndDate?->format('Y-m-d'),
+            'dpt03StartDate' => $this->dpt03StartDate?->format('Y-m-d'),
+            'dpt03EndDate' => $this->dpt03EndDate?->format('Y-m-d'),
+            'dpt04StartDate' => $this->dpt04StartDate?->format('Y-m-d'),
+            'dpt04EndDate' => $this->dpt04EndDate?->format('Y-m-d'),
+            'dpt05StartDate' => $this->dpt05StartDate?->format('Y-m-d'),
+            'dpt05EndDate' => $this->dpt05EndDate?->format('Y-m-d'),
+            'user' => $this->user,
+            'customer' => $this->customer,
+            'product' => $this->product,
+            'agreement' => $this->agreement,
+            'productions' => $this->productions,
+            'tags' => $this->tags,
+            'attachments' => $this->attachments,
+            'q' => $this->q,
+        ];
+    }
 }

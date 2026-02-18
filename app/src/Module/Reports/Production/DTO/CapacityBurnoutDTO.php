@@ -24,10 +24,7 @@ class CapacityBurnoutDTO
             'capacity' => $this->capacity,
             'capacityBurned' => $this->capacityBurned,
             'agreementLines' => array_map(function (AgreementLineRM $agreementLine) {
-                return [
-                    'id' => $agreementLine->getAgreementId(),
-                    'name' => $agreementLine->getCustomerName(),
-                ];
+                return $agreementLine->toArray();
             }, $this->agreementLines)
         ];
     }
