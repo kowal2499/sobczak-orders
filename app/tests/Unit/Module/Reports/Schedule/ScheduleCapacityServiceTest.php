@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Tests\Unit\Module\Reports\Production\Service;
+namespace App\Tests\Unit\Module\Reports\Schedule;
 
-use App\Entity\AgreementLine;
 use App\Module\AgreementLine\Entity\AgreementLineRM;
 use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
-use App\Module\Reports\Production\Service\ScheduleCapacityService;
+use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;

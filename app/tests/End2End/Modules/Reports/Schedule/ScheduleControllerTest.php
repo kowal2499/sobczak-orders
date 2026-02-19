@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\End2End\Modules\Reports;
+namespace App\Tests\End2End\Modules\Reports\Schedule;
 
 use App\Entity\AgreementLine;
 use App\Module\AgreementLine\Entity\AgreementLineRM;
@@ -9,7 +9,7 @@ use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Test\ApiTestCase;
 
-class WeekCapacityScheduleControllerTest extends ApiTestCase
+class ScheduleControllerTest extends ApiTestCase
 {
     static int $nextId = 1;
 
@@ -29,7 +29,7 @@ class WeekCapacityScheduleControllerTest extends ApiTestCase
      * Test End2End sprawdzający że cały stack (kontroler → serwis → baza) działa poprawnie.
      * Szczegółowe scenariusze są testowane w testach jednostkowych serwisu.
      */
-    public function testShouldGetWeekCapacityScheduleData()
+    public function testShouldScheduleCapacity()
     {
         // Given
         $em = $this->getManager();
@@ -54,7 +54,7 @@ class WeekCapacityScheduleControllerTest extends ApiTestCase
         // When - zakres: 3 dni (03-05.02)
         $client->xmlHttpRequest(
             'GET',
-            '/reports/production/week-capacity-schedule?startDate=2026-02-03&endDate=2026-02-05'
+            '/reports/schedule/capacity?startDate=2026-02-03&endDate=2026-02-05'
         );
 
         // Then

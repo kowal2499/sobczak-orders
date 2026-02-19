@@ -3,12 +3,12 @@
 namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
-use App\Module\Reports\Production\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
-use App\Module\Reports\Production\Service\ScheduleCapacityService;
+use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
+use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

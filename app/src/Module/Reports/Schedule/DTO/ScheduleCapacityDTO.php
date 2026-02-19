@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Module\Reports\Production\DTO;
+namespace App\Module\Reports\Schedule\DTO;
 
 use App\Module\AgreementLine\Entity\AgreementLineRM;
 
