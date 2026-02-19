@@ -4,11 +4,10 @@ namespace App\Module\Reports\Production\DTO;
 
 use App\Module\AgreementLine\Entity\AgreementLineRM;
 
-class CapacityBurnoutDTO
+class ScheduleCapacityDTO
 {
     public function __construct(
-        public ?\DateTimeImmutable $start = null,
-        public ?\DateTimeImmutable $end = null,
+        public ?\DateTimeImmutable $date = null,
         public ?float $capacity = null,
         public ?float $capacityBurned = null,
         /** @var AgreementLineRM[] */
@@ -19,8 +18,7 @@ class CapacityBurnoutDTO
     public function toArray(): array
     {
         return [
-            'start' => $this->start?->format('Y-m-d'),
-            'end' => $this->end?->format('Y-m-d'),
+            'date' => $this->date?->format('Y-m-d'),
             'capacity' => $this->capacity,
             'capacityBurned' => $this->capacityBurned,
             'agreementLines' => array_map(function (AgreementLineRM $agreementLine) {

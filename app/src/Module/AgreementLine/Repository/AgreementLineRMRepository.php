@@ -109,6 +109,12 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                         $qb->setParameter($key, $value);
                     }
                     break;
+                case 'statusNot':
+                    if (!empty($value)) {
+                        $qb->andWhere("l.status NOT IN (:$key)");
+                        $qb->setParameter($key, $value);
+                    }
+                    break;
                 case 'hideArchive':
                     if ($value) {
                         $qb->andWhere("l.status NOT IN (:$key)");

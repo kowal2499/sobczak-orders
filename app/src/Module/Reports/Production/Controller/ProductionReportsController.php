@@ -3,12 +3,12 @@
 namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
+use App\Module\Reports\Production\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
-use App\Module\Reports\Production\Service\ProductionCapacityBurnoutService;
-use DateTimeImmutable;
+use App\Module\Reports\Production\Service\ScheduleCapacityService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -80,7 +80,7 @@ class ProductionReportsController extends BaseController
     #[Route(path: '/week-capacity-schedule', methods: ['GET'])]
     public function capacitySchedule(
         Request $request,
-        ProductionCapacityBurnoutService $service
+        ScheduleCapacityService $service
     ): Response
     {
         $startStr = $request->query->get('startDate');
@@ -108,22 +108,12 @@ class ProductionReportsController extends BaseController
             return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        $runStart = \DateTime::createFromImmutable($start);
-        $runStart->modify('monday this week');
-        $result = [];
-        while ($runStart <= $end) {
-            $weekEnd = (clone $runStart)->modify('sunday this week');
-            $burnout = $service->calculateBurnout(
-                DateTimeImmutable::createFromMutable($runStart),
-                DateTimeImmutable::createFromMutable($weekEnd)
-            );
-            $result[] = [
-                'weekNumber' => (int)$runStart->format('W'),
-                ...$burnout->toArray(),
-            ];
-            $runStart->modify('+1 week');
-        }
-
-        return $this->json($result, Response::HTTP_OK);
+        return $this->json(
+            array_map(
+                fn(ScheduleCapacityDTO $capacityDTO) => $capacityDTO->toArray(),
+                $service->calculateBurnout($start, $end)
+            ),
+            Response::HTTP_OK
+        );
     }
 }
