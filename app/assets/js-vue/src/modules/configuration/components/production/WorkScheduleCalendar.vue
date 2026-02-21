@@ -1,9 +1,5 @@
 <script>
-import FullCalendar from '@fullcalendar/vue'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import plLocale from '@fullcalendar/core/locales/pl'
-import enLocale from '@fullcalendar/core/locales/en-gb'
+import Calendar from '@/components/base/Calendar.vue'
 import { fetchHolidays, fetchCapatity } from '@/modules/schedule/repository/scheduleRepository'
 import { processScheduleChanges } from '../../services/WorkScheduleService'
 import WorkScheduleForm from './WorkScheduleForm.vue'
@@ -19,23 +15,12 @@ function resetForm() {
 export default {
     name: "WorkScheduleCalendar",
     components: {
-        FullCalendar,
+        Calendar,
         WorkScheduleForm,
         ModalAction,
     },
 
-    mounted() {
-        this.calendarApi = this.$refs.fullCalendar.getApi()
-    },
-
     computed: {
-        locale() {
-            return {
-                gb: 'en-gb',
-                pl: 'pl',
-            }[this.$user.user.locale] || 'en-gb'
-        },
-
         showModal() {
             return this.selectedDates.length > 0
         },
@@ -51,98 +36,33 @@ export default {
             const lastDate = this.formatDateLocal(this.selectedDates[this.selectedDates.length - 1])
             return `${this.$t('config.production.scheduleFormTitleRange')} - ${firstDate} - ${lastDate}`
         },
-
-        calendarOptions() {
-            return {
-                initialView: 'dayGridMonth',
-                weekends: true,
-                plugins: [dayGridPlugin, interactionPlugin],
-                locales: [plLocale, enLocale],
-                locale: this.locale,
-                selectable: !this.isBusy,
-                editable: !this.isBusy,
-                unselectAuto: false,
-                events: this.events,
-            }
-        },
-
-        calendarEventHandlers() {
-            return {
-                dateClick: () => {},
-                eventClick: () => {},
-                eventDrop: () => {},
-                eventResize: () => {},
-                select: this.onDateClick,
-                datesSet: this.onDatesSet,
-            }
-        }
     },
 
     methods: {
-        onDatesSet(info) {
-            // Zapobiega wielokrotnemu pobieraniu gdy trwa ładowanie
-            if (this.isBusy) {
-                return
-            }
-
-            const newStart = this.formatDateLocal(info.start)
-            const newEnd = this.formatDateLocal(info.end)
-
-            // Zapobiega wielokrotnemu pobieraniu dla tego samego zakresu
-            if (this.currentRange.start === newStart && this.currentRange.end === newEnd) {
-                return
-            }
-
-            this.currentRange = {
-                start: newStart,
-                end: newEnd,
-            }
-            this.fetchEvents()
-        },
-
-        fetchEvents() {
-            if (!this.currentRange.start || !this.currentRange.end) {
-                return
-            }
-
-            this.isBusy = true
-
-            fetchCapatity(this.currentRange.start, this.currentRange.end).then(({data}) => {
+        eventsProvider(start, end) {
+            fetchCapatity(start, end).then(({data}) => {
                 console.log(data)
             })
 
-            return fetchHolidays(
-                this.currentRange.start,
-                this.currentRange.end
-            ).then(({data}) => {
-                this.events = data.map(event => {
-                    return {
-                        identifier: event.id,
-                        dayType: event.dayType,
-                        title: event.description,
-                        start: (new Date(`${event.date}T23:59:59`)),
-                        end: (new Date(`${event.date}T00:00:00`)),
-                        allDay: true,
-                        display: 'background',
-                    }
-                })
-            }).finally(() => {
-                this.isBusy = false
+            return fetchHolidays(start, end).then(({data}) => {
+                return data.map(event => ({
+                    identifier: event.id,
+                    dayType: event.dayType,
+                    title: event.description,
+                    start: (new Date(`${event.date}T23:59:59`)),
+                    end: (new Date(`${event.date}T00:00:00`)),
+                    allDay: true,
+                    display: 'background',
+                }))
             })
         },
 
-        onDateClick(info) {
-            this.selectedDates = []
-            const start = new Date(info.start)
-            const end = new Date(info.end)
-            for (let d = start; d < end; d.setDate(d.getDate() + 1)) {
-                this.selectedDates.push(new Date(d))
-            }
+        onDateSelected(selectedDates) {
+            this.selectedDates = selectedDates
 
-            // Ustaw dayType w formularzu jeśli wybrano dokładnie 1 dzień
             if (this.selectedDates.length === 1) {
                 const dateStr = this.formatDateLocal(this.selectedDates[0])
-                const existingEvent = this.events.find(event => {
+                const existingEvent = this.$refs.calendar.events.find(event => {
                     return this.formatDateLocal(event.start) === dateStr
                 })
                 if (existingEvent) {
@@ -171,6 +91,7 @@ export default {
                 return
             }
 
+            const calendar = this.$refs.calendar
             const payload = this.selectedDates.map(date => {
                 return {
                     date: this.formatDateLocal(date),
@@ -179,9 +100,9 @@ export default {
                 }
             })
             this.isBusy = true
-            return processScheduleChanges(payload, this.events).then(() => {
+            return processScheduleChanges(payload, calendar.events).then(() => {
                 this.onCloseModal()
-                this.fetchEvents()
+                calendar.fetchEvents()
             }).finally(() => {
                 this.isBusy = false
             })
@@ -189,26 +110,14 @@ export default {
 
         onCloseModal() {
             this.selectedDates = []
-            this.unselectDates()
+            this.$refs.calendar.unselect()
             this.form = resetForm()
-        },
-
-        unselectDates() {
-            if (this.calendarApi) {
-                this.calendarApi.unselect()
-            }
         },
     },
 
     data: () => ({
         selectedDates: [],
-        calendarApi: null,
         isBusy: false,
-        events: [],
-        currentRange: {
-            start: null,
-            end: null,
-        },
         form: resetForm()
     })
 }
@@ -216,15 +125,11 @@ export default {
 
 <template>
     <div>
-        <b-overlay :show="isBusy" rounded="sm">
-            <FullCalendar
-                ref="fullCalendar"
-                :options="{
-                    ...calendarOptions,
-                    ...calendarEventHandlers,
-                }"
-            />
-        </b-overlay>
+        <Calendar
+            ref="calendar"
+            :events-provider="eventsProvider"
+            @date-selected="onDateSelected"
+        />
 
         <ModalAction
             :value="showModal"

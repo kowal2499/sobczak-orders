@@ -35,7 +35,7 @@ export default {
     UserSingle: () => import('../modules/configuration/views/UserSingle.vue'),
     Roles: () => import('../modules/configuration/views/Roles.vue'),
     ProductionConfiguration: () => import('../modules/configuration/views/Production.vue'),
-
+    ScheduleProduction: () => import('../modules/schedule/views/ScheduleProduction.vue'),
     ...TagsModule,
     ContextMenu,
     DevContainer,
