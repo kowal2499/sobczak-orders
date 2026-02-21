@@ -5,12 +5,14 @@ namespace App\Module\Reports\Schedule\Controller;
 use App\Controller\BaseController;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
+use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ScheduleController extends BaseController
 {
+    use DateValidationTrait;
     #[Route(path: '/capacity', methods: ['GET'])]
     public function capacitySchedule(
         Request $request,
@@ -20,27 +22,12 @@ class ScheduleController extends BaseController
         $startStr = $request->query->get('startDate');
         $endStr = $request->query->get('endDate');
 
-        try {
-            if (!$startStr || !$endStr) {
-                throw new \InvalidArgumentException('startDate and endDate are required');
-            }
-
-            $start = \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr);
-            $end = \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr);
-
-            if (!$start || $start->format('Y-m-d') !== $startStr) {
-                throw new \InvalidArgumentException('Invalid startDate format. Expected Y-m-d');
-            }
-            if (!$end || $end->format('Y-m-d') !== $endStr) {
-                throw new \InvalidArgumentException('Invalid endDate format. Expected Y-m-d');
-            }
-
-            if ($start > $end) {
-                throw new \InvalidArgumentException('startDate must be before endDate');
-            }
-        } catch (\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        $result = $this->validateDateRange($startStr, $endStr);
+        if ($result instanceof Response) {
+            return $result;
         }
+
+        ['start' => $start, 'end' => $end] = $result;
 
         return $this->json(
             array_map(
