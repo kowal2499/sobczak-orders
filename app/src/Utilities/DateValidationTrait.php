@@ -11,17 +11,18 @@ trait DateValidationTrait
      *
      * @param string|null $startStr Start date string in Y-m-d format
      * @param string|null $endStr End date string in Y-m-d format
-     * @return array{start: \DateTimeImmutable, end: \DateTimeImmutable}|Response Array with start and end dates, or error Response
+     * @param bool $bothRequired Whether both dates are required (default: true)
+     * @return array{start: \DateTimeImmutable|null, end: \DateTimeImmutable|null}|Response Array with start and end dates, or error Response
      */
-    protected function validateDateRange(?string $startStr, ?string $endStr): array|Response
+    protected function validateDateRange(?string $startStr, ?string $endStr, bool $bothRequired = true): array|Response
     {
         try {
-            if (!$startStr && !$endStr) {
+            if ($bothRequired && (!$startStr || !$endStr)) {
                 throw new \InvalidArgumentException('startDate and endDate are required');
             }
 
-            $start = \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr) ?: null;
-            $end = \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr) ?: null;
+            $start = $startStr ? \DateTimeImmutable::createFromFormat('!Y-m-d', $startStr) : null;
+            $end = $endStr ? \DateTimeImmutable::createFromFormat('!Y-m-d', $endStr) : null;
 
             if ($start && $start->format('Y-m-d') !== $startStr) {
                 throw new \InvalidArgumentException('Invalid startDate format. Expected Y-m-d');

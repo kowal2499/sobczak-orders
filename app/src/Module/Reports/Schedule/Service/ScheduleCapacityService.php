@@ -8,15 +8,14 @@ use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
-use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
 
 class ScheduleCapacityService
 {
-
     public function __construct(
         private readonly AgreementLineRMRepository $agreementLineRepo,
         private readonly WorkCapacityRepository $workCapacityRepo,
-        private readonly WorkScheduleRepository $workScheduleRepo,
+        private readonly WorkScheduleService $workScheduleService
     ) {
     }
 
@@ -85,8 +84,7 @@ class ScheduleCapacityService
         \DateTimeImmutable $end,
         array $holidays,
         array $capacities
-    ): float
-    {
+    ): float {
         $capacitySum = 0.0;
         $dayRunner = clone $start;
         while ($dayRunner <= $end) {
@@ -140,8 +138,11 @@ class ScheduleCapacityService
      * @param \DateTimeImmutable $weekEnd
      * @return AgreementLineRM[]
      */
-    private function filterAgreementLinesByWeek(array $agreementLines, \DateTimeImmutable $weekStart, \DateTimeImmutable $weekEnd): array
-    {
+    private function filterAgreementLinesByWeek(
+        array $agreementLines,
+        \DateTimeImmutable $weekStart,
+        \DateTimeImmutable $weekEnd
+    ): array {
         return array_filter($agreementLines, function (AgreementLineRM $agreementLine) use ($weekStart, $weekEnd) {
             $confirmedDate = $agreementLine->getConfirmedDate();
 
@@ -207,16 +208,13 @@ class ScheduleCapacityService
     }
 
     /**
-     * @param \DateTimeInterface $start
-     * @param \DateTimeInterface $end
+     * @param \DateTimeImmutable $start
+     * @param \DateTimeImmutable $end
      * @return array<string, true> Tablica dat w formacie Y-m-d jako klucze
      */
-    private function getFreeDays(\DateTimeInterface $start, \DateTimeInterface $end): array
+    private function getFreeDays(\DateTimeImmutable $start, \DateTimeImmutable $end): array
     {
-        $holidays = $this->workScheduleRepo->findHolidaysByRange(
-            \DateTimeImmutable::createFromInterface($start),
-            \DateTimeImmutable::createFromInterface($end)
-        );
+        $holidays = $this->workScheduleService->getFreeDays($start, $end);
 
         // Konwertuj do tablicy asocjacyjnej dla szybkiego sprawdzania
         $result = [];

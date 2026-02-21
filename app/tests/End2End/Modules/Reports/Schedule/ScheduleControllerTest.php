@@ -11,8 +11,6 @@ use App\System\Test\ApiTestCase;
 
 class ScheduleControllerTest extends ApiTestCase
 {
-    static int $nextId = 1;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,11 +35,25 @@ class ScheduleControllerTest extends ApiTestCase
         $client = $this->login($user);
 
         // Prosty scenariusz: tydzień z capacity, agreement lines i świętem
-        $this->createAgreementLineRM(1, 'AL-1', new \DateTime('2026-02-03'),
-            AgreementLine::STATUS_MANUFACTURING, 0.5, false, false, true
+        $this->createAgreementLineRM(
+            1,
+            'AL-1',
+            new \DateTime('2026-02-03'),
+            AgreementLine::STATUS_MANUFACTURING,
+            0.5,
+            false,
+            false,
+            true
         );
-        $this->createAgreementLineRM(2, 'AL-2', new \DateTime('2026-02-05'),
-            AgreementLine::STATUS_WAREHOUSE, 0.7, false, false, true
+        $this->createAgreementLineRM(
+            2,
+            'AL-2',
+            new \DateTime('2026-02-05'),
+            AgreementLine::STATUS_WAREHOUSE,
+            0.7,
+            false,
+            false,
+            true
         );
 
         $this->createCapacity(new \DateTime('2026-02-03'), 2.0);
@@ -98,8 +110,7 @@ class ScheduleControllerTest extends ApiTestCase
         bool $isDeleted,
         bool $isArchived,
         bool $hasProduction,
-    ): AgreementLineRM
-    {
+    ): AgreementLineRM {
         $faker = \Faker\Factory::create();
         $rm = new AgreementLineRM($id);
         $rm->setConfirmedDate($confirmedDate);

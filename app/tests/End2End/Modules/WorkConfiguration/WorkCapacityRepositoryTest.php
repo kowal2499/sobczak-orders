@@ -24,7 +24,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         parent::tearDown();
     }
 
-    public function testFindByRange_ShouldReturnCapacitiesInRange(): void
+    public function testShouldReturnCapacitiesInRange(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);
@@ -43,7 +43,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertEquals($wc3->getId(), $result[1]->getId());
     }
 
-    public function testFindByRange_ShouldReturnEarliestCapacityWhenStartDateNotExact(): void
+    public function testShouldReturnEarliestCapacityWhenStartDateNotExact(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);
@@ -62,7 +62,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertEquals($wc3->getId(), $result[1]->getId()); // 2026-04-01
     }
 
-    public function testFindByRange_ShouldReturnAtLeastOneCapacityWhenExists(): void
+    public function testShouldReturnAtLeastOneCapacityWhenExists(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);
@@ -78,7 +78,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertEquals($wc1->getId(), $result[0]->getId());
     }
 
-    public function testFindByRange_ShouldReturnEmptyWhenNoCapacityBeforeStartDate(): void
+    public function testShouldReturnEmptyWhenNoCapacityBeforeStartDate(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-06-01'), 8.0);
@@ -93,7 +93,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertCount(0, $result);
     }
 
-    public function testFindByRange_ShouldHandleNullDates(): void
+    public function testShouldHandleNullDates(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);
@@ -108,7 +108,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertEquals($wc1->getId(), $result[0]->getId()); // Sorted ASC
     }
 
-    public function testFindByRange_ShouldIncludeStartAndEndDateCapacities(): void
+    public function testShouldIncludeStartAndEndDateCapacities(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);
@@ -125,7 +125,7 @@ class WorkCapacityRepositoryTest extends ApiTestCase
         $this->assertCount(3, $result);
     }
 
-    public function testFindByRange_ShouldNotDuplicateResults(): void
+    public function testShouldNotDuplicateResults(): void
     {
         // Given
         $wc1 = $this->repository->upsert(new DateTimeImmutable('2026-01-01'), 8.0);

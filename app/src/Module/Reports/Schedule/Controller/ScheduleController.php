@@ -5,6 +5,9 @@ namespace App\Module\Reports\Schedule\Controller;
 use App\Controller\BaseController;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
+use App\Module\WorkConfiguration\Entity\WorkSchedule;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
+use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,16 +16,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class ScheduleController extends BaseController
 {
     use DateValidationTrait;
+
     #[Route(path: '/capacity', methods: ['GET'])]
     public function capacitySchedule(
         Request $request,
         ScheduleCapacityService $service
-    ): Response
-    {
-        $startStr = $request->query->get('startDate');
-        $endStr = $request->query->get('endDate');
-
-        $result = $this->validateDateRange($startStr, $endStr);
+    ): Response {
+        $result = $this->validateDateRange(
+            $request->query->get('startDate'),
+            $request->query->get('endDate')
+        );
         if ($result instanceof Response) {
             return $result;
         }
@@ -33,6 +36,33 @@ class ScheduleController extends BaseController
             array_map(
                 fn(ScheduleCapacityDTO $capacityDTO) => $capacityDTO->toArray(),
                 $service->calculateBurnout($start, $end)
+            ),
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route(path: '/holidays', methods: ['GET'])]
+    public function holidaysSchedule(
+        Request $request,
+        WorkScheduleService $workScheduleService
+    ): Response {
+
+        $result = $this->validateDateRange(
+            $request->query->get('startDate'),
+            $request->query->get('endDate')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        ['start' => $start, 'end' => $end] = $result;
+
+        $schedules = $workScheduleService->getDays($start, $end, ScheduleDayType::Holiday);
+
+        return $this->json(
+            array_map(
+                fn (WorkSchedule $schedule) => $schedule->toArray(),
+                $schedules
             ),
             Response::HTTP_OK
         );

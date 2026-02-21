@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Module\Reports\Schedule;
+namespace App\Tests\Unit\Modules\Reports\Schedule;
 
 use App\Module\AgreementLine\Entity\AgreementLineRM;
 use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
@@ -9,6 +9,8 @@ use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
+use App\Module\WorkConfiguration\Service\DefaultHolidaysProvider;
+use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use PHPUnit\Framework\TestCase;
 
 class ScheduleCapacityServiceTest extends TestCase
@@ -27,7 +29,7 @@ class ScheduleCapacityServiceTest extends TestCase
         $this->service = new ScheduleCapacityService(
             $this->agreementLineRepo,
             $this->workCapacityRepo,
-            $this->workScheduleRepo
+            new WorkScheduleService($this->workScheduleRepo, new DefaultHolidaysProvider())
         );
     }
 

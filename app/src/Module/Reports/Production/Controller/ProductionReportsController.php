@@ -64,7 +64,8 @@ class ProductionReportsController extends BaseController
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
-            $request->query->get('end')
+            $request->query->get('end'),
+            false
         );
         if ($result instanceof Response) {
             return $result;

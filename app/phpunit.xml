@@ -19,6 +19,10 @@
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
         </testsuite>
+        <testsuite name="Schedule">
+            <file>tests/End2End/Modules/Reports/Schedule/ScheduleControllerTest.php</file>
+            <file>tests/Unit/Modules/Reports/Schedule/ScheduleCapacityServiceTest.php</file>
+        </testsuite>
     </testsuites>
 
     <source>

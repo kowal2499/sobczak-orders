@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import plLocale from '@fullcalendar/core/locales/pl'
 import enLocale from '@fullcalendar/core/locales/en-gb'
-import { fetchHolidayEvents } from '../../repository/workRepository'
+import { fetchHolidays, fetchCapatity } from '@/modules/schedule/repository/scheduleRepository'
 import { processScheduleChanges } from '../../services/WorkScheduleService'
 import WorkScheduleForm from './WorkScheduleForm.vue'
 import ModalAction from '@/components/base/ModalAction'
@@ -106,7 +106,12 @@ export default {
             }
 
             this.isBusy = true
-            return fetchHolidayEvents(
+
+            fetchCapatity(this.currentRange.start, this.currentRange.end).then(({data}) => {
+                console.log(data)
+            })
+
+            return fetchHolidays(
                 this.currentRange.start,
                 this.currentRange.end
             ).then(({data}) => {
