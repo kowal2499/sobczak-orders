@@ -31,19 +31,17 @@ export default {
             return Math.min(Math.round((entry.capacityBurned / entry.capacity) * 100), 100)
         },
 
-        getCapacityColor(percent) {
-            if (percent <= 25) return '#28a745'
-            if (percent <= 50) return '#5cb85c'
-            if (percent <= 75) return '#ffc107'
-            if (percent <= 99) return '#fd7e14'
-            return '#dc3545'
+        getCapacityVariant(percent) {
+            if (percent <= 25) return 'success'
+            if (percent <= 50) return 'info'
+            if (percent <= 75) return 'warning'
+            return 'danger'
         },
 
         getBackgroundColor(percent) {
-            if (percent <= 25) return 'rgba(40, 167, 69, 0.10)'
-            if (percent <= 50) return 'rgba(92, 184, 92, 0.12)'
+            if (percent <= 25) return 'rgba(40, 167, 69, 0.15)'
+            if (percent <= 50) return 'rgba(92, 184, 92, 0.15)'
             if (percent <= 75) return 'rgba(255, 193, 7, 0.15)'
-            if (percent <= 99) return 'rgba(253, 126, 20, 0.15)'
             return 'rgba(220, 53, 69, 0.15)'
         },
 
@@ -120,36 +118,45 @@ export default {
         :eventsProvider="eventsProvider"
         :dayCellDidMount="dayCellDidMount"
         @events-loaded="onEventsLoaded"
-        :options="{ selectable: false, contentHeight: 600 }"
+        :options="{ selectable: false, contentHeight: 680 }"
     >
         <template #day-cell-content="arg">
             <div class="schedule-day-cell">
-                <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
 
-                <template v-if="getEntryForDate(arg.date)">
-                    <div class="schedule-progress">
-                        <div
-                            class="schedule-progress-bar"
-                            :style="{
-                                width: getUsagePercent(getEntryForDate(arg.date)) + '%',
-                                backgroundColor: getCapacityColor(getUsagePercent(getEntryForDate(arg.date)))
-                            }"
-                        />
-                    </div>
+                <div v-if="getEntryForDate(arg.date)" class="progress-container">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <button
+                            :class="['btn btn-sm ml-auto', `btn-outline-primary`]"
+                        >
+                            <font-awesome-icon icon="bars" />
+                        </button>
+                        <b-progress
+                            :max="100"
+                            height="15px"
+                            style="background-color: rgba(216, 216, 216, 0.4);"
+                            class="w-100 border-color-danger"
+                        >
+                            <b-progress-bar :value="getUsagePercent(getEntryForDate(arg.date))"
+                                            :variant="getCapacityVariant(getUsagePercent(getEntryForDate(arg.date)))">
+                                {{ getUsagePercent(getEntryForDate(arg.date)).toFixed(0) }}%
+                            </b-progress-bar>
+                        </b-progress>
 
-                    <div class="schedule-capacity-label">
-                        {{ getEntryForDate(arg.date).capacityBurned }}/{{ getEntryForDate(arg.date).capacity }}
+                        <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
                     </div>
 
                     <button
-                        class="btn btn-sm schedule-select-btn"
-                        :class="hasAvailableCapacity(getEntryForDate(arg.date)) ? 'btn-primary' : 'btn-secondary'"
-                        :disabled="!hasAvailableCapacity(getEntryForDate(arg.date))"
+                        :class="['btn btn-sm btn-pick-day', `btn-outline-${getCapacityVariant(getUsagePercent(getEntryForDate(arg.date)))}`]"
                         @click.stop.prevent="onSelectDay(formatDateLocal(arg.date))"
                     >
                         Wybierz
                     </button>
-                </template>
+
+                </div>
+                <div v-else class="progress-container">
+                    <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
+                </div>
+
             </div>
         </template>
     </Calendar>
@@ -173,22 +180,52 @@ export default {
     }
 }
 
+.fc-day-other {
+    visibility: hidden;
+}
+
+.fc-day:hover {
+    .btn-pick-day {
+        visibility: visible;
+    }
+}
+
 .schedule-day-cell {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
+    justify-content: space-between;
     width: 100%;
-    gap: 3px;
+    gap: 1rem;
     padding: 2px 4px 4px;
 }
 
 .schedule-day-number {
     align-self: flex-end;
-    font-size: 0.85rem;
-    line-height: 1.2;
-    margin-bottom: 2px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    background-color: darkslateblue;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid cornflowerblue;
+    flex-shrink: 0;
 }
 
+.progress-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-pick-day {
+    visibility: hidden;
+}
 .schedule-progress {
     width: 100%;
     height: 6px;
