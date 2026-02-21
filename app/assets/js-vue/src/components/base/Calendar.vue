@@ -17,6 +17,18 @@ export default {
             type: Function,
             default: null,
         },
+        options: {
+            type: Object,
+            default: () => ({})
+        },
+        dayCellDidMount: {
+            type: Function,
+            default: null,
+        },
+        height: {
+            type: [Number, String],
+            default: null,
+        },
     },
 
     mounted() {
@@ -32,7 +44,7 @@ export default {
         },
 
         calendarOptions() {
-            return {
+            const options = {
                 initialView: 'dayGridMonth',
                 weekends: true,
                 plugins: [dayGridPlugin, interactionPlugin],
@@ -42,7 +54,14 @@ export default {
                 editable: !this.isBusy,
                 unselectAuto: false,
                 events: this.events,
+                ...this.options,
             }
+
+            if (typeof this.dayCellDidMount === 'function') {
+                options.dayCellDidMount = this.dayCellDidMount
+            }
+
+            return options
         },
 
         calendarEventHandlers() {
@@ -115,6 +134,7 @@ export default {
             return this.eventsProvider(this.currentRange.start, this.currentRange.end)
                 .then((events) => {
                     this.events = events
+                    this.$emit('events-loaded')
                 })
                 .finally(() => {
                     this.isBusy = false
@@ -139,7 +159,11 @@ export default {
         <FullCalendar
             ref="fullCalendar"
             :options="{...calendarOptions, ...calendarEventHandlers}"
-        />
+        >
+            <template v-for="(_, slotName) in $scopedSlots" v-slot:[slotName]="slotProps">
+                <slot :name="slotName" v-bind="slotProps" />
+            </template>
+        </FullCalendar>
     </b-overlay>
 </template>
 
