@@ -40,10 +40,6 @@ export default {
 
     methods: {
         eventsProvider(start, end) {
-            fetchCapatity(start, end).then(({data}) => {
-                console.log(data)
-            })
-
             return fetchHolidays(start, end).then(({data}) => {
                 return data.map(event => ({
                     identifier: event.id,
