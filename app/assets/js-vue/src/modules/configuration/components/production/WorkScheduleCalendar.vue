@@ -124,6 +124,7 @@ export default {
         <Calendar
             ref="calendar"
             :events-provider="eventsProvider"
+            :options="{ weekNumbers: true, weekNumberFormat: { week: 'numeric'} }"
             @date-selected="onDateSelected"
         />
 

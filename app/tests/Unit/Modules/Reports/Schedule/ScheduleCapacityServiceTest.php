@@ -85,11 +85,11 @@ class ScheduleCapacityServiceTest extends TestCase
         $result = $this->service->calculateBurnout($start, $end);
 
         // Then
-        $this->assertCount(11, $result, 'Powinno zwrócić 11 dni (03.02 - 13.02)');
+        $this->assertCount(8, $result, 'Powinno zwrócić 8 dni (bez świąt: 03.02 - 13.02, bez 07.02, 08.02, 11.02)');
 
         // Tydzień 1: capacity = 9.5714, burned = 1.5
-        // dni 0-3: wtorek-piątek (03-06.02)
-        for ($i = 0; $i <= 3; $i++) {
+        // dni 0-2: wtorek-czwartek (03-05.02)
+        for ($i = 0; $i <= 2; $i++) {
             $this->assertEquals(9.5714, $result[$i]->capacity, "Dzień {$i}: błędna capacity");
             $this->assertEquals(1.5, $result[$i]->capacityBurned, "Dzień {$i}: błędny burned");
             $this->assertCount(3, $result[$i]->agreementLines, "Dzień {$i}: błędna liczba AL");
@@ -100,16 +100,14 @@ class ScheduleCapacityServiceTest extends TestCase
             $this->assertContains('WEEK1-2', $orderNumbers, "Dzień {$i}: brak WEEK1-2");
         }
 
-        // Weekend tydzień 1
-        // dni 4-5: sobota-niedziela (07-08.02)
-        for ($i = 4; $i <= 5; $i++) {
-            $this->assertEquals(9.5714, $result[$i]->capacity, "Dzień {$i} (weekend): błędna capacity");
-            $this->assertEquals(1.5, $result[$i]->capacityBurned, "Dzień {$i} (weekend): błędny burned");
-        }
+        // Tydzień 1: piątek (06.02)
+        $i = 3;
+        $this->assertEquals(9.5714, $result[$i]->capacity, "Dzień {$i}: błędna capacity");
+        $this->assertEquals(1.5, $result[$i]->capacityBurned, "Dzień {$i}: błędny burned");
+        $this->assertCount(3, $result[$i]->agreementLines, "Dzień {$i}: błędna liczba AL");
 
-        // Tydzień 2: capacity = 11.0, burned = 2.4
-        // dni 6-10: poniedziałek-piątek (09-13.02)
-        for ($i = 6; $i <= 10; $i++) {
+        // Tydzień 2: poniedziałek, wtorek (09-10.02)
+        for ($i = 4; $i <= 5; $i++) {
             $this->assertEquals(11.0, $result[$i]->capacity, "Dzień {$i}: błędna capacity");
             $this->assertEquals(2.4, $result[$i]->capacityBurned, "Dzień {$i}: błędny burned");
             $this->assertCount(3, $result[$i]->agreementLines, "Dzień {$i}: błędna liczba AL");
@@ -120,18 +118,27 @@ class ScheduleCapacityServiceTest extends TestCase
             $this->assertContains('WEEK2-AFTER', $orderNumbers, "Dzień {$i}: brak WEEK2-AFTER");
         }
 
-        // Sprawdź konkretne daty
+        // Tydzień 2: czwartek, piątek (12-13.02)
+        for ($i = 6; $i <= 7; $i++) {
+            $this->assertEquals(11.0, $result[$i]->capacity, "Dzień {$i}: błędna capacity");
+            $this->assertEquals(2.4, $result[$i]->capacityBurned, "Dzień {$i}: błędny burned");
+            $this->assertCount(3, $result[$i]->agreementLines, "Dzień {$i}: błędna liczba AL");
+
+            $orderNumbers = $this->extractOrderNumbers($result[$i]->agreementLines);
+            $this->assertContains('WEEK2-1', $orderNumbers, "Dzień {$i}: brak WEEK2-1");
+            $this->assertContains('WEEK2-2', $orderNumbers, "Dzień {$i}: brak WEEK2-2");
+            $this->assertContains('WEEK2-AFTER', $orderNumbers, "Dzień {$i}: brak WEEK2-AFTER");
+        }
+
+        // Sprawdź konkretne daty (bez świąt)
         $this->assertEquals('2026-02-03', $result[0]->date->format('Y-m-d'));
         $this->assertEquals('2026-02-04', $result[1]->date->format('Y-m-d'));
         $this->assertEquals('2026-02-05', $result[2]->date->format('Y-m-d'));
         $this->assertEquals('2026-02-06', $result[3]->date->format('Y-m-d'));
-        $this->assertEquals('2026-02-07', $result[4]->date->format('Y-m-d')); // Sobota
-        $this->assertEquals('2026-02-08', $result[5]->date->format('Y-m-d')); // Niedziela
-        $this->assertEquals('2026-02-09', $result[6]->date->format('Y-m-d'));
-        $this->assertEquals('2026-02-10', $result[7]->date->format('Y-m-d'));
-        $this->assertEquals('2026-02-11', $result[8]->date->format('Y-m-d')); // Środa święto
-        $this->assertEquals('2026-02-12', $result[9]->date->format('Y-m-d'));
-        $this->assertEquals('2026-02-13', $result[10]->date->format('Y-m-d'));
+        $this->assertEquals('2026-02-09', $result[4]->date->format('Y-m-d'));
+        $this->assertEquals('2026-02-10', $result[5]->date->format('Y-m-d'));
+        $this->assertEquals('2026-02-12', $result[6]->date->format('Y-m-d'));
+        $this->assertEquals('2026-02-13', $result[7]->date->format('Y-m-d'));
     }
 
     /**
@@ -203,7 +210,7 @@ class ScheduleCapacityServiceTest extends TestCase
         $result = $this->service->calculateBurnout($start, $end);
 
         // Then
-        $this->assertCount(5, $result);
+        $this->assertCount(4, $result); // Bez środy-święta
         foreach ($result as $day) {
             $this->assertEquals(11.0, $day->capacity);
         }
@@ -239,8 +246,8 @@ class ScheduleCapacityServiceTest extends TestCase
         $result = $this->service->calculateBurnout($start, $end);
 
         // Then
-        // Sprawdź tydzień 1 (dni 0-5)
-        for ($i = 0; $i <= 5; $i++) {
+        // Sprawdź tydzień 1 (dni 0-3)
+        for ($i = 0; $i <= 3; $i++) {
             $orderNumbers = $this->extractOrderNumbers($result[$i]->agreementLines);
             $this->assertContains('WEEK1-BEFORE', $orderNumbers, "Dzień {$i}");
             $this->assertContains('WEEK1-1', $orderNumbers, "Dzień {$i}");
@@ -248,8 +255,8 @@ class ScheduleCapacityServiceTest extends TestCase
             $this->assertNotContains('OUT-1', $orderNumbers, "Dzień {$i}");
         }
 
-        // Sprawdź tydzień 2 (dni 6-10)
-        for ($i = 6; $i <= 10; $i++) {
+        // Sprawdź tydzień 2 (dni 4-7)
+        for ($i = 4; $i <= 7; $i++) {
             $orderNumbers = $this->extractOrderNumbers($result[$i]->agreementLines);
             $this->assertContains('WEEK2-1', $orderNumbers, "Dzień {$i}");
             $this->assertContains('WEEK2-AFTER', $orderNumbers, "Dzień {$i}");

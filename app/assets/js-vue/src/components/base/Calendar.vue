@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import plLocale from '@fullcalendar/core/locales/pl'
 import enLocale from '@fullcalendar/core/locales/en-gb'
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
     name: "Calendar",
@@ -73,7 +74,24 @@ export default {
                 select: this.onDateSelect,
                 datesSet: this.onDatesSet,
             }
-        }
+        },
+
+        eventsDateTypeMap() {
+            const events = {}
+            for (let event of this.events) {
+                if (!event.dateKey || !event.type) {
+                    continue
+                }
+                if (!events.hasOwnProperty(event.dateKey)) {
+                    events[event.dateKey] = {}
+                }
+                if (!events[event.dateKey].hasOwnProperty(event.type)) {
+                    events[event.dateKey][event.type] = []
+                }
+                events[event.dateKey][event.type].push(event)
+            }
+            return events
+        },
     },
 
     methods: {
@@ -133,7 +151,10 @@ export default {
             this.isBusy = true
             return this.eventsProvider(this.currentRange.start, this.currentRange.end)
                 .then((events) => {
-                    this.events = events
+                    this.events = events.map(e => ({
+                        ...e,
+                        id: e.id || uuidv4(),
+                    }))
                     this.$emit('events-loaded')
                 })
                 .finally(() => {
@@ -160,13 +181,98 @@ export default {
             ref="fullCalendar"
             :options="{...calendarOptions, ...calendarEventHandlers}"
         >
-            <template v-for="(_, slotName) in $scopedSlots" v-slot:[slotName]="slotProps">
-                <slot :name="slotName" v-bind="slotProps" />
+            <template #day-cell-content="arg">
+                <div class="schedule-day-cell">
+                    <div class="flex-schedule-row">
+                        <div class="flex-schedule-content">
+                            <template v-for="type in Object.keys(eventsDateTypeMap[formatDateLocal(arg.date)] || {})">
+                                <slot
+                                    :name="`day-cell-content-${type}`"
+                                    v-bind="{
+                                        arg,
+                                        events: eventsDateTypeMap[formatDateLocal(arg.date)][type] || []
+                                    }"
+                                />
+                            </template>
+                        </div>
+                        <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
+                    </div>
+                </div>
+
             </template>
+
+<!--            <template #event-content="{ event }">-->
+<!--                <div>jestem eventem {event.title}</div>-->
+<!--            </template>-->
+
+
+
+<!--            <template v-for="(_, slotName) in $scopedSlots" v-slot:[slotName]="slotProps">-->
+<!--                <slot :name="slotName" v-bind="slotProps" />-->
+<!--            </template>-->
         </FullCalendar>
     </b-overlay>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+.fc .fc-daygrid-day-top .fc-daygrid-day-number {
+    display: block;
+    width: 100%;
+    &:hover {
+        text-decoration: none;
+    }
+}
+.schedule-day-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+    padding: 2px 4px 4px;
+}
+.schedule-day-number {
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 25px;
+    height: 25px;
+    border-radius: 12px;
+    background-color: var(--colorPrimary);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+.flex-schedule-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    align-items: flex-start;
+}
+.schedule-day-cell > .flex-schedule-row > .flex-schedule-content {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+}
+.fc .fc-bg-event {
+    background: repeating-linear-gradient(
+        -45deg,
+        color-mix(in srgb, var(--fc-bg-event-color) 90%, white 30%) 0px,
+        color-mix(in srgb, var(--fc-bg-event-color) 90%, white 30%) 20px,
+        color-mix(in srgb, var(--fc-bg-event-color) 80%, white 40%) 20px,
+        color-mix(in srgb, var(--fc-bg-event-color) 80%, white 40%) 40px
+    ) /* 0 0 fixed */;
+    opacity: var(--fc-bg-event-opacity);
+}
 
+.fc-day-other {
+    visibility: hidden;
+}
+
+.fc-daygrid-day-events {
+    display: none !important;
+}
 </style>

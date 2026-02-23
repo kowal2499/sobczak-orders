@@ -56,7 +56,8 @@ class ScheduleCapacityService
 
             $dayRunner = clone $weekRunner;
             while ($dayRunner <= $weekEnd) {
-                if ($dayRunner >= $start && $dayRunner <= $end) {
+                $dateKey = $dayRunner->format('Y-m-d');
+                if ($dayRunner >= $start && $dayRunner <= $end && !isset($holidays[$dateKey])) {
                     $result[] = new ScheduleCapacityDTO(
                         $dayRunner,
                         $weekCapacity,
