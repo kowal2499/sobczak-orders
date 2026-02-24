@@ -10,7 +10,7 @@ export default {
             type: Array,
             default: () => ([])
         },
-        allowSelect: {
+        hasSelect: {
             type: Boolean,
             default: false,
         }
@@ -58,6 +58,7 @@ export default {
                     <b-progress-bar :value="getUsagePercent(event)" :variant="getCapacityVariant(getUsagePercent(event))" />
                 </b-progress>
                 <b-popover
+                    v-if="false"
                     :target="event.id"
                     title="Popover!"
                     triggers="hover focus"
@@ -66,8 +67,8 @@ export default {
                 </b-popover>
             </div>
             <button
-                v-if="allowSelect"
-                :class="['btn btn-sm btn-pick-day d-inline-block', `btn-outline-primary`]"
+                v-if="hasSelect"
+                :class="['btn btn-sm btn-calendar d-inline-block', `btn-outline-primary`]"
                 @click.stop.prevent="onSelectDay(event)"
             >
                 Wybierz
@@ -77,15 +78,6 @@ export default {
 </template>
 
 <style lang="scss">
-.fc-day:hover {
-    .btn-pick-day {
-        visibility: visible;
-    }
-}
-.btn-pick-day {
-    visibility: hidden;
-}
-
 .progress-container {
     width: 100%;
     display: flex;

@@ -56,16 +56,4 @@ export default defineComponent({
 </template>
 
 <style lang="scss" scoped>
-.details {
-    font-size: 0.75em;
-    font-weight: normal;
-    svg {
-        color: #CCC;
-        width: 20px;
-    }
-
-    background-color: #F4F4F4;
-    padding: 1rem;
-    border-radius: 1rem;
-}
 </style>

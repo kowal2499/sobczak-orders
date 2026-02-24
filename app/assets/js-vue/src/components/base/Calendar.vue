@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import plLocale from '@fullcalendar/core/locales/pl'
 import enLocale from '@fullcalendar/core/locales/en-gb'
 import { v4 as uuidv4 } from 'uuid';
+import { getLocalDate } from '@/helpers'
 
 export default {
     name: "Calendar",
@@ -100,8 +101,8 @@ export default {
                 return
             }
 
-            const newStart = this.formatDateLocal(info.start)
-            const newEnd = this.formatDateLocal(info.end)
+            const newStart = this.getLocalDate(info.start)
+            const newEnd = this.getLocalDate(info.end)
 
             if (this.currentRange.start === newStart && this.currentRange.end === newEnd) {
                 return
@@ -132,13 +133,6 @@ export default {
             }
         },
 
-        formatDateLocal(date) {
-            const year = date.getFullYear()
-            const month = String(date.getMonth() + 1).padStart(2, '0')
-            const day = String(date.getDate()).padStart(2, '0')
-            return `${year}-${month}-${day}`
-        },
-
         fetchEvents() {
             if (!this.currentRange.start || !this.currentRange.end) {
                 return
@@ -161,6 +155,8 @@ export default {
                     this.isBusy = false
                 })
         },
+
+        getLocalDate: getLocalDate
     },
 
     data: () => ({
@@ -185,17 +181,33 @@ export default {
                 <div class="schedule-day-cell">
                     <div class="flex-schedule-row">
                         <div class="flex-schedule-content">
-                            <template v-for="type in Object.keys(eventsDateTypeMap[formatDateLocal(arg.date)] || {})">
+                            <template v-for="type in Object.keys(eventsDateTypeMap[getLocalDate(arg.date)] || {})">
                                 <slot
                                     :name="`day-cell-content-${type}`"
                                     v-bind="{
                                         arg,
-                                        events: eventsDateTypeMap[formatDateLocal(arg.date)][type] || []
+                                        events: eventsDateTypeMap[getLocalDate(arg.date)][type] || []
                                     }"
                                 />
                             </template>
                         </div>
-                        <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="schedule-day-number">{{ arg.dayNumberText }}</div>
+                            <b-dropdown
+                                size="sm"
+                                variant="outline-primary"
+                                class="btn-day-cell-dropdown"
+                                no-caret
+                            >
+                                <template #button-content>
+                                    <font-awesome-icon icon="bars" />
+                                </template>
+                                <slot
+                                    name="day-cell-dropdown"
+                                    v-bind="{ arg, events: eventsDateTypeMap[getLocalDate(arg.date)] || [] }"
+                                />
+                            </b-dropdown>
+                        </div>
                     </div>
                 </div>
 
@@ -203,12 +215,6 @@ export default {
 
 <!--            <template #event-content="{ event }">-->
 <!--                <div>jestem eventem {event.title}</div>-->
-<!--            </template>-->
-
-
-
-<!--            <template v-for="(_, slotName) in $scopedSlots" v-slot:[slotName]="slotProps">-->
-<!--                <slot :name="slotName" v-bind="slotProps" />-->
 <!--            </template>-->
         </FullCalendar>
     </b-overlay>

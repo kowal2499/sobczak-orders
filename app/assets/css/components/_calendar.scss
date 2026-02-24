@@ -4,3 +4,20 @@
     --fc-bg-event-color: #{$danger};
     --fc-bg-event-opacity: 1;
 }
+
+.fc-day:hover .btn-day-cell-dropdown,
+.btn-day-cell-dropdown.show {
+    visibility: visible;
+}
+
+.btn-day-cell-dropdown {
+    visibility: hidden;
+}
+
+// Podbicie z-index komórki kalendarza, gdy dropdown jest otwarty, 
+// aby uniknąć przykrycia przez sąsiednie komórki (stacking context)
+.fc-daygrid-day:has(.btn-day-cell-dropdown.show),
+.fc-daygrid-day:has(.btn-day-cell-dropdown.show) .fc-daygrid-day-number,
+.fc-daygrid-day:has(.btn-day-cell-dropdown.show) .fc-daygrid-day-frame {
+    z-index: 100 !important;
+}
