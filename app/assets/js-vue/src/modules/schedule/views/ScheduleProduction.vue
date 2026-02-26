@@ -6,10 +6,12 @@ import { fetchCapatity, fetchHolidays } from '@/modules/schedule/repository/sche
 import Sidebar from '@/components/base/Sidebar'
 import { getLocalDate } from '@/helpers'
 import AgreementLineRmShowcaseItem from '@/components/base/Showcase/AgreementLineRmShowcaseItem'
+import DetailsNavbar from "@/modules/dashboard/components/Metrics/ProductionMetric/components/DetailsNavbar.vue";
+import {deburr} from "lodash";
 export default {
     name: "ScheduleProduction",
 
-    components: { Calendar, CellDayHoliday, CellDayCapacity, Sidebar, AgreementLineRmShowcaseItem },
+    components: {DetailsNavbar, Calendar, CellDayHoliday, CellDayCapacity, Sidebar, AgreementLineRmShowcaseItem },
 
     methods: {
         async eventsProvider(start, end) {
@@ -57,10 +59,28 @@ export default {
             this.isSidebarOpen = true
             this.sidebarTitle = `Szczegóły - ${getLocalDate(arg.date)}`
         },
+    },
 
+    computed: {
+        filteredSelectedData() {
+            const events = this.selectedData?.events
+            let data = events.capacity?.[0]?.agreementLines || []
+            const lines = Object.values(data)
+
+            if (!this.q) {
+                return lines
+            }
+
+            const searchTerm = deburr(this.q).toLowerCase()
+
+            return lines.filter(item =>
+                deburr(item.q || '').toLowerCase().includes(searchTerm)
+            )
+        }
     },
 
     data: () => ({
+        q: '',
         selectedData: null,
         sidebarTitle: '',
         isSidebarOpen: false,
@@ -80,7 +100,7 @@ export default {
             </template>
 
             <template #day-cell-content-capacity="{ arg, events }">
-                <CellDayCapacity :arg="arg" :events="events" :hasSelect="false" @daySelected="selectedData = $event"/>
+                <CellDayCapacity :arg="arg" :events="events" :hasSelect="false" @daySelected="showSidebar({ arg, events: [ $event ] })"/>
             </template>
 
             <template #day-cell-dropdown="{ arg, events }">
@@ -89,8 +109,9 @@ export default {
         </Calendar>
         <Sidebar v-model="isSidebarOpen" :title="sidebarTitle" sidebar-class="size-75 size-lg-50">
             <template #sidebar-content>
+                <DetailsNavbar @search="q = $event" :show-excel-export-btn="false"/>
                 <AgreementLineRmShowcaseItem
-                    v-for="line in selectedData.events.capacity?.[0].agreementLines || []"
+                    v-for="line in filteredSelectedData"
                     :key="line.id"
                     :data="line"
                 />

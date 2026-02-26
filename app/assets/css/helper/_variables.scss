@@ -22,4 +22,8 @@ $primaryLight90: color.mix(#fff, $mainBlue, 90%);
 
 :root {
     --colorPrimary: #{$mainBlue};
+    --colorPrimaryRgb: #{color.red($mainBlue)}, #{color.green($mainBlue)}, #{color.blue($mainBlue)};
+
+    --colorWhite100: #FFF;
+    --colorWhite90: #F4F4F4;
 }

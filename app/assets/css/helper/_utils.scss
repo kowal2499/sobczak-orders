@@ -62,3 +62,19 @@ $primary-light-map: (
         color: #666;
     }
 }
+
+.color-white-100 {
+    color: var(--colorWhite100);
+}
+
+.background-color-white-100 {
+    background-color: var(--colorWhite100);
+}
+
+.color-white-90 {
+    color: var(--colorWhite90);
+}
+
+.background-color-white-90 {
+    background-color: var(--colorWhite90);
+}

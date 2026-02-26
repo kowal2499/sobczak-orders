@@ -1,16 +1,29 @@
 import Vue from 'vue'
+import i18n from "../i18n";
 
 export const statuses = [
-    { value: 0, name: 'oczekuje', color: '#FFF', className: 'dropdown-white' },
-    { value: 1, name: 'rozpoczęte', color: '#FFA07A', className: 'dropdown-orange' },
-    { value: 2, name: 'w trakcie', color: '#87CEFA', className: 'dropdown-blue' },
-    { value: 3, name: 'zakończone', color: '#8FBC8F', className: 'dropdown-green1' },
-    { value: 4, name: 'nie dotyczy', color: '#419D78', className: 'dropdown-green2' },
+    { value: 0, name: i18n.t('_status_dpt__waiting'), color: '#FFF', className: 'dropdown-white' },
+    { value: 1, name: i18n.t('_status_dpt__started'), color: '#FFA07A', className: 'dropdown-orange' },
+    { value: 2, name: i18n.t('_status_dpt__in_progress'), color: '#87CEFA', className: 'dropdown-blue' },
+    { value: 3, name: i18n.t('_status_dpt__finished'), color: '#8FBC8F', className: 'dropdown-green1' },
+    { value: 4, name: i18n.t('_status_dpt__not_applicable'), color: '#419D78', className: 'dropdown-green2' },
 
-    { value: 10, name: 'do zamówienia', color: '#FFF', className: 'dropdown-white' },
-    { value: 11, name: 'zamówione i oczekiwanie', color: '#87CEFA', className: 'dropdown-blue' },
-    { value: 12, name: 'zrealizowane na stanie', color: '#8FBC8F', className: 'dropdown-green1' }
+    { value: 10, name: i18n.t('_status_dpt__to_order'), color: '#FFF', className: 'dropdown-white' },
+    { value: 11, name: i18n.t('_status_dpt__ordered_waiting'), color: '#87CEFA', className: 'dropdown-blue' },
+    { value: 12, name: i18n.t('_status_dpt__realized_in_stock'), color: '#8FBC8F', className: 'dropdown-green1' }
 ];
+
+export const agreementStatuses = [
+    { value: 5, className: 'badge-danger', name: i18n.t('_status_agreement__cancelled') },
+    { value: 10, className: 'badge-primary', name: i18n.t('_status_agreement__new') },
+    { value: 15, className: 'badge-warning', name: i18n.t('_status_agreement__in_realization') },
+    { value: 20, className: 'badge-success', name: i18n.t('_status_agreement__finished') },
+];
+
+export const agreementStatusesMap = agreementStatuses.reduce((acc, status) => {
+    acc[status.value] = status;
+    return acc;
+}, {});
 
 const roles = [
     { value: 'ROLE_ADMIN', name: 'Administrator' },
@@ -46,6 +59,9 @@ export function getUserDepartments() {
  * @returns {string}
  */
 export function getLocalDate(date) {
+    if (typeof date === 'string') {
+        date = new Date(date)
+    }
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
@@ -120,6 +136,8 @@ export default {
     },
 
     statuses,
+    agreementStatuses,
+    agreementStatusesMap,
     roles
 
 }
