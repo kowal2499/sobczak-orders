@@ -4,10 +4,10 @@ import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import Sidebar from '@/components/base/Sidebar.vue'
 import DetailsDepartment from '../components/DetailsDepartment.vue'
-import DetailsNavbar from '../components/DetailsNavbar.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar'
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
-import SidebarLayout from '../../SidebarLayout.vue'
+import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import Chart from './Chart.js'
 import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
 import exportFields from './exportFields'
@@ -30,7 +30,7 @@ export default defineComponent({
         Chart,
         Sidebar,
         DetailsDepartment,
-        DetailsNavbar,
+        SidebarNavbar,
         SidebarLayout,
     },
     watch: {
@@ -147,7 +147,7 @@ export default defineComponent({
             <template #sidebar-content>
                 <SidebarLayout>
                     <template #header>
-                        <DetailsNavbar
+                        <SidebarNavbar
                             @search="q = $event"
                             @exportExcel="onExportExcel"
                         />

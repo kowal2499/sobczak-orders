@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import { debounce } from 'lodash'
 
 export default defineComponent({
-    name: "DetailsNavbar",
+    name: "SidebarNavbar",
     props: {
         showExcelExportBtn: {
             type: Boolean,

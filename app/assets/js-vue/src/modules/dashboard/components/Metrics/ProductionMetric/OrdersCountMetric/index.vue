@@ -3,10 +3,10 @@ import { defineComponent } from 'vue'
 import MetricLayout from "../../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../../BaseMetric.js'
-import DetailsNavbar from '../components/DetailsNavbar.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import Details from '../components/Details.vue'
 import ProductionMetricMixin from '../../ProductionMetric/ProductionMetricMixin'
-import SidebarLayout from '../../SidebarLayout.vue'
+import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import fields from '../fields'
 
 import {
@@ -26,7 +26,7 @@ export default defineComponent({
         }
     },
     components: {
-        MetricLayout, Sidebar, Details, DetailsNavbar, SidebarLayout,
+        MetricLayout, Sidebar, Details, SidebarNavbar, SidebarLayout,
     },
     computed: {
         canSeeProduction() {
@@ -97,7 +97,7 @@ export default defineComponent({
                 <template #sidebar-content="{ height }">
                     <SidebarLayout>
                         <template #header>
-                            <DetailsNavbar
+                            <SidebarNavbar
                                 @search="q = $event"
                                 @exportExcel="onExportExcel"
                             />

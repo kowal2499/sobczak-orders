@@ -4,7 +4,6 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import plLocale from '@fullcalendar/core/locales/pl'
 import enLocale from '@fullcalendar/core/locales/en-gb'
-import { v4 as uuidv4 } from 'uuid';
 import { getLocalDate } from '@/helpers'
 
 export default {
@@ -15,9 +14,9 @@ export default {
     },
 
     props: {
-        eventsProvider: {
-            type: Function,
-            default: null,
+        events: {
+            type: Array,
+            default: () => ([]),
         },
         options: {
             type: Object,
@@ -97,10 +96,6 @@ export default {
 
     methods: {
         onDatesSet(info) {
-            if (this.isBusy) {
-                return
-            }
-
             const newStart = this.getLocalDate(info.start)
             const newEnd = this.getLocalDate(info.end)
 
@@ -113,7 +108,7 @@ export default {
                 end: newEnd,
             }
 
-            this.fetchEvents()
+            this.$emit('date-set', { start: newStart, end: newEnd })
         },
 
         onDateSelect(info) {
@@ -133,36 +128,12 @@ export default {
             }
         },
 
-        fetchEvents() {
-            if (!this.currentRange.start || !this.currentRange.end) {
-                return
-            }
-
-            if (typeof this.eventsProvider !== 'function') {
-                return
-            }
-
-            this.isBusy = true
-            return this.eventsProvider(this.currentRange.start, this.currentRange.end)
-                .then((events) => {
-                    this.events = events.map(e => ({
-                        ...e,
-                        id: e.id || uuidv4(),
-                    }))
-                    this.$emit('events-loaded')
-                })
-                .finally(() => {
-                    this.isBusy = false
-                })
-        },
-
         getLocalDate: getLocalDate
     },
 
     data: () => ({
         calendarApi: null,
         isBusy: false,
-        events: [],
         currentRange: {
             start: null,
             end: null,
@@ -275,10 +246,10 @@ export default {
 }
 
 .fc-day-other {
-    visibility: hidden;
+    //visibility: hidden;
 }
 
 .fc-daygrid-day-events {
-    display: none !important;
+    //display: none !important;
 }
 </style>

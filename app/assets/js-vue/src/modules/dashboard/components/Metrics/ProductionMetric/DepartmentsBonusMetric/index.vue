@@ -5,10 +5,10 @@ import MetricLayout from "../../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../../BaseMetric.js'
 import Details from '../components/Details.vue'
-import DetailsNavbar from '../components/DetailsNavbar.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
-import SidebarLayout from '../../SidebarLayout.vue'
+import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import fields from '../fields'
 
 export default defineComponent({
@@ -16,7 +16,7 @@ export default defineComponent({
     extends: BaseMetric,
     mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
-        MetricLayout, Sidebar, Details, DetailsNavbar, SidebarLayout,
+        MetricLayout, Sidebar, Details, SidebarNavbar, SidebarLayout,
     },
 
     watch: {
@@ -81,7 +81,7 @@ export default defineComponent({
                 <template #sidebar-content="{ height }">
                     <SidebarLayout>
                         <template #header>
-                            <DetailsNavbar
+                            <SidebarNavbar
                                 @search="q = $event"
                                 @exportExcel="onExportExcel"
                             />
