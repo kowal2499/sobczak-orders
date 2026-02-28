@@ -74,6 +74,11 @@ export default {
                 if (this.filters.date.start === this.lastDate.start && this.filters.date.end === this.lastDate.end) {
                     return
                 }
+
+                if (false === this.$user.can('reports.production_calendar')) {
+                    return
+                }
+
                 this.lastDate = { ...this.filters.date }
 
                 await Promise.all([

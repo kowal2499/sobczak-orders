@@ -12,3 +12,7 @@ app_module:
             optionSlug: completedTasks
           - label: Zapełnienie listy produkcyjnej
             optionSlug: capacity-utilization
+    - name: Kalendarz produkcji
+      description: Dostęp do kalendarza produkcji
+      slug: reports.production_calendar
+      type: boolean

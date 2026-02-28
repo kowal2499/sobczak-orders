@@ -32,7 +32,6 @@ export default {
             if (!event || !this.hasAvailableCapacity(event)) {
                 return
             }
-            console.log('onSelectDay', event)
             this.$emit('day-selected', event)
         },
 
@@ -57,14 +56,6 @@ export default {
                 >
                     <b-progress-bar :value="getUsagePercent(event)" :variant="getCapacityVariant(getUsagePercent(event))" />
                 </b-progress>
-                <b-popover
-                    v-if="false"
-                    :target="event.id"
-                    title="Popover!"
-                    triggers="hover focus"
-                >
-                    <pre>{{ event }}</pre>
-                </b-popover>
             </div>
             <button
                 v-if="hasSelect"

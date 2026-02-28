@@ -39,6 +39,23 @@
                 </div>
             </div>
 
+            <div class="row mt-3">
+                <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
+                <div class="col">
+                    <CapacityAwareDayPicker
+                        v-model="orderDate"
+                        :incomingFactorValue="Number(orderFactor)"
+                        @capacityExceeded="exc = $event"
+                    />
+
+                    <div class="alert alert-danger my-3" v-if="exc > 0">
+                        Zdolności produkcyjne są niewystarczające, aby zrealizować zamówienie w wybranym terminie.
+                        Zamówienie zostanie przyjęte, jednak termin realizacji zostanie potwierdzony w osobnym komunikacie.
+                    </div>
+
+                </div>
+            </div>
+
 
             <div class="row mt-3">
                 <div class="col text-right">
@@ -57,7 +74,7 @@
                         <div class="row">
                             <label class="col-2 col-form-label">{{ $t('product') }}</label>
                             <div class="col">
-                                <select class="form-control" v-model="product.productId" @change="product.factor = getProductFactorById(product.productId)">
+                                <select class="form-control" disabled v-model="product.productId" @change="product.factor = getProductFactorById(product.productId)">
                                     <option value="">- {{ $t('choose') }} -</option>
                                     <option :value="item.id"  v-for="item in productDefinitions.map((i) => { return { id: i.id, name: i.name };})">{{ item.name }}</option>
                                 </select>
@@ -70,7 +87,7 @@
                                 {{ $t('orders.factor') }}
                             </label>
                             <div class="col">
-                                <input type="number" min="0" class="form-control" :value="parseInt(product.factor * 100)" @input="factorUpdated(product, $event.target.value)">
+                                <input type="number" min="0" class="form-control" disabled :value="parseInt(product.factor * 100)" @input="factorUpdated(product, $event.target.value)">
                                 <small class="form-text text-muted">{{ $t('orders.factorDesc') }}</small>
                             </div>
                         </div>
@@ -85,7 +102,7 @@
                         <div class="row mt-3">
                             <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                             <div class="col">
-                                <date-picker v-model="product.requiredDate" :isRange="false"></date-picker>
+                                <date-picker v-model="product.requiredDate" :isRange="false" isDisabled></date-picker>
                             </div>
                         </div>
 
@@ -117,16 +134,18 @@
 </template>
 
 <script>
-
+    import CapacityAwareDayPicker from '@/modules/schedule/components/CapacityAwareDayPicker.vue'
     import DatePicker from '../base/DatePicker';
     import api from '../../api/neworder';
     import moment from "moment";
     import routing from "../../api/routing";
 
-
     export default {
         name: 'Products',
-        components: { DatePicker },
+        components: {
+            DatePicker,
+            CapacityAwareDayPicker,
+        },
 
         props: {
             products: {
@@ -141,6 +160,7 @@
                 orderProduct: '',
                 orderDescription: '',
                 orderFactor: 0,
+                exc: 0,
 
                 productDefinitions: [],
             }
