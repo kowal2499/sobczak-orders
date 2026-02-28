@@ -1,9 +1,12 @@
 <script>
 import Calendar from '@/components/base/Calendar.vue'
-import { fetchHolidays, fetchCapatity } from '@/modules/schedule/repository/scheduleRepository'
-import { processScheduleChanges } from '../../services/WorkScheduleService'
-import WorkScheduleForm from './WorkScheduleForm.vue'
+import { fetchHolidays } from '../repository/scheduleRepository'
+import { processScheduleChanges } from '../services/WorkScheduleService'
+import ScheduleHolidaysForm from '../forms/ScheduleHolidaysForm.vue'
 import ModalAction from '@/components/base/ModalAction'
+import CellDayHoliday from '../components/CellDayHoliday.vue'
+
+import {v4 as uuidv4} from 'uuid';
 
 function resetForm() {
     return {
@@ -13,11 +16,12 @@ function resetForm() {
 }
 
 export default {
-    name: "WorkScheduleCalendar",
+    name: "ScheduleHolidays",
     components: {
         Calendar,
-        WorkScheduleForm,
+        ScheduleHolidaysForm,
         ModalAction,
+        CellDayHoliday,
     },
 
     computed: {
@@ -38,23 +42,52 @@ export default {
         },
     },
 
+    watch: {
+        'filters.date': {
+            handler() {
+                this.fetchEvents()
+            },
+            deep: true,
+        }
+    },
+
     methods: {
-        eventsProvider(start, end) {
-            return fetchHolidays(start, end).then(({data}) => {
-                return data.map(event => ({
-                    identifier: event.id,
-                    dayType: event.dayType,
-                    title: event.description,
-                    start: (new Date(`${event.date}T23:59:59`)),
-                    end: (new Date(`${event.date}T00:00:00`)),
-                    allDay: true,
-                    display: 'background',
-                }))
-            })
+        fetchEvents() {
+            if (!this.filters.date.start || !this.filters.date.end) {
+                return
+            }
+            this.fetchHolidayEvents(this.filters.date)
+                .then(holidayEvents => {
+                    this.events.holiday = holidayEvents
+                })
         },
 
-        onDateSelected(selectedDates) {
-            this.selectedDates = selectedDates
+        onDateSet(data) {
+            this.filters.date.start = data.start
+            this.filters.date.end = data.end
+        },
+
+        async fetchHolidayEvents({ start, end }) {
+            const { data } = await fetchHolidays(start, end)
+            return data.map(event => ({
+                identifier: event.id,
+                dayType: event.dayType,
+                type: 'holiday',
+                dateKey: event.date,
+                date: event.date,
+                description: event.description,
+
+                id: uuidv4(),
+                start: (new Date(`${event.date}T23:59:59`)),
+                end: (new Date(`${event.date}T00:00:00`)),
+                allDay: true,
+                display: 'background',
+            }))
+        },
+
+        onDateSelected(data) {
+            const date = data.arg.date
+            this.selectedDates = [date]
 
             if (this.selectedDates.length === 1) {
                 const dateStr = this.formatDateLocal(this.selectedDates[0])
@@ -98,7 +131,7 @@ export default {
             this.isBusy = true
             return processScheduleChanges(payload, calendar.events).then(() => {
                 this.onCloseModal()
-                calendar.fetchEvents()
+                this.fetchEvents()
             }).finally(() => {
                 this.isBusy = false
             })
@@ -114,7 +147,18 @@ export default {
     data: () => ({
         selectedDates: [],
         isBusy: false,
-        form: resetForm()
+        form: resetForm(),
+
+        filters: {
+            date: {
+                start: null,
+                end: null,
+            }
+        },
+
+        events: {
+            holiday: []
+        }
     })
 }
 </script>
@@ -123,10 +167,17 @@ export default {
     <div>
         <Calendar
             ref="calendar"
-            :events-provider="eventsProvider"
+            :events="events.holiday"
+            @date-set="onDateSet"
             :options="{ weekNumbers: true, weekNumberFormat: { week: 'numeric'} }"
-            @date-selected="onDateSelected"
-        />
+        >
+            <template #day-cell-content-holiday="{ arg, events }">
+                <CellDayHoliday :arg="arg" :events="events" />
+            </template>
+            <template #day-cell-dropdown="{ arg, events }">
+                <b-dropdown-item-button @click="onDateSelected({ arg, events })">Rodzaj dnia</b-dropdown-item-button>
+            </template>
+        </Calendar>
 
         <ModalAction
             :value="showModal"
@@ -139,7 +190,7 @@ export default {
         >
             <template #default>
                 <ValidationObserver ref="formObserver" v-slot="{ invalid }">
-                    <WorkScheduleForm v-model="form" :is-busy="isBusy" />
+                    <ScheduleHolidaysForm v-model="form" :is-busy="isBusy" />
                 </ValidationObserver>
             </template>
 
@@ -156,26 +207,4 @@ export default {
 </template>
 
 <style lang="scss">
-.fc {
-    --fc-bg-event-color: #ff5d6b;
-    --fc-bg-event-opacity: 0.7;
-    --fc-button-bg-color: #4e73df;
-    --fc-button-border-color: #4e73df;
-    --fc-button-hover-bg-color: #2e59d9;
-    --fc-button-hover-border-color: #2e59d9;
-
-    .fc-day {
-        cursor: pointer;
-    }
-    .fc-bg-event .fc-event-title {
-        color: #333;
-    }
-    .fc-daygrid-day-number {
-        color: #0A0A0A;
-    }
-
-    .fc-toolbar-title {
-        font-size: 1.25rem;
-    }
-}
 </style>

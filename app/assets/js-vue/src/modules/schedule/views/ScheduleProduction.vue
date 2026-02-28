@@ -71,6 +71,10 @@ export default {
                 if (!this.filters.date.start || !this.filters.date.end) {
                     return
                 }
+                if (this.filters.date.start === this.lastDate.start && this.filters.date.end === this.lastDate.end) {
+                    return
+                }
+                this.lastDate = { ...this.filters.date }
 
                 await Promise.all([
                     this.fetchHolidayEvents(this.filters.date),
@@ -130,7 +134,6 @@ export default {
         async fetchDepartmentEvents({ start, end }) {
             const { data } = await fetchAgreementLines(start, end)
             return data
-
         },
 
         showSidebar(type, { arg, events }) {
@@ -167,16 +170,17 @@ export default {
             isOpen: false,
             component: null
         },
-        q: '',
         selectedData: null,
-        sidebarTitle: '',
-        isSidebarOpen: false,
+        lastDate: {
+            start: null,
+            end: null,
+        }
     }),
 }
 </script>
 
 <template>
-    <div>
+    <div class="schedule-production">
         <ScheduleProductionFilters
             :agreementLines="events.departments"
             v-model="filters"
@@ -186,7 +190,7 @@ export default {
         <Calendar
             ref="calendar"
             :events="calendarEvents"
-            :options="{ dayMaxEventRows: 4, selectable: false, /* contentHeight: 680 */ }"
+            :options="{ dayMaxEventRows: 4, selectable: false, weekNumbers: true, weekNumberFormat: { week: 'numeric'} /* contentHeight: 680 */ }"
             @date-set="onDateSet"
         >
             <template #day-cell-content-holiday="{ arg, events }">
@@ -214,7 +218,11 @@ export default {
     </div>
 </template>
 
-<style lang="scss" scoped>
-
+<style lang="scss">
+.schedule-production {
+    .fc-daygrid-week-number {
+        top: 25px;
+    }
+}
 
 </style>

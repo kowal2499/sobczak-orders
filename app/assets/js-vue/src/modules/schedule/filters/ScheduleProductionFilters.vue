@@ -51,7 +51,9 @@ export default {
     watch: {
         'proxyData.customerId': {
             handler() {
-                this.proxyData.agreementLineId = []
+                if (this.proxyData.agreementLineId.length) {
+                    this.proxyData.agreementLineId = []
+                }
             },
             deep: true
         }

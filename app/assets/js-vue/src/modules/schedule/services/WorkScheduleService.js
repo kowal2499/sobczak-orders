@@ -1,4 +1,4 @@
-import { saveSchedule } from '../repository/workRepository'
+import { saveSchedule } from '@/modules/configuration/repository/workRepository'
 
 /**
  * Przetwarza eventy do zapisania zgodnie z logiką biznesową:

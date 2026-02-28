@@ -29,7 +29,7 @@ export default {
         position: relative;
         margin-top: 0.5rem;
         //border-top: 1px solid rgba(var(--colorPrimaryRgb), 0.2);
-        border-bottom: 1px solid rgba(var(--colorPrimaryRgb), 0.2);
+        //border-bottom: 1px solid rgba(var(--colorPrimaryRgb), 0.2);
 
         .badge-label {
             position: absolute;

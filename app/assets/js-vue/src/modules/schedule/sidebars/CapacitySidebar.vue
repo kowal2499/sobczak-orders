@@ -2,6 +2,8 @@
 import SidebarLayout from "@/components/layout/SidebarLayout.vue";
 import AgreementLineRmShowcaseItem from "@/components/base/Showcase/AgreementLineRmShowcaseItem.vue";
 import SidebarNavbar from "@/components/layout/SidebarNavbar.vue";
+import ShowcaseBadge from '@/components/base/Showcase/ShowcaseBadge.vue'
+
 import {getLocalDate} from '@/helpers'
 import {deburr} from "lodash";
 export default {
@@ -18,18 +20,23 @@ export default {
         AgreementLineRmShowcaseItem,
         SidebarLayout,
         SidebarNavbar,
+        ShowcaseBadge,
     },
 
     mounted() {
         if (this.data?.arg?.date) {
-            this.$emit('set-title', `Zamówienia wpływające na obłożenie tygodniowe - ${getLocalDate(this.data?.arg?.date)}`)
+            this.$emit('set-title', `${this.$t('schedule.weeklyOrdersInCapacity')} - ${getLocalDate(this.data?.arg?.date)}`)
         }
     },
 
     computed: {
+        capacityData() {
+            return (this.data?.events?.capacity || [])[0]
+        },
+
         filteredSelectedData() {
-            const events = this.data?.events?.capacity || []
-            let data = events[0]?.agreementLines || []
+            // this.capacityData
+            let data = this.capacityData?.agreementLines || []
             const lines = Object.values(data)
 
             if (!this.q) {
@@ -43,16 +50,29 @@ export default {
             )
         },
     },
-    data: () => ({
-        q: '',
-    })
+    data: () => ({ q: '' })
 }
 </script>
 
 <template>
     <SidebarLayout>
           <template #header>
-              <SidebarNavbar @search="q = $event" :show-excel-export-btn="false"/>
+              <div class="d-flex flex-row justify-content-between mx-2 gap-2">
+                  <ShowcaseBadge
+                    :label="$t('schedule.weekCapacity')"
+                    :value="String(capacityData.capacity)"
+                    icon="cogs"
+                  />
+                  <ShowcaseBadge
+                      :label="$t('schedule.capacityBurned')"
+                      icon="cogs"
+                  >
+                      <template #value>
+                          {{ capacityData.capacityBurned }} ({{ Math.min(Math.round((capacityData.capacityBurned / capacityData.capacity) * 100), 100) }}%)
+                      </template>
+                  </ShowcaseBadge>
+                  <SidebarNavbar @search="q = $event" :show-excel-export-btn="false" />
+              </div>
           </template>
 
           <template #content>
