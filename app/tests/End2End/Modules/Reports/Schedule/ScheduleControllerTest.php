@@ -9,7 +9,7 @@ use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Test\ApiTestCase;
 
-class ScheduleControllerTest extends ApiTestCase
+class ScheduleControllerTest extends BaseScheduleReportsTest
 {
     protected function setUp(): void
     {
@@ -97,54 +97,5 @@ class ScheduleControllerTest extends ApiTestCase
 
         // Sprawdź że agreementLines są zwracane
         $this->assertCount(2, $content[0]['agreementLines']);
-    }
-
-    // Helper methods
-
-    private function createAgreementLineRM(
-        int $id,
-        string $orderNumber,
-        \DateTimeInterface $confirmedDate,
-        string $status,
-        float $factor,
-        bool $isDeleted,
-        bool $isArchived,
-        bool $hasProduction,
-    ): AgreementLineRM {
-        $faker = \Faker\Factory::create();
-        $rm = new AgreementLineRM($id);
-        $rm->setConfirmedDate($confirmedDate);
-        $rm->setStatus($status);
-        $rm->setIsDeleted($isDeleted);
-        $rm->setIsArchived($isArchived);
-        $rm->setHasProduction($hasProduction);
-        $rm->setOrderNumber($orderNumber);
-        $rm->setQ($faker->text(30));
-        $rm->setCustomerName($faker->name);
-        $rm->setAgreementCreateDate((clone $confirmedDate)->modify('-1 week'));
-        $rm->setAgreementId($faker->randomDigit());
-        $rm->setCustomerId($faker->randomDigit());
-        $rm->setFactor($factor);
-
-        if ($hasProduction) {
-            $production = new \App\Module\AgreementLine\Entity\ProductionRM(departmentSlug: 'dpt01');
-            $rm->setProductions([$production]);
-        }
-
-        $this->getManager()->persist($rm);
-        return $rm;
-    }
-
-    private function createCapacity(\DateTimeInterface $dateFrom, float $capacity): WorkCapacity
-    {
-        $capacity = new WorkCapacity($dateFrom, $capacity);
-        $this->getManager()->persist($capacity);
-        return $capacity;
-    }
-
-    private function createHoliday(\DateTimeInterface $date): void
-    {
-        $holiday = new WorkSchedule($date, ScheduleDayType::Holiday);
-        $this->getManager()->persist($holiday);
     }
 }

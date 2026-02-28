@@ -12,6 +12,8 @@ use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Entity\AgreementLine;
 
 class ScheduleController extends BaseController
 {
@@ -66,5 +68,35 @@ class ScheduleController extends BaseController
             ),
             Response::HTTP_OK
         );
+    }
+
+    #[Route(path: '/production-tasks', methods: ['GET'])]
+    public function productionTasks(
+        Request $request,
+        AgreementLineRMRepository $agreementLineRMRepository
+    ): Response {
+        $result = $this->validateDateRange(
+            $request->query->get('dateFrom'),
+            $request->query->get('dateTo')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $dateFrom, 'end' => $dateTo] = $result;
+
+        $criteria = [
+            'search' => [
+                'hasProduction' => true,
+                'statusNot' => [AgreementLine::STATUS_DELETED],
+                'dateStart' => [
+                    'start' => $dateFrom->format('Y-m-d'),
+                    'end' => $dateTo->format('Y-m-d')
+                ]
+            ]
+        ];
+
+        $results = $agreementLineRMRepository->search($criteria)->getResult();
+
+        return $this->json(array_map(fn($item) => $item->toArray(), $results));
     }
 }
