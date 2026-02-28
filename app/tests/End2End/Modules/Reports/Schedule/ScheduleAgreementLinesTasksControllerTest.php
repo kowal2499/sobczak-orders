@@ -4,7 +4,7 @@ namespace App\Tests\End2End\Modules\Reports\Schedule;
 
 use App\Entity\AgreementLine;
 
-class ScheduleProductionTasksControllerTest extends BaseScheduleReportsTest
+class ScheduleAgreementLinesTasksControllerTest extends BaseScheduleReportsTest
 {
     protected function setUp(): void
     {
@@ -18,7 +18,7 @@ class ScheduleProductionTasksControllerTest extends BaseScheduleReportsTest
         parent::tearDown();
     }
 
-    public function testShouldReturnProductionTasksForDateRange()
+    public function testShouldReturnAgreementLinesTasksForDateRange()
     {
         // Given
         $em = $this->getManager();
@@ -39,7 +39,7 @@ class ScheduleProductionTasksControllerTest extends BaseScheduleReportsTest
         $em->clear();
 
         // When
-        $client->xmlHttpRequest('GET', '/reports/schedule/production-tasks?dateFrom=2021-09-01&dateTo=2021-09-30');
+        $client->xmlHttpRequest('GET', '/reports/schedule/agreement-lines?startDate=2021-09-01&endDate=2021-09-30');
 
         // Then
         $response = $client->getResponse();

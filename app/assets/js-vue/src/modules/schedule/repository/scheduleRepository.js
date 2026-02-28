@@ -13,3 +13,10 @@ export function fetchCapatity(startDate, endDate) {
     params.append('endDate', endDate)
     return axios.get(`/reports/schedule/capacity?${params.toString()}`)
 }
+
+export function fetchAgreementLines(startDate, endDate) {
+    const params = new URLSearchParams()
+    params.append('startDate', startDate)
+    params.append('endDate', endDate)
+    return axios.get(`/reports/schedule/agreement-lines?${params.toString()}`)
+}

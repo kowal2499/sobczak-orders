@@ -2,9 +2,10 @@
 import Calendar from '@/components/base/Calendar'
 import CellDayHoliday from '../components/CellDayHoliday'
 import CellDayCapacity from '../components/CellDayCapacity'
+import ScheduleProductionFilters from '../filters/ScheduleProductionFilters'
 import Sidebar from '@/components/base/Sidebar'
 import CapacitySidebar from '@/modules/schedule/sidebars/CapacitySidebar'
-import {fetchCapatity, fetchHolidays} from '@/modules/schedule/repository/scheduleRepository'
+import {fetchCapatity, fetchHolidays, fetchAgreementLines} from '@/modules/schedule/repository/scheduleRepository'
 import {v4 as uuidv4} from 'uuid';
 import {getLocalDate, getDepartmentName, getUserDepartments} from "@/helpers";
 import VueSelect from 'vue-select'
@@ -18,6 +19,7 @@ export default {
         CellDayCapacity,
         Sidebar,
         CapacitySidebar,
+        ScheduleProductionFilters,
         VueSelect,
     },
 
@@ -26,42 +28,40 @@ export default {
             return getUserDepartments()
         },
 
-        departmentEvents() {
-            if (!this.events.capacity.length) {
-                return []
-            }
-            return this.events.capacity
-                .flatMap(e =>
-                    Array.isArray(e.agreementLines)
-                        ? e.agreementLines.flatMap(line =>
-                            Array.isArray(line.productions)
-                                ? line.productions.map(prod => ( this.filters.departmentSlug.includes(prod.departmentSlug) ? {
-                                    type: 'department',
-                                    id: prod.id,
-                                    title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${line.orderNumber}`,
-                                    resourceId: prod.departmentSlug,
-                                    overlap: true,
-                                    display: 'auto',
-                                    start: getLocalDate(prod.dateStart),
-                                    end: getLocalDate(prod.dateEnd),
-                                } : null)).filter(Boolean)
-                                : []
-                        )
-                        : []
+        filteredDepartmentEvents() {
+            return this.events.departments
+                .filter(line => this.filters.customerId.length
+                    ? this.filters.customerId.includes(line.customer.id)
+                    : true)
+                .filter(line => this.filters.agreementLineId.length
+                    ? this.filters.agreementLineId.includes(line.agreementLineId)
+                    : true)
+                .flatMap(line => Array.isArray(line.productions)
+                    ? line.productions.map(prod => ({
+                        type: 'department',
+                        id: prod.id,
+                        start: prod.dateStart,
+                        end: prod.dateEnd,
+                        departmentSlug: prod.departmentSlug,
+                        title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${line.orderNumber}`,
+                        resourceId: prod.departmentSlug,
+                        overlap: true,
+                        allDay: true,
+                        display: 'auto',
+                    }))
+                    : [])
+                .filter(event => this.filters.departmentSlug.length
+                    ? this.filters.departmentSlug.includes(event.departmentSlug)
+                    : true
                 )
         },
 
         calendarEvents() {
-              return [
-                  ...this.events.holiday,
-                  ...this.events.capacity,
-                  ...this.departmentEvents,
-                      { // this object will be "parsed" into an Event Object
-                          title: 'The Title', // a property!
-                          start: '2026-02-06', // a property!
-                          end: '2026-02-11' // a property! ** see important note below about 'end' **
-                      }
-              ]
+          return [
+              ...this.events.holiday,
+              ...this.events.capacity,
+              ...this.filteredDepartmentEvents,
+          ]
         }
     },
 
@@ -75,9 +75,11 @@ export default {
                 await Promise.all([
                     this.fetchHolidayEvents(this.filters.date),
                     this.fetchCapacityEvents(this.filters.date),
-                ]).then(([holidayEvents, capacityEvents]) => {
+                    this.fetchDepartmentEvents(this.filters.date)
+                ]).then(([holidayEvents, capacityEvents, departmentEvents]) => {
                     this.events.holiday = holidayEvents
                     this.events.capacity = capacityEvents
+                    this.events.departments = departmentEvents
                 })
             },
             deep: true,
@@ -125,6 +127,12 @@ export default {
             }))
         },
 
+        async fetchDepartmentEvents({ start, end }) {
+            const { data } = await fetchAgreementLines(start, end)
+            return data
+
+        },
+
         showSidebar(type, { arg, events }) {
             this.sidebar.data = { arg, events }
             switch (type) {
@@ -146,10 +154,12 @@ export default {
             },
             agreementLineId: [],
             departmentSlug: [],
+            customerId: [],
         },
         events: {
             holiday: [],
             capacity: [],
+            departments: [],
         },
         sidebar: {
             data: null,
@@ -167,22 +177,16 @@ export default {
 
 <template>
     <div>
-        <vue-select
-            :options="departmentOptions"
-            :multiple="true"
-            :filterable="false"
-            :reduce="opt => opt.slug"
-            v-model="filters.departmentSlug"
-            label="name"
-            placeholder="Dział produkcyjny"
-            class="style-chooser"
-        >
-        </vue-select>
+        <ScheduleProductionFilters
+            :agreementLines="events.departments"
+            v-model="filters"
+            class="mb-3"
+        />
 
         <Calendar
             ref="calendar"
             :events="calendarEvents"
-            :options="{ dayMaxEventRows: 3, selectable: false, contentHeight: 680 }"
+            :options="{ dayMaxEventRows: 4, selectable: false, /* contentHeight: 680 */ }"
             @date-set="onDateSet"
         >
             <template #day-cell-content-holiday="{ arg, events }">

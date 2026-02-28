@@ -70,27 +70,27 @@ class ScheduleController extends BaseController
         );
     }
 
-    #[Route(path: '/production-tasks', methods: ['GET'])]
-    public function productionTasks(
+    #[Route(path: '/agreement-lines', methods: ['GET'])]
+    public function agreementLines(
         Request $request,
         AgreementLineRMRepository $agreementLineRMRepository
     ): Response {
         $result = $this->validateDateRange(
-            $request->query->get('dateFrom'),
-            $request->query->get('dateTo')
+            $request->query->get('startDate'),
+            $request->query->get('endDate')
         );
         if ($result instanceof Response) {
             return $result;
         }
-        ['start' => $dateFrom, 'end' => $dateTo] = $result;
+        ['start' => $startDate, 'end' => $endDate] = $result;
 
         $criteria = [
             'search' => [
                 'hasProduction' => true,
                 'statusNot' => [AgreementLine::STATUS_DELETED],
                 'dateStart' => [
-                    'start' => $dateFrom->format('Y-m-d'),
-                    'end' => $dateTo->format('Y-m-d')
+                    'start' => $startDate->format('Y-m-d'),
+                    'end' => $endDate->format('Y-m-d')
                 ]
             ]
         ];
