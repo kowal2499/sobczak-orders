@@ -1,9 +1,13 @@
 <template>
     <div>
         <div class="calendar-header">
-            <button class="calendar-arrow" @click="prevMonth">&#8592;</button>
+            <button v-if="canPrev" class="btn btn-outline-primary" @click="prevMonth">
+                <font-awesome-icon icon="chevron-left" />
+            </button>
             <span class="calendar-title">{{ monthName }} {{ year }}</span>
-            <button class="calendar-arrow" @click="nextMonth">&#8594;</button>
+            <button class="btn btn-outline-primary" @click="nextMonth">
+                <font-awesome-icon icon="chevron-right" />
+            </button>
         </div>
         <div class="calendar">
             <div class="calendar-row" v-for="(week, weekIdx) in monthDays" :key="weekIdx">
@@ -15,6 +19,7 @@
                         'empty': day.day === 0,
                         'calendar-day--selected': day.dateString === value,
                         'calendar-day--holiday': events.holidays[day.dateString],
+                        'calendar-day--unavailable': !selectableDays.includes(day.dateString)
                     }"
                     @click="onSelectDay(day)"
                     v-if="day.day !== 0"
@@ -22,7 +27,7 @@
                     <CapacityProgress
                         v-if="events.capacity[day.dateString]"
                         :capacity="events.capacity[day.dateString].capacity"
-                        :capacityBurned="events.capacity[day.dateString].capacityBurned"
+                        :capacityBurned="realBurnedCapacity[day.dateString]"
                     />
                     <div class="font-weight-bold" style="font-size: .975rem">{{ day.day }}</div>
                 </div>
@@ -62,6 +67,7 @@ export default {
         const now = new Date();
         this.year = now.getFullYear()
         this.month = now.getMonth() + 1
+        this.borderDate = new Date(now.getFullYear(), now.getMonth(), 1)
     },
 
     watch: {
@@ -105,9 +111,86 @@ export default {
             const end = getLocalDate(new Date(this.year, this.month, 0))
             return { start, end };
         },
+        canPrev() {
+            const visibleFirstDay = this.monthDays.flat().find((day) => day.day > 0)
+            if (!visibleFirstDay) {
+                return false
+            }
+            const visibleFirstDate = new Date(visibleFirstDay.dateString)
+            const normalizedVisibleDate = new Date(
+                visibleFirstDate.getFullYear(),
+                visibleFirstDate.getMonth(),
+                1
+            )
+            return this.borderDate < normalizedVisibleDate
+        },
+
+        realBurnedCapacity() {
+            return Object.keys(this.events.capacity)
+                .reduce((acc, key) => {
+                    acc[key] = this.events.capacity[key].capacityBurned + (this.incomingFactorValue / 100)
+                    return acc
+                }, {})
+        },
+
+        noCapacityDays() {
+            return Object.keys(this.events.capacity).filter(date => {
+                return this.realBurnedCapacity[date] >= this.events.capacity[date].capacity;
+            })
+        },
+
+        frozenPeriodDates() {
+            const frozenWeeksCount = 3;
+            const today = new Date();
+
+            // Znajdź pierwszy poniedziałek po zamrożonym okresie (za frozenWeeksCount tygodni)
+            const daysToAdd = frozenWeeksCount * 7;
+            const targetMondayDate = new Date(today);
+            targetMondayDate.setDate(today.getDate() + (daysToAdd - today.getDay() + 1));
+
+            // Jeśli dziś jest poniedziałek, to docelowy poniedziałek to za dokładnie frozenWeeksCount * 7 dni
+            if (today.getDay() === 1) {
+                targetMondayDate.setDate(today.getDate() + daysToAdd);
+            }
+
+            // Użyj funkcji pomocniczej do wygenerowania dat
+            return this.generateDateStrings(today, targetMondayDate);
+        },
+
+        pastDaysInCurrentView() {
+            const today = new Date();
+            // Pierwszy dzień aktualnie widocznego miesiąca
+            const firstDayOfMonth = new Date(this.year, this.month - 1, 1);
+
+            // Użyj funkcji pomocniczej do wygenerowania dat
+            return this.generateDateStrings(firstDayOfMonth, today);
+        },
+
+        selectableDays() {
+            return Object.keys(this.events.capacity).filter(date => {
+                return !this.noCapacityDays.includes(date) &&
+                       !this.frozenPeriodDates.includes(date) &&
+                       !this.pastDaysInCurrentView.includes(date)
+            })
+        },
     },
 
     methods: {
+        generateDateStrings(startDate, endDate) {
+            const dates = [];
+            const currentDate = new Date(startDate);
+
+            while (currentDate < endDate) {
+                const dateString = currentDate.getFullYear() + '-' +
+                    String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(currentDate.getDate()).padStart(2, '0');
+                dates.push(dateString);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            return dates;
+        },
+
         prevMonth() {
             if (this.month === 1) {
                 this.month = 12;
@@ -153,7 +236,7 @@ export default {
         },
 
         onSelectDay({ day, dateString }) {
-            if (day === 0 || this.events.holidays[dateString]) {
+            if (day === 0 || !this.selectableDays.includes(dateString)) {
                 return
             }
             this.$emit('input', dateString)
@@ -166,9 +249,6 @@ export default {
                 return 0
             }
 
-            console.log(                Math.max((capacityEvent.capacityBurned + this.incomingFactorValue/100) - capacityEvent.capacity, 0)
-            )
-
             this.$emit(
                 'capacityExceeded',
                 Math.max((capacityEvent.capacityBurned + this.incomingFactorValue/100) - capacityEvent.capacity, 0)
@@ -179,11 +259,12 @@ export default {
     data: () => ({
         events: {
             holidays: {},
-            capacity: [],
+            capacity: {},
         },
         year: null,
         month: null,
         selectedDay: null,
+        borderDate: null,
     })
 }
 </script>
@@ -197,6 +278,7 @@ export default {
     gap: 16px;
 }
 .calendar-title {
+    color: var(--colorPrimary);
     font-weight: bold;
     font-size: 18px;
     min-width: 120px;
@@ -238,9 +320,8 @@ export default {
     font-size: 14px;
     box-sizing: border-box;
     transition: background 0.2s;
-    &:not(.empty):not(&--holiday) {
-        cursor: pointer;
-    }
+
+    cursor: pointer;
     &:hover:not(.empty):not(&--holiday):not(&--selected) {
         background: #e0e0e0;
     }
@@ -256,6 +337,11 @@ export default {
     &--holiday {
         background-color: rgba(220, 53, 69, 0.3);
         color: var(--colorWhite100);
+    }
+
+    &--unavailable {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
 .calendar-day.empty {

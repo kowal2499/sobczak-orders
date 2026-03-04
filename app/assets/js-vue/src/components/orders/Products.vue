@@ -1,5 +1,4 @@
 <template>
-
     <div class="card">
         <div class="card-header">
             <strong>{{ $t('products') }}</strong>
@@ -32,14 +31,7 @@
                 </div>
             </div>
 
-            <div class="row mt-3">
-                <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
-                <div class="col">
-                    <date-picker v-model="orderDate" :is-range="false"></date-picker>
-                </div>
-            </div>
-
-            <div class="row mt-3">
+            <div class="row mt-3" v-if="isTesting">
                 <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                 <div class="col">
                     <CapacityAwareDayPicker
@@ -47,12 +39,23 @@
                         :incomingFactorValue="Number(orderFactor)"
                         @capacityExceeded="exc = $event"
                     />
-
                     <div class="alert alert-danger my-3" v-if="exc > 0">
                         Zdolności produkcyjne są niewystarczające, aby zrealizować zamówienie w wybranym terminie.
-                        Zamówienie zostanie przyjęte, jednak termin realizacji zostanie potwierdzony w osobnym komunikacie.
+                        Można wybrać tę datę, jednak faktyczny termin realizacji zostanie potwierdzony w osobnym komunikacie.
                     </div>
-
+                    <div class="alert alert-info my-3" v-else-if="!orderDate">
+                        Wybierz oczekiwany dzień realizacji.
+                        <ul>
+                            <li>pasek nad numerem dnia wskazuje poziom wykorzystania zdolności produkcyjnych</li>
+                            <li>dni w których firma nie pracuje są niemożliwe do wybrania</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3" v-else>
+                <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
+                <div class="col">
+                    <date-picker v-model="orderDate" :is-range="false"></date-picker>
                 </div>
             </div>
 
@@ -74,7 +77,7 @@
                         <div class="row">
                             <label class="col-2 col-form-label">{{ $t('product') }}</label>
                             <div class="col">
-                                <select class="form-control" disabled v-model="product.productId" @change="product.factor = getProductFactorById(product.productId)">
+                                <select class="form-control" :disabled="isTesting" v-model="product.productId" @change="product.factor = getProductFactorById(product.productId)">
                                     <option value="">- {{ $t('choose') }} -</option>
                                     <option :value="item.id"  v-for="item in productDefinitions.map((i) => { return { id: i.id, name: i.name };})">{{ item.name }}</option>
                                 </select>
@@ -87,7 +90,7 @@
                                 {{ $t('orders.factor') }}
                             </label>
                             <div class="col">
-                                <input type="number" min="0" class="form-control" disabled :value="parseInt(product.factor * 100)" @input="factorUpdated(product, $event.target.value)">
+                                <input type="number" min="0" class="form-control" :disabled="isTesting" :value="parseInt(product.factor * 100)" @input="factorUpdated(product, $event.target.value)">
                                 <small class="form-text text-muted">{{ $t('orders.factorDesc') }}</small>
                             </div>
                         </div>
@@ -102,7 +105,7 @@
                         <div class="row mt-3">
                             <label class="col-2 col-form-label">{{ $t('orders.requestedRealizationDate') }}</label>
                             <div class="col">
-                                <date-picker v-model="product.requiredDate" :isRange="false" isDisabled></date-picker>
+                                <date-picker v-model="product.requiredDate" :isRange="false" :isDisabled="isTesting"></date-picker>
                             </div>
                         </div>
 
@@ -111,9 +114,7 @@
                                 <button class="btn btn-danger" @click="remove(key)"><i class="fa fa-trash" aria-hidden="true"></i> {{ $t('orders.removeProduct') }}</button>
                             </div>
                         </div>
-
                         <hr>
-
                     </div>
                 </div>
             </div>
@@ -125,10 +126,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
-
     </div>
 
 </template>
@@ -154,6 +152,24 @@
             }
         },
 
+        computed: {
+            getUploadUrl() {
+                return routing.get('agreement_line_upload');
+            }
+        },
+
+        mounted() {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.isTesting = urlParams.has('test');
+
+            api.fetchProducts()
+                .then(({data}) => {
+                    if (data) {
+                        this.productDefinitions = data.products;
+                    }
+                })
+        },
+
         data() {
             return {
                 orderDate: '',
@@ -161,7 +177,7 @@
                 orderDescription: '',
                 orderFactor: 0,
                 exc: 0,
-
+                isTesting: false,
                 productDefinitions: [],
             }
         },
@@ -210,21 +226,7 @@
             }
         },
 
-        computed: {
-            getUploadUrl() {
-                return routing.get('agreement_line_upload');
-            }
-        },
 
-        mounted() {
-
-            api.fetchProducts()
-                .then(({data}) => {
-                    if (data) {
-                        this.productDefinitions = data.products;
-                    }
-                })
-        },
 
         filters: {
             hundred(arg) {
