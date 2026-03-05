@@ -16,12 +16,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
-    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight
+    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus
 } from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
-    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight)
+    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();

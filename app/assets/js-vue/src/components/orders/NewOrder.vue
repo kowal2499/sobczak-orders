@@ -91,12 +91,6 @@
         },
 
         created() {
-
-            /**
-             * Zacznij od wczytania jego danych jeżeli edytujemy zamówienie
-             * W każdym przypadku trzeba ustawić endpoint dla dropzona
-             */
-
             if (this.agreementId > 0) {
                 this.dropzoneOptions.url = routing.get('orders_patch') + '/' + this.agreementId;
                 this.waiting = true;

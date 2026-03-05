@@ -62,7 +62,10 @@
 
             <div class="row mt-3">
                 <div class="col text-right">
-                    <button class="btn btn-success" :disabled="!canAddProduct()" @click="add"><i class="fa fa-plus" aria-hidden="true"></i> {{ $t('orders.addProduct') }}</button>
+                    <button class="btn btn-primary" :disabled="!canAddProduct()" @click="add">
+                        <font-awesome-icon icon="plus" class="mr-2" />
+                        {{ $t('orders.addProduct') }}
+                    </button>
                 </div>
             </div>
 
@@ -71,9 +74,7 @@
                     <hr>
 
                     <div v-for="(product, key) in products">
-
                         <span style="font-size: 16px; font-weight: bold"># {{ key+1 }}</span>
-
                         <div class="row">
                             <label class="col-2 col-form-label">{{ $t('product') }}</label>
                             <div class="col">
@@ -83,7 +84,6 @@
                                 </select>
                             </div>
                         </div>
-
 
                         <div class="row mt-3" v-if="userCanProduction()">
                             <label class="col-2 col-form-label">

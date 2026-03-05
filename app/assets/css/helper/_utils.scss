@@ -78,3 +78,16 @@ $primary-light-map: (
 .background-color-white-90 {
     background-color: var(--colorWhite90);
 }
+
+// Button outline gray using Bootstrap 4 mixin
+.btn-outline-gray {
+    @include button-outline-variant($gray);
+}
+
+.btn-outline-primary {
+    @include button-outline-variant($primary);
+}
+
+.btn-outline-yellow {
+    @include button-outline-variant($yellow);
+}

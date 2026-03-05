@@ -2,6 +2,10 @@
 
 $mainBlue: #4e73df;
 
+$gray: #808080;
+$green: #28a745;
+$yellow: #ffc107;
+
 $lightgray: #efefef;
 $lightgray2: color.scale(#efefef, $lightness: -10%);
 $lightgray3: #f8f9fc;
@@ -24,6 +28,16 @@ $primaryLight90: color.mix(#fff, $mainBlue, 90%);
     --colorPrimary: #{$mainBlue};
     --colorPrimaryRgb: #{color.red($mainBlue)}, #{color.green($mainBlue)}, #{color.blue($mainBlue)};
 
+    --colorWhite: #FFF;
     --colorWhite100: #FFF;
     --colorWhite90: #F4F4F4;
+
+    --colorGray: #{$gray};
+    --colorGrayRgb: #{color.red($gray)}, #{color.green($gray)}, #{color.blue($gray)};
+
+    --colorSuccess: #{$green};
+    --colorSuccessRgb: #{color.red($green)}, #{color.green($green)}, #{color.blue($green)};
+
+    --colorYellow: #{$yellow};
+    --colorYellowRgb: #{color.red($yellow)}, #{color.green($yellow)}, #{color.blue($yellow)};
 }

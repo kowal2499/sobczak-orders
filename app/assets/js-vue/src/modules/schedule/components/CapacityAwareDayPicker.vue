@@ -1,10 +1,11 @@
 <template>
     <div>
         <div class="calendar-header">
-            <button v-if="canPrev" class="btn btn-outline-primary" @click="prevMonth">
+            <span class="calendar-title">{{ monthName }} {{ year }}</span>
+            <button  class="btn btn-outline-primary"
+                     @click="prevMonth" :disabled="!canPrev">
                 <font-awesome-icon icon="chevron-left" />
             </button>
-            <span class="calendar-title">{{ monthName }} {{ year }}</span>
             <button class="btn btn-outline-primary" @click="nextMonth">
                 <font-awesome-icon icon="chevron-right" />
             </button>
@@ -19,17 +20,26 @@
                         'empty': day.day === 0,
                         'calendar-day--selected': day.dateString === value,
                         'calendar-day--holiday': events.holidays[day.dateString],
-                        'calendar-day--unavailable': !selectableDays.includes(day.dateString)
+                        'calendar-day--unavailable': !selectableDays.includes(day.dateString),
+                        'calendar-day--exceeded': !strictMode && noCapacityDays.includes(day.dateString)
                     }"
-                    @click="onSelectDay(day)"
                     v-if="day.day !== 0"
                 >
                     <CapacityProgress
-                        v-if="events.capacity[day.dateString]"
+                        v-if="false && events.capacity[day.dateString]"
                         :capacity="events.capacity[day.dateString].capacity"
                         :capacityBurned="realBurnedCapacity[day.dateString]"
                     />
-                    <div class="font-weight-bold" style="font-size: .975rem">{{ day.day }}</div>
+                    <div class="day-number">{{ day.day }}</div>
+                    <div class="d-flex flex-column justify-content-center h-100">
+                        <font-awesome-icon class="text-white" icon="check" v-if="day.dateString === value" size="lg"/>
+                        <button :class="['btn btn-sm', !strictMode && noCapacityDays.includes(day.dateString) ? 'btn-outline-success' : 'btn-outline-success']"
+                                v-else-if="selectableDays.includes(day.dateString)"
+                                @click="onSelectDay(day)"
+                        >
+                            wybierz
+                        </button>
+                    </div>
                 </div>
                 <div
                     v-else
@@ -58,6 +68,10 @@ export default {
             type: Number,
             default: 0
         },
+        strictMode: {
+            type: Boolean,
+            default: true
+        },
         value: String
     },
 
@@ -83,6 +97,15 @@ export default {
             },
             deep: true,
         },
+        isNoCapacityInSelectedDay(value) {
+            if (value) {
+                this.$emit('input', null)
+                EventBus.$emit('message', {
+                    type: 'warning',
+                    content: 'Wybrany termin jest niedostępny dla tego produktu. Wybierz inny termin.'
+                });
+            }
+        }
     },
 
     computed: {
@@ -168,11 +191,19 @@ export default {
 
         selectableDays() {
             return Object.keys(this.events.capacity).filter(date => {
-                return !this.noCapacityDays.includes(date) &&
-                       !this.frozenPeriodDates.includes(date) &&
-                       !this.pastDaysInCurrentView.includes(date)
+                if (this.strictMode) {
+                    return !this.noCapacityDays.includes(date) &&
+                        !this.frozenPeriodDates.includes(date) &&
+                        !this.pastDaysInCurrentView.includes(date)
+                } else {
+                    return !this.pastDaysInCurrentView.includes(date)
+                }
             })
         },
+
+        isNoCapacityInSelectedDay() {
+            return this.value && this.noCapacityDays.includes(this.value)
+        }
     },
 
     methods: {
@@ -240,19 +271,6 @@ export default {
                 return
             }
             this.$emit('input', dateString)
-
-            if (!dateString) {
-                return 0
-            }
-            const capacityEvent = this.events.capacity[dateString]
-            if (!capacityEvent) {
-                return 0
-            }
-
-            this.$emit(
-                'capacityExceeded',
-                Math.max((capacityEvent.capacityBurned + this.incomingFactorValue/100) - capacityEvent.capacity, 0)
-            )
         }
     },
 
@@ -274,7 +292,6 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 8px;
     gap: 16px;
 }
 .calendar-title {
@@ -300,6 +317,7 @@ export default {
     flex-direction: column;
     gap: 2px;
     align-items: center;
+    margin: 2rem 0;
 }
 .calendar-row {
     display: flex;
@@ -308,41 +326,60 @@ export default {
 }
 .calendar-day {
     width: 100px;
-    height: 50px;
+    height: 80px;
     padding: 0.5rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     flex-direction: column;
     gap: 0.5rem;
-    background: #f5f5f5;
-    border: 1px solid #ddd;
+    background: rgba(var(--colorSuccessRgb), 0.2);
+    border: 1px solid rgba(var(--colorSuccessRgb), 0.5);
     font-size: 14px;
     box-sizing: border-box;
-    transition: background 0.2s;
+    transition: all 0.25s;
 
-    cursor: pointer;
-    &:hover:not(.empty):not(&--holiday):not(&--selected) {
-        background: #e0e0e0;
+    .day-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(var(--colorSuccessRgb), 1);
+        color: var(--colorWhite);
+        font-size: 15px;
+        font-weight: bold;
     }
 
+
     &--selected {
-        background: var(--colorPrimary);
-        color: var(--colorWhite100);
-        .text-muted {
-            color: var(--colorWhite100) !important;
+        border-color: var(--colorPrimary);
+        background-color: var(--colorPrimary);
+        color: var(--colorWhite);
+
+        .day-number {
+            color: var(--colorPrimary);
+            background-color: var(--colorWhite);
+        }
+    }
+    &--exceeded {
+        background: rgba(var(--colorYellowRgb), 0.2);
+        border: var(--colorYellow);
+        .day-number {
+            background-color: var(--colorYellow);
+        }
+    }
+    &--holiday, &--unavailable {
+        cursor: not-allowed;
+        opacity: 0.5;
+        background-color: rgba(220, 53, 69, 0.4);
+        border: 1px solid rgba(220, 53, 69, 0.8);
+        .day-number {
+            background-color: rgba(220, 53, 69, 0.8);
         }
     }
 
-    &--holiday {
-        background-color: rgba(220, 53, 69, 0.3);
-        color: var(--colorWhite100);
-    }
-
-    &--unavailable {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
 }
 .calendar-day.empty {
     background: transparent;
