@@ -2,7 +2,8 @@
     <div class="agreement-form">
         <!-- Customer Section -->
         <customer-form
-            v-model="form.customerId"
+            :model-value="form.customerId"
+            @update:modelValue="form.customerId = $event"
             class="mb-3"
         />
 
@@ -67,7 +68,7 @@
             <button
                 class="btn btn-primary btn-lg"
                 @click="save"
-                :disabled="!canSave()"
+                :disabled="!canSave"
                 type="button"
             >
                 <i class="fa fa-check-square-o"></i>
@@ -82,6 +83,7 @@ import CustomerForm from '../components/CustomerForm.vue';
 import AttachmentForm from '../components/AttachmentForm.vue';
 import ProductRow from '../components/ProductRow.vue';
 import api from '../../../api/neworder';
+import routing from "@/api/routing";
 
 function resetForm() {
     return {
@@ -126,6 +128,35 @@ export default {
             // Dodaj jeden pusty produkt na start
             this.addProduct();
         }
+
+        // Jeśli orderNumber już istnieje (np. załadowany z danych), zwaliduj go
+        if (this.form.orderNumber) {
+            this.validateNumber();
+        }
+    },
+
+    watch: {
+        'form.customerId'(val) {
+            if (val && !this.agreementId) {
+                this.getOrderNumber();
+            }
+        },
+
+        'form.orderNumber'() {
+            this.validateNumber();
+        }
+    },
+
+    computed: {
+        canSave() {
+            return (
+                this.form.customerId !== null &&
+                this.form.products.length > 0 &&
+                this.form.products.every(p => p.productId !== null) &&
+                this.form.products.every(p => p.requiredDate !== null) &&
+                this.isNumberValid
+            );
+        }
     },
 
     methods: {
@@ -142,15 +173,19 @@ export default {
         },
         addProduct() {
             this.form.products.push({
-                idProduct: null,
+                productId: null,
                 factor: 1,
-                description: '',
-                realizationDate: ''
+                description: null,
+                requiredDate: null
             });
         },
 
         updateProduct(index, updatedProduct) {
-            this.form.products[index] = updatedProduct;
+            this.form.products = [
+                ...this.form.products.slice(0, index),
+                updatedProduct,
+                ...this.form.products.slice(index + 1)
+            ];
         },
 
         removeProduct(index) {
@@ -159,17 +194,8 @@ export default {
             }
         },
 
-        canSave() {
-            return (
-                this.form.customerId !== null &&
-                this.form.products.length > 0 &&
-                this.form.products.every(p => p.idProduct !== null) &&
-                this.isNumberValid
-            );
-        },
-
         save() {
-            if (!this.canSave()) {
+            if (!this.canSave) {
                 return;
             }
 
@@ -198,25 +224,15 @@ export default {
         },
 
         onSaveSuccess(response) {
-            if (window.EventBus) {
-                EventBus.$emit('message', {
-                    type: 'success',
-                    content: 'Zapisano pomyślnie'
-                });
-            }
+            this.$flash.success('Zapisano pomyślnie')
 
-            if (!this.agreementId && response.data && response.data.redirectUrl) {
-                window.location.replace(response.data.redirectUrl);
+            if (!this.agreementId) {
+                window.location.replace(routing.get('agreements_show'))
             }
         },
 
         onSaveError() {
-            if (window.EventBus) {
-                EventBus.$emit('message', {
-                    type: 'error',
-                    content: 'Wystąpił błąd podczas zapisu'
-                });
-            }
+            this.$flash.danger('Wystąpił błąd podczas zapisu')
         },
 
         loadAgreement() {
@@ -229,10 +245,10 @@ export default {
 
                         if (data.products && data.products.length > 0) {
                             this.form.products = data.products.map(p => ({
-                                idProduct: p.idProduct,
+                                productId: p.productId,
                                 factor: p.factor || 1,
-                                description: p.description || '',
-                                realizationDate: p.realizationDate || ''
+                                description: p.description || null,
+                                requiredDate: p.requiredDate || null
                             }));
                         } else {
                             this.addProduct();
@@ -273,23 +289,12 @@ export default {
                 .then(({data}) => {
                     if (data.next_number) {
                         this.form.orderNumber = data.next_number;
+                        this.isNumberValid = true;
                     }
                 });
         }
     },
-
-    watch: {
-        'form.customerId'(val) {
-            if (val && !this.agreementId) {
-                this.getOrderNumber();
-            }
-        },
-
-        'form.orderNumber'() {
-            this.validateNumber();
-        }
-    }
-};
+}
 </script>
 
 <style lang="scss" scoped>

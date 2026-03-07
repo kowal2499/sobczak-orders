@@ -7,7 +7,7 @@
                     :options="productOptions"
                     :filterable="true"
                     :reduce="opt => opt.value"
-                    v-model="proxyProduct.idProduct"
+                    v-model="proxyProduct.productId"
                     label="label"
                     placeholder="Wybierz produkt"
                     class="style-chooser"
@@ -25,9 +25,11 @@
                 <input
                     type="number"
                     class="form-control form-control-sm"
-                    v-model.number="proxyProduct.factor"
+                    @input="handleFactorInput"
+                    :value="formatFactorForDisplay(proxyProduct.factor)"
                     placeholder="Współczynnik"
                     min="1"
+                    step="1"
                 />
             </div>
 
@@ -76,8 +78,8 @@
                         </template>
                     </modal-action>
 
-                    <span v-if="proxyProduct.realizationDate" class="text-muted small">
-                        {{ getLocalDate(proxyProduct.realizationDate) }}
+                    <span v-if="proxyProduct.requiredDate" class="text-muted small">
+                        {{ getLocalDate(proxyProduct.requiredDate) }}
                     </span>
                     <span v-else class="text-muted small">
                         Wybierz datę
@@ -105,7 +107,7 @@
                     class="form-control form-control-sm"
                     v-model="proxyProduct.description"
                     placeholder="Opis produktu"
-                    rows="2"
+                    rows="3"
                 ></textarea>
             </div>
         </div>
@@ -164,7 +166,7 @@ export default {
     methods: {
         confirmDateSelection() {
             if (this.tempRealizationDate) {
-                this.proxyProduct.realizationDate = this.tempRealizationDate;
+                this.proxyProduct.requiredDate = this.tempRealizationDate;
             }
             this.showDatePicker = false;
         },
@@ -172,6 +174,22 @@ export default {
         cancelDateSelection() {
             this.tempRealizationDate = null;
             this.showDatePicker = false;
+        },
+
+        formatFactorForDisplay(factor) {
+            const displayValue = factor * 100;
+            const rounded = Math.round(displayValue * 100) / 100;
+            if (Number.isInteger(rounded)) {
+                return rounded.toString();
+            }
+            return rounded.toFixed(2);
+        },
+
+        handleFactorInput(e) {
+            const inputValue = parseFloat(e.target.value);
+            if (!isNaN(inputValue)) {
+                this.proxyProduct.factor = inputValue / 100;
+            }
         },
 
         getLocalDate: getLocalDate
@@ -182,27 +200,32 @@ export default {
         showDatePicker(isOpen) {
             if (isOpen) {
                 // Inicjalizuj temp date przy otwieraniu modala
-                this.tempRealizationDate = this.proxyProduct.realizationDate;
+                this.tempRealizationDate = this.proxyProduct.requiredDate;
             }
         },
 
-        'proxyProduct.idProduct'(newProductId, oldProductId) {
-            // Aktualizuj description i factor po wyborze produktu
+        'proxyProduct.productId'(newProductId, oldProductId) {
             if (newProductId && newProductId !== oldProductId) {
                 const selectedProduct = this.products.find(p => p.id === newProductId);
                 if (selectedProduct) {
-                    // Aktualizuj tylko jeśli to nowy wiersz (bez oldProductId)
-                    if (!oldProductId) {
-                        this.proxyProduct.factor = selectedProduct.factor || 1;
-                        this.proxyProduct.description = selectedProduct.description || '';
-                    }
+                    this.proxyProduct.factor = selectedProduct.factor || 0;
+                    this.proxyProduct.description = selectedProduct.description || '';
                 }
+            }
+        },
+
+        'proxyProduct.factor'(newFactor, oldFactor) {
+            if (this.proxyProduct.requiredDate && newFactor > oldFactor) {
+                this.proxyProduct.requiredDate = null
+                this.$flash.info('Po zwiększeniu współczynnika, wybierz ponownie datę realizacji')
             }
         },
 
         proxyProduct: {
             handler(newVal) {
-                this.$emit('update:product', newVal);
+                if (JSON.stringify(this.product) !== JSON.stringify(newVal)) {
+                    this.$emit('update:product', newVal);
+                }
             },
             deep: true
         },

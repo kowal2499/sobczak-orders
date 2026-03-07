@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.prototype.$user = new User(user);
     Vue.prototype.$privilages = Roles;
     Vue.prototype.$helpers = helpers;
+    Vue.prototype.$flash = {
+        success: content => window.EventBus.$emit('message', { type: 'success', content }),
+        danger: content => window.EventBus.$emit('message', { type: 'danger', content }),
+        info: content => window.EventBus.$emit('message', { type: 'info', content }),
+    }
 
     Vue.mixin({
         methods: {

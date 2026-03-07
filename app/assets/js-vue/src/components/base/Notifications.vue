@@ -5,7 +5,7 @@
             <div v-for="(message, index) in messages" class="notification alert alert-dismissible" :class="getClass(message)" :key="message.key">
                 {{ message.content }}
                 <button type="button" class="close" aria-label="Close" @click.prevent="remove(message.key)">
-                    <span aria-hidden="true">&times;</span>
+                    <font-awesome-icon icon="times" />
                 </button>
             </div>
         </transition-group>
@@ -27,7 +27,6 @@
         data() {
             return {
                 lastIndex: 0,
-
                 messages: []
             }
         },
@@ -43,8 +42,15 @@
         },
 
         methods: {
-            getClass(message) {
-                return message.type === 'success' ? 'alert-success': 'alert-danger';
+            getClass({ type }) {
+                switch (type) {
+                    case 'success':
+                        return 'alert-success'
+                    case 'danger':
+                        return 'alert-danger'
+                    case 'info':
+                        return 'alert-info'
+                }
             },
 
             remove(key) {

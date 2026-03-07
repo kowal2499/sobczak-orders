@@ -153,73 +153,101 @@ class AgreementsController extends AbstractController
             $data['products'] = json_decode($data['products'], true);
         }
 
-        $customer = $customerRepository->find($data['customerId']);
-        $agreement = new Agreement();
-        $agreement
-            ->setCreateDate(new \DateTime())
-            ->setUpdateDate(new \DateTime())
-            ->setCustomer($customer)
-            ->setUser($security->getUser())
-            ->setOrderNumber($data['orderNumber'])
-        ;
+        // Rzutowanie typów dla bezpieczeństwa
+        $customerId = (int) ($data['customerId'] ?? 0);
+        $orderNumber = (string) ($data['orderNumber'] ?? '');
+        $products = (array) ($data['products'] ?? []);
 
-        $em->persist($agreement);
+        try {
+            $em->beginTransaction();
 
-        foreach($data['products'] as $productData) {
-            $product = $productRepository->find($productData['productId']);
+            $customer = $customerRepository->find($customerId);
+            if (!$customer) {
+                throw new \Exception('Customer not found');
+            }
 
-            $agreementLine = new AgreementLine();
-            $agreementLine
-                ->setProduct($product)
-                ->setConfirmedDate(new \DateTime($productData['requiredDate']))
-                ->setDescription($productData['description'])
-                ->setFactor($productData['factor'])
-                ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
-                ->setDeleted(false)
-                ->setArchived(false)
+            $agreement = new Agreement();
+            $agreement
+                ->setCreateDate(new \DateTime())
+                ->setUpdateDate(new \DateTime())
+                ->setCustomer($customer)
+                ->setUser($security->getUser())
+                ->setOrderNumber($orderNumber)
             ;
-            $agreement->addAgreementLine($agreementLine);
-            $em->persist($agreementLine);
-        }
 
-        // file upload logic
-        $rawFiles = $request->files->get('file');
-        if (!is_array($rawFiles)) {
-            $rawFiles = [$rawFiles];
-        }
-        $files = $uploaderHelper->getUploadedFiles($rawFiles);
-        foreach ($files as $file) {
-            $fileNames = $uploaderHelper->uploadAttachment($file);
-            $attachment = new Attachment();
-            $attachment->setAgreement($agreement);
-            $attachment->setName($fileNames['newFileName']);
-            $attachment->setOriginalName($fileNames['originalFileName']);
-            $attachment->setExtension($fileNames['extension']);
-            $em->persist($attachment);
-        }
-        $em->flush();
+            $em->persist($agreement);
 
-        foreach ($agreement->getAgreementLines() as $line) {
-            // add factor
-            $commandBus->dispatch(new CreateFactorCommand(
-                $line->getId(),
-                new FactorRatioDTO(
-                    FactorSource::AGREEMENT_LINE,
-                    $line->getFactor(),
-                )
-            ));
+            foreach($products as $productData) {
+                $productId = (int) ($productData['productId'] ?? 0);
+                $requiredDate = (string) ($productData['requiredDate'] ?? '');
+                $description = (string) ($productData['description'] ?? '');
+                $factor = (float) ($productData['factor'] ?? 0);
 
-            $eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
-        }
+                $product = $productRepository->find($productId);
+                if (!$product) {
+                    throw new \Exception('Product not found');
+                }
 
-        if ($em->contains($agreement)) {
+                $agreementLine = new AgreementLine();
+                $agreementLine
+                    ->setProduct($product)
+                    ->setConfirmedDate(new \DateTime($requiredDate))
+                    ->setDescription($description)
+                    ->setFactor($factor)
+                    ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
+                    ->setDeleted(false)
+                    ->setArchived(false)
+                ;
+                $agreement->addAgreementLine($agreementLine);
+                $em->persist($agreementLine);
+            }
+
+            // file upload logic
+            $rawFiles = $request->files->get('file');
+            if (!is_array($rawFiles)) {
+                $rawFiles = [$rawFiles];
+            }
+            $files = $uploaderHelper->getUploadedFiles($rawFiles);
+            foreach ($files as $file) {
+                $fileNames = $uploaderHelper->uploadAttachment($file);
+                $attachment = new Attachment();
+                $attachment->setAgreement($agreement);
+                $attachment->setName($fileNames['newFileName']);
+                $attachment->setOriginalName($fileNames['originalFileName']);
+                $attachment->setExtension($fileNames['extension']);
+                $em->persist($attachment);
+            }
+
+            $em->flush();
+
+            foreach ($agreement->getAgreementLines() as $line) {
+                // add factor
+                $commandBus->dispatch(new CreateFactorCommand(
+                    $line->getId(),
+                    new FactorRatioDTO(
+                        FactorSource::AGREEMENT_LINE,
+                        $line->getFactor(),
+                    )
+                ));
+
+                $eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
+            }
+
+            $em->commit();
+
             $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
-        }
-        else {
-            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
-        }
 
-        return new JsonResponse([$agreement->getId()]);
+            return new JsonResponse([$agreement->getId()]);
+
+        } catch (\Exception $e) {
+            $em->rollback();
+            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
+
+            return new JsonResponse(
+                ['error' => $e->getMessage()],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
     }
 
     /**
