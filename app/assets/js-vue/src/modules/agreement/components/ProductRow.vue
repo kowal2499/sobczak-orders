@@ -53,10 +53,22 @@
 
                         <template #default>
                             <capacity-aware-day-picker
-                                v-model="tempRealizationDate"
-                                :incoming-factor-value="proxyProduct.factor || 1"
-                                :strict-mode="true"
+                                :model-value="tempRealizationDate"
+                                :model-capacity-exceeded="proxyProduct.isCapacityExceeded"
+                                @update:model-value="tempRealizationDate = $event"
+                                @update:model-capacity-exceeded="proxyProduct.isCapacityExceeded = $event"
+
+                                :incoming-factor-value="proxyProduct.factor || 0"
+                                :edit-mode="isEdit"
+                                :strict-mode="false === $user.can('order.unrestricted_required_date')"
                             />
+
+                            <div class="form-check" v-if="isConfirmationRequired">
+                                <input class="form-check-input" type="checkbox" v-model="isCapacityExceededConfirmed" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Jestem świadomy, że zdolności produkcyjne są niewystarczające dla wybranego terminu. Faktyczna data realizacji zostanie potwierdzona oddzielnie.
+                                </label>
+                            </div>
 
                             <div class="mt-3 d-flex justify-content-end gap-2">
                                 <button
@@ -70,7 +82,7 @@
                                     type="button"
                                     class="btn btn-primary"
                                     @click="confirmDateSelection"
-                                    :disabled="!tempRealizationDate"
+                                    :disabled="!tempRealizationDate || (isConfirmationRequired && !isCapacityExceededConfirmed)"
                                 >
                                     OK
                                 </button>
@@ -150,7 +162,8 @@ export default {
         return {
             proxyProduct: { ...this.product },
             showDatePicker: false,
-            tempRealizationDate: null
+            tempRealizationDate: null,
+            isCapacityExceededConfirmed: false
         };
     },
 
@@ -160,6 +173,14 @@ export default {
                 value: product.id,
                 label: product.name
             }));
+        },
+
+        isEdit() {
+            return this.product.id !== null
+        },
+
+        isConfirmationRequired() {
+            return this.$user.can('order.unrestricted_required_date') && this.proxyProduct.isCapacityExceeded && this.proxyProduct.tempRealizationDate !== null;
         }
     },
 

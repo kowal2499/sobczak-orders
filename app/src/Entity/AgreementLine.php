@@ -54,7 +54,7 @@ class AgreementLine
 
     #[ORM\Column(type: 'smallint', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
-    private ?int $status;
+    private ?int $status = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $deleted;

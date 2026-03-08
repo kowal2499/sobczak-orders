@@ -57,8 +57,11 @@
 
             <!-- Attachments -->
             <div class="attachments-subsection">
+                <label class="form-label">Załączniki</label>
                 <attachment-form
-                    v-model="form.attachments"
+                    ref="attachmentForm"
+                    @vdropzone-queue-complete="onSaveSuccess"
+                    @vdropzone-error="onSaveError"
                 />
             </div>
         </div>
@@ -115,7 +118,8 @@ export default {
             initialOrderNumber: '',
             isNumberValid: false,
             waiting: false,
-            products: []
+            products: [],
+            isSaving: false,
         };
     },
 
@@ -173,10 +177,12 @@ export default {
         },
         addProduct() {
             this.form.products.push({
+                id: null,
                 productId: null,
                 factor: 1,
                 description: null,
-                requiredDate: null
+                requiredDate: null,
+                isCapacityExceeded: false
             });
         },
 
@@ -199,40 +205,58 @@ export default {
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('customerId', this.form.customerId);
-            formData.append('products', JSON.stringify(this.form.products));
-            formData.append('orderNumber', this.form.orderNumber);
+            this.isSaving = true;
 
-            if (!this.agreementId) {
-                api.storeOrder(formData)
-                    .then((response) => {
-                        this.onSaveSuccess(response);
-                    })
-                    .catch(() => {
-                        this.onSaveError();
-                    });
+            const url = this.agreementId
+                ? routing.get('orders_patch') + '/' + this.agreementId
+                : routing.get('orders_add');
+
+            const appendFormValues = (formData) => {
+                formData.append('customerId', this.form.customerId);
+                formData.append('products', JSON.stringify(this.form.products));
+                formData.append('orderNumber', this.form.orderNumber);
+                if (this.agreementId) {
+                    const removedIds = this.$refs.attachmentForm.getRemovedIds();
+                    formData.append('removedAttachmentIds', JSON.stringify(removedIds));
+                }
+            };
+
+            // Jeżeli są załączone pliki, request wysyła dropzone
+            if (this.$refs.attachmentForm.getQueuedFiles().length > 0) {
+                this.$refs.attachmentForm.processQueue(url, appendFormValues);
             } else {
-                api.patchOrder(this.agreementId, formData)
-                    .then((response) => {
-                        this.onSaveSuccess(response);
-                    })
-                    .catch(() => {
-                        this.onSaveError();
-                    });
+                const formData = new FormData();
+                appendFormValues(formData);
+
+                if (!this.agreementId) {
+                    api.storeOrder(formData)
+                        .then(() => this.onSaveSuccess())
+                        .catch(() => this.onSaveError());
+                } else {
+                    api.patchOrder(this.agreementId, formData)
+                        .then(() => this.onSaveSuccess())
+                        .catch(() => this.onSaveError());
+                }
             }
         },
 
-        onSaveSuccess(response) {
-            this.$flash.success('Zapisano pomyślnie')
+        onSaveSuccess() {
+            if (!this.isSaving) {
+                return;
+            }
+
+            this.$flash.success('Zapisano pomyślnie');
 
             if (!this.agreementId) {
-                window.location.replace(routing.get('agreements_show'))
+                window.location.replace(routing.get('agreements_show'));
             }
+
+            this.isSaving = false;
         },
 
         onSaveError() {
-            this.$flash.danger('Wystąpił błąd podczas zapisu')
+            this.isSaving = false;
+            this.$flash.danger('Wystąpił błąd podczas zapisu');
         },
 
         loadAgreement() {
@@ -245,13 +269,21 @@ export default {
 
                         if (data.products && data.products.length > 0) {
                             this.form.products = data.products.map(p => ({
+                                id: p.id,
                                 productId: p.productId,
                                 factor: p.factor || 1,
                                 description: p.description || null,
-                                requiredDate: p.requiredDate || null
+                                requiredDate: p.requiredDate || null,
+                                isCapacityExceeded: p.isCapacityExceeded || false
                             }));
                         } else {
                             this.addProduct();
+                        }
+
+                        if (data.attachments && data.attachments.length > 0) {
+                            this.$nextTick(() => {
+                                this.$refs.attachmentForm.loadExistingFiles(data.attachments);
+                            });
                         }
                     }
                 })

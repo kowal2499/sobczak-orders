@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         success: content => window.EventBus.$emit('message', { type: 'success', content }),
         danger: content => window.EventBus.$emit('message', { type: 'danger', content }),
         info: content => window.EventBus.$emit('message', { type: 'info', content }),
+        warning: content => window.EventBus.$emit('message', { type: 'warning', content }),
     }
 
     Vue.mixin({

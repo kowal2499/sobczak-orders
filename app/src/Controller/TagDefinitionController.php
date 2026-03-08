@@ -94,7 +94,6 @@ class TagDefinitionController extends BaseController
 
     /**
      * @param TagDefinition $tagDefinition
-     * @param Request $request
      * @param MessageBusInterface $messageBus
      * @return JsonResponse
      */

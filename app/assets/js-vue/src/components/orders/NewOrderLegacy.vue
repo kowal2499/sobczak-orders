@@ -81,7 +81,7 @@
                 dropzoneOptions: {
                     url: null,
                     thumbnailWidth: 150,
-                    maxFilesize: 10,
+                    maxFilesize: 50,
                     acceptedFiles: 'image/*,application/pdf,.txt,.cs',
                     autoProcessQueue: false,
                     addRemoveLinks: true,

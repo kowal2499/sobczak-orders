@@ -1,0 +1,9 @@
+app_module:
+  namespace: order
+  description: Moduł zarządzania zamówieniami
+  active: true
+  grants:
+      - name: Pełny wybór dat realizacji
+        description: Wybór dat realizacji nieograniczony zdolnościami produkcyjnymi
+        slug: order.unrestricted_required_date
+        type: boolean

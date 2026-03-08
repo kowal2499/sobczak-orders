@@ -18,10 +18,10 @@
                     :key="dayIdx"
                     :class="{
                         'empty': day.day === 0,
-                        'calendar-day--selected': day.dateString === value,
+                        'calendar-day--selected': day.dateString === modelValue,
                         'calendar-day--holiday': events.holidays[day.dateString],
                         'calendar-day--unavailable': !selectableDays.includes(day.dateString),
-                        'calendar-day--exceeded': !strictMode && noCapacityDays.includes(day.dateString)
+                        'calendar-day--exceeded': (editMode && noCapacityDays.includes(day.dateString)) || (!strictMode && noCapacityDays.includes(day.dateString))
                     }"
                     v-if="day.day !== 0"
                 >
@@ -32,7 +32,7 @@
                     />
                     <div class="day-number">{{ day.day }}</div>
                     <div class="d-flex flex-column justify-content-center h-100">
-                        <font-awesome-icon class="text-white" icon="check" v-if="day.dateString === value" size="lg"/>
+                        <font-awesome-icon class="text-white" icon="check" v-if="day.dateString === modelValue" size="lg"/>
                         <button :class="['btn btn-sm', !strictMode && noCapacityDays.includes(day.dateString) ? 'btn-outline-success' : 'btn-outline-success']"
                                 v-else-if="selectableDays.includes(day.dateString)"
                                 @click="onSelectDay(day)"
@@ -72,16 +72,27 @@ export default {
             type: Boolean,
             default: true
         },
-        value: String
+        editMode: {
+            type: Boolean,
+            default: false
+        },
+        modelValue: String,
+        modelCapacityExceeded: Boolean
     },
+
+    emits: ['update:model-value', 'update:model-capacity-exceeded'],
 
     components: { CapacityProgress },
 
     created() {
+        const valueDate = this.modelValue ? new Date(this.modelValue) : null
         const now = new Date();
-        this.year = now.getFullYear()
-        this.month = now.getMonth() + 1
-        this.borderDate = new Date(now.getFullYear(), now.getMonth(), 1)
+
+        const baseDate = valueDate && valueDate.getTime() < now.getTime() ? valueDate : now
+
+        this.year = baseDate.getFullYear()
+        this.month = baseDate.getMonth() + 1
+        this.borderDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1)
     },
 
     watch: {
@@ -97,14 +108,11 @@ export default {
             },
             deep: true,
         },
-        isNoCapacityInSelectedDay(value) {
-            if (value) {
-                this.$emit('input', null)
-                EventBus.$emit('message', {
-                    type: 'warning',
-                    content: 'Wybrany termin jest niedostępny dla tego produktu. Wybierz inny termin.'
-                });
-            }
+        isNoCapacityInSelectedDay: {
+            handler(value) {
+                this.$emit('update:model-capacity-exceeded', !!value)
+            },
+            immediate: true
         }
     },
 
@@ -191,6 +199,9 @@ export default {
 
         selectableDays() {
             return Object.keys(this.events.capacity).filter(date => {
+                if (this.editMode) {
+                    return true
+                }
                 if (this.strictMode) {
                     return !this.noCapacityDays.includes(date) &&
                         !this.frozenPeriodDates.includes(date) &&
@@ -202,7 +213,7 @@ export default {
         },
 
         isNoCapacityInSelectedDay() {
-            return this.value && this.noCapacityDays.includes(this.value)
+            return this.modelValue && this.noCapacityDays.includes(this.modelValue)
         }
     },
 
@@ -270,7 +281,7 @@ export default {
             if (day === 0 || !this.selectableDays.includes(dateString)) {
                 return
             }
-            this.$emit('input', dateString)
+            this.$emit('update:model-value', dateString)
         }
     },
 
@@ -363,14 +374,14 @@ export default {
             background-color: var(--colorWhite);
         }
     }
-    &--exceeded {
+    &--exceeded:not(&--selected) {
         background: rgba(var(--colorYellowRgb), 0.2);
         border: var(--colorYellow);
         .day-number {
             background-color: var(--colorYellow);
         }
     }
-    &--holiday, &--unavailable {
+    &--holiday:not(&--selected), &--unavailable:not(&--selected) {
         cursor: not-allowed;
         opacity: 0.5;
         background-color: rgba(220, 53, 69, 0.4);

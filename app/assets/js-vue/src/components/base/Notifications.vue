@@ -50,6 +50,8 @@
                         return 'alert-danger'
                     case 'info':
                         return 'alert-info'
+                    case 'warning':
+                        return 'alert-warning'
                 }
             },
 
