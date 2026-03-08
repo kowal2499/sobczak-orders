@@ -9,7 +9,7 @@ class AssignTagsCommand
         private readonly array $tags,
         private readonly int $contextId,
         private readonly string $module,
-        private readonly int $userId
+        private readonly int $userId,
     ) {
     }
 

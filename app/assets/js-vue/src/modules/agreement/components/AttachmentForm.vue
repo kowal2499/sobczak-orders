@@ -24,7 +24,12 @@ export default {
     data() {
         return {
             removedIds: [],
-            dropzoneOptions: {
+        };
+    },
+
+    computed: {
+        dropzoneOptions() {
+            return {
                 url: '/',
                 thumbnailWidth: 150,
                 maxFilesize: 50,
@@ -33,11 +38,11 @@ export default {
                 addRemoveLinks: true,
                 uploadMultiple: true,
                 parallelUploads: 20,
-                dictDefaultMessage: '<i class="fa fa-cloud-upload fa-2x"></i><br>Przeciągnij pliki tutaj lub kliknij, aby wybrać</small>',
-                dictRemoveFile: 'Usuń',
-                dictCancelUpload: 'Anuluj',
-            }
-        };
+                dictDefaultMessage: this.$t('agreement.attachment.dropzoneMessage'),
+                dictRemoveFile: this.$t('agreement.attachment.removeFile'),
+                dictCancelUpload: this.$t('agreement.attachment.cancelUpload'),
+            };
+        }
     },
 
     methods: {

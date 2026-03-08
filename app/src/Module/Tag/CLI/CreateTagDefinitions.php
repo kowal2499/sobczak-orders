@@ -55,16 +55,16 @@ class CreateTagDefinitions extends Command
         return [
             new TagDefinitionDTO(
             'Dokumentacja wydana',
-                'production',
+                'agreement-line',
                 'fileEarmarkText',
                 '#3e44ea',
                 'dokumentacja-wydana'
             ),
             new TagDefinitionDTO(
-                'Złożone pomimo przekroczenia mocy produkcyjnych',
-                'order',
-                'fileEarmarkText',
-                '#3e44ea',
+                'Złożone warunkowo, przekroczone moce produkcyjne',
+                'agreement-line',
+                'calendar2Check',
+                '#2ba40a',
                 'capacity-exceeded'
             ),
         ];

@@ -40,7 +40,7 @@ class TagDefinitionController extends BaseController
     #[Route(path: '/api/tag-definition/search', methods: ['GET'])]
     public function search(Request $request, TagDefinitionRepository $repository): JsonResponse
     {
-        $module = $request->query->getAlpha('module');
+        $module = $request->query->get('module');
         if (!$module) {
             throw new \Exception('Module name is required.');
         }

@@ -2,21 +2,21 @@
     <div class="product-row-item">
         <div class="row align-items-end g-2 mb-2">
             <div class="col-md-6">
-                <label class="form-label">Produkt</label>
+                <label class="form-label">{{ $t('agreement.product.label') }}</label>
                 <vue-select
                     :options="productOptions"
                     :filterable="true"
                     :reduce="opt => opt.value"
                     v-model="proxyProduct.productId"
                     label="label"
-                    placeholder="Wybierz produkt"
+                    :placeholder="$t('agreement.product.selectPlaceholder')"
                     class="style-chooser"
                 />
             </div>
 
             <div class="col-md-3">
                 <label class="form-label">
-                    Współczynnik
+                    {{ $t('agreement.product.factor') }}
                     <font-awesome-icon
                         icon="info-circle"
                         v-b-tooltip.hover :title="$t('orders.factorDesc')"
@@ -27,18 +27,18 @@
                     class="form-control form-control-sm"
                     @input="handleFactorInput"
                     :value="formatFactorForDisplay(proxyProduct.factor)"
-                    placeholder="Współczynnik"
+                    :placeholder="$t('agreement.product.factorPlaceholder')"
                     min="1"
                     step="1"
                 />
             </div>
 
             <div class="col-md-2">
-                <label class="form-label">Data realizacji</label>
+                <label class="form-label">{{ $t('agreement.product.realizationDate') }}</label>
                 <div class="d-flex align-items-center gap-2">
                     <modal-action
                         v-model="showDatePicker"
-                        title="Wybierz datę realizacji"
+                        :title="$t('agreement.product.selectDateTitle')"
                         :configuration="{ size: 'lg' }"
                     >
                         <template #open-action="{ open }">
@@ -63,10 +63,11 @@
                                 :strict-mode="false === $user.can('order.unrestricted_required_date')"
                             />
 
-                            <div class="form-check" v-if="isConfirmationRequired">
+                            <div class="form-check my-5" v-if="isConfirmationRequired">
                                 <input class="form-check-input" type="checkbox" v-model="isCapacityExceededConfirmed" id="defaultCheck1">
                                 <label class="form-check-label" for="defaultCheck1">
-                                    Jestem świadomy, że zdolności produkcyjne są niewystarczające dla wybranego terminu. Faktyczna data realizacji zostanie potwierdzona oddzielnie.
+                                    {{ $t('agreement.product.confirmCapacity') }}<br>
+                                    {{ $t('agreement.product.capacityExceededWarning', { date: tempRealizationDate }) }}
                                 </label>
                             </div>
 
@@ -76,7 +77,7 @@
                                     class="btn btn-secondary"
                                     @click="cancelDateSelection"
                                 >
-                                    Anuluj
+                                    {{ $t('agreement.product.cancel') }}
                                 </button>
                                 <button
                                     type="button"
@@ -94,7 +95,7 @@
                         {{ getLocalDate(proxyProduct.requiredDate) }}
                     </span>
                     <span v-else class="text-muted small">
-                        Wybierz datę
+                        {{ $t('agreement.product.selectDate') }}
                     </span>
                 </div>
             </div>
@@ -105,7 +106,7 @@
                     @click="$emit('remove')"
                     type="button"
                     :disabled="disableRemove"
-                    title="Usuń produkt"
+                    :title="$t('agreement.product.remove')"
                 >
                     <i class="fa fa-trash"></i>
                 </button>
@@ -114,11 +115,11 @@
 
         <div class="row g-2">
             <div class="col-12">
-                <label class="form-label">Opis</label>
+                <label class="form-label">{{ $t('agreement.product.description') }}</label>
                 <textarea
                     class="form-control form-control-sm"
                     v-model="proxyProduct.description"
-                    placeholder="Opis produktu"
+                    :placeholder="$t('agreement.product.descriptionPlaceholder')"
                     rows="3"
                 ></textarea>
             </div>
@@ -238,7 +239,7 @@ export default {
         'proxyProduct.factor'(newFactor, oldFactor) {
             if (this.proxyProduct.requiredDate && newFactor > oldFactor) {
                 this.proxyProduct.requiredDate = null
-                this.$flash.info('Po zwiększeniu współczynnika, wybierz ponownie datę realizacji')
+                this.$flash.info(this.$t('agreement.product.factorIncreasedInfo'))
             }
         },
 

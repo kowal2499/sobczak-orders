@@ -48,4 +48,14 @@ class TagDefinitionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllBySlugs(array $slugs): array
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.isDeleted = false')
+            ->andWhere('t.slug IN (:slugs)')
+            ->setParameter('slugs', $slugs)
+            ->getQuery()
+            ->getResult();
+    }
 }

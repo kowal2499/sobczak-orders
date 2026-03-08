@@ -100,7 +100,7 @@ export default {
     },
     computed: {
         modules() {
-            return ['production', 'order', 'customer'];
+            return ['agreement-line', 'order', 'customer'];
         },
         icons() {
             return ['award', 'bag', 'basket2', 'bookmark', 'brightnessHigh',
@@ -148,7 +148,7 @@ export default {
         reset() {
             this.form = {
                 name: this.definitionData.name || '',
-                module: 'production',
+                module: 'agreement-line',
                 icon: this.definitionData.icon || null,
                 color: this.definitionData.color || '#ffffff'
             };

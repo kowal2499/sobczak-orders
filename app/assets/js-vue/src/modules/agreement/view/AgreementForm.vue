@@ -10,18 +10,18 @@
         <!-- Products Section -->
         <div class="section-container mb-3">
             <div class="section-header">
-                <h6 class="section-title">Produkty</h6>
+                <h6 class="section-title">{{ $t('agreement.form.sectionProducts') }}</h6>
                 <button
                     class="btn btn-sm btn-success"
                     @click="addProduct"
                     type="button"
                 >
-                    <i class="fa fa-plus"></i> Dodaj produkt
+                    <i class="fa fa-plus"></i> {{ $t('agreement.form.addProduct') }}
                 </button>
             </div>
 
             <div v-if="form.products.length === 0" class="empty-message">
-                Kliknij przycisk "Dodaj produkt" aby dodać produkty do zamówienia
+                {{ $t('agreement.form.emptyProducts') }}
             </div>
 
             <product-row
@@ -38,26 +38,26 @@
 
         <!-- Order Details & Attachments Section -->
         <div class="section-container mb-3">
-            <h6 class="section-title">Szczegóły zamówienia</h6>
+            <h6 class="section-title">{{ $t('agreement.form.sectionDetails') }}</h6>
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label class="form-label">Numer zamówienia</label>
+                    <label class="form-label">{{ $t('agreement.form.orderNumber') }}</label>
                     <input
                         type="text"
                         class="form-control"
                         v-model="form.orderNumber"
-                        placeholder="Numer zamówienia"
+                        :placeholder="$t('agreement.form.orderNumberPlaceholder')"
                     />
                     <div v-if="form.orderNumber && !isNumberValid" class="alert alert-danger mt-2 mb-0">
-                        <strong>Ten numer zamówienia został już użyty</strong>
+                        <strong>{{ $t('agreement.form.orderNumberUsed') }}</strong>
                     </div>
                 </div>
             </div>
 
             <!-- Attachments -->
             <div class="attachments-subsection">
-                <label class="form-label">Załączniki</label>
+                <label class="form-label">{{ $t('agreement.form.attachments') }}</label>
                 <attachment-form
                     ref="attachmentForm"
                     @vdropzone-queue-complete="onSaveSuccess"
@@ -75,7 +75,7 @@
                 type="button"
             >
                 <i class="fa fa-check-square-o"></i>
-                {{ agreementId ? 'Zapisz zmiany' : 'Zapisz zamówienie' }}
+                {{ agreementId ? $t('agreement.form.saveEdit') : $t('agreement.form.saveNew') }}
             </button>
         </div>
     </div>
@@ -245,7 +245,7 @@ export default {
                 return;
             }
 
-            this.$flash.success('Zapisano pomyślnie');
+            this.$flash.success(this.$t('_saveSuccess'));
 
             if (!this.agreementId) {
                 window.location.replace(routing.get('agreements_show'));
@@ -256,7 +256,7 @@ export default {
 
         onSaveError() {
             this.isSaving = false;
-            this.$flash.danger('Wystąpił błąd podczas zapisu');
+            this.$flash.danger(this.$t('_saveError'));
         },
 
         loadAgreement() {

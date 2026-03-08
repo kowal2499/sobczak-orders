@@ -189,9 +189,25 @@ cd app/assets && npm install && npm run build
 ```
 
 
-## Frontend - komunikacja z API
+## Frontend 
 
-### Repository pattern
+Widoki na froncie zwracane są w pierwszej kolejności przez api Symfony (twig). Szablony twig są proste i
+sprowadzają się głównie do zwrócenia customowego tagu html. Za rendering i obsługę na froncie odpowiadają komponenty Vue.
+Lista globalnych komponentów możliwych do osadzania w szablonach twig znajduje się w `assets/js-vue/src/components/root-componenets.js`
+
+Komponenty Vue powiązane z konkretną logiką biznesową, grupowane są per moduł i znajdują w katalogu `assets/js-vue/src/modules/[ModuleName]/components/`.
+Komponenty wspólne trafiają do katalogu `assets/js-vue/src/components/base`
+
+### tłumaczenia
+Na froncie aplikacja wspiera języki angielski i polski. Do tłumaczeń używane jest vue-i18n. Pliki z kluczami tłumaczeń ładowane
+są dynamiczne i umieszczane są w:
+- katalogach modułów: `assets/js-vue/src/modules/[ModuleName]/locale/[lang].json`
+- globalnych plikach: `assets/js-vue/src/locale/[lang].json`
+Użycie w kodzie odpowiednio `this.$t('[moduleName].key')` lub `this.$t(`key`)`
+
+### komunikacja z API
+
+#### Repository pattern
 ```javascript
 // assets/js-vue/src/modules/[module]/repository/[name]Repository.js
 import axios from "axios";
@@ -205,7 +221,7 @@ export function saveItem(payload) {
 }
 ```
 
-### Obsługa w komponencie
+#### Obsługa w komponencie
 ```javascript
 import { fetchItems } from '../repository/itemRepository';
 

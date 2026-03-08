@@ -35,6 +35,9 @@ class AssignTagsCommandHandler
         // remove tags which were not passed with command
         foreach ($existingAssignments as $existing) {
             $pos = array_search($existing->getTagDefinition()->getId(), $tagsToAssign);
+            if (!$pos) {
+                $pos = array_search($existing->getTagDefinition()->getSlug(), $tagsToAssign);
+            }
             if ($pos === false) {
                 $this->manager->remove($existing);
             } else {
@@ -43,9 +46,11 @@ class AssignTagsCommandHandler
             }
         }
 
+//        var_dump($tagsToAssign);
+//        die;
         $agreementLine = $this->agreementLineRepository->find($command->getContextId());
 
-        foreach ($this->tagDefinitionRepository->findAllById(array_values($tagsToAssign)) as $tag) {
+        foreach ($this->tagDefinitionRepository->findAllBySlugs(array_values($tagsToAssign)) as $tag) {
             $tagAssignment = new TagAssignment();
             $tagAssignment->setContextId($agreementLine);
             $tagAssignment->setTagDefinition($tag);

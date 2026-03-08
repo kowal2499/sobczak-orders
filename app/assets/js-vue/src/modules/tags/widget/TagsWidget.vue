@@ -69,7 +69,7 @@ export default {
                 label: def.name,
                 icon: def.icon,
                 color: def.color,
-                value: def.id
+                value: def.slug
             }))
         }
     },
@@ -82,11 +82,11 @@ export default {
             .finally(() => this.fetchingDefinitions = false)
     },
     methods: {
-        hasTooltip(id) {
-            return undefined !== this.logs.find(log => log.definitionId === id);
+        hasTooltip(slug) {
+            return undefined !== this.logs.find(log => log.slug === slug);
         },
-        getTooltipContent(id) {
-            const log = this.logs.find(log => log.definitionId === id);
+        getTooltipContent(slug) {
+            const log = this.logs.find(log => log.slug === slug);
             const dateTime = moment(log.createdAt).format('YYYY-MM-DD HH:mm')
             return `${this.$t('tags.addedBy')} ${log.userName}<br> ${this.$t('tags.addedAt')} ${dateTime}`
         }

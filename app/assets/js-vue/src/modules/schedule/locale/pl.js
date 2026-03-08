@@ -3,4 +3,5 @@ export default {
     'weekCapacity': 'Tygodniowa pula współczynników',
     'capacityBurned': 'Współczynniki wykorzystane',
     'weeklyOrdersInCapacity': 'Zamówienia wpływające na obłożenie tygodniowe',
+    'select': 'Wybierz',
 }

@@ -175,7 +175,7 @@ class AgreementLineController extends BaseController
             $messageBus->dispatch(new AssignTagsCommand(
                 $tags,
                 $agreementLine->getId(),
-                'production',
+                'agreement-line',
                 $user->getId()
             ));
 

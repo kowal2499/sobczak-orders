@@ -16,6 +16,7 @@ use App\Module\Production\Command\CreateFactorCommand;
 use App\Module\Production\Command\UpdateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\FactorSource;
+use App\Module\Tag\Command\AssignTagsCommand;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
@@ -190,6 +191,8 @@ class AgreementsController extends AbstractController
 
             $em->persist($agreement);
 
+            $capacityExceededLines = [];
+
             foreach($products as $productData) {
                 $productId = (int) ($productData['productId'] ?? 0);
                 $requiredDate = (string) ($productData['requiredDate'] ?? '');
@@ -213,6 +216,10 @@ class AgreementsController extends AbstractController
                 ;
                 $agreement->addAgreementLine($agreementLine);
                 $em->persist($agreementLine);
+
+                if ($productData['isCapacityExceeded']) {
+                    $capacityExceededLines[] = $agreementLine;
+                }
             }
 
             // file upload logic
@@ -232,6 +239,15 @@ class AgreementsController extends AbstractController
             }
 
             $em->flush();
+
+            foreach ($capacityExceededLines as $line) {
+                $commandBus->dispatch(new AssignTagsCommand(
+                    ['zlozone-pomimo-przekroczenia-mocy-produkcyjnych'],
+                    $line->getId(),
+                    'agreement-line',
+                    $security->getUser()->getId()
+                ));
+            }
 
             foreach ($agreement->getAgreementLines() as $line) {
                 // add factor

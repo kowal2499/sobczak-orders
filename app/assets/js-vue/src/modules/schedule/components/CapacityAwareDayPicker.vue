@@ -37,7 +37,7 @@
                                 v-else-if="selectableDays.includes(day.dateString)"
                                 @click="onSelectDay(day)"
                         >
-                            wybierz
+                            {{ $t('schedule.select') }}
                         </button>
                     </div>
                 </div>
@@ -56,9 +56,9 @@ import Calendar from 'calendar'
 import { getLocalDate } from '@/helpers'
 import CapacityProgress from './CapacityProgress.vue'
 import { fetchCapatity, fetchHolidays } from '@/modules/schedule/repository/scheduleRepository'
-const MONTH_NAMES = [
-    'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
-    'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'
+const MONTH_KEYS = [
+    '_january', '_february', '_march', '_april', '_may', '_june',
+    '_july', '_august', '_september', '_october', '_november', '_december'
 ];
 
 export default {
@@ -135,7 +135,7 @@ export default {
             );
         },
         monthName() {
-            return MONTH_NAMES[this.month - 1];
+            return this.$t(MONTH_KEYS[this.month - 1]);
         },
         range() {
             const start = getLocalDate(new Date(this.year, this.month - 1, 1))

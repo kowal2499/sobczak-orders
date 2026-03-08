@@ -1,6 +1,6 @@
 <template>
     <div class="section-container">
-        <h6 class="section-title">Klient</h6>
+        <h6 class="section-title">{{ $t('agreement.customer.sectionTitle') }}</h6>
 
         <!-- Search Input -->
         <div class="mb-3" v-if="!selectedCustomer.id">
@@ -14,7 +14,7 @@
                 <input
                     type="text"
                     class="form-control"
-                    placeholder="Wyszukaj klienta po nazwie, adresie lub kontakcie..."
+                    :placeholder="$t('agreement.customer.searchPlaceholder')"
                     v-model="customerSearch"
                 />
             </div>
@@ -22,7 +22,7 @@
 
         <!-- Loading State -->
         <div v-if="fetchingCustomers" class="loading-message">
-            <font-awesome-icon icon="spinner" spin class="mr-2" /> Wyszukiwanie...
+            <font-awesome-icon icon="spinner" spin class="mr-2" /> {{ $t('agreement.customer.searching') }}
         </div>
 
         <!-- Search Results -->
@@ -47,7 +47,7 @@
 
             <template v-if="customersFound.length === 0 && customerSearch.length > 0">
                 <div class="no-results">
-                    <font-awesome-icon icon="exclamation-circle" class="mr-2" /> Nie znaleziono klientów
+                    <font-awesome-icon icon="exclamation-circle" class="mr-2" /> {{ $t('agreement.customer.notFound') }}
                 </div>
             </template>
         </div>
@@ -61,15 +61,15 @@
                     </h6>
                     <div class="customer-details">
                         <div v-if="selectedCustomer.first_name || selectedCustomer.last_name" class="detail-row">
-                            <small class="detail-label">Osoba kontaktowa:</small>
+                            <small class="detail-label">{{ $t('agreement.customer.contactPerson') }}</small>
                             <span>{{ selectedCustomer.first_name }} {{ selectedCustomer.last_name }}</span>
                         </div>
                         <div v-if="formatAddress(selectedCustomer)" class="detail-row">
-                            <small class="detail-label">Adres:</small>
+                            <small class="detail-label">{{ $t('agreement.customer.address') }}</small>
                             <span>{{ formatAddress(selectedCustomer) }}</span>
                         </div>
                         <div v-if="selectedCustomer.phone || selectedCustomer.email" class="detail-row">
-                            <small class="detail-label">Kontakt:</small>
+                            <small class="detail-label">{{ $t('agreement.customer.contact') }}</small>
                             <div class="d-flex gap-3">
                                 <div v-if="selectedCustomer.phone">
                                     <font-awesome-icon icon="phone" class="mr-2 text-muted" /> {{ selectedCustomer.phone }}
@@ -86,7 +86,7 @@
                     @click="clearSelection"
                     type="button"
                 >
-                    <font-awesome-icon icon="times" class="mr-2" /> Zmień
+                    <font-awesome-icon icon="times" class="mr-2" /> {{ $t('agreement.customer.change') }}
                 </button>
             </div>
         </div>
