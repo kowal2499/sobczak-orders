@@ -1,22 +1,18 @@
 <?php
 /** @author: Roman Kowalski */
 
-namespace App\Entity;
+namespace App\Module\Tag\Entity;
 
-use App\Repository\AgreementLineRepository;
+use App\Entity\AgreementLine;
+use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * Class TagAssignment
- * @package App\Entity
- */
 #[ORM\Table(name: 'tag_assignment')]
 #[ORM\Entity]
 class TagAssignment
 {
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -41,69 +37,43 @@ class TagAssignment
     #[Groups(['_main', '_linePanel'])]
     private $createdAt;
 
-    /**
-     * @return TagDefinition
-     */
     public function getTagDefinition(): TagDefinition
     {
         return $this->tagDefinition;
     }
 
-    /**
-     * @param mixed $tagDefinition
-     */
     public function setTagDefinition($tagDefinition): void
     {
         $this->tagDefinition = $tagDefinition;
     }
 
-    /**
-     * @param User $user
-     */
     public function setUser(User $user): void
     {
         $this->user = $user;
     }
 
-    /**
-     * @param AgreementLine $contextId
-     */
     public function setContextId(AgreementLine $contextId): void
     {
         $this->contextId = $contextId;
     }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUser()
     {
         return $this->user;
     }
 
-    /**
-     * @return AgreementLine
-     */
     public function getContextId(): AgreementLine
     {
         return $this->contextId;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCreatedAt()
     {
         return $this->createdAt;
     }
-
-
 }

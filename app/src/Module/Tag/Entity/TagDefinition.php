@@ -1,7 +1,7 @@
 <?php
 /** @author: Roman Kowalski */
 
-namespace App\Entity;
+namespace App\Module\Tag\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,26 +38,10 @@ class TagDefinition
     #[ORM\Column(type: 'boolean')]
     private $isDeleted;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\TagAssignment::class, mappedBy: 'tagDefinition')]
+    #[ORM\OneToMany(targetEntity: TagAssignment::class, mappedBy: 'tagDefinition')]
     private $tagAssignments;
 
-    /**
-     * @return mixed
-     */
-    public function getTagAssignments()
-    {
-        return $this->tagAssignments;
-    }
-
-    /**
-     * TagDefinition constructor.
-     * @param $name
-     * @param $module
-     * @param $icon
-     * @param $color
-     * @param bool $isDeleted
-     */
-    public function __construct($name, $module, $icon, $color, $isDeleted=false)
+    public function __construct($name, $module, $icon, $color, $isDeleted = false)
     {
         $this->name = $name;
         $this->module = $module;
@@ -67,98 +51,66 @@ class TagDefinition
         $this->tagAssignments = new ArrayCollection();
     }
 
+    public function getTagAssignments()
+    {
+        return $this->tagAssignments;
+    }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     */
     public function setId($id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * @param mixed $name
-     */
     public function setName($name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getModule()
     {
         return $this->module;
     }
 
-    /**
-     * @param mixed $module
-     */
     public function setModule($module): void
     {
         $this->module = $module;
     }
 
-    /**
-     * @return mixed
-     */
     public function getIcon()
     {
         return $this->icon;
     }
 
-    /**
-     * @param mixed $icon
-     */
     public function setIcon($icon): void
     {
         $this->icon = $icon;
     }
 
-    /**
-     * @return mixed
-     */
     public function getColor()
     {
         return $this->color;
     }
 
-    /**
-     * @param mixed $color
-     */
     public function setColor($color): void
     {
         $this->color = $color;
     }
 
-    /**
-     * @return bool
-     */
     public function isDeleted(): bool
     {
         return $this->isDeleted;
     }
 
-    /**
-     * @param bool $isDeleted
-     */
     public function setIsDeleted(bool $isDeleted): void
     {
         $this->isDeleted = $isDeleted;

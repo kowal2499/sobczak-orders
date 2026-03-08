@@ -5,7 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Production;
-use App\Entity\TagAssignment;
+use App\Module\Tag\Entity\TagAssignment;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;

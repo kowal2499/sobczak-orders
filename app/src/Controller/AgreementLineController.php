@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\AgreementLine;
 use App\Entity\User;
 use App\Form\AgreementLineType;
-use App\Message\AssignTags;
+use App\Module\Tag\Command\AssignTagsCommand;
 use App\Message\Task\UpdateStatusCommand;
 use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
 use App\System\EventBus;
@@ -172,7 +172,7 @@ class AgreementLineController extends BaseController
             }
 
             $tags = $payload['tags'] ?? [];
-            $messageBus->dispatch(new AssignTags(
+            $messageBus->dispatch(new AssignTagsCommand(
                 $tags,
                 $agreementLine->getId(),
                 'production',

@@ -4,7 +4,7 @@ namespace App\Module\AgreementLine\CommandHandler;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
-use App\Entity\TagAssignment;
+use App\Module\Tag\Entity\TagAssignment;
 use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
 use App\Module\AgreementLine\Entity\AddressRM;
 use App\Module\AgreementLine\Entity\AgreementLineRM;

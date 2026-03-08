@@ -1,0 +1,9 @@
+app_module:
+  namespace: tags
+  description: Moduł zarządzania tagami
+  active: true
+  grants:
+    - name: Zarządzanie tagami
+      description: Możliwość tworzenia, edycji i usuwania definicji tagów
+      slug: tags.manage
+      type: boolean

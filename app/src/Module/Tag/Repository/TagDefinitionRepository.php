@@ -1,9 +1,9 @@
 <?php
 /** @author: Roman Kowalski */
 
-namespace App\Repository;
+namespace App\Module\Tag\Repository;
 
-use App\Entity\TagDefinition;
+use App\Module\Tag\Entity\TagDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Query;
@@ -15,9 +15,6 @@ class TagDefinitionRepository extends ServiceEntityRepository
         parent::__construct($registry, TagDefinition::class);
     }
 
-    /**
-     * @return Query
-     */
     public function notDeleted(): Query
     {
         return $this->createQueryBuilder('t')
@@ -25,11 +22,7 @@ class TagDefinitionRepository extends ServiceEntityRepository
             ->getQuery();
     }
 
-    /**
-     * @param $module
-     * @return Query
-     */
-    public function findByModule($module): Query
+    public function findByModule(string $module): Query
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.isDeleted = false')
@@ -38,7 +31,7 @@ class TagDefinitionRepository extends ServiceEntityRepository
             ->getQuery();
     }
 
-    public function findAllById(array $ids)
+    public function findAllById(array $ids): array
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.isDeleted = false')

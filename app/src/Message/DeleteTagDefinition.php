@@ -1,25 +1,13 @@
 <?php
-/** @author: Roman Kowalski */
+/** @deprecated Przeniesiono do App\Module\Tag\Command\DeleteTagDefinitionCommand */
 
 namespace App\Message;
 
-class DeleteTagDefinition
+use App\Module\Tag\Command\DeleteTagDefinitionCommand;
+
+/**
+ * @deprecated Użyj App\Module\Tag\Command\DeleteTagDefinitionCommand
+ */
+class DeleteTagDefinition extends DeleteTagDefinitionCommand
 {
-    private $id;
-
-    /**
-     * DeleteTagDefinition constructor.
-     */
-    public function __construct(int $id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
 }
