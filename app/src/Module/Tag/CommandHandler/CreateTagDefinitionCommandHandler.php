@@ -5,6 +5,7 @@ namespace App\Module\Tag\CommandHandler;
 
 use App\Module\Tag\Command\CreateTagDefinitionCommand;
 use App\Module\Tag\Entity\TagDefinition;
+use App\Utilities\Slugger;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CreateTagDefinitionCommandHandler
@@ -21,7 +22,8 @@ class CreateTagDefinitionCommandHandler
             $dto->getName(),
             $dto->getModule(),
             $dto->getIcon(),
-            $dto->getColor()
+            $dto->getColor(),
+            $dto->getSlug() ?? Slugger::slugify($dto->getName())
         );
 
         $this->manager->persist($tagDefinition);

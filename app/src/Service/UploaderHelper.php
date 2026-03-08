@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Utilities\Slugger;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -41,7 +42,7 @@ class UploaderHelper
 //        $verifiedExtension = $uploadedFile->guessExtension();
         $verifiedExtension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
 
-        $newFileName = $this->sanitizeFileName($originalFileName) . '-' . uniqid() . '.' . $verifiedExtension;
+        $newFileName = Slugger::slugify($originalFileName) . '-' . uniqid() . '.' . $verifiedExtension;
         $uploadedFile->move($destination, $newFileName);
 
         return [
@@ -107,18 +108,6 @@ class UploaderHelper
         }
 
         return $filesCollection;
-    }
-
-    private function sanitizeFileName(string $fileName): string
-    {
-        // Transliteracja znaków UTF-8 na ASCII (np. polskie znaki)
-        $sanitized = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $fileName) ?: $fileName;
-        // Zamień wszystko co nie jest literą, cyfrą lub myślnikiem na myślnik
-        $sanitized = preg_replace('/[^a-zA-Z0-9\-]/', '-', strtolower($sanitized));
-        // Usuń wielokrotne myślniki i myślniki na początku/końcu
-        $sanitized = trim(preg_replace('/-+/', '-', $sanitized), '-');
-
-        return $sanitized ?: 'file';
     }
 }
 

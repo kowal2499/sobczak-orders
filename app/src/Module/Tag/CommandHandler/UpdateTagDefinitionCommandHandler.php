@@ -5,6 +5,7 @@ namespace App\Module\Tag\CommandHandler;
 
 use App\Module\Tag\Command\UpdateTagDefinitionCommand;
 use App\Module\Tag\Repository\TagDefinitionRepository;
+use App\Utilities\Slugger;
 use Doctrine\ORM\EntityManagerInterface;
 
 class UpdateTagDefinitionCommandHandler
@@ -28,6 +29,7 @@ class UpdateTagDefinitionCommandHandler
         $tagDefinition->setModule($dto->getModule());
         $tagDefinition->setColor($dto->getColor());
         $tagDefinition->setIcon($dto->getIcon());
+        $tagDefinition->setSlug($dto->getSlug() ?? Slugger::slugify($dto->getName()));
         $this->manager->flush();
     }
 }

@@ -31,6 +31,14 @@ class TagDefinitionRepository extends ServiceEntityRepository
             ->getQuery();
     }
 
+    public function findBySlug(string $slug): ?TagDefinition
+    {
+        /** @var TagDefinition|null $result */
+        $result = $this->findOneBy(['slug' => $slug]);
+
+        return $result;
+    }
+
     public function findAllById(array $ids): array
     {
         return $this->createQueryBuilder('t')

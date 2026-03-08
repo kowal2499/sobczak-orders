@@ -9,17 +9,20 @@ class TagDefinitionDTO
     private string $module;
     private ?string $icon;
     private ?string $color;
+    private ?string $slug;
 
     public function __construct(
         string $name,
         string $module,
         ?string $icon = null,
-        ?string $color = null
+        ?string $color = null,
+        ?string $slug = null
     ) {
         $this->name = $name;
         $this->module = $module;
         $this->icon = $icon;
         $this->color = $color;
+        $this->slug = $slug;
     }
 
     public function getName(): string
@@ -50,5 +53,15 @@ class TagDefinitionDTO
     public function setColor(?string $color): void
     {
         $this->color = $color;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

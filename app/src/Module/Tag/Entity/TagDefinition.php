@@ -35,18 +35,23 @@ class TagDefinition
     #[Groups(['_main'])]
     private $color;
 
+    #[ORM\Column(type: 'string', length: 160, nullable: false)]
+    #[Groups(['_main'])]
+    private string $slug;
+
     #[ORM\Column(type: 'boolean')]
     private $isDeleted;
 
     #[ORM\OneToMany(targetEntity: TagAssignment::class, mappedBy: 'tagDefinition')]
     private $tagAssignments;
 
-    public function __construct($name, $module, $icon, $color, $isDeleted = false)
+    public function __construct($name, $module, $icon, $color, string $slug = '', $isDeleted = false)
     {
         $this->name = $name;
         $this->module = $module;
         $this->icon = $icon;
         $this->color = $color;
+        $this->slug = $slug;
         $this->isDeleted = $isDeleted;
         $this->tagAssignments = new ArrayCollection();
     }
@@ -114,5 +119,15 @@ class TagDefinition
     public function setIsDeleted(bool $isDeleted): void
     {
         $this->isDeleted = $isDeleted;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 }
