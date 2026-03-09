@@ -15,6 +15,7 @@
                     class="btn btn-sm btn-success"
                     @click="addProduct"
                     type="button"
+                    :disabled="!!agreementId && !$user.can('order.manage:edit')"
                 >
                     <i class="fa fa-plus"></i> {{ $t('agreement.form.addProduct') }}
                 </button>
@@ -179,7 +180,7 @@ export default {
             this.form.products.push({
                 id: null,
                 productId: null,
-                factor: 1,
+                factor: 0,
                 description: null,
                 requiredDate: null,
                 isCapacityExceeded: false
@@ -324,6 +325,10 @@ export default {
                         this.isNumberValid = true;
                     }
                 });
+        },
+
+        isLocked(product) {
+            return !product.id || (product.id && this.$user.can('order.manage:edit'));
         }
     },
 }

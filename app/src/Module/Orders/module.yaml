@@ -7,3 +7,12 @@ app_module:
         description: Wybór dat realizacji nieograniczony zdolnościami produkcyjnymi
         slug: order.unrestricted_required_date
         type: boolean
+      - name: Zarządzanie zamówieniami
+        description: Tworzenie i edycja zamówień
+        slug: order.manage
+        type: select
+        options:
+          - label: Tworzenie
+            optionSlug: create
+          - label: Edycja
+            optionSlug: update

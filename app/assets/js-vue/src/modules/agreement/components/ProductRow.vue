@@ -11,6 +11,7 @@
                     label="label"
                     :placeholder="$t('agreement.product.selectPlaceholder')"
                     class="style-chooser"
+                    :disabled="isLocked"
                 />
             </div>
 
@@ -30,6 +31,7 @@
                     :placeholder="$t('agreement.product.factorPlaceholder')"
                     min="1"
                     step="1"
+                    :disabled="isLocked"
                 />
             </div>
 
@@ -40,6 +42,7 @@
                         v-model="showDatePicker"
                         :title="$t('agreement.product.selectDateTitle')"
                         :configuration="{ size: 'lg' }"
+                        v-if="!isLocked"
                     >
                         <template #open-action="{ open }">
                             <button
@@ -105,7 +108,7 @@
                     class="btn btn-danger btn-sm w-100"
                     @click="$emit('remove')"
                     type="button"
-                    :disabled="disableRemove"
+                    :disabled="disableRemove || isLocked"
                     :title="$t('agreement.product.remove')"
                 >
                     <i class="fa fa-trash"></i>
@@ -121,6 +124,7 @@
                     v-model="proxyProduct.description"
                     :placeholder="$t('agreement.product.descriptionPlaceholder')"
                     rows="3"
+                    :disabled="isLocked"
                 ></textarea>
             </div>
         </div>
@@ -174,6 +178,10 @@ export default {
                 value: product.id,
                 label: product.name
             }));
+        },
+
+        isLocked() {
+            return this.isEdit && !this.$user.can('order.manage:edit')
         },
 
         isEdit() {
