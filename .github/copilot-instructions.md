@@ -120,6 +120,7 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 - dbamy o to, by kontrolery były cienkie, delegują logikę do serwisów za pośrednictwem dependency injection 
 - walidują dane wejściowe i uruchamiają serwisy i delegują eventy, komendy lub queries (preferujemy CQRS)
 - nie zawierają bezpośrednio logiki biznesowej, ale mogą zawierać logikę specyficzną dla API (np. formatowanie odpowiedzi)
+- **NIGDY nie używamy `addFlash()` w kontrolerach backendu** - komunikaty są zwracane w odpowiedzi JSON i generowane przez vue
 
 ### Przykład pełnego flow API (Request → Controller → Service → Response)
 
@@ -287,6 +288,8 @@ class CreateProductionTaskHandler
 ## Logika biznesowa
 - umieszczamy w serwisach (src/Modules/[ModuleName]/Service) 
 - preferowane stosowanie wzorca CQRS poprzez App\System\CommandBus, App\System\EventBus, App\System\QueryBus
+- **Komendy nie zwracają wartości** - służą tylko do wykonywania akcji i zmiany stanu systemu
+- **Query zwracają wartości** - służą do pobierania danych bez modyfikacji stanu
 
 ## Encje i Doctrine
 

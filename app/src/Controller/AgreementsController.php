@@ -6,9 +6,6 @@ use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
-use App\Entity\Product;
-use App\Entity\User;
-use App\Form\AgreementsType;
 use App\Module\AgreementLine\Event\AgreementLineWasCreatedEvent;
 use App\Module\AgreementLine\Event\AgreementLineWasDeletedEvent;
 use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
@@ -16,7 +13,6 @@ use App\Module\Production\Command\CreateFactorCommand;
 use App\Module\Production\Command\UpdateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\FactorSource;
-use App\Module\Tag\Command\AssignTagsCommand;
 use App\Repository\AgreementLineRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
@@ -25,16 +21,11 @@ use App\Service\UploaderHelper;
 use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
@@ -135,149 +126,7 @@ class AgreementsController extends AbstractController
 
     }
 
-    /**
-     * @param Request $request
-     * @param CustomerRepository $customerRepository
-     * @param ProductRepository $productRepository
-     * @param EntityManagerInterface $em
-     * @param UploaderHelper $uploaderHelper
-     * @param TranslatorInterface $t
-     * @param Security $security
-     * @param CommandBus $commandBus
-     * @param EventBus $eventBus
-     * @return JsonResponse
-     * @throws \Exception
-     */
-    #[Route(path: '/orders/save', name: 'orders_add', options: ['expose' => true], methods: ['POST'])]
-    public function save(
-        Request $request,
-        CustomerRepository $customerRepository,
-        ProductRepository $productRepository,
-        EntityManagerInterface $em,
-        UploaderHelper $uploaderHelper,
-        TranslatorInterface $t,
-        Security $security,
-        CommandBus $commandBus,
-        EventBus $eventBus,
-    ): JsonResponse
-    {
-        $data = $request->request->all();
 
-        if (false === is_array($data['products'])) {
-            $data['products'] = json_decode($data['products'], true);
-        }
-
-        // Rzutowanie typów dla bezpieczeństwa
-        $customerId = (int) ($data['customerId'] ?? 0);
-        $orderNumber = (string) ($data['orderNumber'] ?? '');
-        $products = (array) ($data['products'] ?? []);
-
-        try {
-            $em->beginTransaction();
-
-            $customer = $customerRepository->find($customerId);
-            if (!$customer) {
-                throw new \Exception('Customer not found');
-            }
-
-            $agreement = new Agreement();
-            $agreement
-                ->setCreateDate(new \DateTime())
-                ->setUpdateDate(new \DateTime())
-                ->setCustomer($customer)
-                ->setUser($security->getUser())
-                ->setOrderNumber($orderNumber)
-            ;
-
-            $em->persist($agreement);
-
-            $capacityExceededLines = [];
-
-            foreach($products as $productData) {
-                $productId = (int) ($productData['productId'] ?? 0);
-                $requiredDate = (string) ($productData['requiredDate'] ?? '');
-                $description = (string) ($productData['description'] ?? '');
-                $factor = (float) ($productData['factor'] ?? 0);
-
-                $product = $productRepository->find($productId);
-                if (!$product) {
-                    throw new \Exception('Product not found');
-                }
-
-                $agreementLine = new AgreementLine();
-                $agreementLine
-                    ->setProduct($product)
-                    ->setConfirmedDate(new \DateTime($requiredDate))
-                    ->setDescription($description)
-                    ->setFactor($factor)
-                    ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
-                    ->setDeleted(false)
-                    ->setArchived(false)
-                ;
-                $agreement->addAgreementLine($agreementLine);
-                $em->persist($agreementLine);
-
-                if ($productData['isCapacityExceeded']) {
-                    $capacityExceededLines[] = $agreementLine;
-                }
-            }
-
-            // file upload logic
-            $rawFiles = $request->files->get('file');
-            if (!is_array($rawFiles)) {
-                $rawFiles = [$rawFiles];
-            }
-            $files = $uploaderHelper->getUploadedFiles($rawFiles);
-            foreach ($files as $file) {
-                $fileNames = $uploaderHelper->uploadAttachment($file);
-                $attachment = new Attachment();
-                $attachment->setAgreement($agreement);
-                $attachment->setName($fileNames['newFileName']);
-                $attachment->setOriginalName($fileNames['originalFileName']);
-                $attachment->setExtension($fileNames['extension']);
-                $em->persist($attachment);
-            }
-
-            $em->flush();
-
-            foreach ($capacityExceededLines as $line) {
-                $commandBus->dispatch(new AssignTagsCommand(
-                    ['zlozone-pomimo-przekroczenia-mocy-produkcyjnych'],
-                    $line->getId(),
-                    'agreement-line',
-                    $security->getUser()->getId()
-                ));
-            }
-
-            foreach ($agreement->getAgreementLines() as $line) {
-                // add factor
-                $commandBus->dispatch(new CreateFactorCommand(
-                    $line->getId(),
-                    new FactorRatioDTO(
-                        FactorSource::AGREEMENT_LINE,
-                        $line->getFactor(),
-                    )
-                ));
-
-                $eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
-            }
-
-            $em->commit();
-
-            $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
-
-            return new JsonResponse([$agreement->getId()]);
-
-        } catch (\Exception $e) {
-            $em->rollback();
-            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
-
-            return new JsonResponse(
-                ['error' => $e->getMessage()],
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
-        }
-    }
 
     /**
      * @param Agreement $agreement

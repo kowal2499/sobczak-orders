@@ -58,7 +58,6 @@ class WorkScheduleController extends BaseController
     }
 
 
-
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted('work-configuration.schedule')]
     public function delete(
