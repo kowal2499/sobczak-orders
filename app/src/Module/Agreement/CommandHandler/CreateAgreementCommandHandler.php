@@ -27,106 +27,147 @@ class CreateAgreementCommandHandler
         private UploaderHelper $uploaderHelper,
         private CommandBus $commandBus,
         private EventBus $eventBus,
-    ) {}
+    ) {
+    }
 
     public function __invoke(CreateAgreementCommand $command): void
     {
         $this->em->beginTransaction();
 
         try {
-            $customer = $this->customerRepository->find($command->customerId);
-            if (!$customer) {
-                throw new \InvalidArgumentException('Customer not found');
-            }
-
-            $agreement = new Agreement();
-            $agreement
-                ->setCreateDate(new \DateTime())
-                ->setUpdateDate(new \DateTime())
-                ->setCustomer($customer)
-                ->setUser($this->em->getReference(\App\Entity\User::class, $command->userId))
-                ->setOrderNumber($command->orderNumber)
-            ;
-
-            $this->em->persist($agreement);
-
-            $capacityExceededLines = [];
-
-            foreach ($command->products as $productData) {
-                $productId = (int) ($productData['productId'] ?? 0);
-                $requiredDate = (string) ($productData['requiredDate'] ?? '');
-                $description = (string) ($productData['description'] ?? '');
-                $factor = (float) ($productData['factor'] ?? 0);
-                $isCapacityExceeded = (bool) ($productData['isCapacityExceeded'] ?? false);
-
-                $product = $this->productRepository->find($productId);
-                if (!$product) {
-                    throw new \InvalidArgumentException('Product not found');
-                }
-
-                $agreementLine = new AgreementLine();
-                $agreementLine
-                    ->setProduct($product)
-                    ->setConfirmedDate(new \DateTime($requiredDate))
-                    ->setDescription($description)
-                    ->setFactor($factor)
-                    ->setStatus(AgreementLine::STATUS_WAITING)
-                    ->setDeleted(false)
-                    ->setArchived(false)
-                ;
-                $agreement->addAgreementLine($agreementLine);
-                $this->em->persist($agreementLine);
-
-                if ($isCapacityExceeded) {
-                    $capacityExceededLines[] = $agreementLine;
-                }
-            }
-
-            // Obsługa załączników
-            foreach ($command->attachments as $file) {
-                if (!$file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
-                    continue;
-                }
-
-                $fileNames = $this->uploaderHelper->uploadAttachment($file);
-                $attachment = new Attachment();
-                $attachment->setAgreement($agreement);
-                $attachment->setName($fileNames['newFileName']);
-                $attachment->setOriginalName($fileNames['originalFileName']);
-                $attachment->setExtension($fileNames['extension']);
-                $this->em->persist($attachment);
-            }
+            $customer = $this->getCustomer($command->customerId);
+            $agreement = $this->createAgreement($command, $customer);
+            $capacityExceededLines = $this->createAgreementLines($command, $agreement);
+            $this->handleAttachments($command, $agreement);
 
             $this->em->flush();
 
-
-            // Przypisanie tagów dla linii przekraczających moce produkcyjne
-            foreach ($capacityExceededLines as $line) {
-                $this->commandBus->dispatch(new AssignTagsCommand(
-                    ['zlozone-pomimo-przekroczenia-mocy-produkcyjnych'],
-                    $line->getId(),
-                    'agreement-line',
-                    $command->userId
-                ));
-            }
-
-            // Utworzenie faktorów i emisja eventów
-            foreach ($agreement->getAgreementLines() as $line) {
-                $this->commandBus->dispatch(new CreateFactorCommand(
-                    $line->getId(),
-                    new FactorRatioDTO(
-                        FactorSource::AGREEMENT_LINE,
-                        $line->getFactor(),
-                    )
-                ));
-
-                $this->eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
-            }
+            $this->assignCapacityExceededTags($capacityExceededLines, $command->userId);
+            $this->createFactors($agreement);
+            $this->emitAgreementLineCreatedEvents($agreement);
 
             $this->em->commit();
         } catch (\Exception $e) {
             $this->em->rollback();
             throw $e;
+        }
+    }
+
+    private function getCustomer(int $customerId): \App\Entity\Customer
+    {
+        $customer = $this->customerRepository->find($customerId);
+        if (!$customer) {
+            throw new \InvalidArgumentException('Customer not found');
+        }
+        return $customer;
+    }
+
+    private function createAgreement(CreateAgreementCommand $command, \App\Entity\Customer $customer): Agreement
+    {
+        $agreement = new Agreement();
+        $agreement
+            ->setCreateDate(new \DateTime())
+            ->setUpdateDate(new \DateTime())
+            ->setCustomer($customer)
+            ->setUser($this->em->getReference(\App\Entity\User::class, $command->userId))
+            ->setOrderNumber($command->orderNumber)
+        ;
+        $this->em->persist($agreement);
+        return $agreement;
+    }
+
+    /**
+     * @param CreateAgreementCommand $command
+     * @param Agreement $agreement
+     * @return AgreementLine[]
+     * @throws \Exception
+     */
+    private function createAgreementLines(CreateAgreementCommand $command, Agreement $agreement): array
+    {
+        $capacityExceededLines = [];
+
+        foreach ($command->products as $productData) {
+            $productId = (int) ($productData['productId'] ?? 0);
+            $requiredDate = (string) ($productData['requiredDate'] ?? '');
+            $description = (string) ($productData['description'] ?? '');
+            $factor = (float) ($productData['factor'] ?? 0);
+            $isCapacityExceeded = (bool) ($productData['isCapacityExceeded'] ?? false);
+
+            $product = $this->productRepository->find($productId);
+            if (!$product) {
+                throw new \InvalidArgumentException('Product not found');
+            }
+
+            $agreementLine = new AgreementLine();
+            $agreementLine
+                ->setProduct($product)
+                ->setConfirmedDate(new \DateTime($requiredDate))
+                ->setDescription($description)
+                ->setFactor($factor)
+                ->setStatus(AgreementLine::STATUS_WAITING)
+                ->setDeleted(false)
+                ->setArchived(false)
+            ;
+            $agreement->addAgreementLine($agreementLine);
+            $this->em->persist($agreementLine);
+
+            if ($isCapacityExceeded) {
+                $capacityExceededLines[] = $agreementLine;
+            }
+        }
+
+        return $capacityExceededLines;
+    }
+
+    private function handleAttachments(CreateAgreementCommand $command, Agreement $agreement): void
+    {
+        foreach ($command->attachments as $file) {
+            if (!$file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
+                continue;
+            }
+
+            $fileNames = $this->uploaderHelper->uploadAttachment($file);
+            $attachment = new Attachment();
+            $attachment->setAgreement($agreement);
+            $attachment->setName($fileNames['newFileName']);
+            $attachment->setOriginalName($fileNames['originalFileName']);
+            $attachment->setExtension($fileNames['extension']);
+            $this->em->persist($attachment);
+        }
+    }
+
+    /**
+     * @param AgreementLine[] $capacityExceededLines
+     */
+    private function assignCapacityExceededTags(array $capacityExceededLines, int $userId): void
+    {
+        foreach ($capacityExceededLines as $line) {
+            $this->commandBus->dispatch(new AssignTagsCommand(
+                ['zlozone-pomimo-przekroczenia-mocy-produkcyjnych'],
+                $line->getId(),
+                'agreement-line',
+                $userId
+            ));
+        }
+    }
+
+    private function createFactors(Agreement $agreement): void
+    {
+        foreach ($agreement->getAgreementLines() as $line) {
+            $this->commandBus->dispatch(new CreateFactorCommand(
+                $line->getId(),
+                new FactorRatioDTO(
+                    FactorSource::AGREEMENT_LINE,
+                    $line->getFactor(),
+                )
+            ));
+        }
+    }
+
+    private function emitAgreementLineCreatedEvents(Agreement $agreement): void
+    {
+        foreach ($agreement->getAgreementLines() as $line) {
+            $this->eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
         }
     }
 }

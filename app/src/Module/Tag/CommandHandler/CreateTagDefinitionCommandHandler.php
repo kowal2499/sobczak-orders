@@ -1,4 +1,5 @@
 <?php
+
 /** @author: Roman Kowalski */
 
 namespace App\Module\Tag\CommandHandler;

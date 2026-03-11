@@ -7,6 +7,7 @@ use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
 use App\Repository\AgreementRepository;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\EntityFactory;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class AgreementControllerTest extends ApiTestCase
 {
     private AgreementRepository $agreementRepository;
+    private AgreementLineRMRepository $agreementLineRMRepository;
     private EntityFactory $factory;
 
     protected function setUp(): void
@@ -22,6 +24,7 @@ class AgreementControllerTest extends ApiTestCase
         parent::setUp();
         $this->getManager()->beginTransaction();
         $this->agreementRepository = $this->get(AgreementRepository::class);
+        $this->agreementLineRMRepository = $this->get(AgreementLineRMRepository::class);
         $this->factory = new EntityFactory($this->getManager());
     }
 
@@ -111,6 +114,39 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertStringContainsString('test-document', $attachment->getOriginalName());
         $this->assertEquals('pdf', $attachment->getExtension());
         $this->assertNotEmpty($attachment->getName());
+
+        // Verify read models were created
+        $readModel01 = $this->agreementLineRMRepository->find($lines[0]->getId());
+        $this->assertNotNull($readModel01);
+        $this->assertEquals($lines[0]->getId(), $readModel01->getAgreementLineId());
+        $this->assertEquals($order->getId(), $readModel01->getAgreementId());
+        $this->assertEquals($customer->getId(), $readModel01->getCustomerId());
+        $this->assertStringContainsString($customer->getName(), $readModel01->getCustomerName());
+        $this->assertEquals('12123', $readModel01->getOrderNumber());
+        $this->assertEquals($product01->getName(), $readModel01->getProductName());
+        $this->assertEquals('some description 01', $readModel01->getDescription());
+        $this->assertEquals(0.55, $readModel01->getFactor());
+        $this->assertEquals('2024-12-31', $readModel01->getConfirmedDate()->format('Y-m-d'));
+        $this->assertEquals(AgreementLine::STATUS_WAITING, $readModel01->getStatus());
+        $this->assertFalse($readModel01->isDeleted());
+        $this->assertFalse($readModel01->isArchived());
+        $this->assertFalse($readModel01->hasProduction());
+
+        $readModel02 = $this->agreementLineRMRepository->find($lines[1]->getId());
+        $this->assertNotNull($readModel02);
+        $this->assertEquals($lines[1]->getId(), $readModel02->getAgreementLineId());
+        $this->assertEquals($order->getId(), $readModel02->getAgreementId());
+        $this->assertEquals($customer->getId(), $readModel02->getCustomerId());
+        $this->assertStringContainsString($customer->getName(), $readModel02->getCustomerName());
+        $this->assertEquals('12123', $readModel02->getOrderNumber());
+        $this->assertEquals($product02->getName(), $readModel02->getProductName());
+        $this->assertEquals('some description 02', $readModel02->getDescription());
+        $this->assertEquals(0.15, $readModel02->getFactor());
+        $this->assertEquals('2024-12-30', $readModel02->getConfirmedDate()->format('Y-m-d'));
+        $this->assertEquals(AgreementLine::STATUS_WAITING, $readModel02->getStatus());
+        $this->assertFalse($readModel02->isDeleted());
+        $this->assertFalse($readModel02->isArchived());
+        $this->assertFalse($readModel02->hasProduction());
     }
 
     private function createTestFile(string $filename, string $mimeType): UploadedFile

@@ -54,7 +54,7 @@ class CreateTagDefinitions extends Command
     {
         return [
             new TagDefinitionDTO(
-            'Dokumentacja wydana',
+                'Dokumentacja wydana',
                 'agreement-line',
                 'fileEarmarkText',
                 '#3e44ea',
@@ -69,5 +69,4 @@ class CreateTagDefinitions extends Command
             ),
         ];
     }
-
 }

@@ -19,7 +19,8 @@ class AgreementController extends AbstractController
         private CommandBus $commandBus,
         private Security $security,
         private UploaderHelper $uploaderHelper,
-    ) {}
+    ) {
+    }
 
     /**
      * Utworzenie nowego zamówienia
@@ -82,14 +83,12 @@ class AgreementController extends AbstractController
             $this->commandBus->dispatch($command);
 
             return new JsonResponse(['success' => true], Response::HTTP_CREATED);
-
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(
                 ['error' => $e->getMessage()],
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         } catch (\Exception $e) {
-
             return new JsonResponse(
                 ['error' => 'An unexpected error occurred'],
                 Response::HTTP_INTERNAL_SERVER_ERROR
