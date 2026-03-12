@@ -6,6 +6,7 @@ use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Module\Agreement\Command\CreateAgreementCommand;
+use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
 use App\Module\AgreementLine\Event\AgreementLineWasCreatedEvent;
 use App\Module\Production\Command\CreateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
@@ -27,6 +28,7 @@ class CreateAgreementCommandHandler
         private UploaderHelper $uploaderHelper,
         private CommandBus $commandBus,
         private EventBus $eventBus,
+        private AgreementLineTaggingPolicy $taggingPolicy,
     ) {
     }
 
@@ -37,12 +39,12 @@ class CreateAgreementCommandHandler
         try {
             $customer = $this->getCustomer($command->customerId);
             $agreement = $this->createAgreement($command, $customer);
-            $capacityExceededLines = $this->createAgreementLines($command, $agreement);
+            $linesToTag = $this->createAgreementLines($command, $agreement);
             $this->handleAttachments($command, $agreement);
 
             $this->em->flush();
 
-            $this->assignCapacityExceededTags($capacityExceededLines, $command->userId);
+            $this->assignTags($linesToTag, $command->userId);
             $this->createFactors($agreement);
             $this->emitAgreementLineCreatedEvents($agreement);
 
@@ -79,19 +81,18 @@ class CreateAgreementCommandHandler
     /**
      * @param CreateAgreementCommand $command
      * @param Agreement $agreement
-     * @return AgreementLine[]
+     * @return array Array of ['line' => AgreementLine, 'tags' => string[]]
      * @throws \Exception
      */
     private function createAgreementLines(CreateAgreementCommand $command, Agreement $agreement): array
     {
-        $capacityExceededLines = [];
+        $linesToTag = [];
 
         foreach ($command->products as $productData) {
             $productId = (int) ($productData['productId'] ?? 0);
             $requiredDate = (string) ($productData['requiredDate'] ?? '');
             $description = (string) ($productData['description'] ?? '');
             $factor = (float) ($productData['factor'] ?? 0);
-            $isCapacityExceeded = (bool) ($productData['isCapacityExceeded'] ?? false);
 
             $product = $this->productRepository->find($productId);
             if (!$product) {
@@ -111,12 +112,16 @@ class CreateAgreementCommandHandler
             $agreement->addAgreementLine($agreementLine);
             $this->em->persist($agreementLine);
 
-            if ($isCapacityExceeded) {
-                $capacityExceededLines[] = $agreementLine;
+            $tags = $this->taggingPolicy->getTagsForAgreementLine($productData);
+            if (!empty($tags)) {
+                $linesToTag[] = [
+                    'line' => $agreementLine,
+                    'tags' => $tags,
+                ];
             }
         }
 
-        return $capacityExceededLines;
+        return $linesToTag;
     }
 
     private function handleAttachments(CreateAgreementCommand $command, Agreement $agreement): void
@@ -137,14 +142,14 @@ class CreateAgreementCommandHandler
     }
 
     /**
-     * @param AgreementLine[] $capacityExceededLines
+     * @param array $linesToTag Array of ['line' => AgreementLine, 'tags' => string[]]
      */
-    private function assignCapacityExceededTags(array $capacityExceededLines, int $userId): void
+    private function assignTags(array $linesToTag, int $userId): void
     {
-        foreach ($capacityExceededLines as $line) {
+        foreach ($linesToTag as $item) {
             $this->commandBus->dispatch(new AssignTagsCommand(
-                ['zlozone-pomimo-przekroczenia-mocy-produkcyjnych'],
-                $line->getId(),
+                $item['tags'],
+                $item['line']->getId(),
                 'agreement-line',
                 $userId
             ));

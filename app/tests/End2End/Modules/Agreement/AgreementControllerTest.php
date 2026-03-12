@@ -7,7 +7,12 @@ use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
 use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Production\Entity\FactorSource;
+use App\Module\Production\Repository\FactorRepository;
+use App\Module\Tag\Entity\TagDefinition;
+use App\Module\Tag\Repository\TagAssignmentRepository;
 use App\Repository\AgreementRepository;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\Factory\EntityFactory;
@@ -17,6 +22,8 @@ class AgreementControllerTest extends ApiTestCase
 {
     private AgreementRepository $agreementRepository;
     private AgreementLineRMRepository $agreementLineRMRepository;
+    private TagAssignmentRepository $tagAssignmentRepository;
+    private FactorRepository $factorRepository;
     private EntityFactory $factory;
 
     protected function setUp(): void
@@ -25,7 +32,21 @@ class AgreementControllerTest extends ApiTestCase
         $this->getManager()->beginTransaction();
         $this->agreementRepository = $this->get(AgreementRepository::class);
         $this->agreementLineRMRepository = $this->get(AgreementLineRMRepository::class);
+        $this->tagAssignmentRepository = $this->get(TagAssignmentRepository::class);
+        $this->factorRepository = $this->get(FactorRepository::class);
         $this->factory = new EntityFactory($this->getManager());
+
+        // Create tag definition for capacity exceeded
+        $tagDefinition = new TagDefinition(
+            'Złożone pomimo przekroczenia mocy produkcyjnych',
+            'agreement-line',
+            'fa-warning',
+            '#ff0000',
+            AgreementLineTaggingPolicy::TAG_CAPACITY_EXCEEDED,
+            false
+        );
+        $this->getManager()->persist($tagDefinition);
+        $this->getManager()->flush();
     }
 
     protected function tearDown(): void
@@ -57,7 +78,7 @@ class AgreementControllerTest extends ApiTestCase
                     'description' => 'some description 01',
                     'requiredDate' => '2024-12-31',
                     'factor' => 0.55,
-                    'isCapacityExceeded' => false,
+                    'isCapacityExceeded' => true,
                 ],
                 [
                     'productId' => $product02->getId(),
@@ -147,6 +168,31 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertFalse($readModel02->isDeleted());
         $this->assertFalse($readModel02->isArchived());
         $this->assertFalse($readModel02->hasProduction());
+
+        // Verify tags - only first product should have capacity exceeded tag
+        $this->getManager()->clear(); // Force reload from DB
+        $tagsForLine1 = $this->tagAssignmentRepository->findBy(['contextId' => $lines[0]->getId()]);
+        $this->assertCount(1, $tagsForLine1, 'First product should have 1 tag (capacity exceeded)');
+        $this->assertEquals(
+            AgreementLineTaggingPolicy::TAG_CAPACITY_EXCEEDED,
+            $tagsForLine1[0]->getTagDefinition()->getSlug(),
+            'First product should have capacity exceeded tag'
+        );
+        $this->assertEquals($user->getId(), $tagsForLine1[0]->getUser()->getId());
+
+        $tagsForLine2 = $this->tagAssignmentRepository->findBy(['contextId' => $lines[1]->getId()]);
+        $this->assertCount(0, $tagsForLine2, 'Second product should have no tags');
+
+        // Verify factors - both products should have factors created
+        $factorsForLine1 = $this->factorRepository->findBy(['agreementLine' => $lines[0]->getId()]);
+        $this->assertCount(1, $factorsForLine1, 'First product should have 1 factor');
+        $this->assertEquals(FactorSource::AGREEMENT_LINE, $factorsForLine1[0]->getSource());
+        $this->assertEquals(0.55, $factorsForLine1[0]->getFactorValue());
+
+        $factorsForLine2 = $this->factorRepository->findBy(['agreementLine' => $lines[1]->getId()]);
+        $this->assertCount(1, $factorsForLine2, 'Second product should have 1 factor');
+        $this->assertEquals(FactorSource::AGREEMENT_LINE, $factorsForLine2[0]->getSource());
+        $this->assertEquals(0.15, $factorsForLine2[0]->getFactorValue());
     }
 
     private function createTestFile(string $filename, string $mimeType): UploadedFile

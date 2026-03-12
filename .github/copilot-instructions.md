@@ -180,12 +180,11 @@ class ProductionController extends AbstractController
             plannedDate: $data['plannedDate']
         );
         
-        $task = $this->commandBus->dispatch($command);
+        $this->commandBus->dispatch($command);
         
         return $this->json([
-            'id' => $task->getId(),
-            'status' => $task->getStatus(),
-            'plannedDate' => $task->getPlannedDate()->format('Y-m-d')
+            'success' => true,
+            'message' => 'Production task created successfully'
         ], 201);
     }
 }
@@ -254,7 +253,7 @@ class CreateProductionTaskHandler
         private ProductionRepository $productionRepository
     ) {}
 
-    public function __invoke(CreateProductionTask $command): Production
+    public function __invoke(CreateProductionTask $command): void
     {
         $agreementLine = $this->agreementLineRepository->find($command->agreementLineId);
         
@@ -270,18 +269,18 @@ class CreateProductionTaskHandler
         
         $this->em->persist($production);
         $this->em->flush();
-        
-        return $production;
     }
 }
 ```
 
+> **Uwaga:** Command Handler nie zwraca wartości. Jeśli potrzebujemy danych po wykonaniu komendy, 
+> kontroler powinien wykonać Query lub pobrać dane bezpośrednio z repozytorium.
+
 **5. Response (JSON)**
 ```json
 {
-  "id": 456,
-  "status": "PENDING",
-  "plannedDate": "2026-03-15"
+  "success": true,
+  "message": "Production task created successfully"
 }
 ```
 
