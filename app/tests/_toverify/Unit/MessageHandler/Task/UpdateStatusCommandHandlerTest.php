@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\MessageHandler\Task;
+namespace App\Tests\skipped\Unit\MessageHandler\Task;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;

@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Tests\End2End\Controller;
+namespace App\Tests\skipped\End2End\Controller;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
 use App\Entity\Production;
 use App\Entity\User;
+use App\Module\Production\Entity\FactorAdjustment;
 use App\System\Test\ApiTestCase;
 use App\Tests\Utilities\AgreementLineFixtureHelpers;
 use App\Tests\Utilities\Factory\AgreementLineChainFactory;
 use App\Tests\Utilities\Factory\EntityFactory;
-use App\Module\Production\Entity\FactorAdjustment;
 
 class AgreementLineControllerTest extends ApiTestCase
 {

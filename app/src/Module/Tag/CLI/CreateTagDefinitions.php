@@ -35,7 +35,9 @@ class CreateTagDefinitions extends Command
 
         foreach ($this->getDefaultTagDefinitions() as $dto) {
             if ($this->tagDefinitionRepository->findBySlug($dto->getSlug()) !== null) {
-                $output->writeln(sprintf('  <comment>Skipped</comment>: %s (slug: %s)', $dto->getName(), $dto->getSlug()));
+                $output->writeln(
+                    sprintf('  <comment>Skipped</comment>: %s (slug: %s)', $dto->getName(), $dto->getSlug())
+                );
                 $skipped++;
                 continue;
             }

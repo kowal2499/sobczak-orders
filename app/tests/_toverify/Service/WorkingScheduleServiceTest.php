@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Tests\Service;
+namespace App\Tests\skipped\Service;
 use App\Service\WorkingScheduleService;
 use PHPUnit\Framework\TestCase;
 

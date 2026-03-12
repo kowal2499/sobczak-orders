@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\End2End\Modules\Production;
+namespace App\Tests\skipped\End2End\Modules\Production;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;

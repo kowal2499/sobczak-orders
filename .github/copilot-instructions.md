@@ -119,8 +119,244 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 ## Kontrolery
 - dbamy o to, by kontrolery były cienkie, delegują logikę do serwisów za pośrednictwem dependency injection 
 - walidują dane wejściowe i uruchamiają serwisy i delegują eventy, komendy lub queries (preferujemy CQRS)
-- nie zawierają bezpośrednio logiki biznesowej, ale mogą zawierać logikę specyficzną dla API (np. formatowanie odpowiedzi)
-- **NIGDY nie używamy `addFlash()` w kontrolerach backendu** - komunikaty są zwracane w odpowiedzi JSON i generowane przez vue
+- nie zawierają bezpośrednio logiki biznesowej, ale mogą zawierać logikę specyficzną dla API (np. formatowanie odpowiedzi)- **NIGDY nie używamy `addFlash()` w kontrolerach API** - komunikaty są zwracane w odpowiedzi JSON i obsługiwane przez frontend (Vue)
+
+### Typowy flow API: Request → Controller → Command → Handler → Response
+
+Standardowy proces implementacji nowej funkcjonalności w module:
+
+1. **Kontroler** - walidacja danych, utworzenie komendy, obsługa błędów
+2. **Komenda** - readonly properties z atrybutami walidacji Symfony Validator
+3. **Handler** - logika biznesowa delegowana do dedykowanych metod pomocniczych
+4. **Test End2End** - testowanie happy path kontrolera z weryfikacją w bazie danych
+
+**Przykład kompletnej implementacji:**
+
+#### 1. Komenda (Command)
+```php
+<?php
+
+namespace App\Module\Agreement\Command;
+
+use Symfony\Component\Validator\Constraints as Assert;
+
+class CreateAgreementCommand
+{
+    public function __construct(
+        #[Assert\NotBlank]
+        #[Assert\Positive]
+        public readonly int $customerId,
+        #[Assert\NotBlank]
+        public readonly string $orderNumber,
+        #[Assert\NotBlank]
+        #[Assert\Type('array')]
+        #[Assert\Count(min: 1)]
+        public readonly array $products,
+        #[Assert\NotNull]
+        public readonly int $userId,
+        #[Assert\Type('array')]
+        public readonly array $attachments = [],
+    ) {
+    }
+}
+```
+
+#### 2. Handler z delegacją do metod pomocniczych
+```php
+<?php
+
+namespace App\Module\Agreement\CommandHandler;
+
+use App\Entity\Agreement;
+use App\Module\Agreement\Command\CreateAgreementCommand;
+use Doctrine\ORM\EntityManagerInterface;
+
+class CreateAgreementCommandHandler
+{
+    public function __construct(
+        private EntityManagerInterface $em,
+        private CustomerRepository $customerRepository,
+        // ... inne zależności
+    ) {
+    }
+
+    public function __invoke(CreateAgreementCommand $command): void
+    {
+        $this->em->beginTransaction();
+
+        try {
+            $customer = $this->getCustomer($command->customerId);
+            $agreement = $this->createAgreement($command, $customer);
+            $linesToTag = $this->createAgreementLines($command, $agreement);
+            $this->handleAttachments($command, $agreement);
+
+            $this->em->flush();
+
+            $this->assignTags($linesToTag, $command->userId);
+            $this->createFactors($agreement);
+            $this->emitEvents($agreement);
+
+            $this->em->commit();
+        } catch (\Exception $e) {
+            $this->em->rollback();
+            throw $e;
+        }
+    }
+
+    private function getCustomer(int $customerId): Customer
+    {
+        // logika pobrania customera
+    }
+
+    private function createAgreement(CreateAgreementCommand $command, Customer $customer): Agreement
+    {
+        // logika utworzenia agreement
+    }
+
+    private function createAgreementLines(CreateAgreementCommand $command, Agreement $agreement): array
+    {
+        // logika utworzenia linii
+    }
+
+    // ... inne metody pomocnicze
+}
+```
+
+#### 3. Kontroler z walidacją ręczną
+```php
+<?php
+
+namespace App\Module\Agreement\Controller;
+
+use App\Module\Agreement\Command\CreateAgreementCommand;
+use App\System\CommandBus;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+#[Route('/orders')]
+class AgreementController extends AbstractController
+{
+    public function __construct(
+        private CommandBus $commandBus,
+        private Security $security,
+    ) {
+    }
+
+    #[Route('/save', methods: ['POST'])]
+    public function save(Request $request): JsonResponse
+    {
+        $data = $request->request->all();
+
+        // Parsowanie products jeśli przyszły jako JSON string
+        if (false === is_array($data['products'] ?? null)) {
+            $data['products'] = json_decode($data['products'], true);
+        }
+
+        // Walidacja danych wejściowych
+        $customerId = (int) ($data['customerId'] ?? 0);
+        $orderNumber = (string) ($data['orderNumber'] ?? '');
+        $products = (array) ($data['products'] ?? []);
+
+        if ($customerId <= 0) {
+            return $this->json(['error' => 'Invalid customer ID'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (empty($orderNumber)) {
+            return $this->json(['error' => 'Order number is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (empty($products)) {
+            return $this->json(['error' => 'At least one product is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $command = new CreateAgreementCommand(
+                customerId: $customerId,
+                orderNumber: $orderNumber,
+                products: $products,
+                userId: $this->security->getUser()->getId(),
+            );
+
+            $this->commandBus->dispatch($command);
+
+            return new JsonResponse(['success' => true], Response::HTTP_CREATED);
+        } catch (\InvalidArgumentException $e) {
+            return new JsonResponse(
+                ['error' => $e->getMessage()],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse(
+                ['error' => 'An unexpected error occurred'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+}
+```
+
+#### 4. Test End2End - testowanie happy path
+```php
+<?php
+
+namespace App\Tests\End2End\Modules\Agreement;
+
+use App\System\Test\ApiTestCase;
+
+class AgreementControllerTest extends ApiTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->getManager()->beginTransaction();
+        // inicjalizacja repozytoriów, factory
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getManager()->rollback();
+        parent::tearDown();
+    }
+
+    public function testShouldCreateAgreement(): void
+    {
+        // Given
+        $user = $this->createUser();
+        $client = $this->login($user);
+        $customer = $this->factory->make(Customer::class);
+        $product = $this->factory->make(Product::class);
+        $this->getManager()->flush();
+        $this->getManager()->clear();
+
+        // When
+        $client->request('POST', '/orders/save', [
+            'customerId' => $customer->getId(),
+            'orderNumber' => '12345',
+            'products' => [
+                [
+                    'productId' => $product->getId(),
+                    'description' => 'Test product',
+                    'requiredDate' => '2024-12-31',
+                    'factor' => 1.5,
+                ]
+            ],
+        ]);
+
+        // Then
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        
+        // Verify in database
+        $this->getManager()->clear();
+        $order = $this->agreementRepository->findOneBy(['orderNumber' => '12345']);
+        $this->assertNotNull($order);
+        $this->assertEquals($customer->getId(), $order->getCustomer()->getId());
+        
+        // Verify read models, factors, tags, etc.
+        // ...
+    }
+}
+```
 
 ### Przykład pełnego flow API (Request → Controller → Service → Response)
 

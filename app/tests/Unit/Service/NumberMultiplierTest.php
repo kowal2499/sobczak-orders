@@ -1,9 +1,9 @@
 <?php
 
 
-namespace App\Tests\Service;
+namespace App\Tests\Unit\Service;
 
-use \App\Service\NumberMultiplier;
+use App\Service\NumberMultiplier;
 use PHPUnit\Framework\TestCase;
 
 class NumberMultiplierTest extends TestCase

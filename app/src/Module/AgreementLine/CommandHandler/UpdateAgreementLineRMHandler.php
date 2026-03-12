@@ -38,7 +38,15 @@ class UpdateAgreementLineRMHandler
         /** @var AgreementLine $agreementLine */
         $agreementLine = $this->agreementLineRepository->find($command->getAgreementLineId());
         if (!$agreementLine) {
-            throw new \RuntimeException('AgreementLine not found with ID ' . $command->getAgreementLineId());
+            // Linia została usunięta - usuń read model
+            $model = $this->modelRepository->find($command->getAgreementLineId());
+            if ($model) {
+                $this->modelRepository->remove($model);
+                $this->logger->info('Removed AgreementLine read model (line deleted)', [
+                    'agreementLineId' => $command->getAgreementLineId(),
+                ]);
+            }
+            return;
         }
 
         /** @var ?AgreementLineRM $model */

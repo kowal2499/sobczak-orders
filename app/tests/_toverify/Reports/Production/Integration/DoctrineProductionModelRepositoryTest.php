@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Reports\Production\Integration;
+namespace App\Tests\skipped\Reports\Production\Integration;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;

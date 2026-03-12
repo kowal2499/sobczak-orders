@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Tests\End2End\Controller;
+namespace App\Tests\skipped\End2End\Controller;
 
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
-use App\Entity\Definitions\TaskTypes;
 use App\Entity\Product;
 use App\Entity\Production;
 use App\Entity\User;

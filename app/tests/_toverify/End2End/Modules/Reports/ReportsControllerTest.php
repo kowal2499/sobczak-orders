@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\End2End\Modules\Reports;
+namespace App\Tests\skipped\End2End\Modules\Reports;
 
 use App\Entity\User;
 use App\Module\Reports\Production\Repository\DoctrineProductionFinishedRepository;
