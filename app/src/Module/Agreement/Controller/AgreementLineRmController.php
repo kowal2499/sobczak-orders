@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Module\AgreementLine\Controller;
+namespace App\Module\Agreement\Controller;
 
 use App\Controller\BaseController;
-use App\Module\AgreementLine\Entity\AgreementLineRM;
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AgreementLineController extends BaseController
+#[Route('/agreement-line')]
+class AgreementLineRmController extends BaseController
 {
     #[Route(path: '/rm/{agreementLineRM}', methods: ['GET'])]
     public function fetchSingle(AgreementLineRM $agreementLineRM): Response

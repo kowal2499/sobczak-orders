@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Module\AgreementLine\Repository;
+namespace App\Module\Agreement\Repository;
 
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
-use App\Module\AgreementLine\Entity\AgreementLineRM;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

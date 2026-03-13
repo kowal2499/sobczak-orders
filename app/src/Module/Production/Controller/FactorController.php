@@ -4,7 +4,7 @@ namespace App\Module\Production\Controller;
 
 use App\Controller\BaseController;
 use App\Entity\AgreementLine;
-use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\Module\Agreement\Event\AgreementLineWasUpdatedEvent;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\Factor;
 use App\Module\Production\Repository\FactorRepository;

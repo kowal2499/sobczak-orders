@@ -3,11 +3,6 @@
 namespace App\Tests\End2End\Modules\Reports\Schedule;
 
 use App\Entity\AgreementLine;
-use App\Module\AgreementLine\Entity\AgreementLineRM;
-use App\Module\WorkConfiguration\Entity\WorkCapacity;
-use App\Module\WorkConfiguration\Entity\WorkSchedule;
-use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
-use App\System\Test\ApiTestCase;
 
 class ScheduleControllerTest extends BaseScheduleReportsTest
 {

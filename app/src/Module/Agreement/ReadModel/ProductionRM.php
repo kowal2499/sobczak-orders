@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Module\AgreementLine\Entity;
+namespace App\Module\Agreement\ReadModel;
 
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 use DateTime;

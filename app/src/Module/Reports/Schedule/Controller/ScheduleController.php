@@ -3,6 +3,8 @@
 namespace App\Module\Reports\Schedule\Controller;
 
 use App\Controller\BaseController;
+use App\Entity\AgreementLine;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
@@ -12,8 +14,6 @@ use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
-use App\Entity\AgreementLine;
 
 class ScheduleController extends BaseController
 {

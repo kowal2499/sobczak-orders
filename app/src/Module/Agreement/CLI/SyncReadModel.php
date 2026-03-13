@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Module\AgreementLine\CLI;
+namespace App\Module\Agreement\CLI;
 
-use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
+use App\Module\Agreement\Command\UpdateAgreementLineRM;
 use App\Repository\AgreementLineRepository;
 use App\System\CommandBus;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;

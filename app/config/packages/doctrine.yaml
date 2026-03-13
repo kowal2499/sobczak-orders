@@ -42,11 +42,17 @@ doctrine:
                 prefix: 'App\Module\Production\Entity'
                 alias: Production
                 type: attribute
-            AgreementLine:
+            AgreementReadModel:
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Module/AgreementLine/Entity'
-                prefix: 'App\Module\AgreementLine\Entity'
-                alias: AgreementLine
+                dir: '%kernel.project_dir%/src/Module/Agreement/ReadModel'
+                prefix: 'App\Module\Agreement\ReadModel'
+                alias: AgreementReadModel
+                type: attribute
+            Agreement:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/Agreement/Entity'
+                prefix: 'App\Module\Agreement\Entity'
+                alias: Agreement
                 type: attribute
             WorkConfiguration:
                 is_bundle: false

@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Module\AgreementLine\CommandHandler;
+namespace App\Module\Agreement\CommandHandler;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
-use App\Module\Tag\Entity\TagAssignment;
-use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
-use App\Module\AgreementLine\Entity\AddressRM;
-use App\Module\AgreementLine\Entity\AgreementLineRM;
-use App\Module\AgreementLine\Entity\AgreementRM;
-use App\Module\AgreementLine\Entity\AttachmentRM;
-use App\Module\AgreementLine\Entity\CustomerRM;
-use App\Module\AgreementLine\Entity\ProductionRM;
-use App\Module\AgreementLine\Entity\ProductRM;
-use App\Module\AgreementLine\Entity\TagRM;
-use App\Module\AgreementLine\Entity\UserRM;
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\Command\UpdateAgreementLineRM;
+use App\Module\Agreement\ReadModel\AddressRM;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
+use App\Module\Agreement\ReadModel\AgreementRM;
+use App\Module\Agreement\ReadModel\AttachmentRM;
+use App\Module\Agreement\ReadModel\CustomerRM;
+use App\Module\Agreement\ReadModel\ProductionRM;
+use App\Module\Agreement\ReadModel\ProductRM;
+use App\Module\Agreement\ReadModel\TagRM;
+use App\Module\Agreement\ReadModel\UserRM;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\FactorCalculator;
+use App\Module\Tag\Entity\TagAssignment;
 use App\Repository\AgreementLineRepository;
 use App\Service\UploaderHelper;
 use Psr\Log\LoggerInterface;

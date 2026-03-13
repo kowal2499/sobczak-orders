@@ -3,8 +3,8 @@
 namespace App\Module\Reports\Schedule\Service;
 
 use App\Entity\AgreementLine;
-use App\Module\AgreementLine\Entity\AgreementLineRM;
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;

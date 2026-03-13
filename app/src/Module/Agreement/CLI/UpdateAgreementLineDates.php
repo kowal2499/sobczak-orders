@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Module\AgreementLine\CLI;
+namespace App\Module\Agreement\CLI;
 
 use App\Entity\AgreementLine;
 use App\Repository\AgreementLineRepository;

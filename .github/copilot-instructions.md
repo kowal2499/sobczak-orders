@@ -68,6 +68,7 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 **Docelowa struktura (wymagana dla nowych testów):**
 - `tests/Unit/` - testy jednostkowe
 - `tests/End2End/` - testy integracyjne/end-to-end
+- `tests/_toverify` - testy do weryfikacji, nie uruchamiać, nie korzystać
 
 **Aktualne wyjątki (legacy, do refaktoryzacji):**
 - `tests/Service/` - stare testy jednostkowe (docelowo należy przenieść do `tests/Unit/Service/`)

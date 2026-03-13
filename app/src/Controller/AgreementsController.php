@@ -4,28 +4,17 @@ namespace App\Controller;
 
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
-use App\Entity\Attachment;
 use App\Entity\Customer;
-use App\Module\AgreementLine\Event\AgreementLineWasCreatedEvent;
-use App\Module\AgreementLine\Event\AgreementLineWasDeletedEvent;
-use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
-use App\Module\Production\Command\CreateFactorCommand;
-use App\Module\Production\Command\UpdateFactorCommand;
-use App\Module\Production\DTO\FactorRatioDTO;
-use App\Module\Production\Entity\FactorSource;
-use App\Repository\AgreementLineRepository;
-use App\Repository\CustomerRepository;
-use App\Repository\ProductRepository;
+use App\Module\Agreement\Event\AgreementLineWasDeletedEvent;
 use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
-use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController

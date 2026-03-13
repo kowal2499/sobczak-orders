@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Module\AgreementLine\Event;
+namespace App\Module\Agreement\Command;
 
-class AgreementLineWasCreatedEvent
+class UpdateAgreementLineRM
 {
     public function __construct(
         private readonly int $agreementLineId,

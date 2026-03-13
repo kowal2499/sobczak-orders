@@ -5,7 +5,7 @@ namespace App\MessageHandler\Task;
 use App\Entity\StatusLog;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\Task\UpdateStatusCommand;
-use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\Module\Agreement\Event\AgreementLineWasUpdatedEvent;
 use App\Repository\ProductionRepository;
 use App\Service\Production\TaskStatusService;
 use App\System\EventBus;

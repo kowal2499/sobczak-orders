@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Module\AgreementLine\Entity;
+namespace App\Module\Agreement\ReadModel;
 
 class CustomerRM
 {

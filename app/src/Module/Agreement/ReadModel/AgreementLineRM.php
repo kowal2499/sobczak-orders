@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Module\AgreementLine\Entity;
+namespace App\Module\Agreement\ReadModel;
 
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 

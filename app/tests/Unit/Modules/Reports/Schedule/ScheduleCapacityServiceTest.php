@@ -2,8 +2,8 @@
 
 namespace App\Tests\Unit\Modules\Reports\Schedule;
 
-use App\Module\AgreementLine\Entity\AgreementLineRM;
-use App\Module\AgreementLine\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
+use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;

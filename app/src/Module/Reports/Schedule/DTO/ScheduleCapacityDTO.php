@@ -2,7 +2,7 @@
 
 namespace App\Module\Reports\Schedule\DTO;
 
-use App\Module\AgreementLine\Entity\AgreementLineRM;
+use App\Module\Agreement\ReadModel\AgreementLineRM;
 
 class ScheduleCapacityDTO
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Module\AgreementLine\EventHandler;
+namespace App\Module\Agreement\EventHandler;
 
-use App\Module\AgreementLine\Command\UpdateAgreementLineRM;
-use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
+use App\Module\Agreement\Command\UpdateAgreementLineRM;
+use App\Module\Agreement\Event\AgreementLineWasUpdatedEvent;
 use App\System\CommandBus;
 
 class UpdateAgreementLineRMOnUpdateHandler
