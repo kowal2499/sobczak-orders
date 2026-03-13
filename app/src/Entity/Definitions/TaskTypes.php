@@ -22,6 +22,7 @@ class TaskTypes
     public const TYPE_DEFAULT_SLUG_GRINDING = 'dpt03';
     public const TYPE_DEFAULT_SLUG_VARNISHING = 'dpt04';
     public const TYPE_DEFAULT_SLUG_PACKAGING = 'dpt05';
+    public const TYPE_DEFAULT_SLUG_INTOREX = 'dpt06';
 
     public const TYPE_CUSTOM_SLUG = 'custom_task';
 
@@ -52,6 +53,11 @@ class TaskTypes
                 [
                     'name' => 'Pakowanie',
                     'slug' => self::TYPE_DEFAULT_SLUG_PACKAGING
+                ],
+
+                [
+                    'name' => 'INTOREX',
+                    'slug' => self::TYPE_DEFAULT_SLUG_INTOREX
                 ]
             ],
             self::TYPE_CUSTOM => [

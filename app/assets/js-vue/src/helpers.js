@@ -37,6 +37,7 @@ export const DPT_CNC = 'dpt02'
 export const DPT_GRINDING = 'dpt03'
 export const DPT_LACQUERING = 'dpt04'
 export const DPT_PACKING = 'dpt05'
+export const DPT_INTOREX = 'dpt06'
 
 export const DEPARTMENTS = [
     {name: 'Klejenie', slug: DPT_GLUEING, grant: 'production.show.gluing'},
@@ -44,6 +45,7 @@ export const DEPARTMENTS = [
     {name: 'Szlifowanie', slug: DPT_GRINDING, grant: 'production.show.grinding'},
     {name: 'Lakierowanie', slug: DPT_LACQUERING, grant: 'production.show.laquering'},
     {name: 'Pakowanie', slug: DPT_PACKING, grant: 'production.show.packing'},
+    {name: 'INTOREX', slug: DPT_INTOREX, grant: 'production.show.intorex'},
 ];
 export function getDepartmentName(slug) {
     const department = DEPARTMENTS.find(dpt => dpt.slug === slug)
@@ -102,6 +104,7 @@ export default {
             case 'dpt03':
             case 'dpt04':
             case 'dpt05':
+            case 'dpt06':
                 result = statuses.slice(0, 5);
                 break;
 

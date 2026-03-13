@@ -14,6 +14,7 @@ export default {
                         involved_dpt03: {factor: null, factorsStack: [], production: null},
                         involved_dpt04: {factor: null, factorsStack: [], production: null},
                         involved_dpt05: {factor: null, factorsStack: [], production: null},
+                        involved_dpt06: {factor: null, factorsStack: [], production: null},
                     })
                 }
 

@@ -5,6 +5,7 @@ namespace App\Module\Agreement\CLI;
 use App\Module\Agreement\Command\UpdateAgreementLineRM;
 use App\Repository\AgreementLineRepository;
 use App\System\CommandBus;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +17,7 @@ class SyncReadModel extends Command
     public function __construct(
         private readonly AgreementLineRepository $agreementLineRepository,
         private readonly CommandBus $commandBus,
+        private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
     }
@@ -27,16 +29,33 @@ class SyncReadModel extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $agreementLines = $this->agreementLineRepository->findAll();
+        $chunkSize = 50;
+        $offset = 0;
+
         $output->writeln(['', 'AgreementLine Read Model Sync', '========================']);
 
-        $progressBar = new ProgressBar($output, count($agreementLines));
+        $totalCount = $this->agreementLineRepository->count([]);
+        $progressBar = new ProgressBar($output, $totalCount);
         $progressBar->start();
 
-        foreach ($agreementLines as $agreementLine) {
-            $command = new UpdateAgreementLineRM($agreementLine->getId());
-            $this->commandBus->dispatch($command);
-            $progressBar->advance();
+        while (true) {
+            $agreementLines = $this->agreementLineRepository->findBy([], null, $chunkSize, $offset);
+
+            if (empty($agreementLines)) {
+                break;
+            }
+
+            foreach ($agreementLines as $agreementLine) {
+                $command = new UpdateAgreementLineRM($agreementLine->getId(), flush: false);
+                $this->commandBus->dispatch($command);
+                $progressBar->advance();
+            }
+
+            // Wymuś zapis do bazy danych po każdym chunku
+            $this->entityManager->flush();
+            $this->entityManager->clear();
+
+            $offset += $chunkSize;
         }
 
         $progressBar->finish();

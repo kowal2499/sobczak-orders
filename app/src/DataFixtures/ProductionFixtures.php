@@ -33,7 +33,8 @@ class ProductionFixtures extends BaseFixture implements DependentFixtureInterfac
                              ['slug' => 'dpt02', 'name' => 'CNC'],
                              ['slug' => 'dpt03', 'name' => 'Szlifowanie'],
                              ['slug' => 'dpt04', 'name' => 'Lakierowanie'],
-                             ['slug' => 'dpt05', 'name' => 'Pakowanie']] as $stage) {
+                             ['slug' => 'dpt05', 'name' => 'Pakowanie'],
+                             ['slug' => 'dpt06', 'name' => 'INTOREX']] as $stage) {
                     $production = new Production();
                     $production
                         ->setAgreementLine($agreementLine)

@@ -41,7 +41,7 @@ class UpdateAgreementLineRMHandler
             // Linia została usunięta - usuń read model
             $model = $this->modelRepository->find($command->getAgreementLineId());
             if ($model) {
-                $this->modelRepository->remove($model);
+                $this->modelRepository->remove($model, $command->shouldFlush());
                 $this->logger->info('Removed AgreementLine read model (line deleted)', [
                     'agreementLineId' => $command->getAgreementLineId(),
                 ]);
@@ -94,6 +94,8 @@ class UpdateAgreementLineRMHandler
         $model->setDpt04EndDate(($productions['dpt04'] ?? null)?->getDateEnd());
         $model->setDpt05StartDate(($productions['dpt05'] ?? null)?->getDateStart());
         $model->setDpt05EndDate(($productions['dpt05'] ?? null)?->getDateEnd());
+        $model->setDpt06StartDate(($productions['dpt06'] ?? null)?->getDateStart());
+        $model->setDpt06EndDate(($productions['dpt06'] ?? null)?->getDateEnd());
 
         $model->setQ(
             trim(implode(' ', array_filter([
@@ -103,7 +105,7 @@ class UpdateAgreementLineRMHandler
                 $model->getUserName()
             ])))
         );
-        $this->modelRepository->add($model);
+        $this->modelRepository->add($model, $command->shouldFlush());
         $this->logger->info('Updated AgreementLine read model', [
             'agreementLineId' => $command->getAgreementLineId(),
         ]);

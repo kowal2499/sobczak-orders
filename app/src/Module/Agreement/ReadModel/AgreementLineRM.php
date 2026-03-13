@@ -121,6 +121,12 @@ class AgreementLineRM
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $dpt05EndDate;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt06StartDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $dpt06EndDate;
+
     #[ORM\Column(type: 'json')]
     private array $user;
 
@@ -539,6 +545,26 @@ class AgreementLineRM
         $this->dpt05EndDate = $dpt05EndDate;
     }
 
+    public function getDpt06StartDate(): ?DateTimeInterface
+    {
+        return $this->dpt06StartDate;
+    }
+
+    public function setDpt06StartDate(?DateTimeInterface $dpt06StartDate): void
+    {
+        $this->dpt06StartDate = $dpt06StartDate;
+    }
+
+    public function getDpt06EndDate(): ?DateTimeInterface
+    {
+        return $this->dpt06EndDate;
+    }
+
+    public function setDpt06EndDate(?DateTimeInterface $dpt06EndDate): void
+    {
+        $this->dpt06EndDate = $dpt06EndDate;
+    }
+
     public function getQ(): string
     {
         return $this->q;
@@ -579,6 +605,8 @@ class AgreementLineRM
             'dpt04EndDate' => $this->dpt04EndDate?->format('Y-m-d'),
             'dpt05StartDate' => $this->dpt05StartDate?->format('Y-m-d'),
             'dpt05EndDate' => $this->dpt05EndDate?->format('Y-m-d'),
+            'dpt06StartDate' => $this->dpt06StartDate?->format('Y-m-d'),
+            'dpt06EndDate' => $this->dpt06EndDate?->format('Y-m-d'),
             'user' => $this->user,
             'customer' => $this->customer,
             'product' => $this->product,

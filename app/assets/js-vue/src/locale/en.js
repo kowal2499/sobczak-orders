@@ -19,6 +19,7 @@ export default {
     '_dpt03': 'Grinding',
     '_dpt04': 'Lacquering',
     '_dpt05': 'Packing',
+    '_dpt06': 'INTOREX',
     '_yes': 'Yes',
     '_no': 'No',
     '_confirmation_required': 'Confirmation required',

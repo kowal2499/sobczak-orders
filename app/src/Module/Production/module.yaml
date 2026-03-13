@@ -27,6 +27,10 @@ app_module:
         description: Widoczność terminów i statusów działu - Pakowanie
         slug: production.show.packing
         type: boolean
+      - name: Widoczność działu - INTOREX
+        description: Widoczność terminów i statusów działu - INTOREX
+        slug: production.show.intorex
+        type: boolean
 
       - name: Panel produkcji
         description: Dostęp do widoku panelu produkcji

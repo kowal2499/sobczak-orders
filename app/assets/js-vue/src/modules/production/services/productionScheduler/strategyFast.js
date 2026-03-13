@@ -38,10 +38,26 @@ export default {
             ]
         },
 
+        // dpt06 INTOREX
+        'dpt06.dateStart': {
+            value: undefined,
+            dependentOn: 'dpt02.dateEnd',
+            steps: [],
+        },
+
+        'dpt06.dateEnd': {
+            value: undefined,
+            dependentOn: 'deadlineDate',
+            steps: [
+                {method: 'shiftByWeekday', params: {day: 'czwartek', direction: 'before'}},
+                {method: 'shiftByDays', params: {count: 2, direction: 'before'}},
+            ]
+        },
+
         // dpt03 GRINDING
         'dpt03.dateStart': {
             value: undefined,
-            dependentOn: 'dpt02.dateEnd',
+            dependentOn: 'dpt06.dateEnd',
             steps: [],
         },
 

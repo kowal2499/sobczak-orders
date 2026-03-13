@@ -19,6 +19,7 @@ export default {
     '_dpt03': 'Szlifowanie',
     '_dpt04': 'Lakierowanie',
     '_dpt05': 'Pakowanie',
+    '_dpt06': 'INTOREX',
     '_yes': 'Tak',
     '_no': 'Nie',
     '_confirmation_required': 'Wymagane potwierdzenie',

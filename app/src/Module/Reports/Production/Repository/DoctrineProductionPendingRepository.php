@@ -93,7 +93,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
             ->setParameter('departments', [
                 TaskTypes::TYPE_DEFAULT_SLUG_GLUING, TaskTypes::TYPE_DEFAULT_SLUG_CNC,
                 TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, TaskTypes::TYPE_DEFAULT_SLUG_VARNISHING,
-                TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING
+                TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING, TaskTypes::TYPE_DEFAULT_SLUG_INTOREX
             ])
             ->setParameter('qualifiedStatuses', [
                 TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED,

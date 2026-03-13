@@ -209,6 +209,14 @@ class AgreementLineRMRepository extends ServiceEntityRepository
                     $qb->orderBy('l.dpt05EndDate', $order)
                         ->addOrderBy('l.agreementLineId', $order);
                     break;
+                case 'dpt06DateStart':
+                    $qb->orderBy('l.dpt06StartDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
+                case 'dpt06DateEnd':
+                    $qb->orderBy('l.dpt06EndDate', $order)
+                        ->addOrderBy('l.agreementLineId', $order);
+                    break;
 //                    todo: departmentDates
             }
         }

@@ -61,7 +61,7 @@ export default defineComponent({
             const dptKey = `involved_${this.activeDepartmentSlug}`
             return this.filteredInnerData
                 .map(data => {
-                    const {involved_dpt01, involved_dpt02, involved_dpt03, involved_dpt04, involved_dpt05, ...rest} = data
+                    const {involved_dpt01, involved_dpt02, involved_dpt03, involved_dpt04, involved_dpt05, involved_dpt06, ...rest} = data
                     return {...rest, data: data[dptKey] || {} }
                 })
                 .filter(record => record.data.factor !== null)
