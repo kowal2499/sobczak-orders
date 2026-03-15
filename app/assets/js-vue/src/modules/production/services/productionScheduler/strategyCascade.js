@@ -37,7 +37,7 @@ export default {
                 {method: 'shiftByDays', params: {count: 9, direction: 'before'}},
             ]
         },
-        // dpt06 INTOREX
+        // dpt06 Intorex
         'dpt06.dateStart': {
             value: undefined,
             dependentOn: 'dpt02.dateEnd',

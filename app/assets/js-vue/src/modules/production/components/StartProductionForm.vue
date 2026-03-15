@@ -9,7 +9,7 @@
                     #default="{ errors }"
                     :rules="{
                         required: true,
-                        dateFrom: { target: row.dateEnd },
+                        dateFromOrEqual: { target: row.dateEnd },
                         dateEarlierThan: { deadline: confirmedDate }
                     }"
                 >
@@ -34,7 +34,7 @@
                     #default="{ errors }"
                     :rules="{
                         required: true,
-                        dateTo: { target: row.dateStart },
+                        dateToOrEqual: { target: row.dateStart },
                         dateEarlierThan: { deadline: confirmedDate }
                     }"
                 >

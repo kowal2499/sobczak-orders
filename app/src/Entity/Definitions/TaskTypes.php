@@ -56,7 +56,7 @@ class TaskTypes
                 ],
 
                 [
-                    'name' => 'INTOREX',
+                    'name' => 'Intorex',
                     'slug' => self::TYPE_DEFAULT_SLUG_INTOREX
                 ]
             ],

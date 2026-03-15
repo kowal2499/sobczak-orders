@@ -42,10 +42,10 @@ export const DPT_INTOREX = 'dpt06'
 export const DEPARTMENTS = [
     {name: 'Klejenie', slug: DPT_GLUEING, grant: 'production.show.gluing'},
     {name: 'CNC', slug: DPT_CNC, grant: 'production.show.cnc'},
+    {name: 'Intorex', slug: DPT_INTOREX, grant: 'production.show.intorex'},
     {name: 'Szlifowanie', slug: DPT_GRINDING, grant: 'production.show.grinding'},
     {name: 'Lakierowanie', slug: DPT_LACQUERING, grant: 'production.show.laquering'},
     {name: 'Pakowanie', slug: DPT_PACKING, grant: 'production.show.packing'},
-    {name: 'INTOREX', slug: DPT_INTOREX, grant: 'production.show.intorex'},
 ];
 export function getDepartmentName(slug) {
     const department = DEPARTMENTS.find(dpt => dpt.slug === slug)
