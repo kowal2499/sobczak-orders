@@ -9,6 +9,7 @@ use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\Repository\StatusLogRepository;
@@ -203,7 +204,7 @@ class ProductionController extends BaseController
         $argYear = $request->request->getInt('year');
         $factorsPerDay = $workCapacityRepository->findOneByDate(
             \DateTimeImmutable::createFromFormat('Y-m-d', sprintf("%d-%02d-01", $argYear, $argMonth))
-        )?->getCapacity() ?? 1.5238;
+        )?->getCapacity() ?? WorkCapacity::DEFAULT_CAPACITY;
 
         $summary = [
             'production' => [

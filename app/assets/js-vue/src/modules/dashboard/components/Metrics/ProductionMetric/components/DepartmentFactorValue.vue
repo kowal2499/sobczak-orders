@@ -39,7 +39,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="d-flex gap-1">
+    <div class="d-inline-flex gap-1" :id="popoverTarget">
         <div class="d-flex justify-content-center align-items-center gap-1">
             <div :class="factorData.factor === null ? 'text-muted' : 'font-weight-bold'">{{ Math.round(factorData.factor * 100) / 100 }}</div>
             <font-awesome-icon
@@ -50,7 +50,7 @@ export default defineComponent({
             />
         </div>
         <div v-if="factorData.factorsStack.length && (!showOnlyAdjustmentInfo || hasAdjustments)" class="text-center">
-            <font-awesome-icon icon="info-circle" class="opacity-25 " :id="popoverTarget"/>
+            <font-awesome-icon icon="info-circle" class="opacity-50" />
             <b-popover v-if="factorData.factorsStack.length" custom-class="factor-data-popover" :target="popoverTarget" placement="bottom" triggers="hover">
                 <table class="table table-sm mb-0">
                     <thead>

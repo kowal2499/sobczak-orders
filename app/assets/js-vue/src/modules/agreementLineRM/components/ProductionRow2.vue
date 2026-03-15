@@ -59,7 +59,7 @@
 
         <td
             v-for="production in productionsByGrants"
-            v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05'].indexOf(production.departmentSlug) !== -1"
+            v-if="['dpt01', 'dpt02', 'dpt03', 'dpt04', 'dpt05', 'dpt06'].indexOf(production.departmentSlug) !== -1"
             class="prod"
         >
             <div class="task">

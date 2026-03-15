@@ -1,5 +1,5 @@
 const tagModules = [
-    'production',
+    'agreement-line',
     'customer',
     'order'
 ];

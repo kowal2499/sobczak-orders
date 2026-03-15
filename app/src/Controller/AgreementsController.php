@@ -4,36 +4,17 @@ namespace App\Controller;
 
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
-use App\Entity\Attachment;
 use App\Entity\Customer;
-use App\Entity\Product;
-use App\Entity\User;
-use App\Form\AgreementsType;
-use App\Module\AgreementLine\Event\AgreementLineWasCreatedEvent;
-use App\Module\AgreementLine\Event\AgreementLineWasDeletedEvent;
-use App\Module\AgreementLine\Event\AgreementLineWasUpdatedEvent;
-use App\Module\Production\Command\CreateFactorCommand;
-use App\Module\Production\Command\UpdateFactorCommand;
-use App\Module\Production\DTO\FactorRatioDTO;
-use App\Module\Production\Entity\FactorSource;
-use App\Repository\AgreementLineRepository;
-use App\Repository\CustomerRepository;
-use App\Repository\ProductRepository;
+use App\Module\Agreement\Event\AgreementLineWasDeletedEvent;
 use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
-use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
@@ -77,10 +58,11 @@ class AgreementsController extends AbstractController
 
     /**
      * @param Agreement $agreement
+     * @param UploaderHelper $uploaderHelper
      * @return JsonResponse
      */
-    #[Route(path: '/orders/fetch_single/{id}', name: 'orders_single_fetch', options: ['expose' => true], methods: ['POST'])]
-    public function fetchSingle(Agreement $agreement): JsonResponse
+    #[Route(path: '/orders/fetch_single/{agreement}', name: 'orders_single_fetch', options: ['expose' => true], methods: ['POST'])]
+    public function fetchSingle(Agreement $agreement, UploaderHelper $uploaderHelper): JsonResponse
     {
         $returnData = [
             'customerId' => $agreement->getCustomer()->getId(),
@@ -98,6 +80,18 @@ class AgreementsController extends AbstractController
                 'factor' => (float) $line->getFactor()
             ];
         }
+
+        foreach ($agreement->getAttachments() as $attachment) {
+            $returnData['attachments'][] = [
+                'id' => $attachment->getId(),
+                'name' => $attachment->getName(),
+                'originalName' => $attachment->getOriginalName(),
+                'extension' => $attachment->getExtension(),
+                'url' => $uploaderHelper->getPublicPath($attachment->getPath()),
+                'thumbnail' => $uploaderHelper->getPublicPathThumbnail($attachment->getPath()),
+            ];
+        }
+
         return new JsonResponse($returnData);
     }
 
@@ -119,279 +113,6 @@ class AgreementsController extends AbstractController
             ];
         }, $agreements->getArrayResult()));
 
-    }
-
-    /**
-     * @param Request $request
-     * @param CustomerRepository $customerRepository
-     * @param ProductRepository $productRepository
-     * @param EntityManagerInterface $em
-     * @param UploaderHelper $uploaderHelper
-     * @param TranslatorInterface $t
-     * @param Security $security
-     * @param CommandBus $commandBus
-     * @param EventBus $eventBus
-     * @return JsonResponse
-     * @throws \Exception
-     */
-    #[Route(path: '/orders/save', name: 'orders_add', options: ['expose' => true], methods: ['POST'])]
-    public function save(
-        Request $request,
-        CustomerRepository $customerRepository,
-        ProductRepository $productRepository,
-        EntityManagerInterface $em,
-        UploaderHelper $uploaderHelper,
-        TranslatorInterface $t,
-        Security $security,
-        CommandBus $commandBus,
-        EventBus $eventBus,
-    ): JsonResponse
-    {
-        $data = $request->request->all();
-
-        if (false === is_array($data['products'])) {
-            $data['products'] = json_decode($data['products'], true);
-        }
-
-        $customer = $customerRepository->find($data['customerId']);
-        $agreement = new Agreement();
-        $agreement
-            ->setCreateDate(new \DateTime())
-            ->setUpdateDate(new \DateTime())
-            ->setCustomer($customer)
-            ->setUser($security->getUser())
-            ->setOrderNumber($data['orderNumber'])
-        ;
-
-        $em->persist($agreement);
-
-        foreach($data['products'] as $productData) {
-            $product = $productRepository->find($productData['productId']);
-
-            $agreementLine = new AgreementLine();
-            $agreementLine
-                ->setProduct($product)
-                ->setConfirmedDate(new \DateTime($productData['requiredDate']))
-                ->setDescription($productData['description'])
-                ->setFactor($productData['factor'])
-                ->setStatus(AgreementLine::STATUS_WAITING)  // początkowy status nowego zamówienia to 'oczekuje'
-                ->setDeleted(false)
-                ->setArchived(false)
-            ;
-            $agreement->addAgreementLine($agreementLine);
-            $em->persist($agreementLine);
-        }
-
-        // file upload logic
-        $rawFiles = $request->files->get('file');
-        if (!is_array($rawFiles)) {
-            $rawFiles = [$rawFiles];
-        }
-        $files = $uploaderHelper->getUploadedFiles($rawFiles);
-        foreach ($files as $file) {
-            $fileNames = $uploaderHelper->uploadAttachment($file);
-            $attachment = new Attachment();
-            $attachment->setAgreement($agreement);
-            $attachment->setName($fileNames['newFileName']);
-            $attachment->setOriginalName($fileNames['originalFileName']);
-            $attachment->setExtension($fileNames['extension']);
-            $em->persist($attachment);
-        }
-        $em->flush();
-
-        foreach ($agreement->getAgreementLines() as $line) {
-            // add factor
-            $commandBus->dispatch(new CreateFactorCommand(
-                $line->getId(),
-                new FactorRatioDTO(
-                    FactorSource::AGREEMENT_LINE,
-                    $line->getFactor(),
-                )
-            ));
-
-            $eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
-        }
-
-        if ($em->contains($agreement)) {
-            $this->addFlash('success', $t->trans('Dodano nowe zamówienie.', [], 'agreements'));
-        }
-        else {
-            $this->addFlash('error', $t->trans('Błąd dodawania zamówienia.', [], 'agreements'));
-        }
-
-        return new JsonResponse([$agreement->getId()]);
-    }
-
-    /**
-     * @param Agreement $agreement
-     * @param Request $request
-     * @param CustomerRepository $customerRepository
-     * @param AgreementLineRepository $agreementLineRepository
-     * @param ProductRepository $productRepository
-     * @param EntityManagerInterface $em
-     * @param UploaderHelper $uploaderHelper
-     * @param CommandBus $commandBus
-     * @param EventBus $eventBus
-     * @param TranslatorInterface $t
-     * @return JsonResponse
-     * @throws \Exception
-     */
-    #[Route(path: '/orders/patch/{agreement}', name: 'orders_patch', options: ['expose' => true], methods: ['POST'])]
-    public function edit(
-        Agreement $agreement,
-        Request $request,
-        CustomerRepository $customerRepository,
-        AgreementLineRepository $agreementLineRepository,
-        ProductRepository $productRepository,
-        EntityManagerInterface $em,
-        UploaderHelper $uploaderHelper,
-        CommandBus $commandBus,
-        EventBus $eventBus,
-        TranslatorInterface $t
-    ): JsonResponse
-    {
-        /**
-         * 1. operujemy na agreement_line_id,
-         * 2. aktualizujemy klienta i numer zamówienia,
-         * 3. tworzymy zbiór wszystkich agreement line, które należą do danego agreement,
-         * 4. z tych agreement, które otrzymaliśmy, aktualizujemy te, które mają id i usuwamy je ze zbioru
-         * 5. z tych agreement, które otrzymaliśmy i które nie mają id-dodajemy jako nowe
-         * 6. jeśli zbiór jest niepusty, to znaczy, że te, które zostały trzeba usunąć. Usuwamy więc usuwając najpierw produkcję i historię zmian statusuów
-         */
-
-        $requestData = $request->request->all();
-        if (false === is_array($requestData['products'])) {
-            $requestData['products'] = json_decode($requestData['products'], true);
-        }
-
-        /**
-         * Stara tablica wszystkich pozycji zamówienia
-         */
-        $oldAgreementLineIds = [];
-        foreach ($agreement->getAgreementLines() as $line) {
-            $oldAgreementLineIds[] = $line->getId();
-        }
-
-        try {
-            $customer = $customerRepository->find($requestData['customerId']);
-            $orderNumber = $requestData['orderNumber'];
-
-            if (!$customer || !$orderNumber) {
-                throw new \Exception('Wrong input data');
-            }
-            $agreement
-                ->setCustomer($customer)
-                ->setOrderNumber($orderNumber)
-            ;
-
-            $incomingLines = $requestData['products'];
-            if (empty($incomingLines)) {
-                throw new \Exception('Wrong input data');
-            }
-
-            $factorCommands = [];
-            $eventsCreated = [];
-            $eventsUpdated = [];
-            $eventsDeleted = [];
-            foreach ($incomingLines as $incomingLine) {
-                $isNew = false;
-                if (isset($incomingLine['id']) && !empty($incomingLine['id'])) {
-                    $line = $agreementLineRepository->find($incomingLine['id']);
-
-                    $idx = array_search($incomingLine['id'], $oldAgreementLineIds);
-
-                    if (is_numeric($idx)) {
-                        unset($oldAgreementLineIds[$idx]);
-                    }
-
-                } else {
-                    $line = new AgreementLine();
-                    $line->setDeleted(false)
-                        ->setArchived(false)
-                    ;
-                    $agreement->addAgreementLine($line);
-                    $isNew = true;
-                }
-
-                $line->setConfirmedDate(new \DateTime($incomingLine['requiredDate']));
-                $line->setProduct($productRepository->find($incomingLine['productId']));
-                $line->setFactor($incomingLine['factor']);
-                $line->setDescription($incomingLine['description']);
-
-                $em->persist($line);
-
-                $agreementLineFactor = $line->getFactorFromCollection();
-
-                if ($isNew || !$agreementLineFactor) {
-                    $em->flush();
-                    $factorCommands[] = new CreateFactorCommand($line->getId(), new FactorRatioDTO(
-                        FactorSource::AGREEMENT_LINE,
-                        $line->getFactor(),
-                    ));
-                } else {
-                    $factorCommands[] = new UpdateFactorCommand($line->getId(), new FactorRatioDTO(
-                        FactorSource::AGREEMENT_LINE,
-                        $line->getFactor(),
-                        $agreementLineFactor->getId(),
-                    ));
-                }
-
-                if ($isNew) {
-                    $eventsCreated[] = new AgreementLineWasCreatedEvent($line->getId());
-                } else {
-                    $eventsUpdated[] = new AgreementLineWasUpdatedEvent($line->getId());
-                }
-            }
-
-            // file upload logic
-            $rawFiles = $request->files->get('file');
-            if (!is_array($rawFiles)) {
-                $rawFiles = [$rawFiles];
-            }
-            $files = $uploaderHelper->getUploadedFiles($rawFiles);
-            foreach ($files as $file) {
-                $fileNames = $uploaderHelper->uploadAttachment($file);
-
-                $attachment = new Attachment();
-                $attachment->setAgreement($agreement);
-                $attachment->setName($fileNames['newFileName']);
-                $attachment->setOriginalName($fileNames['originalFileName']);
-                $attachment->setExtension($fileNames['extension']);
-                $em->persist($attachment);
-            }
-
-        } catch (Exception $e) {
-            return new JsonResponse(null, Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $em->persist($agreement);
-        $em->flush();
-
-        // usuwanie linii
-        if (!empty($oldAgreementLineIds)) {
-            foreach ($oldAgreementLineIds as $agreementLineId) {
-                $line = $agreementLineRepository->find($agreementLineId);
-                $em->remove($line);
-                $eventsDeleted[] = new AgreementLineWasDeletedEvent($agreementLineId);
-            }
-            $em->flush();
-        }
-
-        // dispatch factor commands
-        foreach ($factorCommands as $command) {
-            $commandBus->dispatch($command);
-        }
-
-        // dispatch events
-        foreach (array_merge($eventsCreated, $eventsUpdated, $eventsDeleted) as $event) {
-            $eventBus->dispatch($event);
-        }
-
-        if ($em->contains($agreement)) {
-            $this->addFlash('success', $t->trans('Zapisano zmiany.', [], 'agreements'));
-        }
-
-        return new JsonResponse();
     }
 
     /**

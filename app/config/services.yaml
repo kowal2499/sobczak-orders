@@ -35,7 +35,12 @@ services:
             - '../src/Tests'
     App\Module\:
         resource: '../src/Module/*'
-        exclude: '../src/Module/**/{DependencyInjection,Entity,Event,Command,DTO/*DTO}'
+        exclude:
+            - '../src/Module/**/DependencyInjection'
+            - '../src/Module/**/Entity'
+            - '../src/Module/**/Event'
+            - '../src/Module/**/Command'
+            - '../src/Module/**/DTO/*DTO.php'
 
 
     # add more service definitions when explicit configuration is needed
@@ -80,3 +85,4 @@ services:
         resource: '%kernel.project_dir%/src/**/EventHandler/**/*Handler.php'
         tags:
             - { name: messenger.message_handler, bus: messenger.bus.events }
+

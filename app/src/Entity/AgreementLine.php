@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Module\Production\Entity\Factor;
 use App\Module\Production\Entity\FactorSource;
+use App\Module\Tag\Entity\TagAssignment;
 use App\Repository\AgreementLineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -54,7 +55,7 @@ class AgreementLine
 
     #[ORM\Column(type: 'smallint', nullable: true)]
     #[Groups(['_main', '_linePanel'])]
-    private ?int $status;
+    private ?int $status = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $deleted;

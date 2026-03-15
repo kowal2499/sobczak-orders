@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'schedule' %}
+
+{% block title %}{{ 'Kalendarz produkcji'|trans }}{% endblock %}
+
+{% block body %}
+<app>
+    <schedule-production></schedule-production>
+</app>
+{% endblock %}

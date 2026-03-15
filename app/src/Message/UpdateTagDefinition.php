@@ -1,40 +1,13 @@
 <?php
-/** @author: Roman Kowalski */
+/** @deprecated Przeniesiono do App\Module\Tag\Command\UpdateTagDefinitionCommand */
 
 namespace App\Message;
 
-use App\DTO\TagDefinitionDTO;
+use App\Module\Tag\Command\UpdateTagDefinitionCommand;
 
-class UpdateTagDefinition
+/**
+ * @deprecated Użyj App\Module\Tag\Command\UpdateTagDefinitionCommand
+ */
+class UpdateTagDefinition extends UpdateTagDefinitionCommand
 {
-    private $id;
-
-    private $tagDefinitionDTO;
-
-    /**
-     * CreateTagDefinition constructor.
-     * @param int $id
-     * @param TagDefinitionDTO $tagDefinitionDTO
-     */
-    public function __construct(int $id, TagDefinitionDTO $tagDefinitionDTO)
-    {
-        $this->id = $id;
-        $this->tagDefinitionDTO = $tagDefinitionDTO;
-    }
-
-    /**
-     * @return TagDefinitionDTO
-     */
-    public function getTagDefinitionDTO(): TagDefinitionDTO
-    {
-        return $this->tagDefinitionDTO;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
 }

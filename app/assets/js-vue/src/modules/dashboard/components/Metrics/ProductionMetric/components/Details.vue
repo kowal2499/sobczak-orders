@@ -10,6 +10,7 @@ const DEFAULT_ROW = () => ({
     dpt03: 0,
     dpt04: 0,
     dpt05: 0,
+    dpt06: 0,
 })
 
 export default defineComponent({
@@ -43,6 +44,7 @@ export default defineComponent({
                     dpt03: record.involved_dpt03,
                     dpt04: record.involved_dpt04,
                     dpt05: record.involved_dpt05,
+                    dpt06: record.involved_dpt06,
                 }
             })
         },
@@ -56,6 +58,7 @@ export default defineComponent({
                 summaryRow.dpt03 += row.dpt03.factor || 0;
                 summaryRow.dpt04 += row.dpt04.factor || 0;
                 summaryRow.dpt05 += row.dpt05.factor || 0;
+                summaryRow.dpt06 += row.dpt06.factor || 0;
             })
             return summaryRow;
         },
@@ -101,6 +104,12 @@ export default defineComponent({
                     label: this.$t('_dpt05'),
                     class: 'data-cell',
                     active: this.$user.can('production.show.packing')
+                },
+                {
+                    key: 'dpt06',
+                    label: this.$t('_dpt06'),
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.intorex')
                 },
             ].filter(field => field.active)
         },
@@ -158,6 +167,9 @@ export default defineComponent({
         <template #cell(dpt05)="{item}">
             <DepartmentFactorValue :factorData="item.dpt05" />
         </template>
+        <template #cell(dpt06)="{item}">
+            <DepartmentFactorValue :factorData="item.dpt06" />
+        </template>
 
         <template #head(context)="data">
             {{data.label}}
@@ -186,6 +198,10 @@ export default defineComponent({
         <template #head(dpt05)="data">
             {{data.label}}
             <br><b-badge pill variant="light">{{ footer.dpt05 | roundFloat }}</b-badge>
+        </template>
+        <template #head(dpt06)="data">
+            {{data.label}}
+            <br><b-badge pill variant="light">{{ footer.dpt06 | roundFloat }}</b-badge>
         </template>
     </b-table>
 </template>

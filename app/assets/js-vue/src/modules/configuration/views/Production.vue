@@ -3,7 +3,7 @@ import CollapsibleCard from '@/components/base/CollapsibleCard'
 import ProductionNavigation from "../components/production/ProductionNavigation.vue";
 import CapacityForm from "../components/production/CapacityForm.vue";
 import CapacityHistory from "../components/production/CapacityHistory.vue";
-import WorkScheduleCalendar from "../components/production/WorkScheduleCalendar.vue";
+import ScheduleHolidays from "@/modules/schedule/views/ScheduleHolidays.vue"
 
 export default {
     name: "ProductionConfiguration",
@@ -12,7 +12,7 @@ export default {
         ProductionNavigation,
         CapacityForm,
         CapacityHistory,
-        WorkScheduleCalendar,
+        ScheduleHolidays,
     },
 }
 </script>
@@ -21,7 +21,7 @@ export default {
     <CollapsibleCard :title="$t('config.production.title')" no-padding locked>
         <ProductionNavigation>
             <template #working-days-calendar>
-                <WorkScheduleCalendar />
+                <ScheduleHolidays />
             </template>
             <template #daily-capacity>
                 <CapacityForm />

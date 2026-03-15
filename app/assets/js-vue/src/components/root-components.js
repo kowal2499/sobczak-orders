@@ -1,4 +1,4 @@
-import NewOrder from './orders/NewOrder';
+import AgreementForm from '@/modules/agreement/view/AgreementForm.vue';
 import OrdersList from './orders/list/OrdersList';
 import ProductionList from './production/ProductionList';
 import AgreementLineListRM from '../modules/agreementLineRM/views/AgreementLineListRM';
@@ -19,7 +19,7 @@ import DevContainer from './dev/DevContainer'
 
 export default {
     App,
-    NewOrder,
+    AgreementForm,
     OrdersList,
     ProductionList,
     AgreementLineListRM,
@@ -35,7 +35,7 @@ export default {
     UserSingle: () => import('../modules/configuration/views/UserSingle.vue'),
     Roles: () => import('../modules/configuration/views/Roles.vue'),
     ProductionConfiguration: () => import('../modules/configuration/views/Production.vue'),
-
+    ScheduleProduction: () => import('../modules/schedule/views/ScheduleProduction.vue'),
     ...TagsModule,
     ContextMenu,
     DevContainer,

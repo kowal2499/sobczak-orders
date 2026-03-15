@@ -5,6 +5,7 @@ const grantMap = {
     'production.show.grinding': 'dpt03DateEnd_asc',
     'production.show.laquering': 'dpt04DateEnd_asc',
     'production.show.packing': 'dpt05DateEnd_asc',
+    'production.show.intorex': 'dpt06DateEnd_asc',
 }
 
 /**

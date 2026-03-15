@@ -57,60 +57,6 @@ class WorkScheduleController extends BaseController
         return $this->json($workSchedule->toArray(), Response::HTTP_CREATED);
     }
 
-    #[Route(path: '', name: 'list', methods: ['GET'])]
-    public function list(
-        Request $request,
-        WorkScheduleService $workScheduleService
-    ): JsonResponse {
-        $startDate = $request->query->get('startDate');
-        $endDate = $request->query->get('endDate');
-        $type = $request->query->get('type');
-
-        if (!$startDate || !$endDate) {
-            return $this->json([
-                'error' => 'startDate and endDate are required'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        $typeEnum = null;
-        if ($type !== null) {
-            $typeEnum = ScheduleDayType::tryFrom($type);
-            if (!$typeEnum) {
-                return $this->json([
-                    'error' => 'Invalid type. Allowed values: working, holiday'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-        }
-
-        try {
-            $startDateObj = DateTimeImmutable::createFromFormat('Y-m-d', $startDate);
-            $endDateObj = DateTimeImmutable::createFromFormat('Y-m-d', $endDate);
-
-            if (!$startDateObj || $startDateObj->format('Y-m-d') !== $startDate) {
-                throw new \InvalidArgumentException('Invalid startDate format');
-            }
-            if (!$endDateObj || $endDateObj->format('Y-m-d') !== $endDate) {
-                throw new \InvalidArgumentException('Invalid endDate format');
-            }
-
-            $startDateObj = $startDateObj->setTime(0, 0, 0);
-            $endDateObj = $endDateObj->setTime(23, 59, 59);
-        } catch (\Exception $e) {
-            return $this->json([
-                'error' => 'Invalid date format. Expected Y-m-d'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        $schedules = $workScheduleService->getDays($startDateObj, $endDateObj, $typeEnum);
-
-        return $this->json(
-            array_map(
-                fn (WorkSchedule $schedule) => $schedule->toArray(),
-                $schedules
-            ),
-            Response::HTTP_OK
-        );
-    }
 
     #[Route(path: '/{id}', name: 'delete', methods: ['DELETE'])]
     #[IsGranted('work-configuration.schedule')]

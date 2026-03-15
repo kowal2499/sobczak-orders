@@ -15,11 +15,15 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
-    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash
+    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
+    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch, faPhone, faEnvelope,
+    faExclamationCircle,
 } from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
-    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash)
+    faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
+    faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch,
+    faPhone, faEnvelope, faExclamationCircle,)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 window.EventBus = new Vue();
@@ -35,6 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.prototype.$user = new User(user);
     Vue.prototype.$privilages = Roles;
     Vue.prototype.$helpers = helpers;
+    Vue.prototype.$flash = {
+        success: content => window.EventBus.$emit('message', { type: 'success', content }),
+        danger: content => window.EventBus.$emit('message', { type: 'danger', content }),
+        info: content => window.EventBus.$emit('message', { type: 'info', content }),
+        warning: content => window.EventBus.$emit('message', { type: 'warning', content }),
+    }
 
     Vue.mixin({
         methods: {

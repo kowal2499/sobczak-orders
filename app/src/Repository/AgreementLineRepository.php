@@ -187,6 +187,16 @@ class AgreementLineRepository extends ServiceEntityRepository
                            ->addOrderBy('sort_dpt05_end', $order)
                            ->setParameter('slug_dpt05', TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING);
                         break;
+                    case 'dpt06DateStart':
+                        $qb->addSelect('(SELECT prS06.dateStart FROM App\\Entity\\Production prS06 WHERE prS06.agreementLine = l AND prS06.departmentSlug = :slug_dpt06) AS HIDDEN sort_dpt06_start')
+                           ->addOrderBy('sort_dpt06_start', $order)
+                           ->setParameter('slug_dpt06', TaskTypes::TYPE_DEFAULT_SLUG_INTOREX);
+                        break;
+                    case 'dpt06DateEnd':
+                        $qb->addSelect('(SELECT prE06.dateEnd FROM App\\Entity\\Production prE06 WHERE prE06.agreementLine = l AND prE06.departmentSlug = :slug_dpt06) AS HIDDEN sort_dpt06_end')
+                           ->addOrderBy('sort_dpt06_end', $order)
+                           ->setParameter('slug_dpt06', TaskTypes::TYPE_DEFAULT_SLUG_INTOREX);
+                        break;
                 }
             }
         }

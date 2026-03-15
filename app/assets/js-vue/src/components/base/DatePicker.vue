@@ -8,6 +8,7 @@
         use-utc="true"
         :show-week-number="true"
         :formatter="formatter"
+        :disabled="isDisabled"
     />
 </template>
 
@@ -23,17 +24,18 @@
 
         props: {
             value: {},
-
             isRange: {
                 type: Boolean,
                 default: true
             },
-
+            isDisabled: {
+                type: Boolean,
+                default: false
+            },
             dateOnly: {
                 type: Boolean,
                 default: true
             },
-
             width: {
                 type: String,
                 default: 'auto'

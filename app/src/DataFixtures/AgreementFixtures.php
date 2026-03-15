@@ -6,7 +6,7 @@ use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Product;
-use App\Entity\TagAssignment;
+use App\Module\Tag\Entity\TagAssignment;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 

@@ -2,6 +2,10 @@
 
 $mainBlue: #4e73df;
 
+$gray: #808080;
+$green: #28a745;
+$yellow: #ffc107;
+
 $lightgray: #efefef;
 $lightgray2: color.scale(#efefef, $lightness: -10%);
 $lightgray3: #f8f9fc;
@@ -20,6 +24,47 @@ $primaryLight70: color.mix(#fff, $mainBlue, 70%);
 $primaryLight80: color.mix(#fff, $mainBlue, 80%);
 $primaryLight90: color.mix(#fff, $mainBlue, 90%);
 
+$grayLight10: color.mix(#fff, $gray, 10%);
+$grayLight20: color.mix(#fff, $gray, 20%);
+$grayLight30: color.mix(#fff, $gray, 30%);
+$grayLight40: color.mix(#fff, $gray, 40%);
+$grayLight50: color.mix(#fff, $gray, 50%);
+$grayLight60: color.mix(#fff, $gray, 60%);
+$grayLight70: color.mix(#fff, $gray, 70%);
+$grayLight80: color.mix(#fff, $gray, 80%);
+$grayLight90: color.mix(#fff, $gray, 90%);
+
+$text: #333;
+
 :root {
-    --colorPrimary: $mainBlue;
+    --colorText: #{$text};
+
+    --colorPrimary: #{$mainBlue};
+    --colorPrimaryRgb: #{color.red($mainBlue)}, #{color.green($mainBlue)}, #{color.blue($mainBlue)};
+
+    --colorWhite: #FFF;
+    --colorWhite100: #FFF;
+    --colorWhite90: #F4F4F4;
+
+    --colorGray: #{$gray};
+    --colorGrayRgb: #{color.red($gray)}, #{color.green($gray)}, #{color.blue($gray)};
+
+    --colorGrayLight10: #{$grayLight10};
+    --colorGrayLight20: #{$grayLight20};
+    --colorGrayLight30: #{$grayLight30};
+    --colorGrayLight40: #{$grayLight40};
+    --colorGrayLight50: #{$grayLight50};
+    --colorGrayLight60: #{$grayLight60};
+    --colorGrayLight70: #{$grayLight70};
+    --colorGrayLight80: #{$grayLight80};
+    --colorGrayLight90: #{$grayLight90};
+
+    --colorGrayLight1: #{$lightgray};
+    --colorGrayLight3: #{$lightgray3};
+
+    --colorSuccess: #{$green};
+    --colorSuccessRgb: #{color.red($green)}, #{color.green($green)}, #{color.blue($green)};
+
+    --colorYellow: #{$yellow};
+    --colorYellowRgb: #{color.red($yellow)}, #{color.green($yellow)}, #{color.blue($yellow)};
 }

@@ -1,4 +1,0 @@
-agreement_line_controllers:
-  resource: ./Controller
-  type: annotation
-  prefix: /agreement-line

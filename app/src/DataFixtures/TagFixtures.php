@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\TagDefinition;
+use App\Module\Tag\Entity\TagDefinition;
 use Doctrine\Persistence\ObjectManager;
 
 class TagFixtures extends BaseFixture

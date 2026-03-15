@@ -30,6 +30,11 @@ class Department
             [
                 'name' => 'Pakowanie',
                 'slug' => 'dpt05'
+            ],
+
+            [
+                'name' => 'INTOREX',
+                'slug' => 'dpt06'
             ]
 
         ];

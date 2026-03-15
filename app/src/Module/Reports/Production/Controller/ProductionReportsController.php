@@ -7,29 +7,14 @@ use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
 use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
-use App\Modules\Reports\Production\ProductionReport;
+use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductionReportsController extends BaseController
 {
-    /**
-     * @deprecated
-     */
-//    #[Route(path: '/agreement-line-production', methods: ['GET'])]
-//    public function agreementLinesProduction(Request $request, ProductionReport $report): Response
-//    {
-//        $start = $request->query->get('start');
-//        $end = $request->query->get('end');
-//        $departments = $request->query->get('departments', []);
-//
-//        return $this->json($report->calc(
-//            $start ? new \DateTime($start) : null,
-//            $end ? new \DateTime($end) : null,
-//            $departments
-//        ));
-//    }
+    use DateValidationTrait;
 
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
     public function agreementLinesProductionSummary(
@@ -37,8 +22,15 @@ class ProductionReportsController extends BaseController
         OrdersPendingRecordSupplier $ordersPendingRecordSupplier,
         OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier,
     ): Response {
-        $start = new \DateTimeImmutable($request->query->get('start'));
-        $end = new \DateTimeImmutable($request->query->get('end'));
+
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
 
         $response = [];
         foreach ([$ordersPendingRecordSupplier, $ordersFinishedRecordSupplier] as $supplier) {
@@ -53,8 +45,14 @@ class ProductionReportsController extends BaseController
         Request $request,
         OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier
     ): Response {
-        $start = new \DateTimeImmutable($request->query->get('start'));
-        $end = new \DateTimeImmutable($request->query->get('end'));
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
 
         return $this->json($ordersFinishedRecordSupplier->getRecords($start, $end));
     }
@@ -64,8 +62,15 @@ class ProductionReportsController extends BaseController
         Request $request,
         OrdersPendingRecordSupplier $ordersPendingRecordSupplier
     ): Response {
-        $start = new \DateTimeImmutable($request->query->get('start'));
-        $end = new \DateTimeImmutable($request->query->get('end'));
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end'),
+            false
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
 
         return $this->json($ordersPendingRecordSupplier->getRecords($start, $end));
     }
@@ -75,8 +80,14 @@ class ProductionReportsController extends BaseController
         Request $request,
         ProductionBonusSupplier $supplier
     ): Response {
-        $start = new \DateTimeImmutable($request->query->get('start'));
-        $end = new \DateTimeImmutable($request->query->get('end'));
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
 
         return $this->json($supplier->getRecords($start, $end));
     }
@@ -86,8 +97,14 @@ class ProductionReportsController extends BaseController
         Request $request,
         ProductionCapacitySupplier $supplier
     ): Response {
-        $start = new \DateTimeImmutable($request->query->get('start'));
-        $end = new \DateTimeImmutable($request->query->get('end'));
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
 
         return $this->json($supplier->getRecords($start, $end));
     }

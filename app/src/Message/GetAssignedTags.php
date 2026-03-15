@@ -1,33 +1,13 @@
 <?php
-/** @author: Roman Kowalski */
+/** @deprecated Przeniesiono do App\Module\Tag\Query\GetAssignedTagsQuery */
 
 namespace App\Message;
 
-class GetAssignedTags
+use App\Module\Tag\Query\GetAssignedTagsQuery;
+
+/**
+ * @deprecated Użyj App\Module\Tag\Query\GetAssignedTagsQuery
+ */
+class GetAssignedTags extends GetAssignedTagsQuery
 {
-    private $contextId;
-    private $module;
-
-    public function __construct(int $contextId, string $module)
-    {
-        $this->contextId = $contextId;
-        $this->module = $module;
-    }
-
-    /**
-     * @return int
-     */
-    public function getContextId(): int
-    {
-        return $this->contextId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModule(): string
-    {
-        return $this->module;
-    }
-
 }

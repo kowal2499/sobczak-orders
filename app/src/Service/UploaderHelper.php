@@ -4,7 +4,7 @@
 namespace App\Service;
 
 
-use Gedmo\Sluggable\Util\Urlizer;
+use App\Utilities\Slugger;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -42,7 +42,7 @@ class UploaderHelper
 //        $verifiedExtension = $uploadedFile->guessExtension();
         $verifiedExtension = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_EXTENSION);
 
-        $newFileName = Urlizer::urlize($originalFileName) . '-' . uniqid() . '.' . $verifiedExtension;
+        $newFileName = Slugger::slugify($originalFileName) . '-' . uniqid() . '.' . $verifiedExtension;
         $uploadedFile->move($destination, $newFileName);
 
         return [
@@ -110,3 +110,4 @@ class UploaderHelper
         return $filesCollection;
     }
 }
+

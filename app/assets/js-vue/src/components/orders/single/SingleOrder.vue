@@ -196,9 +196,9 @@
                             description: src.description,
                             productions: {
                                 tasks: src.productions, 
-                                tags: src.tags.map(tag => tag.tagDefinition.id),
+                                tags: src.tags.map(tag => tag.tagDefinition.slug),
                                 tagsData: src.tags.map(tag => ({
-                                  definitionId: tag.tagDefinition.id,
+                                  slug: tag.tagDefinition.slug,
                                   createdAt: tag.createdAt,
                                   userName: tag.user.userFullName
                                 }))

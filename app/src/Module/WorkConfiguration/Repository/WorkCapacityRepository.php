@@ -35,10 +35,28 @@ class WorkCapacityRepository extends ServiceEntityRepository
 
     public function findByRange(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
     {
+        $result = [];
+
+        // Jeśli podano datę początkową, znajdź najbliższe wcześniejsze lub równe WorkCapacity
+        if ($start) {
+            $earliestOrEqual = $this->createQueryBuilder('w')
+                ->where('w.dateFrom <= :start')
+                ->setParameter('start', $start)
+                ->orderBy('w.dateFrom', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($earliestOrEqual) {
+                $result[] = $earliestOrEqual;
+            }
+        }
+
+        // Znajdź wszystkie WorkCapacity w zakresie (wyłączając już znaleziony punkt startowy)
         $qb = $this->createQueryBuilder('w');
 
         if ($start) {
-            $qb->andWhere('w.dateFrom >= :start')
+            $qb->andWhere('w.dateFrom > :start')
                ->setParameter('start', $start);
         }
         if ($end) {
@@ -46,10 +64,28 @@ class WorkCapacityRepository extends ServiceEntityRepository
                ->setParameter('end', $end);
         }
 
-        return $qb
-            ->orderBy('w.dateFrom', 'DESC')
+        $rangeResults = $qb
+            ->orderBy('w.dateFrom', 'ASC')
             ->getQuery()
             ->getResult();
+
+        // Połącz wyniki i usuń duplikaty
+        $result = array_merge($result, $rangeResults);
+
+        // Usuń duplikaty na podstawie ID
+        $unique = [];
+        $ids = [];
+        foreach ($result as $capacity) {
+            if (!in_array($capacity->getId(), $ids, true)) {
+                $unique[] = $capacity;
+                $ids[] = $capacity->getId();
+            }
+        }
+
+        // Sortuj według dateFrom ASC (od najstarszej daty)
+        usort($unique, fn($a, $b) => $a->getDateFrom() <=> $b->getDateFrom());
+
+        return $unique;
     }
 
     public function save(WorkCapacity $workCapacity, bool $flush = true): void
