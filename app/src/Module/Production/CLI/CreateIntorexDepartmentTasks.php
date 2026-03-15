@@ -2,13 +2,10 @@
 
 namespace App\Module\Production\CLI;
 
-use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
-use App\Entity\Department;
+use App\Module\Production\ValueObject\DepartmentEnum;
 use App\Entity\Production;
 use App\Repository\AgreementLineRepository;
-use App\Service\AgreementLine\ProductionCompletionDateResolverService;
-use App\Service\AgreementLine\ProductionStartDateResolverService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -41,7 +38,7 @@ class CreateIntorexDepartmentTasks extends Command
         $qb->where('al.productionStartDate IS NOT NULL')
             ->leftJoin('al.productions', 'p', 'WITH', 'p.departmentSlug = :departmentSlug')
             ->andWhere('p.id IS NULL')
-            ->setParameter('departmentSlug', Department::DPT06)
+            ->setParameter('departmentSlug', DepartmentEnum::INTOREX->value)
             ->select('al.id');
 
         $ids = array_column($qb->getQuery()->getResult(), 'id');
@@ -61,8 +58,6 @@ class CreateIntorexDepartmentTasks extends Command
         $chunkSize = 100;
         $chunks = array_chunk($ids, $chunkSize);
 
-        $department = Department::getDepartmentBySlug(Department::DPT06);
-
         foreach ($chunks as $chunkIds) {
             $lines = $this->agreementLineRepository->findBy(['id' => $chunkIds]);
 
@@ -70,8 +65,8 @@ class CreateIntorexDepartmentTasks extends Command
                 $production = new Production();
                 $production
                     ->setAgreementLine($line)
-                    ->setTitle($department['name'])
-                    ->setDepartmentSlug($department['slug'])
+                    ->setTitle(DepartmentEnum::INTOREX->getName())
+                    ->setDepartmentSlug(DepartmentEnum::INTOREX->value)
                     ->setStatus(TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE)
                     ->setCreatedAt(new \DateTime())
                     ->setUpdatedAt(new \DateTime())

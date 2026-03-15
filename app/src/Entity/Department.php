@@ -2,71 +2,77 @@
 
 namespace App\Entity;
 
+use App\Module\Production\ValueObject\DepartmentEnum;
+
+/**
+ * @deprecated Use DepartmentEnum from App\Module\Production\ValueObject instead
+ * This class is kept for backward compatibility only
+ */
 class Department
 {
+    /** @deprecated Use DepartmentEnum::GLUING->value */
     const DPT01 = 'dpt01';
+
+    /** @deprecated Use DepartmentEnum::CNC->value */
     const DPT02 = 'dpt02';
+
+    /** @deprecated Use DepartmentEnum::GRINDING->value */
     const DPT03 = 'dpt03';
+
+    /** @deprecated Use DepartmentEnum::VARNISHING->value */
     const DPT04 = 'dpt04';
+
+    /** @deprecated Use DepartmentEnum::PACKAGING->value */
     const DPT05 = 'dpt05';
+
+    /** @deprecated Use DepartmentEnum::INTOREX->value */
     const DPT06 = 'dpt06';
 
-    public static function names() : array
+    /**
+     * @deprecated Use DepartmentEnum::getProductionDepartments() and map to array
+     * Zwraca wszystkie działy produkcyjne z nazwami i kolejnością
+     */
+    public static function names(): array
     {
-        return [
-            [
-                'name' => 'Klejenie',
-                'slug' => self::DPT01,
-                'order' => 0,
+        return array_map(
+            fn(DepartmentEnum $dept) => [
+                'name' => $dept->getName(),
+                'slug' => $dept->value,
+                'order' => $dept->getOrder(),
             ],
-
-            [
-                'name' => 'CNC',
-                'slug' => self::DPT02,
-                'order' => 1,
-            ],
-
-            [
-                'name' => 'Intorex',
-                'slug' => self::DPT06,
-                'order' => 2,
-            ],
-
-            [
-                'name' => 'Szlifowanie',
-                'slug' => self::DPT03,
-                'order' => 3,
-            ],
-
-            [
-                'name' => 'Lakierowanie',
-                'slug' => self::DPT04,
-                'order' => 4,
-            ],
-
-            [
-                'name' => 'Pakowanie',
-                'slug' => self::DPT05,
-                'order' => 5,
-            ],
-
-        ];
+            DepartmentEnum::getProductionDepartments()
+        );
     }
 
+    /**
+     * @deprecated Use array_map(fn($d) => $d->value, DepartmentEnum::getProductionDepartments())
+     * Zwraca wszystkie slugi działów produkcyjnych
+     */
     public static function getSlugs(): array
     {
-        return array_map(function ($dpt) {
-            return $dpt['slug'];
-        }, self::names());
+        return array_map(
+            fn(DepartmentEnum $dept) => $dept->value,
+            DepartmentEnum::getProductionDepartments()
+        );
     }
 
+    /**
+     * @deprecated Use DepartmentEnum::tryFrom($slug) instead
+     * Zwraca informacje o dziale po slugu
+     */
     public static function getDepartmentBySlug(string $slug): ?array
     {
-        foreach (self::names() as $dpt) {
-            if ($dpt['slug'] === $slug) {
-                return $dpt;
-            }
+        $dept = DepartmentEnum::tryFrom($slug);
+
+        if ($dept === null || !$dept->isProductionDepartment()) {
+            return null;
         }
-        return null;
+
+        return [
+            'name' => $dept->getName(),
+            'slug' => $dept->value,
+            'order' => $dept->getOrder(),
+        ];
     }
 }
+

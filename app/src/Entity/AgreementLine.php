@@ -102,11 +102,11 @@ class AgreementLine
         $productions = $this->productions->toArray();
 
         usort($productions, function (Production $a, Production $b) {
-            $deptA = Department::getDepartmentBySlug($a->getDepartmentSlug());
-            $deptB = Department::getDepartmentBySlug($b->getDepartmentSlug());
+            $deptSlugA = \App\Module\Production\ValueObject\DepartmentEnum::tryFrom($a->getDepartmentSlug());
+            $deptSlugB = \App\Module\Production\ValueObject\DepartmentEnum::tryFrom($b->getDepartmentSlug());
 
-            $orderA = $deptA['order'] ?? 999;
-            $orderB = $deptB['order'] ?? 999;
+            $orderA = $deptSlugA?->getOrder() ?? 999;
+            $orderB = $deptSlugB?->getOrder() ?? 999;
 
             // Najpierw sortuj po kolejności działu
             $orderComparison = $orderA <=> $orderB;

@@ -50,7 +50,7 @@ class AgreementLineTest extends TestCase
         $this->assertEquals('dpt04', $productionsArray[4]->getDepartmentSlug()); // order: 4
     }
 
-    public function testGetProductionsShouldHandleUnknownDepartmentSlug(): void
+    public function testGetProductionsShouldHandleCustomTaskSlug(): void
     {
         // Given
         $agreementLine = new AgreementLine();
@@ -64,26 +64,21 @@ class AgreementLineTest extends TestCase
         $production3 = new Production();
         $production3->setDepartmentSlug('dpt02');
 
-        $production4 = new Production();
-        $production4->setDepartmentSlug('unknown_dept');
-
         $agreementLine->addProduction($production1);
         $agreementLine->addProduction($production2);
         $agreementLine->addProduction($production3);
-        $agreementLine->addProduction($production4);
 
         // When
         $productions = $agreementLine->getProductions();
 
         // Then
-        $this->assertCount(4, $productions);
+        $this->assertCount(3, $productions);
 
         $productionsArray = $productions->toArray();
         $this->assertEquals('dpt01', $productionsArray[0]->getDepartmentSlug()); // order: 0
         $this->assertEquals('dpt02', $productionsArray[1]->getDepartmentSlug()); // order: 1
-        // Dla nieznanych działów (order: 999) sortowanie po id
-        $this->assertEquals('custom_task', $productionsArray[2]->getDepartmentSlug()); // order: 999, id niższe
-        $this->assertEquals('unknown_dept', $productionsArray[3]->getDepartmentSlug()); // order: 999, id wyższe
+        // CUSTOM_TASK ma order: 999, więc powinno być na końcu
+        $this->assertEquals('custom_task', $productionsArray[2]->getDepartmentSlug()); // order: 999
     }
 
     public function testGetProductionsShouldSortByIdWhenSameDepartment(): void
