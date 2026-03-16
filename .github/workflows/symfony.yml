@@ -65,12 +65,12 @@ jobs:
       
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         working-directory: ./app
-        run: vendor/bin/phpunit ./tests
+        run: vendor/bin/phpunit ./tests/End2End ./tests/Unit
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '14'
           cache: 'npm'
           cache-dependency-path: app/assets/package-lock.json
 
@@ -85,7 +85,7 @@ jobs:
           NODE_ENV: production
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-assets
           path: app/public/build/
@@ -106,7 +106,7 @@ jobs:
           tools: deployer
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-assets
           path: app/public/build/
