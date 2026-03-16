@@ -31,7 +31,7 @@ host('prod')
 host('test')
     ->setHostname('s7.zenbox.pl')
     ->set('remote_user', 'sobczak')
-    ->set('deploy_path', '~/domains/app-test.sobczak.com.pl')
+    ->set('deploy_path', '~/domains/app-test.sobczak.com.pl/deploy')
     ->set('branch', 'test')
     ->set('keep_releases', 2)
 ;
