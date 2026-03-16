@@ -4,7 +4,7 @@ namespace App\Tests\End2End\Modules\Reports\Schedule;
 
 use App\Entity\AgreementLine;
 
-class ScheduleAgreementLinesTasksControllerTest extends BaseScheduleReportsTest
+class ScheduleAgreementLinesTasksControllerTest extends BaseScheduleReportsTestCase
 {
     protected function setUp(): void
     {
