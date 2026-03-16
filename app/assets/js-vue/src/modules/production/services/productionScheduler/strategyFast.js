@@ -38,7 +38,7 @@ export default {
             ]
         },
 
-        // dpt06 INTOREX
+        // dpt06 Intorex
         'dpt06.dateStart': {
             value: undefined,
             dependentOn: 'dpt02.dateEnd',

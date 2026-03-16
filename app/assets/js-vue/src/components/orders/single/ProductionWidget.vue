@@ -69,7 +69,7 @@
                 })
 
                 const separator = customTasks.length > 0 ? [{ enabled: false, id: 'separator' }] : []
-                systemTasks.sort((a, b) => a.slug.localeCompare(b.slug))
+                systemTasks.sort((a, b) => grantedDpts.indexOf(a.slug) - grantedDpts.indexOf(b.slug))
 
                 return [systemTasks, separator, customTasks]
                     .filter(item => item.length > 0)
