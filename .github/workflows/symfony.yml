@@ -72,13 +72,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '14'
-          cache: 'npm'
-          cache-dependency-path: app/assets/package-lock.json
+          node-version: '20'
 
       - name: Install NPM dependencies
         working-directory: ./app/assets
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Build JS and CSS
         working-directory: ./app/assets
