@@ -20,6 +20,11 @@ add('shared_files', ['.env.local']);
 add('shared_dirs', ['var/log', 'var/cache', 'uploads']);
 add('writable_dirs', ['var/log', 'var/cache', 'uploads']);
 
+// Wyklucz folder build z git (będzie uploadowany z GitHub Actions)
+set('git_exclude', [
+    'public/build',
+]);
+
 // Hosts
 host('prod')
     ->setHostname('s7.zenbox.pl')
@@ -55,7 +60,22 @@ task('deploy:uploads_symlink', function () {
     run('cd {{deploy_path}}/current/public && rm -f uploads && ln -s ../../../shared/uploads uploads');
 })->desc('Create uploads symlink in public directory');
 
+// Upload zbudowanych assetów z GitHub Actions
+task('upload:build_assets', function () {
+    $localPath = 'app/public/build';
+
+    if (!file_exists($localPath)) {
+        writeln('<comment>Warning: Build directory does not exist. Skipping assets upload.</comment>');
+        writeln('<comment>This is normal when deploying manually without GitHub Actions.</comment>');
+        return;
+    }
+
+    writeln('<info>Uploading built assets...</info>');
+    upload($localPath . '/', '{{release_path}}/public/build/');
+})->desc('Upload pre-built assets from GitHub Actions');
+
 before('deploy:symlink', 'database:migrate');      // Migracje przed przełączeniem symlink
+before('deploy:symlink', 'upload:build_assets');   // Upload assetów przed przełączeniem symlink
 after('database:migrate', 'app:sync_modules');     // Synchronizacja modułów po migracjach
 after('app:sync_modules', 'app:sync_tags');        // Synchronizacja tagów po modułach
 after('deploy:symlink', 'deploy:uploads_symlink'); // Symlink uploads po przełączeniu

@@ -3,19 +3,20 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Symfony test
+name: Symfony CI/CD
 
 on:
   push:
-    branches: [ "test" ]
+    branches: [ "test", "master" ]
   pull_request:
-    branches: [ "test" ]
+    branches: [ "test", "master" ]
 
 permissions:
   contents: read
 
 jobs:
-  symfony-test:
+  test:
+    name: Test & Build
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: mysql://user:pass@127.0.0.1:3306/symfony_test
@@ -37,52 +38,93 @@ jobs:
           --health-retries=3
           
     steps:
-      #  To automatically get bug fixes and new Php versions for shivammathur/setup-php,
-      # change this to (see https://github.com/shivammathur/setup-php#bookmark-versioning):
-      # uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+
       - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
         with:
-          php-version: '7.3'
+          php-version: '8.1'
           extensions: mbstring, intl, pdo, pdo_mysql
-          tools: composer    
-      - uses: actions/checkout@v4
+          tools: composer
+
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v3
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          path: app/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('app/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
             
-      - name: Install Dependencies
+      - name: Install PHP Dependencies
+        working-directory: ./app
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           
       - name: Execute Database migrations
+        working-directory: ./app
         run: php bin/console doctrine:migrations:migrate --no-interaction
       
       - name: Execute tests (Unit and Feature tests) via PHPUnit
+        working-directory: ./app
         run: vendor/bin/phpunit ./tests
-        
 
-      - name: Install JS Dependencies
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '10.19'
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: app/assets/package-lock.json
+
       - name: Install NPM dependencies
-        run: |
-          cd assets
-          npm install
+        working-directory: ./app/assets
+        run: npm ci
 
       - name: Build JS and CSS
-        run: |
-          cd assets
-          npm run build
+        working-directory: ./app/assets
+        run: npm run build
         env:
           NODE_ENV: production
 
-      - name: Upload build files as artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-assets
-          path: public/build/*  # Ścieżka do folderu z zbudowanymi plikami
+          path: app/public/build/
+          retention-days: 1
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/test' || github.ref == 'refs/heads/master')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
+        with:
+          php-version: '8.1'
+          tools: deployer
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-assets
+          path: app/public/build/
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H s7.zenbox.pl >> ~/.ssh/known_hosts
+
+      - name: Deploy to Test
+        if: github.ref == 'refs/heads/test'
+        run: dep deploy test --revision="${{ github.sha }}"
+
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/master'
+        run: dep deploy prod --revision="${{ github.sha }}"
