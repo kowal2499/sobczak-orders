@@ -105,6 +105,13 @@ jobs:
           php-version: '8.1'
           tools: deployer
 
+      - name: Install Deployer
+        run: |
+          curl -LO https://deployer.org/deployer.phar
+          sudo mv deployer.phar /usr/local/bin/dep
+          sudo chmod +x /usr/local/bin/dep
+          dep --version
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
