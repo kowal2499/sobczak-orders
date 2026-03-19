@@ -18,6 +18,7 @@
 
 /public/bundles/
 /public/uploads
+/public/build
 
 assets/node_modules
 

@@ -3,10 +3,29 @@ namespace Deployer;
 
 require 'recipe/symfony.php';
 
+// Załaduj zmienne środowiskowe z pliku .env.deployer
+if (file_exists(__DIR__ . '/.env.deployer')) {
+    $lines = file(__DIR__ . '/.env.deployer', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
+
+// Helper do pobierania zmiennych środowiskowych z fallbackiem
+function env(string $key, $default = null) {
+    return $_ENV[$key] ?? getenv($key) ?: $default;
+}
+
 // Config
 set('application', 'SobczakApp');
-set('repository', 'git@github.com:kowal2499/sobczak-orders.git');
-set('http_user', 'sobczak');
+set('repository', env('DEPLOY_REPOSITORY', 'git@github.com:kowal2499/sobczak-orders.git'));
+set('http_user', env('DEPLOY_USER', 'sobczak'));
 set('writable_mode', 'chmod');
 
 set('sub_directory', 'app');
@@ -27,16 +46,17 @@ set('git_exclude', [
 
 // Hosts
 host('prod')
-    ->setHostname('s7.zenbox.pl')
-    ->set('remote_user', 'sobczak')
-    ->set('deploy_path', '~/domains/app.sobczak.com.pl/deployer')
+    ->setHostname(env('DEPLOY_HOSTNAME'))
+    ->set('remote_user', env('DEPLOY_USER'))
+    ->set('deploy_path', env('DEPLOY_PATH_PROD'))
     ->set('branch', 'master')
+    ->set('keep_releases', 4)
 ;
 
 host('test')
-    ->setHostname('s7.zenbox.pl')
-    ->set('remote_user', 'sobczak')
-    ->set('deploy_path', '~/domains/app-test.sobczak.com.pl/deploy')
+    ->setHostname(env('DEPLOY_HOSTNAME'))
+    ->set('remote_user', env('DEPLOY_USER'))
+    ->set('deploy_path', env('DEPLOY_PATH_TEST' ))
     ->set('branch', 'test')
     ->set('keep_releases', 2)
 ;

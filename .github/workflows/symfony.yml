@@ -78,6 +78,10 @@ jobs:
         working-directory: ./app/assets
         run: npm install --legacy-peer-deps
 
+      - name: Execute Frontend Unit Tests (Jest)
+        working-directory: ./app/assets
+        run: npm test
+
       - name: Build JS and CSS
         working-directory: ./app/assets
         run: npm run build
