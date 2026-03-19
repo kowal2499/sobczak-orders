@@ -19,13 +19,21 @@ if (file_exists(__DIR__ . '/.env.deployer')) {
 
 // Helper do pobierania zmiennych środowiskowych z fallbackiem
 function env(string $key, $default = null) {
-    return $_ENV[$key] ?? getenv($key) ?: $default;
+    if (isset($_ENV[$key])) {
+        return $_ENV[$key];
+    }
+    // getenv() (z GitHub Actions)
+    $value = getenv($key);
+    if ($value !== false) {
+        return $value;
+    }
+    return $default;
 }
 
 // Config
 set('application', 'SobczakApp');
-set('repository', env('DEPLOY_REPOSITORY', 'git@github.com:kowal2499/sobczak-orders.git'));
-set('http_user', env('DEPLOY_USER', 'sobczak'));
+set('repository', 'git@github.com:kowal2499/sobczak-orders.git');
+set('http_user', env('DEPLOY_USER'));
 set('writable_mode', 'chmod');
 
 set('sub_directory', 'app');

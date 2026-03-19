@@ -100,6 +100,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && (github.ref == 'refs/heads/test' || github.ref == 'refs/heads/master')
+    env:
+      DEPLOY_HOSTNAME: ${{ secrets.DEPLOY_HOSTNAME }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_PATH_PROD: ${{ secrets.DEPLOY_PATH_PROD }}
+      DEPLOY_PATH_TEST: ${{ secrets.DEPLOY_PATH_TEST }}
 
     steps:
       - uses: actions/checkout@v4
@@ -130,7 +135,7 @@ jobs:
       - name: Add known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOSTNAME }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Test
         if: github.ref == 'refs/heads/test'
