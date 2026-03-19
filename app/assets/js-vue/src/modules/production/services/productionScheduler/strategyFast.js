@@ -1,6 +1,7 @@
+
 export default {
-    name: 'Strategia szybka 6-2-0-0-0-czwartek',
-    description: 'Terminy zakończeń: Klejenie: 7 dni przed końcem, CNC 2 dni przed końcem, pozostałe działy: termin końca = termin realizacji dla całości. Termin startu to termin zakończenia w poprzednim dziale.',
+    name: 'production.productionScheduler.strategyFast.name',
+    description: 'production.productionScheduler.strategyFast.description',
     default: false,
     deleted: false,
     strategy: {
@@ -41,7 +42,7 @@ export default {
         // dpt06 Intorex
         'dpt06.dateStart': {
             value: undefined,
-            dependentOn: 'dpt02.dateEnd',
+            dependentOn: 'dpt01.dateEnd',
             steps: [],
         },
 
