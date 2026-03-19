@@ -1,6 +1,6 @@
 export default {
-    name: 'Strategia 14-9-7-2-0-czwartek',
-    description: 'Terminy zakończeń: Klejenie: 14 dni, CNC: 9 dni, Szlifowanie: 7 dni, Lakierowanie: 2 dni, Pakowanie: 0 dni przed czwartkiem. Termin startu to termin zakończenia w poprzednim dziale.',
+    name: 'production.productionScheduler.strategyCascade.name',
+    description: 'production.productionScheduler.strategyCascade.description',
     default: false,
     deleted: false,
     strategy: {
@@ -40,7 +40,7 @@ export default {
         // dpt06 Intorex
         'dpt06.dateStart': {
             value: undefined,
-            dependentOn: 'dpt02.dateEnd',
+            dependentOn: 'dpt01.dateEnd',
             steps: [],
         },
         'dpt06.dateEnd': {
