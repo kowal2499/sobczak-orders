@@ -1,0 +1,3 @@
+# Ignoruj wszystkie zbudowane assety - są budowane przez GitHub Actions
+*
+!.gitignore

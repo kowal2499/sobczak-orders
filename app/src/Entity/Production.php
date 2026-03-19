@@ -22,7 +22,7 @@ class Production
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['_main', '_linePanel'])]
-    private $departmentSlug;
+    private string $departmentSlug;
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['_main', '_linePanel'])]
