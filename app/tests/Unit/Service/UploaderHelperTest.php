@@ -3,7 +3,6 @@
 namespace App\Tests\Unit\Service;
 
 use App\Service\UploaderHelper;
-use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Asset\Context\RequestStackContext;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -17,8 +16,9 @@ class UploaderHelperTest extends TestCase
     {
         $this->sut = new UploaderHelper(
             '',
+            '',
             $this->createMock(RequestStackContext::class),
-            $this->createMock(CacheManager::class),
+            '',
             '',
             ''
         );

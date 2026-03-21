@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     uploads_dir_name: 'uploads'
+    thumbnails_dir_name: 'thumbs'
     uploads_base_url: '%env(SITE_BASE_URL)%'
     fixture_admin_password: '%env(FIXTURE_ADMIN_PASSWORD)%'
 
@@ -20,8 +21,10 @@ services:
 
         bind:
             $uploadsPath: '%kernel.project_dir%/public/%uploads_dir_name%'
+            $thumbnailsPath: '%kernel.project_dir%/public/%thumbnails_dir_name%'
             $uploadedAssetsBaseUrl: '%uploads_base_url%'
             $uploadedAssetsDir: '%uploads_dir_name%'
+            $thumbnailsAssetsDir: '%thumbnails_dir_name%'
             $fixtureAdminPassword: '%fixture_admin_password%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

@@ -17,8 +17,8 @@ set('bin/composer', '/opt/alt/php81/usr/bin/php -c /usr/local/php/php.ini /usr/l
 set('keep_releases', 3);
 
 add('shared_files', ['.env.local']);
-add('shared_dirs', ['var/log', 'var/cache', 'uploads']);
-add('writable_dirs', ['var/log', 'var/cache', 'uploads']);
+add('shared_dirs', ['var/log', 'var/cache', 'uploads', 'thumbs']);
+add('writable_dirs', ['var/log', 'var/cache', 'uploads', 'thumbs']);
 
 // Wyklucz folder build z git (będzie uploadowany z GitHub Actions)
 set('git_exclude', [
@@ -59,6 +59,11 @@ task('app:sync_tags', function () {
 task('deploy:uploads_symlink', function () {
     run('cd {{deploy_path}}/current/public && rm -f uploads && ln -s ../../../shared/uploads uploads');
 })->desc('Create uploads symlink in public directory');
+
+// Utworzenie symlink thumbs
+task('deploy:thumbs_symlink', function () {
+    run('cd {{deploy_path}}/current/public && rm -f thumbs && ln -s ../../../shared/thumbs thumbs');
+})->desc('Create thumbs symlink in public directory');
 
 // Upload zbudowanych assetów z GitHub Actions
 task('upload:build_assets', function () {
