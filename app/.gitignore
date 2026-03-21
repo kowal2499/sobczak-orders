@@ -19,6 +19,7 @@
 /public/bundles/
 /public/uploads
 /public/thumbs
+/public/build
 
 assets/node_modules
 
