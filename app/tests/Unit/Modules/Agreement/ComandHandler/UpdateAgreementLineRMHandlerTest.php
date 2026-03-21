@@ -24,11 +24,18 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
     private InMemoryAgreementLineRMRepository $agreementLineRMRepository;
     private InMemoryAgreementLineRepository $agreementLineRepository;
     private UpdateAgreementLineRMHandler $handler;
+    private string $tempThumbsPath;
 
     protected function setUp(): void
     {
         $this->agreementLineRMRepository = new InMemoryAgreementLineRMRepository();
         $this->agreementLineRepository = new InMemoryAgreementLineRepository();
+
+        // Utwórz tymczasowy folder dla thumbs w testach
+        $this->tempThumbsPath = sys_get_temp_dir() . '/test_thumbs_' . uniqid();
+        if (!is_dir($this->tempThumbsPath)) {
+            mkdir($this->tempThumbsPath, 0755, true);
+        }
 
         $this->handler = new UpdateAgreementLineRMHandler(
             $this->createMock(LoggerInterface::class),
@@ -37,7 +44,7 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
             new FactorCalculator(),
             new UploaderHelper(
                 'public/uploads',
-                'public/thumbs',
+                $this->tempThumbsPath,
                 $this->createMock(RequestStackContext::class),
                 'https://somehost',
                 'uploads',
@@ -45,6 +52,21 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
             )
         );
         parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        // Wyczyść tymczasowy folder po testach
+        if (is_dir($this->tempThumbsPath)) {
+            $files = glob($this->tempThumbsPath . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+            rmdir($this->tempThumbsPath);
+        }
+        parent::tearDown();
     }
 
     public function testShouldAddAttachmentToReadModel(): void
