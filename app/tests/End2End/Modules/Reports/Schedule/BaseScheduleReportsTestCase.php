@@ -9,7 +9,7 @@ use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Test\ApiTestCase;
 use Faker\Factory;
 
-abstract class BaseScheduleReportsTest extends ApiTestCase
+abstract class BaseScheduleReportsTestCase extends ApiTestCase
 {
     protected function createAgreementLineRM(
         int $id,

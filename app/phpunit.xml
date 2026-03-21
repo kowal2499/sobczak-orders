@@ -5,6 +5,7 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
          bootstrap="tests/bootstrap.php"
+         beStrictAboutTestsThatDoNotTestAnything="false"
 >
     <php>
         <ini name="display_errors" value="1" />
