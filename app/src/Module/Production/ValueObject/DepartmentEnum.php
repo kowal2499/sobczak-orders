@@ -27,7 +27,7 @@ enum DepartmentEnum: string
      */
     public function getName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::GLUING => 'Klejenie',
             self::CNC => 'CNC',
             self::GRINDING => 'Szlifowanie',
@@ -43,7 +43,7 @@ enum DepartmentEnum: string
      */
     public function getOrder(): int
     {
-        return match($this) {
+        return match ($this) {
             self::GLUING => 0,
             self::CNC => 1,
             self::INTOREX => 2,

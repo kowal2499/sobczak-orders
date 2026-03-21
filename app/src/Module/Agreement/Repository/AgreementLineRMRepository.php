@@ -5,6 +5,7 @@ namespace App\Module\Agreement\Repository;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
+use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,7 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AgreementLineRM[]    findAll()
  * @method AgreementLineRM[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AgreementLineRMRepository extends ServiceEntityRepository
+class AgreementLineRMRepository extends ServiceEntityRepository implements AgreementLineRMRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

@@ -18,6 +18,7 @@
 
 /public/bundles/
 /public/uploads
+/public/thumbs
 /public/build
 
 assets/node_modules
@@ -31,11 +32,6 @@ yarn-error.log
 ###> symfony/web-server-bundle ###
 /.web-server-pid
 ###< symfony/web-server-bundle ###
-
-###> liip/imagine-bundle ###
-/public/media/cache/
-###< liip/imagine-bundle ###
-
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 ###< symfony/phpunit-bridge ###
