@@ -67,6 +67,44 @@ extend('dateTo', {
 	message: i18n.t('_validation.dateTo')
 })
 
+extend('dateFromOrEqual', {
+	params: ['target'],
+	validate(value, { target }) {
+		if (!target) {
+			return true
+		}
+		if (!value) {
+			return false
+		}
+        const targetDate = parseYMD(target)
+        const valueDate = parseYMD(value)
+        if (!isValidDate(targetDate) || !isValidDate(valueDate)) {
+            return false
+        }
+        return valueDate.getTime() <= targetDate.getTime()
+	},
+	message: i18n.t('_validation.dateFromOrEqual')
+})
+
+extend('dateToOrEqual', {
+	params: ['target'],
+	validate(value, { target }) {
+		if (!target) {
+			return true
+		}
+		if (!value) {
+			return false
+		}
+        const targetDate = parseYMD(target)
+        const valueDate = parseYMD(value)
+        if (!isValidDate(targetDate) || !isValidDate(valueDate)) {
+            return false
+        }
+		return valueDate.getTime() >= targetDate.getTime()
+	},
+	message: i18n.t('_validation.dateToOrEqual')
+})
+
 extend('dateEarlierThan', {
     params: ['deadline'],
     validate(value, { deadline }) {

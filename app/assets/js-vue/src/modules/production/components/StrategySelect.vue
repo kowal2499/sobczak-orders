@@ -51,10 +51,13 @@ export default defineComponent({
                 :options="strategies"
                 @option:selected="onSelected"
             >
+                <template #selected-option="{ name, description}">
+                    {{ $t(name) }}
+                </template>
                 <template #option="{ name, description}">
                     <div class="w-100 text-wrap">
-                        <div class="text-body">{{ name }}</div>
-                        <div class="text-muted" style="font-size: 0.85rem">{{ description }}</div>
+                        <div class="text-body">{{ $t(name) }}</div>
+                        <div class="text-muted" style="font-size: 0.85rem">{{ $t(description) }}</div>
                     </div>
                 </template>
             </VueSelect>

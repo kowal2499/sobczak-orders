@@ -4,10 +4,9 @@ namespace App\Repository;
 
 use App\Entity\AgreementLine;
 use App\Entity\Definitions\TaskTypes;
+use App\Module\Agreement\Repository\Interface\AgreementLineRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -16,7 +15,7 @@ use Symfony\Component\Security\Core\Security;
  * @method AgreementLine[]    findAll()
  * @method AgreementLine[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class AgreementLineRepository extends ServiceEntityRepository
+class AgreementLineRepository extends ServiceEntityRepository implements AgreementLineRepositoryInterface
 {
     private Security $security;
 

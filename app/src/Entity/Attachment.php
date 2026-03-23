@@ -73,7 +73,7 @@ class Attachment
         return $this;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return UploaderHelper::AGREEMENTS_PATH . '/' . $this->getName();
     }

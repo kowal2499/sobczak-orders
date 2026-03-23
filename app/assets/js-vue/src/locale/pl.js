@@ -19,7 +19,7 @@ export default {
     '_dpt03': 'Szlifowanie',
     '_dpt04': 'Lakierowanie',
     '_dpt05': 'Pakowanie',
-    '_dpt06': 'INTOREX',
+    '_dpt06': 'Intorex',
     '_yes': 'Tak',
     '_no': 'Nie',
     '_confirmation_required': 'Wymagane potwierdzenie',
@@ -74,6 +74,8 @@ export default {
         'required': 'To pole jest wymagane',
         'dateFrom': 'Data początkowa musi być wcześniejsza niż data końcowa',
         'dateTo': 'Data końcowa musi być późniejsza niż data początkowa',
+        'dateFromOrEqual': 'Data początkowa musi być wcześniejsza lub równa dacie końcowej',
+        'dateToOrEqual': 'Data końcowa musi być późniejsza lub równa dacie początkowej',
         'dateEarlierThan': 'Data nie może przekraczać terminu realizacji',
         'fixFormErrors': 'Popraw błędy formularza',
 

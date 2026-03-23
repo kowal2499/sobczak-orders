@@ -15,6 +15,8 @@ use App\Module\Agreement\ReadModel\ProductRM;
 use App\Module\Agreement\ReadModel\TagRM;
 use App\Module\Agreement\ReadModel\UserRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\Repository\Interface\AgreementLineRepositoryInterface;
+use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
 use App\Module\Production\Entity\FactorSource;
 use App\Module\Production\Factor\FactorCalculator;
 use App\Module\Tag\Entity\TagAssignment;
@@ -26,8 +28,8 @@ class UpdateAgreementLineRMHandler
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly AgreementLineRepository $agreementLineRepository,
-        private readonly AgreementLineRMRepository $modelRepository,
+        private readonly AgreementLineRepositoryInterface $agreementLineRepository,
+        private readonly AgreementLineRMRepositoryInterface $modelRepository,
         private readonly FactorCalculator $factorCalculator,
         private readonly UploaderHelper $uploaderHelper,
     ) {
@@ -192,7 +194,7 @@ class UpdateAgreementLineRMHandler
                 $attachment->getName(),
                 $attachment->getOriginalName(),
                 $attachment->getExtension(),
-                $attachment->getPath(),
+                $this->uploaderHelper->getPublicPath($attachment->getPath()),
                 $this->uploaderHelper->getPublicPathThumbnail($attachment->getPath())
             );
         }

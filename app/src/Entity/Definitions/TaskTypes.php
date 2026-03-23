@@ -2,6 +2,8 @@
 
 namespace App\Entity\Definitions;
 
+use App\Module\Production\ValueObject\DepartmentEnum;
+
 class TaskTypes
 {
     public const TYPE_DEFAULT = 'default';
@@ -17,6 +19,7 @@ class TaskTypes
     public const TYPE_CUSTOM_STATUS_PENDING = 11;
     public const TYPE_CUSTOM_STATUS_COMPLETED = 12;
 
+    // Aliasy dla zgodności wstecznej
     public const TYPE_DEFAULT_SLUG_GLUING = 'dpt01';
     public const TYPE_DEFAULT_SLUG_CNC = 'dpt02';
     public const TYPE_DEFAULT_SLUG_GRINDING = 'dpt03';
@@ -29,44 +32,19 @@ class TaskTypes
     public static function getAll(): array
     {
         return [
-            self::TYPE_DEFAULT => [
-                [
-                    'name' => 'Klejenie',
-                    'slug' => self::TYPE_DEFAULT_SLUG_GLUING
+            self::TYPE_DEFAULT => array_map(
+                fn(DepartmentEnum $dept) => [
+                    'name' => $dept->getName(),
+                    'slug' => $dept->value,
                 ],
-
-                [
-                    'name' => 'CNC',
-                    'slug' => self::TYPE_DEFAULT_SLUG_CNC
-                ],
-
-                [
-                    'name' => 'Szlifowanie',
-                    'slug' => self::TYPE_DEFAULT_SLUG_GRINDING
-                ],
-
-                [
-                    'name' => 'Lakierowanie',
-                    'slug' => self::TYPE_DEFAULT_SLUG_VARNISHING
-                ],
-
-                [
-                    'name' => 'Pakowanie',
-                    'slug' => self::TYPE_DEFAULT_SLUG_PACKAGING
-                ],
-
-                [
-                    'name' => 'INTOREX',
-                    'slug' => self::TYPE_DEFAULT_SLUG_INTOREX
-                ]
-            ],
+                DepartmentEnum::getProductionDepartments()
+            ),
             self::TYPE_CUSTOM => [
                 [
                     'name' => '',
-                    'slug' => self::TYPE_CUSTOM_SLUG
+                    'slug' => DepartmentEnum::CUSTOM_TASK->value,
                 ]
             ]
-
         ];
     }
 
@@ -100,7 +78,10 @@ class TaskTypes
 
     public static function getDefaultSlugs(): array
     {
-        return self::getSlugs(self::TYPE_DEFAULT);
+        return array_map(
+            fn(DepartmentEnum $dept) => $dept->value,
+            DepartmentEnum::getProductionDepartments()
+        );
     }
 
     /**
@@ -109,11 +90,12 @@ class TaskTypes
      */
     public static function getTaskTypeBySlug(string $slug): ?string
     {
-        if (in_array($slug, self::getSlugs(self::TYPE_DEFAULT))) {
-            return self::TYPE_DEFAULT;
-        } else if (in_array($slug, self::getSlugs(self::TYPE_CUSTOM))) {
-            return self::TYPE_CUSTOM;
+        $dept = DepartmentEnum::tryFrom($slug);
+
+        if ($dept === null) {
+            return null;
         }
-        return null;
+
+        return $dept->isProductionDepartment() ? self::TYPE_DEFAULT : self::TYPE_CUSTOM;
     }
 }

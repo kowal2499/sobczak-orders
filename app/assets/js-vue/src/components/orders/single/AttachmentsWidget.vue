@@ -4,10 +4,9 @@
             <i class="fa fa-ban mr-2"></i> {{ $t('orders.noattachments') }}
         </div>
 
-        <ul v-else :style="horizontal ? 'display: flex' : ''">
+        <ul v-else :class="horizontal ? 'd-flex flex-row gap-3' : ''">
             <li v-for="attachment in attachments">
                 <a :href="attachment.path" target="_blank">
-
                     <template v-if="tooltip">
                         <tooltip>
                             <span slot="visible-content">

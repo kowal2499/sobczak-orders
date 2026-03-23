@@ -1,0 +1,5 @@
+services:
+    App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface:
+        alias: App\Module\Agreement\Repository\AgreementLineRMRepository
+    App\Module\Agreement\Repository\Interface\AgreementLineRepositoryInterface:
+        alias: App\Repository\AgreementLineRepository

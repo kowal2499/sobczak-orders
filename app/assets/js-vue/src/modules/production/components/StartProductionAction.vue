@@ -154,7 +154,7 @@ export default {
 
             EventBus.$emit('message', {
                 type: 'success',
-                content: this.$t('production.datesUpdatedByStrategy', {name: strategy.name})
+                content: this.$t('production.datesUpdatedByStrategy', {name: this.$t(strategy.name)})
             });
 
             Object.keys(resolvedStrategy).forEach(key => {

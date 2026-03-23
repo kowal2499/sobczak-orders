@@ -1,4 +1,4 @@
-import { processScheduleChanges } from '@/modules/configuration/services/WorkScheduleService'
+import { processScheduleChanges } from '@/modules/schedule/services/WorkScheduleService'
 import { saveSchedule } from '@/modules/configuration/repository/workRepository'
 
 // Mock modułu workRepository

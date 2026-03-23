@@ -88,6 +88,12 @@ export default defineComponent({
                     active: this.$user.can('production.show.cnc')
                 },
                 {
+                    key: 'dpt06',
+                    label: this.$t('_dpt06'),
+                    class: 'data-cell',
+                    active: this.$user.can('production.show.intorex')
+                },
+                {
                     key: 'dpt03',
                     label: this.$t('_dpt03'),
                     class: 'data-cell',
@@ -104,12 +110,6 @@ export default defineComponent({
                     label: this.$t('_dpt05'),
                     class: 'data-cell',
                     active: this.$user.can('production.show.packing')
-                },
-                {
-                    key: 'dpt06',
-                    label: this.$t('_dpt06'),
-                    class: 'data-cell',
-                    active: this.$user.can('production.show.intorex')
                 },
             ].filter(field => field.active)
         },

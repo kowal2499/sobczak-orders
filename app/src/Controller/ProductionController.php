@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Definitions\TaskTypes;
-use App\Entity\Department;
+use App\Module\Production\ValueObject\DepartmentEnum;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
@@ -39,11 +39,18 @@ class ProductionController extends BaseController
     #[Route(path: '/production', name: 'production_show')]
     public function index(TranslatorInterface $t): Response
     {
+        $departments = array_map(
+            fn(DepartmentEnum $dept) => [
+                'name' => $t->trans($dept->getName(), [], 'agreements'),
+                'slug' => $dept->value
+            ],
+            DepartmentEnum::getProductionDepartments()
+        );
+
         return $this->render('production/production_show.html.twig', [
             'title' => $t->trans('Harmonogram produkcji', [], 'production'),
             'statuses' => AgreementLine::getStatuses(),
-            'departments' => array_map(function($dpt) use($t) { return ['name' => $t->trans($dpt['name'], [], 'agreements'), 'slug' => $dpt['slug']]; },
-                \App\Entity\Department::names())
+            'departments' => $departments
         ]);
     }
 
@@ -72,25 +79,27 @@ class ProductionController extends BaseController
         }
 
         $repository = $em->getRepository(Production::class);
+        $productionSlugs = array_map(fn($d) => $d->value, DepartmentEnum::getProductionDepartments());
+
         if ($repository->findBy([
             'agreementLine' => $agreementLine,
-            'departmentSlug' => Department::getSlugs()
+            'departmentSlug' => $productionSlugs
         ])) {
             throw new ProductionAlreadyExistsException();
         }
 
         $response = [];
-        foreach (Department::names() as $task) {
+        foreach (DepartmentEnum::getProductionDepartments() as $dept) {
             $production = new Production();
             $production
                 ->setAgreementLine($agreementLine)
-                ->setTitle($task['name'])
-                ->setDepartmentSlug($task['slug'])
+                ->setTitle($dept->getName())
+                ->setDepartmentSlug($dept->value)
                 ->setCreatedAt(new \DateTime())
                 ->setUpdatedAt(new \DateTime());
 
             foreach ($schedule as $dptSchedule) {
-                if ($dptSchedule['department'] === $task['slug']) {
+                if ($dptSchedule['department'] === $dept->value) {
                     if ($dptSchedule['dateStart']) {
                         $production->setDateStart(new \DateTime($dptSchedule['dateStart']));
                     }

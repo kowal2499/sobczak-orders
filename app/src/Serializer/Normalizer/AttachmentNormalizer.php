@@ -31,7 +31,6 @@ class AttachmentNormalizer implements NormalizerInterface, CacheableSupportsMeth
 
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        // Here: add, edit, or delete some data
         $data['path'] = $this->uploaderHelper->getPublicPath($object->getPath());
         $data['thumbnail'] = $this->uploaderHelper->getPublicPathThumbnail($object->getPath());
 

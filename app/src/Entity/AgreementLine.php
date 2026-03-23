@@ -42,7 +42,6 @@ class AgreementLine
     private $Agreement;
 
     #[ORM\OneToMany(mappedBy: 'agreementLine', targetEntity: Production::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['id' => 'ASC'])]
     #[Groups(['_main', '_linePanel'])]
     private $productions;
 
@@ -95,6 +94,36 @@ class AgreementLine
         return $this->tags;
     }
 
+    /**
+     * @return Collection|Production[]
+     */
+    public function getProductions(): Collection
+    {
+        $productions = $this->productions->toArray();
+
+        usort($productions, function (Production $a, Production $b) {
+            $deptSlugA = \App\Module\Production\ValueObject\DepartmentEnum::tryFrom($a->getDepartmentSlug());
+            $deptSlugB = \App\Module\Production\ValueObject\DepartmentEnum::tryFrom($b->getDepartmentSlug());
+
+            $orderA = $deptSlugA?->getOrder() ?? 999;
+            $orderB = $deptSlugB?->getOrder() ?? 999;
+
+            // Najpierw sortuj po kolejności działu
+            $orderComparison = $orderA <=> $orderB;
+
+            // Jeśli kolejność jest taka sama, sortuj po id (jeśli istnieje)
+            if ($orderComparison === 0) {
+                $idA = $a->getId() ?? PHP_INT_MAX;
+                $idB = $b->getId() ?? PHP_INT_MAX;
+                return $idA <=> $idB;
+            }
+
+            return $orderComparison;
+        });
+
+        return new ArrayCollection($productions);
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -136,13 +165,6 @@ class AgreementLine
         return $this;
     }
 
-    /**
-     * @return Collection|Production[]
-     */
-    public function getProductions(): Collection
-    {
-        return $this->productions;
-    }
 
     public function addProduction(Production $production): self
     {
