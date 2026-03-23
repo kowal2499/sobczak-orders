@@ -9,6 +9,7 @@ class AttachmentRM
     private ?string $originalName;
     private ?string $extension;
     private ?string $path;
+    private ?string $viewPath;
     private ?string $thumbnail;
 
     public function __construct(
@@ -17,6 +18,7 @@ class AttachmentRM
         ?string $originalName = null,
         ?string $extension = null,
         ?string $path = null,
+        ?string $viewPath = null,
         ?string $thumbnail = null,
     ) {
         $this->id = $id;
@@ -24,6 +26,7 @@ class AttachmentRM
         $this->originalName = $originalName;
         $this->extension = $extension;
         $this->path = $path;
+        $this->viewPath = $viewPath;
         $this->thumbnail = $thumbnail;
     }
 
@@ -35,6 +38,7 @@ class AttachmentRM
             'originalName' => $this->originalName,
             'extension' => $this->extension,
             'path' => $this->path,
+            'viewPath' => $this->viewPath,
             'thumbnail' => $this->thumbnail,
         ];
     }
@@ -47,6 +51,7 @@ class AttachmentRM
             originalName: $data['originalName'] ?? null,
             extension: $data['extension'] ?? null,
             path: $data['path'] ?? null,
+            viewPath: $data['viewPath'] ?? null,
             thumbnail: $data['thumbnail'] ?? null,
         );
     }

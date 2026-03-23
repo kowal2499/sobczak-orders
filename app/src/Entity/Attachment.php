@@ -13,6 +13,7 @@ class Attachment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups('_main')]
     private $id;
 
     #[ORM\Column(type: 'string', length: 1024)]

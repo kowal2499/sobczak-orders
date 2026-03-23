@@ -58,7 +58,7 @@ host('prod')
     ->set('remote_user', env('DEPLOY_USER'))
     ->set('deploy_path', env('DEPLOY_PATH_PROD'))
     ->set('branch', 'master')
-    ->set('keep_releases', 4)
+    ->set('keep_releases', 3)
 ;
 
 host('test')
@@ -83,15 +83,11 @@ task('app:sync_tags', function () {
     });
 })->desc('Synchronize tag definitions');
 
-// Utworzenie symlink uploads
+// Utworzenie symlink uploads i thumbs
 task('deploy:uploads_symlink', function () {
     run('cd {{deploy_path}}/current/public && rm -f uploads && ln -s ../../../shared/uploads uploads');
-})->desc('Create uploads symlink in public directory');
-
-// Utworzenie symlink thumbs
-task('deploy:thumbs_symlink', function () {
     run('cd {{deploy_path}}/current/public && rm -f thumbs && ln -s ../../../shared/thumbs thumbs');
-})->desc('Create thumbs symlink in public directory');
+})->desc('Create uploads symlink in public directory');
 
 // Upload zbudowanych assetów z GitHub Actions
 task('upload:build_assets', function () {
@@ -111,5 +107,5 @@ before('deploy:symlink', 'database:migrate');      // Migracje przed przełącze
 before('deploy:symlink', 'upload:build_assets');   // Upload assetów przed przełączeniem symlink
 after('database:migrate', 'app:sync_modules');     // Synchronizacja modułów po migracjach
 after('app:sync_modules', 'app:sync_tags');        // Synchronizacja tagów po modułach
-after('deploy:symlink', 'deploy:uploads_symlink'); // Symlink uploads po przełączeniu
+after('deploy:symlink', 'deploy:uploads_symlink'); // Symlink uploads i thumbs po przełączeniu
 after('deploy:failed', 'deploy:unlock');

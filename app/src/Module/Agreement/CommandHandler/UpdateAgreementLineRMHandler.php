@@ -194,7 +194,8 @@ class UpdateAgreementLineRMHandler
                 $attachment->getName(),
                 $attachment->getOriginalName(),
                 $attachment->getExtension(),
-                $this->uploaderHelper->getPublicPath($attachment->getPath()),
+                '/attachments/' . $attachment->getId() . '/download',
+                '/attachments/' . $attachment->getId() . '/view',
                 $this->uploaderHelper->getPublicPathThumbnail($attachment->getPath())
             );
         }
