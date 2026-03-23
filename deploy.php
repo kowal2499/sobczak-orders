@@ -58,7 +58,7 @@ host('prod')
     ->set('remote_user', env('DEPLOY_USER'))
     ->set('deploy_path', env('DEPLOY_PATH_PROD'))
     ->set('branch', 'master')
-    ->set('keep_releases', 4)
+    ->set('keep_releases', 3)
 ;
 
 host('test')

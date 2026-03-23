@@ -109,6 +109,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate deployment secrets
+        run: |
+          echo "Branch: ${{ github.ref }}"
+          echo "Checking DEPLOY_HOSTNAME..."
+          if [ -z "$DEPLOY_HOSTNAME" ]; then
+            echo "Error: DEPLOY_HOSTNAME secret is not set"
+            exit 1
+          fi
+          echo "✓ DEPLOY_HOSTNAME is set (length: ${#DEPLOY_HOSTNAME})"
+          
+          echo "Checking DEPLOY_USER..."
+          if [ -z "$DEPLOY_USER" ]; then
+            echo "Error: DEPLOY_USER secret is not set"
+            exit 1
+          fi
+          echo "✓ DEPLOY_USER is set (length: ${#DEPLOY_USER})"
+          
+          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+            echo "Checking DEPLOY_PATH_PROD for master branch..."
+            if [ -z "$DEPLOY_PATH_PROD" ]; then
+              echo "Error: DEPLOY_PATH_PROD secret is not set"
+              exit 1
+            fi
+            echo "✓ DEPLOY_PATH_PROD is set (length: ${#DEPLOY_PATH_PROD})"
+          fi
+          
+          if [ "${{ github.ref }}" == "refs/heads/test" ]; then
+            echo "Checking DEPLOY_PATH_TEST for test branch..."
+            if [ -z "$DEPLOY_PATH_TEST" ]; then
+              echo "Error: DEPLOY_PATH_TEST secret is not set"
+              exit 1
+            fi
+            echo "✓ DEPLOY_PATH_TEST is set (length: ${#DEPLOY_PATH_TEST})"
+          fi
+          
+          echo "✓ All required secrets are set"
+          echo "Deploying to host: $DEPLOY_HOSTNAME (user: $DEPLOY_USER)"
+
       - uses: shivammathur/setup-php@2cb9b829437ee246e9b3cac53555a39208ca6d28
         with:
           php-version: '8.1'
@@ -135,7 +173,12 @@ jobs:
       - name: Add known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOSTNAME }} >> ~/.ssh/known_hosts
+          if [ -z "$DEPLOY_HOSTNAME" ]; then
+            echo "Error: DEPLOY_HOSTNAME is empty"
+            exit 1
+          fi
+          echo "Adding host to known_hosts: $DEPLOY_HOSTNAME"
+          ssh-keyscan -H "$DEPLOY_HOSTNAME" >> ~/.ssh/known_hosts
 
       - name: Deploy to Test
         if: github.ref == 'refs/heads/test'
