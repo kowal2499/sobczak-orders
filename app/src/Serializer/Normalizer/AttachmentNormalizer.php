@@ -28,10 +28,12 @@ class AttachmentNormalizer implements NormalizerInterface, CacheableSupportsMeth
      */
     public function normalize($object, $format = null, array $context = []): array
     {
-
         $data = $this->normalizer->normalize($object, $format, $context);
 
-        $data['path'] = $this->uploaderHelper->getPublicPath($object->getPath());
+        // Dodaj ścieżki przez kontroler zamiast bezpośrednich URLi
+        $data['id'] = $object->getId();
+        $data['path'] = '/attachments/' . $object->getId() . '/download';
+        $data['viewPath'] = '/attachments/' . $object->getId() . '/view';
         $data['thumbnail'] = $this->uploaderHelper->getPublicPathThumbnail($object->getPath());
 
         return $data;

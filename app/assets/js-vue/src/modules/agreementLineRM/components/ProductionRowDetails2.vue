@@ -4,9 +4,9 @@
             <div class="d-flex align-items-start gap-3">
                 <attachments-widget
                     :attachments="order.attachments || []"
-                    :show-name="false"
+                    show-name
+                    horizontal
                     :tooltip="true"
-                    :horizontal="true"
                 />
 
                 <div class="custom-tasks">

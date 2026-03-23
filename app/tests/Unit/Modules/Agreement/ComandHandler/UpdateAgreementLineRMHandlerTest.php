@@ -116,7 +116,8 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
         $attachmentData = $attachments[0]->toArray();
         $this->assertEquals('test.txt', $attachmentData['originalName']);
         $this->assertEquals('txt', $attachmentData['extension']);
-        $this->assertEquals('https://somehost/uploads/agreements/test.txt', $attachmentData['path']);
+        $this->assertEquals('/attachments/' . $attachment->getId() . '/download', $attachmentData['path']);
+        $this->assertEquals('/attachments/' . $attachment->getId() . '/view', $attachmentData['viewPath']);
         $this->assertEquals('https://somehost/thumbs/txt.svg', $attachmentData['thumbnail']);
     }
 

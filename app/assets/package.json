@@ -56,6 +56,7 @@
     "uuid": "^13.0.0",
     "vee-validate": "^3.4.15",
     "vue-chartjs": "^3.5.1",
+    "vue-cool-lightbox": "^2.7.5",
     "vue-i18n": "^8.26.0",
     "vue-select": "^3.13.0",
     "vue2-datepicker": "^3.10.2",
