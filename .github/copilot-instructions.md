@@ -93,27 +93,50 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 - Zawiera wiele AgreementLine
 
 ### 2. Production (Produkcja)
-- Zadania produkcyjne (tasks)
+- Zadania produkcyjne dla działów produkcyjnych
 - Podział na działy (departments), identyfikowane jako departmentSlug dpt01, dpt02, ..., dpt06
-- Dodatkowo moduł gromadzi zadania własne, analogicznie jak zadania produkcyjne, ale z slugiem "custom_task" i z innymi opcjami statusuów
 - Status tasks: PENDING, IN_PROGRESS, COMPLETED
 - Logi statusów (StatusLog)
 - Harmonogram produkcji
+- **Uwaga**: Moduł Production zawiera TYLKO zadania produkcyjne (dpt01-dpt06). Zadania niestandardowe są w module Task.
 
-### 3. Customers (Klienci)
+### 3. Task (Zadania niestandardowe)
+- Zarządzanie zadaniami niestandardowymi dla AgreementLine
+- **Routing**: `/tasks` (POST, PUT, DELETE)
+- **Typy zadań** (TaskTypeEnum):
+  - `task_custom` - zadania niestandardowe
+  - `task_confirm_realization_date` - potwierdzenie daty realizacji
+- **Statusy** (TaskStatusEnum):
+  - AWAITS = 10
+  - PENDING = 11
+  - COMPLETED = 12
+- **Pola encji Task**:
+  - `dateStart`, `dateEnd` - **nullable** (daty opcjonalne)
+  - `status` - wymagany enum
+  - `type` - wymagany enum (rodzaj zadania)
+  - `title`, `description` - opcjonalne
+  - `owner` - nullable relacja do User
+  - `agreementLine` - wymagana relacja
+  - `isDeleted` - soft delete flag
+- **Autoryzacja**: Jeśli task ma ownera, tylko owner może edytować/usuwać
+- **Walidacja**: dateEnd >= dateStart (tylko gdy obie daty są podane)
+- **Soft delete**: TaskRepository.find() automatycznie filtruje usunięte taski
+- **Read Model**: Taski są włączone do AgreementLineRM w polu `tasks` (JSON)
+
+### 4. Customers (Klienci)
 - Zarządzanie klientami
 - Powiązani z zamówieniami
 
-### 4. Products (Produkty)
+### 5. Products (Produkty)
 - Katalog produktów
 - Powiązane z AgreementLine
 
-### 5. WorkConfiguration (Konfiguracja pracy)
+### 6. WorkConfiguration (Konfiguracja pracy)
 - Capacity (Wydajność dzienna)
 - Schedule (Harmonogram: dni wolne, święta)
 - Używane do planowania produkcji
 
-### 6. Reports (Raporty)
+### 7. Reports (Raporty)
 - Raporty produkcyjne
 - Raporty kalendarzowe
 - Statystyki zamówień
