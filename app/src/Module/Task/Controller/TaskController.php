@@ -57,6 +57,13 @@ class TaskController extends BaseController
             $this->commandBus->dispatch($command);
 
             return $this->json(['success' => true, 'message' => 'Task created successfully'], Response::HTTP_CREATED);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
+            // Unwrap the nested exception from Messenger
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof \InvalidArgumentException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
@@ -96,6 +103,16 @@ class TaskController extends BaseController
             return $this->json(['success' => true, 'message' => 'Task updated successfully'], Response::HTTP_OK);
         } catch (AccessDeniedException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_FORBIDDEN);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
+            // Unwrap the nested exception from Messenger
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof AccessDeniedException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_FORBIDDEN);
+            }
+            if ($nested instanceof \InvalidArgumentException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {
@@ -122,6 +139,16 @@ class TaskController extends BaseController
             return $this->json(['success' => true, 'message' => 'Task deleted successfully'], Response::HTTP_OK);
         } catch (AccessDeniedException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_FORBIDDEN);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
+            // Unwrap the nested exception from Messenger
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof AccessDeniedException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_FORBIDDEN);
+            }
+            if ($nested instanceof \InvalidArgumentException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Exception $e) {

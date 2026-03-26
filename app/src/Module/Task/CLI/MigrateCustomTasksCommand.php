@@ -3,10 +3,12 @@
 namespace App\Module\Task\CLI;
 
 use App\Entity\Production;
+use App\Module\Agreement\Command\UpdateAgreementLineRM;
 use App\Module\Task\Entity\Task;
 use App\Module\Task\ValueObject\TaskStatusEnum;
 use App\Module\Task\ValueObject\TaskTypeEnum;
 use App\Repository\ProductionRepository;
+use App\System\CommandBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,6 +23,7 @@ class MigrateCustomTasksCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ProductionRepository $productionRepository,
+        private readonly CommandBus $commandBus,
     ) {
         parent::__construct();
     }
@@ -45,11 +48,16 @@ class MigrateCustomTasksCommand extends Command
 
         $migratedCount = 0;
         $batchSize = 100;
+        $affectedAgreementLineIds = [];
 
         foreach ($customTaskProductions as $index => $production) {
             try {
                 $this->migrateProductionToTask($production);
                 $migratedCount++;
+
+                // Zbierz ID AgreementLine do późniejszej aktualizacji read model
+                $agreementLineId = $production->getAgreementLine()->getId();
+                $affectedAgreementLineIds[$agreementLineId] = true;
 
                 // Flush co 100 rekordów
                 if (($index + 1) % $batchSize === 0) {
@@ -69,6 +77,33 @@ class MigrateCustomTasksCommand extends Command
         $this->em->flush();
 
         $io->success(sprintf('Successfully migrated %d out of %d custom_task records', $migratedCount, $totalCount));
+
+        // Aktualizacja read models dla wszystkich dotkniętych AgreementLine
+        $affectedCount = count($affectedAgreementLineIds);
+        if ($affectedCount > 0) {
+            $io->section('Updating read models for affected AgreementLines');
+            $io->note(sprintf('Updating %d AgreementLine read models', $affectedCount));
+
+            $updatedCount = 0;
+            foreach (array_keys($affectedAgreementLineIds) as $agreementLineId) {
+                try {
+                    $this->commandBus->dispatch(new UpdateAgreementLineRM($agreementLineId));
+                    $updatedCount++;
+
+                    if ($updatedCount % 50 === 0) {
+                        $io->writeln(sprintf('Updated %d/%d read models', $updatedCount, $affectedCount));
+                    }
+                } catch (\Exception $e) {
+                    $io->warning(sprintf(
+                        'Failed to update read model for AgreementLine ID %d: %s',
+                        $agreementLineId,
+                        $e->getMessage()
+                    ));
+                }
+            }
+
+            $io->success(sprintf('Successfully updated %d read models', $updatedCount));
+        }
 
         return Command::SUCCESS;
     }
