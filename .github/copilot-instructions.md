@@ -84,7 +84,7 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 - konfiguracja autowiringu w config.yaml w katalogu modułu
 - konfiguracja routing w routes.yaml w katalogu modułu
 - historyczny kod jest także poza folderem Module, w standardzie Symfony (src/Controller, src/Entity, src/Repository), docelowo powinien zostać przeniesiony do konkretnych modułów
-
+- po każdej istotniejszej zmianie w api należy czyścić cache Symfony
 ## Moduły systemu
 
 ### 1. Orders (Agreements, Zamówienia)
@@ -94,6 +94,8 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 
 ### 2. Production (Produkcja)
 - Zadania produkcyjne (tasks)
+- Podział na działy (departments), identyfikowane jako departmentSlug dpt01, dpt02, ..., dpt06
+- Dodatkowo moduł gromadzi zadania własne, analogicznie jak zadania produkcyjne, ale z slugiem "custom_task" i z innymi opcjami statusuów
 - Status tasks: PENDING, IN_PROGRESS, COMPLETED
 - Logi statusów (StatusLog)
 - Harmonogram produkcji
@@ -362,7 +364,7 @@ class AgreementControllerTest extends ApiTestCase
 ### Przykład pełnego flow API (Request → Controller → Service → Response)
 
 **1. Request (JSON)**
-```json
+```
 POST /api/production/tasks
 {
   "agreementLineId": 123,

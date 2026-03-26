@@ -43,6 +43,7 @@ services:
             - '../src/Module/**/Entity'
             - '../src/Module/**/Event'
             - '../src/Module/**/Command'
+            - '../src/Module/**/ValueObject'
             - '../src/Module/**/DTO/*DTO.php'
 
 

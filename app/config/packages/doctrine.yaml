@@ -66,6 +66,12 @@ doctrine:
                 prefix: 'App\Module\Tag\Entity'
                 alias: Tag
                 type: attribute
+            Task:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/Task/Entity'
+                prefix: 'App\Module\Task\Entity'
+                alias: Task
+                type: attribute
 
 when@test:
     doctrine:

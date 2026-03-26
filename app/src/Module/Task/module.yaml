@@ -1,0 +1,4 @@
+app_module:
+  namespace: task
+  description: Moduł zarządzania zadaniami
+  active: true
