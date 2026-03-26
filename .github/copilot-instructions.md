@@ -1056,3 +1056,162 @@ export default {
 - Event `@close` emitowany z subkomponentu do zamknięcia sidebara
 - Sprawdzanie uprawnień przez `this.$user.can()`
 
+## Przykład: Moduł Task (Zadania niestandardowe)
+
+Moduł Task jest przykładem czystej implementacji CQRS z nullable fields i soft delete.
+
+### Struktura modułu
+
+```
+src/Module/Task/
+├── module.yaml          # Konfiguracja modułu (bez uprawnień)
+├── routes.yaml          # Routing: resource: ./Controller, type: annotation
+├── Entity/
+│   └── Task.php         # Encja z nullable dateStart/dateEnd
+├── Repository/
+│   └── TaskRepository.php  # Z nadpisanym find() dla soft delete
+├── ValueObject/
+│   ├── TaskStatusEnum.php  # AWAITS=10, PENDING=11, COMPLETED=12
+│   └── TaskTypeEnum.php    # task_custom, task_confirm_realization_date
+├── Command/
+│   ├── CreateTaskCommand.php
+│   ├── UpdateTaskCommand.php
+│   └── DeleteTaskCommand.php
+├── CommandHandler/
+│   ├── CreateTaskCommandHandler.php
+│   ├── UpdateTaskCommandHandler.php
+│   └── DeleteTaskCommandHandler.php
+├── Event/
+│   ├── TaskWasCreatedEvent.php
+│   ├── TaskWasUpdatedEvent.php
+│   └── TaskWasDeletedEvent.php
+├── Controller/
+│   └── TaskController.php  # Routes: /tasks (POST, PUT, DELETE)
+└── CLI/
+    └── MigrateCustomTasksCommand.php  # task:migrate-custom-tasks
+```
+
+### Kluczowe cechy implementacji
+
+#### 1. Nullable dates w encji
+```php
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $dateStart = null;
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $dateEnd = null;
+```
+
+#### 2. Soft delete w TaskRepository
+```php
+public function find($id, $lockMode = null, $lockVersion = null): ?Task
+{
+    $task = parent::find($id, $lockMode, $lockVersion);
+    
+    if ($task && $task->isDeleted()) {
+        return null;
+    }
+    
+    return $task;
+}
+```
+
+#### 3. Walidacja właściciela (owner)
+```php
+private function validateOwnership(Task $task, int $userId): void
+{
+    $owner = $task->getOwner();
+
+    if ($owner !== null && $owner->getId() !== $userId) {
+        throw new AccessDeniedException('Only the task owner can update this task');
+    }
+}
+```
+- Jeśli owner jest null, każdy może edytować
+- Jeśli owner istnieje, tylko owner może edytować/usuwać
+
+#### 4. Walidacja dat (tylko gdy obie są podane)
+```php
+private function validateDates(?string $dateStart, ?string $dateEnd): void
+{
+    if ($dateStart === null || $dateEnd === null) {
+        return; // Brak walidacji gdy któraś data jest null
+    }
+
+    $start = new \DateTimeImmutable($dateStart);
+    $end = new \DateTimeImmutable($dateEnd);
+
+    if ($end < $start) {
+        throw new \InvalidArgumentException('Date end must be greater than or equal to date start');
+    }
+}
+```
+
+#### 5. Integracja z AgreementLineRM
+```php
+// W UpdateAgreementLineRMHandler
+private function getTasks(AgreementLine $agreementLine): array
+{
+    $taskRepository = $this->em->getRepository(\App\Module\Task\Entity\Task::class);
+    $tasks = $taskRepository->findByAgreementLine($agreementLine);
+
+    return array_map(function ($task) {
+        return [
+            'id' => $task->getId(),
+            'dateStart' => $task->getDateStart()?->format('Y-m-d H:i:s'), // null-safe operator
+            'dateEnd' => $task->getDateEnd()?->format('Y-m-d H:i:s'),
+            'status' => $task->getStatus(),
+            'type' => $task->getType(),
+            // ...
+        ];
+    }, $tasks);
+}
+```
+
+#### 6. Event Handlers dla synchronizacji Read Model
+```php
+// W Module/Agreement/EventHandler/
+class UpdateAgreementLineRMOnTaskCreatedHandler
+{
+    public function __invoke(TaskWasCreatedEvent $event): void
+    {
+        $this->commandBus->dispatch(new UpdateAgreementLineRM($event->getAgreementLineId()));
+    }
+}
+```
+
+### Migracja danych z Production
+```bash
+# Komenda CLI do migracji istniejących custom_task z modułu Production
+php bin/console task:migrate-custom-tasks
+```
+
+### Testy End2End
+- 8 testów pokrywających wszystkie scenariusze
+- Testy używają transakcji z rollback
+- Weryfikacja soft delete przez QueryBuilder
+- Testowanie nullable dates i walidacji
+
+```php
+public function testShouldCreateTaskWithoutDates(): void
+{
+    // Task może być utworzony bez dat
+    $client->request('POST', '/tasks', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        'agreementLineId' => $agreementLine->getId(),
+        'status' => TaskStatusEnum::PENDING->value,
+        'type' => TaskTypeEnum::TASK_CONFIRM_REALIZATION_DATE->value,
+        'title' => 'Task without dates',
+    ]));
+    
+    // dateStart i dateEnd będą null
+}
+```
+
+### Kluczowe wnioski z implementacji modułu Task
+1. **Nullable fields**: Pola opcjonalne wymagają sprawdzeń null przed użyciem
+2. **Soft delete**: Wymaga nadpisania metody `find()` w Repository
+3. **Owner authorization**: Logika sprawdza czy owner istnieje przed walidacją
+4. **Read Model sync**: Events automatycznie aktualizują AgreementLineRM
+5. **CQRS pattern**: Czyste rozdzielenie Command/Handler/Event
+6. **Enum ValueObjects**: Type-safe statusy i typy zadań
+
