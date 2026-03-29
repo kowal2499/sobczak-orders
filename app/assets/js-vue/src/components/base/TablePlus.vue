@@ -11,11 +11,6 @@
                                 @click="item.sortKey ? sortBy(item.sortKey) : null"
                             >
                                 {{ item.name }}
-<!--                                <a href="#" v-if="item.sortKey" @click.prevent="sortBy(item.sortKey)">-->
-<!--                                    {{ item.name }}-->
-<!--                                </a>-->
-<!--                                <span v-else>{{ item.name }}</span>-->
-
                                 <template v-if="item.sortKey === headerSort.sortKey">
                                     <i :class="headerSort.order === 'ASC' && 'fa fa-arrow-up sort-direction'" />
                                     <i :class="headerSort.order === 'DESC' && 'fa fa-arrow-down sort-direction'" />
@@ -116,7 +111,6 @@
             .header-item {
                 position: relative;
                 font-size: 0.85rem;
-                padding: 0 1rem;
 
                 a {
                     color: #666;

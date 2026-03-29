@@ -22,18 +22,9 @@
                     :key="order.agreementLineId"
                     :disabled="busyOrders.includes(order.agreementLineId)"
                     @statusUpdated="updateStatus($event, order.agreementLineId)"
+                    @taskStatusUpdated="updateTaskStatus($event, order.agreementLineId)"
                     @lineChanged="fetchData"
                     @expandToggle="prodExpanded = prodExpanded === $event ? null : $event"
-                />
-
-                <production-row-details
-                    v-if="order.agreementLineId === prodExpanded"
-                    :order="order"
-                    :statuses="statuses"
-                    :key="'details' + order.agreementLineId"
-                    :disabled="busyOrders.includes(order.agreementLineId)"
-                    :columns-count="tableHeaders.length"
-                    @statusUpdated="updateStatus($event, order.agreementLineId)"
                 />
             </template>
         </table-plus>
@@ -59,14 +50,14 @@
     import TablePlus from '../../../components/base/TablePlus';
     import CollapsibleCard from "../../../components/base/CollapsibleCard";
     import ProductionRow from "../components/ProductionRow2";
-    import ProductionRowDetails from "../components/ProductionRowDetails2";
     import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
     import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
+    import { updateTask } from '../../task/repository/taskRepository'
 
     export default {
         name: "AgreementLineListRM",
 
-        components: {Filters, TablePlus, CollapsibleCard, ProductionRow, ProductionRowDetails},
+        components: {Filters, TablePlus, CollapsibleCard, ProductionRow},
 
         props: {
             statuses: {
@@ -203,20 +194,25 @@
                     .finally(() => this.loading = false)
             },
 
-            updateStatus(data, agreementLineId) {
-                const taskId = data.id;
-                const newStatus = data.status;
-                const lineId = agreementLineId
+            updateTaskStatus(data, agreementLineId) {
+                const order = this.orders.find(order => order.agreementLineId === agreementLineId)
+                if (!order) {
+                    return
+                }
+                const task = (order.tasks || []).find(task => task.id === data.id)
+                if (!task) {
+                    return
+                }
+                const payload = {
+                    ...task,
+                    status: data.status
+                }
+
                 this.busyOrders.push(agreementLineId);
 
-                productionApi.updateStatus(taskId, newStatus)
-                    .then(() => this.fetchSingleLine(lineId))
-                    .then(() => {
-                        EventBus.$emit('message', {
-                            type: 'success',
-                            content: this.$t('statusChangeSaved')
-                        });
-                    })
+                updateTask(payload.id, payload)
+                    .then(() => this.fetchSingleLine(agreementLineId))
+                    .then(() => this.$flash.success(this.$t('statusChangeSaved')))
                     .catch((error) => {
                         let msg = '';
                         if (error.response && error.response.status) {
@@ -228,10 +224,34 @@
                                     msg = this.$t('error');
                             }
                         }
-                        EventBus.$emit('message', {
-                            type: 'error',
-                            content: msg
-                        });
+                        this.$flash.danger(msg)
+                    })
+                    .finally(() => {
+                        this.busyOrders = this.busyOrders.filter(order => order !== agreementLineId)
+                    });
+            },
+
+            updateStatus(data, agreementLineId) {
+                const taskId = data.id;
+                const newStatus = data.status;
+                const lineId = agreementLineId
+                this.busyOrders.push(agreementLineId);
+
+                productionApi.updateStatus(taskId, newStatus)
+                    .then(() => this.fetchSingleLine(lineId))
+                    .then(() => this.$flash.success(this.$t('statusChangeSaved')))
+                    .catch((error) => {
+                        let msg = '';
+                        if (error.response && error.response.status) {
+                            switch (error.response.status) {
+                                case 403:
+                                    msg = this.$t('forbidden');
+                                    break;
+                                default:
+                                    msg = this.$t('error');
+                            }
+                        }
+                        this.$flash.danger(msg)
                     })
                     .finally(() => {
                         this.busyOrders = this.busyOrders.filter(order => order !== lineId)
@@ -248,7 +268,6 @@
             },
 
             getStatusStyle(production) {
-
                 let status = this.helpers.statuses.find(item => item.value === production.status);
                 if (status) {
                     return 'background-color: '.concat(status.color);
@@ -260,7 +279,6 @@
             updateSort(event) {
                 this.args.meta.sort = event
             },
-
 
             getRouting() {
                 return routing;
@@ -311,6 +329,8 @@
                 const headers = [
                     { name: this.$t('actions')},
                     { name: this.$t('ID'), sortKey: 'id' },
+                    { name: 'Załączniki' },
+                    { name: 'Zadania' },
                     this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
                     { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                     { name: this.$t('customer'), sortKey: 'customer' },

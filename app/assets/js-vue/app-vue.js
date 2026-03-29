@@ -26,6 +26,9 @@ library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faPhone, faEnvelope, faExclamationCircle,)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
+import PortalVue from 'portal-vue'
+Vue.use(PortalVue)
+
 window.EventBus = new Vue();
 
 document.addEventListener('DOMContentLoaded', () => {

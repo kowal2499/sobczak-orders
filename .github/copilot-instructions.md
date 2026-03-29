@@ -40,6 +40,12 @@ Kod backendu jest w app (z wyłączeniem assets)
 ### Doctrine
 - Używamy **PHP Attributes** (nie annotations) do mapowania encji
 - Encje są czyste, bez logiki biznesowej (poza prostymi metodami pomocniczymi)
+- **Dziedziczenie encji**: Używamy Doctrine Mapped Superclass dla wspólnych pól
+  - `BaseTask` (`App\Module\Task\Entity\BaseTask`) - klasa bazowa dla Task i Production
+  - Zawiera wspólne pola: `dateStart`, `dateEnd`, `title`, `description`, `isStartDelayed`, `isCompleted`, `completedAt`, `createdAt`, `updatedAt`
+  - Encje `Task` i `Production` dziedziczą po `BaseTask`
+  - `BaseTask` nie tworzy własnej tabeli (Mapped Superclass)
+  - Pola w `BaseTask` są `protected` aby klasy dziedziczące miały dostęp
 
 ## Środowisko deweloperskie
 docker compose, kontenery php-apache i mysql
@@ -94,6 +100,7 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 
 ### 2. Production (Produkcja)
 - Zadania produkcyjne dla działów produkcyjnych
+- **Dziedziczenie**: Production dziedziczy po `BaseTask` (wspólne pola z Task)
 - Podział na działy (departments), identyfikowane jako departmentSlug dpt01, dpt02, ..., dpt06
 - Status tasks: PENDING, IN_PROGRESS, COMPLETED
 - Logi statusów (StatusLog)
@@ -103,6 +110,7 @@ cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor
 ### 3. Task (Zadania niestandardowe)
 - Zarządzanie zadaniami niestandardowymi dla AgreementLine
 - **Routing**: `/tasks` (POST, PUT, DELETE)
+- **Dziedziczenie**: Task dziedziczy po `BaseTask` (wspólne pola z Production)
 - **Typy zadań** (TaskTypeEnum):
   - `task_custom` - zadania niestandardowe
   - `task_confirm_realization_date` - potwierdzenie daty realizacji

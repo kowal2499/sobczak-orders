@@ -32,7 +32,7 @@ class UpdateTaskCommandHandler
 
             $this->updateTask($task, $command);
 
-            $this->taskRepository->save($task, true);
+            $this->taskRepository->save($task);
 
             $this->eventBus->dispatch(new TaskWasUpdatedEvent(
                 $task->getId(),

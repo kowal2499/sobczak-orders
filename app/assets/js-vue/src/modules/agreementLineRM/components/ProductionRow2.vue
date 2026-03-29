@@ -30,6 +30,25 @@
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
         </td>
 
+        <td>
+            <Attachments :attachments="order.attachments || []" v-if="order.attachments && order.attachments.length > 0" />
+            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                <i class="fa fa-ban mr-1" /> {{ $t('orders.noattachments') }}
+            </span>
+        </td>
+
+        <td>
+            <Tasks
+                :tasks="order.tasks || []"
+                :deadline="order.confirmedDate"
+                v-if="order.tasks && order.tasks.length > 0"
+                @taskStatusUpdated="(payload) => $emit('taskStatusUpdated', payload)"
+            />
+            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                <i class="fa fa-ban mr-1" /> {{ $t('orders.notasks') }}
+            </span>
+        </td>
+
         <td class="text-nowrap" v-if="$user.can('production.show.production_date')">
             {{ order.confirmedDate | formatDate('YYYY-MM-DD') }}
         </td>
@@ -123,6 +142,9 @@
 <script>
     import ProductionRowBase from "./ProductionRowBase";
     import Tooltip from "../../../components/base/Tooltip";
+    import CollapsibleList from "../../../components/base/CollapsibleList";
+    import Attachments from "./Attachments";
+    import Tasks from "./Tasks";
     import LineActions from "./LineActions2";
     import Tag from "../../tags/widget/Tag";
     import helpers, { getDepartmentName, DEPARTMENTS } from "../../../helpers";
@@ -134,7 +156,16 @@
 
         extends: ProductionRowBase,
 
-        components: { Tooltip, LineActions, Tag, ProductionTaskNotification, FactorDisplay, },
+        components: {
+            Tooltip,
+            LineActions,
+            Tag,
+            ProductionTaskNotification,
+            FactorDisplay,
+            CollapsibleList,
+            Attachments,
+            Tasks,
+        },
 
         data() {
             return {}
