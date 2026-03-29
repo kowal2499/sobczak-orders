@@ -269,7 +269,7 @@ class UpdateAgreementLineRMHandler
                 'description' => $task->getDescription(),
                 'ownerId' => $task->getOwner()?->getId(),
                 'ownerName' => $task->getOwner()?->getUserFullName(),
-                'createDate' => $task->getCreateDate()->format('Y-m-d H:i:s'),
+                'createdAt' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
             ];
         }, $tasks);
     }

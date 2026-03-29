@@ -272,9 +272,6 @@
                 this.args.meta.sort = event
             },
 
-            getCustomTasks(production) {
-                return production.filter(p => { return p.departmentSlug === 'custom_task' ? p : false; })
-            },
 
             getRouting() {
                 return routing;

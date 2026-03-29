@@ -10,8 +10,8 @@
                 />
 
                 <div class="custom-tasks">
-                    <div class="task custom-task d-flex flex-column gap-1" v-for="task in getCustomTasks(order.productions)">
-                        <label>{{ task.title }}</label>
+                    <div class="task custom-task d-flex flex-column gap-1" v-for="task in getCustomTasks()">
+                        <label>{{ task.title || '' }}</label>
 
                         <b-dropdown
                                 :text="$t(getStatusData(task.status).name)"
@@ -90,8 +90,9 @@
         },
 
         methods: {
-            getCustomTasks(production) {
-                return production.filter(p => { return p.departmentSlug === 'custom_task' ? p : false; })
+            getCustomTasks() {
+                // Zadania niestandardowe są teraz w osobnym polu order.tasks
+                return this.order.tasks || [];
             },
 
             getStatusData(status) {

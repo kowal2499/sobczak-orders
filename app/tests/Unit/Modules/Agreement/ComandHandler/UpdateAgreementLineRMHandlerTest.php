@@ -15,6 +15,7 @@ use App\Module\Agreement\Repository\Test\InMemoryAgreementLineRMRepository;
 use App\Module\Production\Factor\FactorCalculator;
 use App\Service\UploaderHelper;
 use App\Tests\Utilities\PrivateProperty;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Asset\Context\RequestStackContext;
@@ -37,6 +38,15 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
             mkdir($this->tempThumbsPath, 0755, true);
         }
 
+        // Skonfiguruj mock EntityManager aby zwracał mock TaskRepository
+        $taskRepositoryMock = $this->createMock(\App\Module\Task\Repository\TaskRepository::class);
+        $taskRepositoryMock->method('findByAgreementLine')->willReturn([]);
+
+        $entityManagerMock = $this->createMock(EntityManagerInterface::class);
+        $entityManagerMock->method('getRepository')
+            ->with(\App\Module\Task\Entity\Task::class)
+            ->willReturn($taskRepositoryMock);
+
         $this->handler = new UpdateAgreementLineRMHandler(
             $this->createMock(LoggerInterface::class),
             $this->agreementLineRepository,
@@ -49,7 +59,8 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
                 'https://somehost',
                 'uploads',
                 'thumbs',
-            )
+            ),
+            $entityManagerMock
         );
         parent::setUp();
     }

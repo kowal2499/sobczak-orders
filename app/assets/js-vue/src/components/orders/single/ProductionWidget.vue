@@ -51,10 +51,11 @@
                     .map(({slug}) => slug)
 
                 this.proxyData.tasks.forEach(task => {
+                    const taskTitle = task.title || '';
                     let normalizedTask = {
                         id: task.id,
                         status: task.status,
-                        title: task.title.length > 15 ? task.title.substring(0, 15) + '...' : task.title,
+                        title: taskTitle.length > 15 ? taskTitle.substring(0, 15) + '...' : taskTitle,
                         enabled: true,
                         slug: task.departmentSlug
                     }

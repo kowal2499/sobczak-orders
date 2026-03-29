@@ -9,6 +9,8 @@ doctrine:
             collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
+        mapping_types:
+            json: text
         types:
             # Authorization types
             grant_type: App\Module\Authorization\Doctrine\GrantTypeType

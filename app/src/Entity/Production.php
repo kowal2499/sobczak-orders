@@ -2,17 +2,18 @@
 
 namespace App\Entity;
 
+use App\Module\Production\ValueObject\DepartmentEnum;
+use App\Module\Task\Entity\BaseTask;
 use App\Repository\ProductionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OrderBy;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
 #[ORM\Entity(repositoryClass: ProductionRepository::class)]
-class Production
+class Production extends BaseTask
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,29 +25,10 @@ class Production
     #[Groups(['_main', '_linePanel'])]
     private string $departmentSlug;
 
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['_main', '_linePanel'])]
-    private $dateStart;
-
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['_main', '_linePanel'])]
-    private $dateEnd;
-
     #[ORM\Column(type: 'string', length: 64, nullable: true)]
     #[Groups(['_main', '_linePanel'])]
     private $status;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
-    #[ORM\Column(type: 'datetime')]
-    private $createdAt;
-
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
-    #[ORM\Column(type: 'datetime')]
-    private $updatedAt;
 
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'productions')]
@@ -57,25 +39,6 @@ class Production
     #[Groups(['_main', '_linePanel'])]
     private $statusLogs;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $description;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $title;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $isStartDelayed;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $isCompleted;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(['_main', '_linePanel'])]
-    private $completedAt;
 
     public function __construct()
     {
@@ -96,29 +59,6 @@ class Production
     {
         $this->departmentSlug = $departmentSlug;
 
-        return $this;
-    }
-
-    public function getDateStart(): ?\DateTimeInterface
-    {
-        return $this->dateStart;
-    }
-
-    public function setDateStart(?\DateTimeInterface $dateStart): self
-    {
-        $this->dateStart = $dateStart;
-
-        return $this;
-    }
-
-    public function getDateEnd(): ?\DateTimeInterface
-    {
-        return $this->dateEnd;
-    }
-
-    public function setDateEnd(?\DateTimeInterface $dateEnd): self
-    {
-        $this->dateEnd = $dateEnd;
 
         return $this;
     }
@@ -132,29 +72,6 @@ class Production
     {
         $this->status = $status;
 
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -169,6 +86,24 @@ class Production
         $this->agreementLine = $agreementLine;
 
         return $this;
+    }
+
+    /**
+     * Nadpisanie getTitle() z BaseTask aby zwracało nazwę działu gdy title jest null
+     */
+    public function getTitle(): ?string
+    {
+        if ($this->title !== null) {
+            return $this->title;
+        }
+
+        // Dla starych rekordów Production bez title zwróć nazwę działu
+        try {
+            $dept = DepartmentEnum::from($this->departmentSlug);
+            return $dept->getName();
+        } catch (\ValueError $e) {
+            return null;
+        }
     }
 
     /**
@@ -200,69 +135,5 @@ class Production
         }
 
         return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): self
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    public function getIsStartDelayed(): ?bool
-    {
-        return $this->isStartDelayed;
-    }
-
-    public function setIsStartDelayed(?bool $isStartDelayed): self
-    {
-        $this->isStartDelayed = $isStartDelayed;
-
-        return $this;
-    }
-
-    public function getIsCompleted(): ?bool
-    {
-        return $this->isCompleted;
-    }
-
-    public function setIsCompleted(?bool $isCompleted): self
-    {
-        $this->isCompleted = $isCompleted;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTimeInterface|null
-     */
-    public function getCompletedAt()
-    {
-        return $this->completedAt;
-    }
-
-    /**
-     * @param \DateTimeInterface|null $completedAt
-     */
-    public function setCompletedAt(?\DateTimeInterface $completedAt): void
-    {
-        $this->completedAt = $completedAt;
     }
 }

@@ -30,8 +30,9 @@
         },
 
         methods: {
-            getCustomTasks(production) {
-                return production.filter(p => { return p.departmentSlug === 'custom_task' ? p : false; })
+            getCustomTasks() {
+                // Zadania niestandardowe są teraz w osobnym polu order.tasks
+                return this.order.tasks || [];
             },
             getStatusStyle(production) {
                 let status = this.helpers.statuses.find(item => item.value === production.status);

@@ -9,9 +9,9 @@
                     <span class="badge badge-pill text-primary">{{ order.attachments.length }}</span>
                 </span>
 
-                <span v-if="getCustomTasks(order.productions).length && userCanProduction" class="d-flex gap-1">
+                <span v-if="getCustomTasks().length && userCanProduction" class="d-flex gap-1">
                     <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill text-primary">{{ getCustomTasks(order.productions).length }}</span>
+                    <span class="badge badge-pill text-primary">{{ getCustomTasks().length }}</span>
                 </span>
             </button>
         </td>
@@ -142,7 +142,7 @@
 
         computed: {
             hasDetails() {
-                return (this.order.attachments.length || (this.getCustomTasks(this.order.productions).length && this.userCanProduction));
+                return (this.order.attachments.length || (this.getCustomTasks().length && this.userCanProduction));
             },
 
             productionsByGrants() {
