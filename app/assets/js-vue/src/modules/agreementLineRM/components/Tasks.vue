@@ -25,7 +25,6 @@ export default {
         statusOptions() {
             return helpers.statusesPerTaskType('custom_task')
         }
-
     },
 
     methods: {

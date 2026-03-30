@@ -296,6 +296,34 @@ class TaskControllerTest extends ApiTestCase
         $this->assertEquals('Task without dates', $task->getTitle());
     }
 
+    public function testShouldUpdateTaskStatus(): void
+    {
+        // Given
+        $user = $this->createUser();
+        $client = $this->login($user);
+
+        $agreementLine = $this->createAgreementLine();
+        $task = $this->createTask($agreementLine, $user);
+        $this->getManager()->flush();
+        $this->getManager()->clear();
+
+        // When
+        $client->request('POST', '/tasks/' . $task->getId() . '/status', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'status' => TaskStatusEnum::COMPLETED->value,
+        ]));
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue($response['success']);
+
+        // Verify status updated in database
+        $this->getManager()->clear();
+        $updatedTask = $this->getTaskRepository()->find($task->getId());
+        $this->assertNotNull($updatedTask);
+        $this->assertEquals(TaskStatusEnum::COMPLETED->value, $updatedTask->getStatus());
+    }
+
     private function createAgreementLine(): AgreementLine
     {
         $customer = $this->factory->make(Customer::class);

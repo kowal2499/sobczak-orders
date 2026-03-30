@@ -125,7 +125,7 @@ export default {
 
 <style scoped lang="scss">
 .sb-attachments {
-    width: 170px;
+    width: 180px;
 
     img {
         width: 24px;

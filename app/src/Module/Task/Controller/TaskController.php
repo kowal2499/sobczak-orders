@@ -6,6 +6,8 @@ use App\Controller\BaseController;
 use App\Module\Task\Command\CreateTaskCommand;
 use App\Module\Task\Command\DeleteTaskCommand;
 use App\Module\Task\Command\UpdateTaskCommand;
+use App\Module\Task\Entity\Task;
+use App\Module\Task\ValueObject\TaskStatusEnum;
 use App\System\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -105,6 +107,54 @@ class TaskController extends BaseController
             return $this->json(['error' => $e->getMessage()], Response::HTTP_FORBIDDEN);
         } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
             // Unwrap the nested exception from Messenger
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof AccessDeniedException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_FORBIDDEN);
+            }
+            if ($nested instanceof \InvalidArgumentException) {
+                return $this->json(['error' => $nested->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/{task}/status', methods: ['POST'])]
+    public function updateStatus(Task $task, Request $request): JsonResponse
+    {
+        $user = $this->security->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $status = isset($data['status']) ? TaskStatusEnum::tryFrom((int) $data['status']) : null;
+        if ($status === null) {
+            $validValues = implode(', ', array_column(TaskStatusEnum::cases(), 'value'));
+            return $this->json(['error' => "status is required and must be one of: $validValues"], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $command = new UpdateTaskCommand(
+                taskId: $task->getId(),
+                userId: $user->getId(),
+                dateStart: $task->getDateStart()?->format('Y-m-d'),
+                dateEnd: $task->getDateEnd()?->format('Y-m-d'),
+                status: $status->value,
+                title: $task->getTitle(),
+                description: $task->getDescription(),
+            );
+
+            $this->commandBus->dispatch($command);
+
+            return $this->json(['success' => true, 'message' => 'Task status updated successfully'], Response::HTTP_OK);
+        } catch (AccessDeniedException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_FORBIDDEN);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
             $nested = $e->getNestedExceptions()[0] ?? null;
             if ($nested instanceof AccessDeniedException) {
                 return $this->json(['error' => $nested->getMessage()], Response::HTTP_FORBIDDEN);

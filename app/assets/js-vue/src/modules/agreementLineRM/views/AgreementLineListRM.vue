@@ -52,7 +52,7 @@
     import ProductionRow from "../components/ProductionRow2";
     import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
     import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
-    import { updateTask } from '../../task/repository/taskRepository'
+    import { updateTaskStatus } from '../../task/repository/taskRepository'
 
     export default {
         name: "AgreementLineListRM",
@@ -194,23 +194,9 @@
                     .finally(() => this.loading = false)
             },
 
-            updateTaskStatus(data, agreementLineId) {
-                const order = this.orders.find(order => order.agreementLineId === agreementLineId)
-                if (!order) {
-                    return
-                }
-                const task = (order.tasks || []).find(task => task.id === data.id)
-                if (!task) {
-                    return
-                }
-                const payload = {
-                    ...task,
-                    status: data.status
-                }
-
+            updateTaskStatus({ id, status }, agreementLineId) {
                 this.busyOrders.push(agreementLineId);
-
-                updateTask(payload.id, payload)
+                return updateTaskStatus(id, status)
                     .then(() => this.fetchSingleLine(agreementLineId))
                     .then(() => this.$flash.success(this.$t('statusChangeSaved')))
                     .catch((error) => {

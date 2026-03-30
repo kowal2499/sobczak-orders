@@ -1,25 +1,35 @@
 <template>
-    <div class="collapsible-list"
-         :class="{ 'collapsible-list--expanded': isExpanded, 'collapsible-list--has-more': hasMore }"
-         :style="containerStyle"
-    >
-        <div class="collapsible-list__items">
-            <slot
-                v-for="(item, index) in visibleItems"
-                :item="item"
-                :index="index"
-            />
-        </div>
-
-        <div v-if="hasMore" class="collapsible-list__footer">
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary text-nowrap"
-                @click="toggleExpanded"
+    <div>
+        <div class="collapsible-list" :style="containerStyle" ref="container">
+            <div
+                class="collapsible-list__items"
+                :class="{ 'collapsible-list__items-has-more': hasMore }"
+                ref="itemsContainer"
             >
-                {{ isExpanded ? collapseLabel : expandLabel }}
-                <b-badge variant="secondary" class="ml-1">{{ items.length }}</b-badge>
-            </button>
+                <slot
+                    v-for="(item, index) in visibleItems"
+                    :item="item"
+                    :index="index"
+                />
+            </div>
+
+            <div v-if="hasMore" class="collapsible-list__toggler">
+                <button
+                    type="button"
+                    class="expand-button btn btn-sm btn-outline-primary w-100 text-nowrap position-relative"
+                    @click="toggleExpanded"
+                >
+                    <font-awesome-icon
+                        :icon="isExpanded ? 'chevron-down' : 'chevron-up'"
+                        size="xs"
+                    />
+                    <b-badge v-if="hasMore"
+                             >
+                        {{ items.length }}</b-badge>
+                </button>
+
+
+            </div>
         </div>
 
         <portal :to="portalName" v-if="isExpanded">
@@ -35,15 +45,7 @@
                         :index="index"
                     />
                 </div>
-                <div class="collapsible-list__footer">
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary text-nowrap"
-                        @click="closeExpanded"
-                    >
-                        {{ collapseLabel }}
-                    </button>
-                </div>
+
             </div>
         </portal>
 
@@ -153,10 +155,10 @@ export default {
                 this.closeOtherInstances()
 
                 // Zapisz szerokość przed rozwinięciem
-                const rect = this.$el.getBoundingClientRect()
+                const containerRect = this.$refs.container.getBoundingClientRect()
                 this.containerStyle = {
-                    width: `${rect.width}px`,
-                    height: `${rect.height}px`,
+                    width: `${containerRect.width}px`,
+                    height: `${containerRect.height}px`,
                 }
 
                 this.calculateOverlayPosition()
@@ -186,12 +188,12 @@ export default {
         },
 
         calculateOverlayPosition() {
-            const rect = this.$el.getBoundingClientRect()
+            const rect = this.$refs.itemsContainer.getBoundingClientRect()
             this.overlayStyle = {
                 position: 'fixed',
                 top: `${rect.top}px`,
                 left: `${rect.left}px`,
-                minWidth: `${rect.width}px`,
+                width: `${rect.width}px`,
                 zIndex: 1050
             }
         },
@@ -244,7 +246,7 @@ export default {
         },
 
         isVisibleInClippingParents() {
-            const rect = this.$el.getBoundingClientRect()
+            const rect = this.$refs.itemsContainer.getBoundingClientRect()
 
             for (const parent of this.clippingParents) {
                 const parentRect = parent.getBoundingClientRect()
@@ -262,8 +264,8 @@ export default {
         },
 
         addScrollListeners() {
-            this.scrollParents = this.getScrollParents(this.$el)
-            this.clippingParents = this.getClippingParents(this.$el)
+            this.scrollParents = this.getScrollParents(this.$refs.itemsContainer)
+            this.clippingParents = this.getClippingParents(this.$refs.itemsContainer)
             this.scrollParents.forEach(parent => {
                 parent.addEventListener('scroll', this.onScroll, { passive: true })
             })
@@ -283,30 +285,47 @@ export default {
 <style scoped>
 .collapsible-list {
     border-radius: 4px;
-    overflow: hidden;
-}
-
-.collapsible-list--expanded {
-    border: 1px solid rgba(var(--colorPrimaryRgb), 0.3);
-
+    display: flex;
+    width: 100%;
 }
 
 .collapsible-list__items {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 8px;
 }
 
-.collapsible-list__footer {
-    padding-bottom: 8px;
-    text-align: center;
+.collapsible-list__items-has-more {
+    border: 1px solid var(--colorPrimary);
+    border-radius: 4px;
+}
+
+.collapsible-list__toggler {
+    flex: 0 0 25px;
+    width: 25px;
+
+    button {
+        box-shadow: none;
+        position: relative;
+
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+            background-color: var(--colorPrimary);
+            color: var(--colorWhite);
+        }
+
+    }
 }
 
 .collapsible-list__overlay {
     background: #fff;
-    border: 1px solid rgba(var(--colorPrimaryRgb), 0.3);
-    box-shadow: 0 0 5px rgba(var(--colorPrimaryRgb), 0.05);
+    border: 1px solid var(--colorPrimary);
     border-radius: 4px;
 }
 
