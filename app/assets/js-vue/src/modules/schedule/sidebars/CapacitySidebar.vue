@@ -68,7 +68,7 @@ export default {
                       icon="cogs"
                   >
                       <template #value>
-                          {{ capacityData.capacityBurned }} ({{ Math.min(Math.round((capacityData.capacityBurned / capacityData.capacity) * 100), 100) }}%)
+                          {{ capacityData.capacityBurned }} ({{ Math.round((capacityData.capacityBurned / capacityData.capacity) * 100) }}%)
                       </template>
                   </ShowcaseBadge>
                   <SidebarNavbar @search="q = $event" :show-excel-export-btn="false" />
