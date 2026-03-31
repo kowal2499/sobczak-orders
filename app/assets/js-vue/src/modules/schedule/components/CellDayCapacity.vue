@@ -20,7 +20,7 @@ export default {
             if (!event || !event.capacity || event.capacity <= 0) {
                 return 0
             }
-            return Math.min(Math.round((event.capacityBurned / event.capacity) * 100), 100)
+            return Math.round((event.capacityBurned / event.capacity) * 100)
         },
         getCapacityVariant(percent) {
             if (percent <= 25) { return 'success' }
@@ -54,7 +54,7 @@ export default {
                     class="w-100 border-color-danger"
                     :id="event.id"
                 >
-                    <b-progress-bar :value="getUsagePercent(event)" :variant="getCapacityVariant(getUsagePercent(event))" />
+                    <b-progress-bar :value="Math.min(getUsagePercent(event), 100)" :variant="getCapacityVariant(getUsagePercent(event))" />
                 </b-progress>
             </div>
             <button
