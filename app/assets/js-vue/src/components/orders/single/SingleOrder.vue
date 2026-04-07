@@ -21,6 +21,10 @@
                     <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
+                <collapsible-card title="Zadania" :locked="locked">
+                    <tasks-view v-model="orderData.tasks" />
+                </collapsible-card>
+
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
                     <details-widget
                         v-model="orderData"
@@ -83,12 +87,13 @@
     import moment from "moment";
     import Sidebar from '@/components/base/Sidebar.vue'
     import FactorsView from '@/modules/agreementLineList/view/FactorsView'
+    import TasksView from '@/modules/task/view/TasksView'
 
     export default {
         name: "SingleOrder",
         components: {
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
-            Sidebar, FactorsView,
+            Sidebar, FactorsView, TasksView,
         },
         props: ['lineId', 'statuses'],
 
@@ -105,7 +110,8 @@
                         tags: []
                     },
                     Product: {},
-                    Agreement: {}
+                    Agreement: {},
+                    tasks: [],
                 },
             }
         },
@@ -135,19 +141,12 @@
                             })
                         }
 
-                        EventBus.$emit('message', {
-                            type: 'success',
-                            content: this.$t('orders.changesWereSaved')
-                        });
-
+                        this.$flash.success(this.$t('orders.changesWereSaved'))
                         EventBus.$emit('statusUpdated');
                     })
                     .catch((data) => {
                         for (let msg of data.response.data) {
-                            EventBus.$emit('message', {
-                                type: 'error',
-                                content: msg
-                            });
+                            this.$flash.danger(msg)
                         }
                     })
                     .finally(() => { this.locked = false;})
