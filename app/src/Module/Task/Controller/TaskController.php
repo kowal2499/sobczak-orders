@@ -7,7 +7,11 @@ use App\Module\Task\Command\CreateTaskCommand;
 use App\Module\Task\Command\DeleteTaskCommand;
 use App\Module\Task\Command\UpdateTaskCommand;
 use App\Module\Task\Entity\Task;
+use App\Module\Task\DTO\TaskDTO;
+use App\Module\Task\Repository\TaskRepository;
 use App\Module\Task\ValueObject\TaskStatusEnum;
+use App\Module\Task\ValueObject\TaskTypeEnum;
+use App\Repository\AgreementLineRepository;
 use App\System\CommandBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +26,8 @@ class TaskController extends BaseController
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly Security $security,
+        private readonly TaskRepository $taskRepository,
+        private readonly AgreementLineRepository $agreementLineRepository,
     ) {
     }
 
@@ -34,7 +40,6 @@ class TaskController extends BaseController
         if (!isset($data['agreementLineId']) || !is_numeric($data['agreementLineId']) || $data['agreementLineId'] <= 0) {
             return $this->json(['error' => 'agreementLineId is required and must be a positive integer'], Response::HTTP_BAD_REQUEST);
         }
-
 
         if (!isset($data['status']) || !in_array($data['status'], [10, 11, 12])) {
             return $this->json(['error' => 'status is required and must be one of: 10, 11, 12'], Response::HTTP_BAD_REQUEST);
@@ -73,7 +78,7 @@ class TaskController extends BaseController
         }
     }
 
-    #[Route('/{id}', methods: ['PUT'])]
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse
     {
         $user = $this->security->getUser();
@@ -170,7 +175,7 @@ class TaskController extends BaseController
         }
     }
 
-    #[Route('/{id}', methods: ['DELETE'])]
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $user = $this->security->getUser();
@@ -204,5 +209,43 @@ class TaskController extends BaseController
         } catch (\Exception $e) {
             return $this->json(['error' => 'An unexpected error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    #[Route('/find', methods: ['GET'])]
+    public function find(Request $request): JsonResponse
+    {
+        $agreementLineId = $request->query->get('agreementLineId');
+        $type = $request->query->get('type');
+
+        if ($agreementLineId === null && $type === null) {
+            return $this->json([]);
+        }
+
+        if ($agreementLineId !== null && (!is_numeric($agreementLineId) || (int) $agreementLineId <= 0)) {
+            return $this->json(['error' => 'agreementLineId must be a positive integer'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($type !== null && TaskTypeEnum::tryFrom($type) === null) {
+            $validValues = implode(', ', array_column(TaskTypeEnum::cases(), 'value'));
+            return $this->json(['error' => "type must be one of: $validValues"], Response::HTTP_BAD_REQUEST);
+        }
+
+        $criteria = [];
+
+        if ($agreementLineId !== null) {
+            $agreementLine = $this->agreementLineRepository->find((int) $agreementLineId);
+            if ($agreementLine === null) {
+                return $this->json(['error' => 'AgreementLine not found'], Response::HTTP_NOT_FOUND);
+            }
+            $criteria['agreementLine'] = $agreementLine;
+        }
+
+        if ($type !== null) {
+            $criteria['type'] = $type;
+        }
+
+        $tasks = $this->taskRepository->findBy($criteria, ['dateStart' => 'ASC']);
+
+        return $this->json(array_map(fn(Task $task) => TaskDTO::fromEntity($task), $tasks));
     }
 }

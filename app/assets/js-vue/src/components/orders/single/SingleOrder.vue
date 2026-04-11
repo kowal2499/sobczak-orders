@@ -22,7 +22,9 @@
                 </collapsible-card>
 
                 <collapsible-card title="Zadania" :locked="locked">
-                    <tasks-view v-model="orderData.tasks" />
+                    <tasks-view :agreementLineId="lineId">
+
+                    </tasks-view>
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
