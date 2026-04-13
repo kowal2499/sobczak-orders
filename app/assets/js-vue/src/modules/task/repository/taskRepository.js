@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 export function findTasks(params) {
-    return axios.get('/tasks/find', { params });
+    return axios.get("/tasks/find", { params });
 }
 
 export function createTask(payload) {
-    return axios.post('/tasks', payload);
+    return axios.post("/tasks", payload);
 }
 
 export function updateTask(id, payload) {

@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Module\Task\Repository\TaskRepository;
 use App\Module\Task\ValueObject\TaskStatusEnum;
 use App\Module\Task\ValueObject\TaskTypeEnum;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -40,6 +42,15 @@ class Task extends BaseTask
     #[ORM\ManyToOne(targetEntity: AgreementLine::class)]
     #[ORM\JoinColumn(name: 'agreement_line_id', referencedColumnName: 'id', nullable: false)]
     private AgreementLine $agreementLine;
+
+    #[ORM\OneToMany(mappedBy: 'task', targetEntity: TaskStatusLog::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $statusLogs;
+
+    public function __construct()
+    {
+        $this->statusLogs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -121,6 +132,22 @@ class Task extends BaseTask
     public function setAgreementLine(AgreementLine $agreementLine): self
     {
         $this->agreementLine = $agreementLine;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TaskStatusLog>
+     */
+    public function getStatusLogs(): Collection
+    {
+        return $this->statusLogs;
+    }
+
+    public function addStatusLog(TaskStatusLog $statusLog): self
+    {
+        if (!$this->statusLogs->contains($statusLog)) {
+            $this->statusLogs->add($statusLog);
+        }
         return $this;
     }
 }

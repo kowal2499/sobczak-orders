@@ -1,27 +1,32 @@
 <script>
-import TaskItem from '../components/TaskItem.vue'
-import { findTasks, createTask, updateTask, deleteTask } from '../repository/taskRepository'
-import { TASK_TYPE_CUSTOM } from '../configuration/statuses'
-import { v4 as uuid } from 'uuid'
+import TaskItem from "../components/TaskItem.vue";
+import { findTasks, createTask, updateTask, deleteTask } from "../repository/taskRepository";
+import { TASK_TYPE_CUSTOM } from "../configuration/taskDefinitions";
+import { TASK_STATUS_CUSTOM_TO_ORDER } from "@/modules/task/configuration/taskStatuses";
+import { v4 as uuid } from "uuid";
 
 const taskFactory = (data = {}) => ({
     id: data.id || null,
-    type: data.type || TASK_TYPE_CUSTOM,
+    type: TASK_TYPE_CUSTOM,
     title: data.title || null,
     description: data.description || null,
     dateStart: data.dateStart || null,
     dateEnd: data.dateEnd || null,
-    status: data.status || 10,
+    status: data.status || TASK_STATUS_CUSTOM_TO_ORDER,
     agreementLineId: data.agreementLineId || null,
     _id: data.id ? String(data.id) : uuid()
-})
+});
 
 export default {
-    name: 'TasksView',
+    name: "TasksView",
     props: {
         agreementLineId: {
             type: Number,
             required: true
+        },
+        showSaveButton: {
+            type: Boolean,
+            default: true
         }
     },
     components: {
@@ -29,50 +34,52 @@ export default {
     },
 
     created() {
-        this.fetchTasks()
+        this.fetchTasks();
     },
 
     methods: {
         async fetchTasks() {
-            this.isBusy = true
+            this.isBusy = true;
             try {
-                const { data } = await findTasks({ agreementLineId: this.agreementLineId })
-                this.tasks = data.map(taskFactory)
+                const { data } = await findTasks({
+                    agreementLineId: this.agreementLineId,
+                });
+                this.tasks = data.map(taskFactory);
             } finally {
-                this.isBusy = false
+                this.isBusy = false;
             }
         },
         addTask() {
-            this.tasks.push(taskFactory({ agreementLineId: this.agreementLineId }))
+            this.tasks.push(taskFactory({ agreementLineId: this.agreementLineId }));
         },
         updateTask(updatedTask) {
             this.tasks = this.tasks.map(task =>
                 task._id === updatedTask._id ? updatedTask : task
-            )
+            );
         },
         removeTask(task) {
             if (task.id) {
-                this.pendingDeletes.push(task.id)
+                this.pendingDeletes.push(task.id);
             }
-            this.tasks = this.tasks.filter(t => t._id !== task._id)
+            this.tasks = this.tasks.filter(t => t._id !== task._id);
         },
         async save() {
-            this.isBusy = true
+            this.isBusy = true;
             try {
                 for (const id of this.pendingDeletes) {
-                    await deleteTask(id)
+                    await deleteTask(id);
                 }
-                this.pendingDeletes = []
+                this.pendingDeletes = [];
                 for (const task of this.tasks) {
                     if (task.id) {
-                        await updateTask(task.id, task)
+                        await updateTask(task.id, task);
                     } else {
-                        await createTask({ ...task, agreementLineId: this.agreementLineId })
+                        await createTask({ ...task, agreementLineId: this.agreementLineId });
                     }
                 }
-                await this.fetchTasks()
+                await this.fetchTasks();
             } finally {
-                this.isBusy = false
+                this.isBusy = false;
             }
         }
     },
@@ -82,7 +89,7 @@ export default {
         pendingDeletes: [],
         isBusy: false
     })
-}
+};
 </script>
 
 <template>
@@ -105,7 +112,7 @@ export default {
             <button class="btn btn-success btn-sm" :disabled="isBusy" @click="addTask">
                 <font-awesome-icon icon="plus" /> Dodaj
             </button>
-            <button class="btn btn-primary btn-sm" :disabled="isBusy" @click="save">
+            <button v-show="showSaveButton" class="btn btn-primary btn-sm" :disabled="isBusy" @click="save">
                 <font-awesome-icon icon="save" /> Zapisz
             </button>
         </div>

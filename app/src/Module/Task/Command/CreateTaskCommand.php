@@ -33,6 +33,9 @@ class CreateTaskCommand
 
         #[Assert\Positive]
         public readonly ?int $ownerId = null,
+
+        #[Assert\Positive]
+        public readonly ?int $createdByUserId = null,
     ) {
     }
 }

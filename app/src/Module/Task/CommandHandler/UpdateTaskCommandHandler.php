@@ -4,9 +4,11 @@ namespace App\Module\Task\CommandHandler;
 
 use App\Module\Task\Command\UpdateTaskCommand;
 use App\Module\Task\Entity\Task;
+use App\Module\Task\Entity\TaskStatusLog;
 use App\Module\Task\Event\TaskWasUpdatedEvent;
 use App\Module\Task\Repository\TaskRepository;
 use App\Module\Task\ValueObject\TaskStatusEnum;
+use App\Repository\UserRepository;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -16,6 +18,7 @@ class UpdateTaskCommandHandler
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly TaskRepository $taskRepository,
+        private readonly UserRepository $userRepository,
         private readonly EventBus $eventBus,
     ) {
     }
@@ -30,7 +33,13 @@ class UpdateTaskCommandHandler
             $this->validateOwnership($task, $command->userId);
             $this->validateDates($command->dateStart, $command->dateEnd);
 
+            $previousStatus = $task->getStatus();
             $this->updateTask($task, $command);
+
+            if ($previousStatus !== $task->getStatus()) {
+                $user = $this->userRepository->find($command->userId);
+                $task->addStatusLog(new TaskStatusLog($task, $task->getStatus(), $previousStatus, $user));
+            }
 
             $this->taskRepository->save($task);
 
@@ -68,7 +77,6 @@ class UpdateTaskCommandHandler
 
     private function validateDates(?string $dateStart, ?string $dateEnd): void
     {
-        // Walidacja tylko gdy obie daty są podane
         if ($dateStart === null || $dateEnd === null) {
             return;
         }

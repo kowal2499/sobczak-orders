@@ -79,6 +79,13 @@ class TaskControllerTest extends ApiTestCase
         $this->assertEquals('Test task description', $task->getDescription());
         $this->assertEquals($user->getId(), $task->getOwner()->getId());
         $this->assertFalse($task->isDeleted());
+
+        // Verify initial status log was created
+        $statusLogs = $task->getStatusLogs();
+        $this->assertCount(1, $statusLogs);
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $statusLogs->first()->getCurrentStatus());
+        $this->assertNull($statusLogs->first()->getPreviousStatus());
+        $this->assertEquals($user->getId(), $statusLogs->first()->getUser()->getId());
     }
 
     public function testShouldUpdateTaskByOwner(): void
@@ -115,6 +122,39 @@ class TaskControllerTest extends ApiTestCase
         $this->assertEquals(TaskStatusEnum::PENDING->value, $updatedTask->getStatus());
         $this->assertEquals('Updated task', $updatedTask->getTitle());
         $this->assertEquals('Updated task description', $updatedTask->getDescription());
+
+        // Verify status log was created for status change AWAITS -> PENDING
+        $statusLogs = $updatedTask->getStatusLogs()->toArray();
+        $this->assertCount(1, $statusLogs);
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $statusLogs[0]->getPreviousStatus());
+        $this->assertEquals(TaskStatusEnum::PENDING->value, $statusLogs[0]->getCurrentStatus());
+        $this->assertEquals($user->getId(), $statusLogs[0]->getUser()->getId());
+    }
+
+    public function testShouldNotCreateStatusLogWhenStatusUnchanged(): void
+    {
+        // Given
+        $user = $this->createUser();
+        $client = $this->login($user);
+
+        $agreementLine = $this->createAgreementLine();
+        $task = $this->createTask($agreementLine, $user);
+        $this->getManager()->flush();
+        $this->getManager()->clear();
+
+        // When - update with the same status
+        $client->request('PUT', '/tasks/' . $task->getId(), [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+            'status' => TaskStatusEnum::AWAITS->value,
+            'title' => 'Only title changed',
+        ]));
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $this->getManager()->clear();
+        $updatedTask = $this->getTaskRepository()->find($task->getId());
+        $statusLogs = $updatedTask->getStatusLogs()->toArray();
+        $this->assertCount(0, $statusLogs);
     }
 
     public function testShouldNotUpdateTaskByNonOwner(): void
@@ -233,6 +273,12 @@ class TaskControllerTest extends ApiTestCase
         $this->assertCount(1, $tasks);
         $this->assertEquals('Test task for RM', $tasks[0]['title']);
         $this->assertEquals('Test description', $tasks[0]['description']);
+
+        // Verify statusLogs are present in the RM
+        $this->assertArrayHasKey('statusLogs', $tasks[0]);
+        $this->assertCount(1, $tasks[0]['statusLogs']);
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $tasks[0]['statusLogs'][0]['currentStatus']);
+        $this->assertNull($tasks[0]['statusLogs'][0]['previousStatus']);
     }
 
     public function testShouldValidateDateEndGreaterThanDateStart(): void
@@ -322,6 +368,12 @@ class TaskControllerTest extends ApiTestCase
         $updatedTask = $this->getTaskRepository()->find($task->getId());
         $this->assertNotNull($updatedTask);
         $this->assertEquals(TaskStatusEnum::COMPLETED->value, $updatedTask->getStatus());
+
+        // Verify status log was created for status change AWAITS -> COMPLETED
+        $statusLogs = $updatedTask->getStatusLogs()->toArray();
+        $this->assertCount(1, $statusLogs);
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $statusLogs[0]->getPreviousStatus());
+        $this->assertEquals(TaskStatusEnum::COMPLETED->value, $statusLogs[0]->getCurrentStatus());
     }
 
     private function createAgreementLine(): AgreementLine

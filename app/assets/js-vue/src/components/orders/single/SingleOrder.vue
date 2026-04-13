@@ -13,24 +13,17 @@
         <div class="row">
             <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
-                    <template #header v-if="canEditLine()">
-                        <b-button size="sm" variant="success" :disabled="false === canAddNewTask || locked" @click="addCustomTask()">
-                            {{ $t('orders.newTask') }}
-                        </b-button>
-                    </template>
                     <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
                 <collapsible-card title="Zadania" :locked="locked">
-                    <tasks-view :agreementLineId="lineId">
-
-                    </tasks-view>
+                    <tasks-view ref="tasksView" :agreementLineId="lineId" :show-save-button="false" />
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
                     <details-widget
                         v-model="orderData"
-                        :statuses="statuses"
+                        :taskStatuses="taskStatuses"
                     ></details-widget>
                 </collapsible-card>
             </div>
@@ -97,7 +90,7 @@
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
             Sidebar, FactorsView, TasksView,
         },
-        props: ['lineId', 'statuses'],
+        props: ['lineId', 'taskStatuses'],
 
         data() {
             return {
@@ -119,41 +112,50 @@
         },
 
         methods: {
-            save() {
+            async save() {
                 this.locked = true;
-                ordersApi.updateOrder(this.lineId, {
-                    status: this.orderData.status,
-                    confirmedDate: this.orderData.confirmedDate,
-                    description: this.orderData.description,
-                    factor: this.orderData.factor,
-                    productions: this.orderData.productions.tasks.map(task => ({
-                        ...task,
-                        statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
-                    })),
-                    tags: this.orderData.productions.tags
-                })
-                    .then(({data}) => {
-                        if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
+                try {
+                    const { data } = await ordersApi.updateOrder(this.lineId, {
+                        status: this.orderData.status,
+                        confirmedDate: this.orderData.confirmedDate,
+                        description: this.orderData.description,
+                        factor: this.orderData.factor,
+                        productions: this.orderData.productions.tasks.map(task => ({
+                            ...task,
+                            statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
+                        })),
+                        tags: this.orderData.productions.tags
+                    });
 
-                            data.newStatuses.forEach(newStatus => {
-                                let production = this.orderData.productions.tasks.find(prod => { return prod.id === newStatus.productionId; });
-                                if (production && production.statusLogs) {
-                                    production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
-                                }
-                            })
-                        }
+                    if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
+                        data.newStatuses.forEach(newStatus => {
+                            let production = this.orderData.productions.tasks.find(prod => { return prod.id === newStatus.productionId; });
+                            if (production && production.statusLogs) {
+                                production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
+                            }
+                        });
+                    }
 
-                        this.$flash.success(this.$t('orders.changesWereSaved'))
-                        EventBus.$emit('statusUpdated');
-                    })
-                    .catch((data) => {
-                        for (let msg of data.response.data) {
-                            this.$flash.danger(msg)
+                    await this.$refs.tasksView.save();
+
+                    this.$flash.success(this.$t('orders.changesWereSaved'));
+                    EventBus.$emit('statusUpdated');
+                } catch (error) {
+                    const messages = error?.response?.data;
+                    if (Array.isArray(messages)) {
+                        for (let msg of messages) {
+                            this.$flash.danger(msg);
                         }
-                    })
-                    .finally(() => { this.locked = false;})
+                    }
+                } finally {
+                    this.locked = false;
+                }
             },
 
+            /**
+             * @deprecated
+             * Old task system, replaced by TasksView component and new Task module in api
+             */
             addCustomTask() {
                 this.orderData.productions.tasks.push({
                     dateStart: null,

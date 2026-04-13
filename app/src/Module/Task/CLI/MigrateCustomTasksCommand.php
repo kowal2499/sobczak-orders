@@ -5,6 +5,7 @@ namespace App\Module\Task\CLI;
 use App\Entity\Production;
 use App\Module\Agreement\Command\UpdateAgreementLineRM;
 use App\Module\Task\Entity\Task;
+use App\Module\Task\Entity\TaskStatusLog;
 use App\Module\Task\ValueObject\TaskStatusEnum;
 use App\Module\Task\ValueObject\TaskTypeEnum;
 use App\Repository\ProductionRepository;
@@ -126,6 +127,17 @@ class MigrateCustomTasksCommand extends Command
         $task->setIsDeleted(false);
 
         $this->em->persist($task);
+
+        foreach ($production->getStatusLogs() as $statusLog) {
+            $log = new TaskStatusLog(
+                $task,
+                $this->mapStatus($statusLog->getCurrentStatus())->value,
+                null,
+                $statusLog->getUser()
+            );
+            $log->setCreatedAt($statusLog->getCreatedAt());
+            $this->em->persist($log);
+        }
     }
 
     private function mapStatus(?string $productionStatus): TaskStatusEnum

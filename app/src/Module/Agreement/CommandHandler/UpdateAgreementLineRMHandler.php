@@ -270,6 +270,16 @@ class UpdateAgreementLineRMHandler
                 'ownerId' => $task->getOwner()?->getId(),
                 'ownerName' => $task->getOwner()?->getUserFullName(),
                 'createdAt' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+                'statusLogs' => array_map(fn($log) => [
+                    'id' => $log->getId(),
+                    'currentStatus' => $log->getCurrentStatus(),
+                    'previousStatus' => $log->getPreviousStatus(),
+                    'createdAt' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'user' => $log->getUser() ? [
+                        'id' => $log->getUser()->getId(),
+                        'userFullName' => $log->getUser()->getUserFullName(),
+                    ] : null,
+                ], $task->getStatusLogs()->toArray()),
             ];
         }, $tasks);
     }

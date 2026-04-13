@@ -5,12 +5,12 @@
 {% block body %}
 
 {#<production-list#}
-{#    :statuses="{{ statuses|json_encode() }}"#}
+{#    :taskStatuses="{{ taskStatuses|json_encode() }}"#}
 {#    :departments="{{ departments|json_encode() }}"#}
 {#></production-list>#}
 
 <agreement-line-list-r-m
-        :statuses="{{ statuses|json_encode() }}"
+        :taskStatuses="{{ taskStatuses|json_encode() }}"
         :departments="{{ departments|json_encode() }}"
 ></agreement-line-list-r-m>
 

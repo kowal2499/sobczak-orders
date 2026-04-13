@@ -156,7 +156,7 @@ Examples: `orders.create`, `production.view`, `production.edit`, `work-configura
 ### 2. Production
 - Production tasks for departments (dpt01–dpt05)
 - Extends `BaseTask`
-- Task statuses: PENDING, IN_PROGRESS, COMPLETED
+- Task taskStatuses: PENDING, IN_PROGRESS, COMPLETED
 - Contains only production tasks — non-standard tasks belong to the Task module
 
 ### 3. Task (Custom tasks)

@@ -13,6 +13,10 @@ use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Test\InMemoryAgreementLineRepository;
 use App\Module\Agreement\Repository\Test\InMemoryAgreementLineRMRepository;
 use App\Module\Production\Factor\FactorCalculator;
+use App\Module\Task\Entity\Task;
+use App\Module\Task\Entity\TaskStatusLog;
+use App\Module\Task\ValueObject\TaskStatusEnum;
+use App\Module\Task\ValueObject\TaskTypeEnum;
 use App\Service\UploaderHelper;
 use App\Tests\Utilities\PrivateProperty;
 use Doctrine\ORM\EntityManagerInterface;
@@ -171,6 +175,101 @@ class UpdateAgreementLineRMHandlerTest extends TestCase
         $product->setName('Test Product');
         $product->setFactor(1.0);
         return $product;
+    }
+
+    public function testShouldIncludeTaskStatusLogsInReadModel(): void
+    {
+        // Given
+        $customer = $this->getCustomer();
+        $product = $this->getProduct();
+        $agreement = $this->getAgreement();
+        $agreementLine = $this->getAgreementLine();
+
+        $agreement->setCustomer($customer);
+        $agreement->setOrderNumber('ORDER-002');
+        $agreement->setCreateDate(new \DateTime());
+        $agreement->setStatus('DRAFT');
+        $agreement->addAgreementLine($agreementLine);
+
+        $agreementLine->setAgreement($agreement);
+        $agreementLine->setProduct($product);
+        $agreementLine->setConfirmedDate(new \DateTime());
+        $agreementLine->setArchived(false);
+        $agreementLine->setDeleted(false);
+        $agreementLine->setStatus(AgreementLine::STATUS_WAITING);
+
+        // Budujemy task z dwoma wpisami historii statusów
+        $task = $this->buildTask($agreementLine);
+        $logInitial = new TaskStatusLog($task, TaskStatusEnum::AWAITS->value, null, null);
+        $logChange  = new TaskStatusLog($task, TaskStatusEnum::PENDING->value, TaskStatusEnum::AWAITS->value, null);
+        $task->addStatusLog($logInitial);
+        $task->addStatusLog($logChange);
+
+        // Podmień mock repozytorium tasków aby zwrócił przygotowany task
+        $taskRepositoryMock = $this->createMock(\App\Module\Task\Repository\TaskRepository::class);
+        $taskRepositoryMock->method('findByAgreementLine')->willReturn([$task]);
+
+        $entityManagerMock = $this->createMock(EntityManagerInterface::class);
+        $entityManagerMock->method('getRepository')
+            ->with(\App\Module\Task\Entity\Task::class)
+            ->willReturn($taskRepositoryMock);
+
+        $handler = $this->buildHandler($entityManagerMock);
+
+        $this->agreementLineRepository->save($agreementLine);
+
+        // When
+        $handler(new UpdateAgreementLineRM($agreementLine->getId()));
+
+        // Then
+        $readModel = $this->agreementLineRMRepository->find($agreementLine->getId());
+        $this->assertInstanceOf(AgreementLineRM::class, $readModel);
+
+        $tasks = $readModel->getTasks();
+        $this->assertCount(1, $tasks);
+        $this->assertArrayHasKey('statusLogs', $tasks[0]);
+
+        $statusLogs = $tasks[0]['statusLogs'];
+        $this->assertCount(2, $statusLogs);
+
+        $this->assertNull($statusLogs[0]['previousStatus']);
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $statusLogs[0]['currentStatus']);
+
+        $this->assertEquals(TaskStatusEnum::AWAITS->value, $statusLogs[1]['previousStatus']);
+        $this->assertEquals(TaskStatusEnum::PENDING->value, $statusLogs[1]['currentStatus']);
+    }
+
+    private function buildTask(AgreementLine $agreementLine): Task
+    {
+        $task = new Task();
+        PrivateProperty::setId($task);
+        $task->setAgreementLine($agreementLine);
+        $task->setStatusEnum(TaskStatusEnum::AWAITS);
+        $task->setTypeEnum(TaskTypeEnum::TASK_CUSTOM);
+        $task->setTitle('Test task');
+        $task->setIsDeleted(false);
+        $task->setCreatedAt(new \DateTime());
+        $task->setUpdatedAt(new \DateTime());
+        return $task;
+    }
+
+    private function buildHandler(EntityManagerInterface $entityManagerMock): UpdateAgreementLineRMHandler
+    {
+        return new UpdateAgreementLineRMHandler(
+            $this->createMock(LoggerInterface::class),
+            $this->agreementLineRepository,
+            $this->agreementLineRMRepository,
+            new FactorCalculator(),
+            new UploaderHelper(
+                'public/uploads',
+                $this->tempThumbsPath,
+                $this->createMock(RequestStackContext::class),
+                'https://somehost',
+                'uploads',
+                'thumbs',
+            ),
+            $entityManagerMock
+        );
     }
 
     private function getAttachment(array $data): Attachment

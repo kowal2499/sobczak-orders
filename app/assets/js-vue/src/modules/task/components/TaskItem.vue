@@ -1,11 +1,12 @@
 <script>
-import ShowcaseBadge from '@/components/base/Showcase/ShowcaseBadge'
-import DatePicker from '@/components/base/DatePicker'
-import { TASK_TYPE_CUSTOM, getTaskDefinition, getTaskStatuses } from '../configuration/statuses'
-import proxyValue from '@/mixins/proxyValue'
+import ShowcaseBadge from "@/components/base/Showcase/ShowcaseBadge";
+import DatePicker from "@/components/base/DatePicker";
+import { getTaskStatuses } from "../configuration/taskStatuses";
+import { getTaskDefinition, TASK_TYPE_CUSTOM } from "../configuration/taskDefinitions";
+import proxyValue from "@/mixins/proxyValue";
 
 export default {
-    name: 'TaskItem',
+    name: "TaskItem",
     components: {
         ShowcaseBadge,
         DatePicker,
@@ -15,22 +16,22 @@ export default {
 
     computed: {
         taskDefinition() {
-            return getTaskDefinition(TASK_TYPE_CUSTOM)
+            return getTaskDefinition(TASK_TYPE_CUSTOM);
         },
         statusOptions() {
-            return getTaskStatuses(TASK_TYPE_CUSTOM)
+            return getTaskStatuses(TASK_TYPE_CUSTOM);
         },
         activeOption() {
-            return this.statusOptions.find(opt => opt.value === this.proxyData.status)
+            return this.statusOptions.find(opt => opt.value === this.proxyData.status);
         }
     },
 
     methods: {
         onStatusClick(opt) {
-            this.proxyData.status = opt.value
+            this.proxyData.status = opt.value;
         }
     },
-}
+};
 </script>
 
 <template>

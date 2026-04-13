@@ -18,7 +18,7 @@
                 <production-row
                     v-if="order.productions.length > 0"
                     :order="order"
-                    :statuses="statuses"
+                    :taskStatuses="taskStatuses"
                     :key="order.agreementLineId"
                     :disabled="busyOrders.includes(order.agreementLineId)"
                     @statusUpdated="updateStatus($event, order.agreementLineId)"
@@ -60,7 +60,7 @@
         components: {Filters, TablePlus, CollapsibleCard, ProductionRow},
 
         props: {
-            statuses: {
+            taskStatuses: {
                 type: Object,
                 default: () => {}
             },
@@ -254,7 +254,7 @@
             },
 
             getStatusStyle(production) {
-                let status = this.helpers.statuses.find(item => item.value === production.status);
+                let status = this.helpers.taskStatuses.find(item => item.value === production.status);
                 if (status) {
                     return 'background-color: '.concat(status.color);
                 }

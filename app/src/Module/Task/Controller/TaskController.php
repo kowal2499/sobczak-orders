@@ -59,6 +59,7 @@ class TaskController extends BaseController
                 title: $data['title'] ?? null,
                 description: $data['description'] ?? null,
                 ownerId: isset($data['ownerId']) && is_numeric($data['ownerId']) ? (int) $data['ownerId'] : null,
+                createdByUserId: $this->security->getUser()?->getId(),
             );
 
             $this->commandBus->dispatch($command);
@@ -244,7 +245,7 @@ class TaskController extends BaseController
             $criteria['type'] = $type;
         }
 
-        $tasks = $this->taskRepository->findBy($criteria, ['dateStart' => 'ASC']);
+        $tasks = $this->taskRepository->findBy($criteria, ['createdAt' => 'ASC']);
 
         return $this->json(array_map(fn(Task $task) => TaskDTO::fromEntity($task), $tasks));
     }

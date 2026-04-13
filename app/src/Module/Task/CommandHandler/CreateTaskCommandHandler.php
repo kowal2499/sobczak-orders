@@ -6,6 +6,7 @@ use App\Entity\AgreementLine;
 use App\Entity\User;
 use App\Module\Task\Command\CreateTaskCommand;
 use App\Module\Task\Entity\Task;
+use App\Module\Task\Entity\TaskStatusLog;
 use App\Module\Task\Event\TaskWasCreatedEvent;
 use App\Module\Task\Repository\TaskRepository;
 use App\Module\Task\ValueObject\TaskStatusEnum;
@@ -37,6 +38,9 @@ class CreateTaskCommandHandler
             $this->validateDates($command->dateStart, $command->dateEnd);
 
             $task = $this->createTask($command, $agreementLine, $owner);
+
+            $creator = $command->createdByUserId ? $this->userRepository->find($command->createdByUserId) : null;
+            $task->addStatusLog(new TaskStatusLog($task, $task->getStatus(), null, $creator));
 
             $this->taskRepository->save($task, true);
 

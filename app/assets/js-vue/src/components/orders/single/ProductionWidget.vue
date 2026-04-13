@@ -64,17 +64,12 @@
                         return
                     }
 
-                    grantedDpts.includes(normalizedTask.slug)
-                        ? systemTasks.push(normalizedTask)
-                        : customTasks.push(normalizedTask)
+                    if (grantedDpts.includes(normalizedTask.slug)) {
+                        systemTasks.push(normalizedTask)
+                    }
                 })
 
-                const separator = customTasks.length > 0 ? [{ enabled: false, id: 'separator' }] : []
-                systemTasks.sort((a, b) => grantedDpts.indexOf(a.slug) - grantedDpts.indexOf(b.slug))
-
-                return [systemTasks, separator, customTasks]
-                    .filter(item => item.length > 0)
-                    .reduce((item, carry) => [...item, ...carry], [])
+                return systemTasks
             },
             canEdit() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
