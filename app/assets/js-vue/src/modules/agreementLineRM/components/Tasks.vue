@@ -2,9 +2,11 @@
 import CollapsibleList from '../../../components/base/CollapsibleList'
 import helpers from "@/helpers";
 import ProductionTaskNotification from "../../../components/production/ProductionTaskNotification";
+import StatusDropdown from "../../../components/base/StatusDropdown";
+import { canEditTask } from "../../task/specification/canEditTask";
 
 export default {
-    name: 'Tasks',
+    name: "Tasks",
 
     props: {
         tasks: {
@@ -18,7 +20,8 @@ export default {
 
     components: {
         CollapsibleList,
-        ProductionTaskNotification
+        ProductionTaskNotification,
+        StatusDropdown,
     },
 
     computed: {
@@ -28,13 +31,15 @@ export default {
     },
 
     methods: {
-        getStatusData(status) {
-            return helpers.statuses.find(i => i.value === parseInt(status));
-        },
-
         updateTask(task, newStatus) {
             task.status = newStatus;
             this.$emit('taskStatusUpdated', { id: task.id, status: newStatus});
+        },
+
+        statusOptionsForTask(task) {
+            const owner = task.ownerId ? { id: task.ownerId } : null;
+            const editable = canEditTask(owner, this.$user.getId());
+            return this.statusOptions.map(opt => ({ ...opt, disabled: !editable }));
         },
 
         statusesPerTaskType: helpers.statusesPerTaskType
@@ -47,20 +52,11 @@ export default {
         <template #default="{ item, index }">
             <div class="custom-task d-flex flex-column" style="gap: 2px">
                 <label class="m-0">{{ item.title || '' }}</label>
-                <b-dropdown
-                    :text="$t(getStatusData(item.status).name)"
-                    size="sm"
-                    :class="getStatusData(item.status).className"
-                    variant="light"
-                    class="w-100"
-                >
-                    <b-dropdown-item
-                        v-for="status in statusOptions"
-                        :value="status.value"
-                        :key="status.value"
-                        @click="updateTask(item, status.value)"
-                    >{{ $t(status.name) }}</b-dropdown-item>
-                </b-dropdown>
+                <status-dropdown
+                    :value="item.status"
+                    :options="statusOptionsForTask(item)"
+                    @input="updateTask(item, $event)"
+                />
 
                 <div class="d-flex gap-1 justify-content-between">
                     <div class="text-nowrap flex-1">

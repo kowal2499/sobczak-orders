@@ -16,6 +16,9 @@ class TaskDTO
         public readonly ?string $dateStart,
         public readonly ?string $dateEnd,
         public readonly int $agreementLineId,
+        public readonly string $createdAt,
+        public readonly string $updatedAt,
+        public readonly ?array $owner,
         public readonly array $statusLogs,
     ) {
     }
@@ -31,6 +34,12 @@ class TaskDTO
             dateStart: $task->getDateStart()?->format('Y-m-d'),
             dateEnd: $task->getDateEnd()?->format('Y-m-d'),
             agreementLineId: $task->getAgreementLine()->getId(),
+            createdAt: $task->getCreatedAt()->format('Y-m-d H:i:s'),
+            updatedAt: $task->getUpdatedAt()->format('Y-m-d H:i:s'),
+            owner: $task->getOwner() ? [
+                'id' => $task->getOwner()->getId(),
+                'userFullName' => $task->getOwner()->getUserFullName(),
+            ] : null,
             statusLogs: array_map(
                 fn(TaskStatusLog $log) => [
                     'id' => $log->getId(),

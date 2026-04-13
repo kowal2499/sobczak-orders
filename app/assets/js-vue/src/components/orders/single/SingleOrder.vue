@@ -16,15 +16,15 @@
                     <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
-                <collapsible-card title="Zadania" :locked="locked">
-                    <tasks-view ref="tasksView" :agreementLineId="lineId" :show-save-button="false" />
-                </collapsible-card>
-
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
                     <details-widget
                         v-model="orderData"
                         :taskStatuses="taskStatuses"
                     ></details-widget>
+                </collapsible-card>
+
+                <collapsible-card title="Zadania" :locked="locked">
+                    <tasks-view ref="tasksView" :agreementLineId="lineId" :show-save-button="false" />
                 </collapsible-card>
             </div>
 
@@ -115,6 +115,11 @@
             async save() {
                 this.locked = true;
                 try {
+                    if (!await this.$refs.tasksView.validate()) {
+                        this.$flash.warning(this.$t('orders.taskValidationFailed'));
+                        return;
+                    }
+
                     const { data } = await ordersApi.updateOrder(this.lineId, {
                         status: this.orderData.status,
                         confirmedDate: this.orderData.confirmedDate,
@@ -150,31 +155,6 @@
                 } finally {
                     this.locked = false;
                 }
-            },
-
-            /**
-             * @deprecated
-             * Old task system, replaced by TasksView component and new Task module in api
-             */
-            addCustomTask() {
-                this.orderData.productions.tasks.push({
-                    dateStart: null,
-                    dateEnd: null,
-                    departmentSlug: 'custom_task',
-                    description: null,
-                    id: null,
-                    title: this.$t('orders.newTask'),
-                    status: "10",
-                    statusLogs: [{
-                            id: null,
-                            currentStatus: "10",
-                            createdAt: (new moment()).format('YYYY-MM-DD HH:mm:ss'),
-                            user: {
-                                id: this.$user.getId(),
-                                userFullName: this.$user.getName(),
-                            }
-                    }],
-                });
             },
 
             canEditLine() {

@@ -14,6 +14,10 @@ const taskFactory = (data = {}) => ({
     dateEnd: data.dateEnd || null,
     status: data.status || TASK_STATUS_CUSTOM_TO_ORDER,
     agreementLineId: data.agreementLineId || null,
+    createdAt: data.createdAt || null,
+    updatedAt: data.updatedAt || null,
+    owner: data.owner || null,
+    statusLogs: data.statusLogs || [],
     _id: data.id ? String(data.id) : uuid()
 });
 
@@ -45,9 +49,16 @@ export default {
                     agreementLineId: this.agreementLineId,
                 });
                 this.tasks = data.map(taskFactory);
+                this.originalTasks = JSON.parse(JSON.stringify(this.tasks));
             } finally {
                 this.isBusy = false;
             }
+        },
+        hasTaskChanged(task) {
+            if (!task.id) return true;
+            const original = this.originalTasks.find(t => t._id === task._id);
+            if (!original) return true;
+            return JSON.stringify(task) !== JSON.stringify(original);
         },
         addTask() {
             this.tasks.push(taskFactory({ agreementLineId: this.agreementLineId }));
@@ -63,7 +74,14 @@ export default {
             }
             this.tasks = this.tasks.filter(t => t._id !== task._id);
         },
+        async validate() {
+            const items = this.$refs.taskItems || [];
+            const results = await Promise.all(items.map(item => item.validate()));
+            return results.every(r => r);
+        },
         async save() {
+            if (!await this.validate()) return;
+
             this.isBusy = true;
             try {
                 for (const id of this.pendingDeletes) {
@@ -71,6 +89,7 @@ export default {
                 }
                 this.pendingDeletes = [];
                 for (const task of this.tasks) {
+                    if (!this.hasTaskChanged(task)) continue;
                     if (task.id) {
                         await updateTask(task.id, task);
                     } else {
@@ -86,6 +105,7 @@ export default {
 
     data: () => ({
         tasks: [],
+        originalTasks: [],
         pendingDeletes: [],
         isBusy: false
     })
@@ -95,13 +115,14 @@ export default {
 <template>
     <div class="d-flex flex-column gap-3">
         <div class="alert alert-info" v-if="tasks.length === 0 && !isBusy">
-            <font-awesome-icon icon="info-circle" /> Brak zadań
+            <font-awesome-icon icon="info-circle" /> {{ $t('task.noTasks') }}
         </div>
 
         <div class="d-flex flex-column gap-3">
             <TaskItem
                 v-for="task in tasks"
                 :key="task._id"
+                ref="taskItems"
                 :value="task"
                 @input="updateTask"
                 @remove="removeTask"
@@ -110,10 +131,10 @@ export default {
 
         <div class="d-flex gap-2 justify-content-end">
             <button class="btn btn-success btn-sm" :disabled="isBusy" @click="addTask">
-                <font-awesome-icon icon="plus" /> Dodaj
+                <font-awesome-icon icon="plus" /> {{ $t('task.addTask') }}
             </button>
             <button v-show="showSaveButton" class="btn btn-primary btn-sm" :disabled="isBusy" @click="save">
-                <font-awesome-icon icon="save" /> Zapisz
+                <font-awesome-icon icon="save" /> {{ $t('task.save') }}
             </button>
         </div>
     </div>
