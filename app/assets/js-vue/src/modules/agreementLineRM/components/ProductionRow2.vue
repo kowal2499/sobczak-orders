@@ -2,18 +2,6 @@
     <tr :class="{'is-disabled': disabled}">
         <td class="d-flex flex-column align-items-start gap-2">
             <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
-
-            <button class="btn btn-light d-flex flex-nowrap gap-2" style="padding: 0 0.5rem" v-if="userCanProduction && hasDetails" @click.prevent="$emit('expandToggle', order.agreementLineId)">
-                <span v-if="order.attachments.length" class="d-flex gap-1">
-                    <i class="fa fa-paperclip sb-color"/>
-                    <span class="badge badge-pill text-primary">{{ order.attachments.length }}</span>
-                </span>
-
-                <span v-if="getCustomTasks().length && userCanProduction" class="d-flex gap-1">
-                    <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill text-primary">{{ getCustomTasks().length }}</span>
-                </span>
-            </button>
         </td>
 
         <td>
@@ -172,10 +160,6 @@
         },
 
         computed: {
-            hasDetails() {
-                return (this.order.attachments.length || (this.getCustomTasks().length && this.userCanProduction));
-            },
-
             productionsByGrants() {
                 const productionSlugs = DEPARTMENTS.map(d => d.slug)
                 return this.order.productions.filter(prod => {

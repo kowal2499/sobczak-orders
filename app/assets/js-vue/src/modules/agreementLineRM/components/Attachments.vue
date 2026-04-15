@@ -1,5 +1,5 @@
 <script>
-import CollapsibleList from '../../../components/base/CollapsibleList'
+import DropdownList from '../../../components/base/DropdownList'
 import CoolLightBox from 'vue-cool-lightbox';
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
@@ -14,7 +14,7 @@ export default {
     },
 
     components: {
-        CollapsibleList,
+        DropdownList,
         CoolLightBox,
     },
 
@@ -37,7 +37,6 @@ export default {
             return attachment.extension && imageExtensions.includes(attachment.extension.toLowerCase());
         },
         openLightbox(attachmentIndex) {
-            // Znajdź indeks tego załącznika w tablicy imageAttachments
             const attachment = this.attachments[attachmentIndex];
             const lightboxIndex = this.imageAttachments.findIndex(img => img.id === attachment.id);
 
@@ -55,7 +54,7 @@ export default {
 
 <template>
     <div>
-        <CollapsibleList :items="attachments" :visible-rows="2" class="sb-attachments">
+        <DropdownList :items="attachments" class="sb-attachments">
             <template #default="{ item, index }">
                 <a
                     v-if="isImage(item)"
@@ -84,7 +83,6 @@ export default {
                     </b-tooltip>
                 </a>
 
-                <!-- Dla plików niebędących obrazami - normalny link do pobrania -->
                 <a
                     v-else
                     :href="item.path"
@@ -111,9 +109,8 @@ export default {
                     </b-tooltip>
                 </a>
             </template>
-        </CollapsibleList>
+        </DropdownList>
 
-        <!-- Lightbox dla obrazów -->
         <CoolLightBox
             :items="lightboxItems"
             :index="lightboxIndex"
@@ -131,27 +128,15 @@ export default {
         width: 24px;
     }
 
-    ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
+    a:hover {
+        text-decoration: none;
 
-        li {
-            margin-bottom: 20px;
-
-            a:hover {
-                text-decoration: none;
-
-                .link-txt {
-                    text-decoration: underline;
-                }
-            }
+        .link-txt {
+            text-decoration: underline;
         }
-
     }
 }
 
-// Lightbox images powinny mieć pełny rozmiar
 .cool-lightbox {
     img {
         width: auto !important;

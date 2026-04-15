@@ -1,5 +1,5 @@
 <script>
-import CollapsibleList from '../../../components/base/CollapsibleList'
+import DropdownList from '../../../components/base/DropdownList'
 import helpers from "@/helpers";
 import ProductionTaskNotification from "../../../components/production/ProductionTaskNotification";
 import StatusDropdown from "../../../components/base/StatusDropdown";
@@ -19,7 +19,7 @@ export default {
     },
 
     components: {
-        CollapsibleList,
+        DropdownList,
         ProductionTaskNotification,
         StatusDropdown,
     },
@@ -48,7 +48,7 @@ export default {
 </script>
 
 <template>
-    <CollapsibleList :items="tasks" :visible-rows="1">
+    <DropdownList :items="tasks">
         <template #default="{ item, index }">
             <div class="custom-task d-flex flex-column" style="gap: 2px">
                 <label class="m-0">{{ item.title || '' }}</label>
@@ -89,7 +89,7 @@ export default {
                 />
             </div>
         </template>
-    </CollapsibleList>
+    </DropdownList>
 
 </template>
 
