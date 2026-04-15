@@ -148,8 +148,8 @@ class AgreementLineRM
     #[ORM\Column(type: 'json')]
     private array $attachments;
 
-    #[ORM\Column(type: 'json')]
-    private array $tasks;
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $tasks = [];
 
     #[ORM\Column(type: 'text')]
     private string $q;
@@ -574,7 +574,7 @@ class AgreementLineRM
      */
     public function getTasks(): array
     {
-        return $this->tasks;
+        return $this->tasks ?? [];
     }
 
     /**
