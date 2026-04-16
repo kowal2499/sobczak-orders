@@ -62,6 +62,7 @@
     "timeago.js": "^4.0.2",
     "uuid": "^13.0.0",
     "vee-validate": "^3.4.15",
+    "vh-sticky-table-header": "^1.9.3",
     "vue-chartjs": "^3.5.1",
     "vue-cool-lightbox": "^2.7.5",
     "vue-i18n": "^8.26.0",

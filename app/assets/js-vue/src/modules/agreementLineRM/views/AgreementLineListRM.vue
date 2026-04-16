@@ -13,7 +13,7 @@
             first-number last-number size="sm"
         />
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort">
+        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort" sticky-header>
             <template v-for="order in orders">
                 <production-row
                     v-if="order.productions.length > 0"

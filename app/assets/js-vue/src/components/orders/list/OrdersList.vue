@@ -19,7 +19,7 @@
 						first-number last-number size="sm"
         />
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
+        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort" sticky-header>
             <tr v-for="(line, key) in agreementLines" :key="key">
                 <td>
                     <line-actions :line="line" @lineChanged="fetchData()"/>
