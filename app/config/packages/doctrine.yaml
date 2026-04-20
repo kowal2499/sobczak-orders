@@ -9,6 +9,8 @@ doctrine:
             collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
+        mapping_types:
+            json: text
         types:
             # Authorization types
             grant_type: App\Module\Authorization\Doctrine\GrantTypeType
@@ -65,6 +67,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Module/Tag/Entity'
                 prefix: 'App\Module\Tag\Entity'
                 alias: Tag
+                type: attribute
+            Task:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/Task/Entity'
+                prefix: 'App\Module\Task\Entity'
+                alias: Task
                 type: attribute
 
 when@test:

@@ -2,18 +2,6 @@
     <tr :class="{'is-disabled': disabled}">
         <td class="d-flex flex-column align-items-start gap-2">
             <line-actions :line="order" @lineChanged="$emit('lineChanged')" :disabled="disabled"/>
-
-            <button class="btn btn-light d-flex flex-nowrap gap-2" style="padding: 0 0.5rem" v-if="userCanProduction && hasDetails" @click.prevent="$emit('expandToggle', order.agreementLineId)">
-                <span v-if="order.attachments.length" class="d-flex gap-1">
-                    <i class="fa fa-paperclip sb-color"/>
-                    <span class="badge badge-pill text-primary">{{ order.attachments.length }}</span>
-                </span>
-
-                <span v-if="getCustomTasks(order.productions).length && userCanProduction" class="d-flex gap-1">
-                    <i class="fa fa-check-square-o sb-color"/>
-                    <span class="badge badge-pill text-primary">{{ getCustomTasks(order.productions).length }}</span>
-                </span>
-            </button>
         </td>
 
         <td>
@@ -28,6 +16,25 @@
                 />
             </div>
             <div class="badge" :class="getAgreementStatusClass(order.status)" v-if="order.status !== 10">{{ $t(getAgreementStatusName(order.status)) }}</div>
+        </td>
+
+        <td>
+            <Attachments :attachments="order.attachments || []" v-if="order.attachments && order.attachments.length > 0" />
+            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                <i class="fa fa-ban mr-1" /> {{ $t('orders.noattachments') }}
+            </span>
+        </td>
+
+        <td>
+            <Tasks
+                :tasks="order.tasks || []"
+                :deadline="order.confirmedDate"
+                v-if="order.tasks && order.tasks.length > 0"
+                @taskStatusUpdated="(payload) => $emit('taskStatusUpdated', payload)"
+            />
+            <span v-else class="text-muted text-sm text-nowrap opacity-75">
+                <i class="fa fa-ban mr-1" /> {{ $t('orders.notasks') }}
+            </span>
         </td>
 
         <td class="text-nowrap" v-if="$user.can('production.show.production_date')">
@@ -123,6 +130,9 @@
 <script>
     import ProductionRowBase from "./ProductionRowBase";
     import Tooltip from "../../../components/base/Tooltip";
+    import CollapsibleList from "../../../components/base/CollapsibleList";
+    import Attachments from "./Attachments";
+    import Tasks from "./Tasks";
     import LineActions from "./LineActions2";
     import Tag from "../../tags/widget/Tag";
     import helpers, { getDepartmentName, DEPARTMENTS } from "../../../helpers";
@@ -134,17 +144,22 @@
 
         extends: ProductionRowBase,
 
-        components: { Tooltip, LineActions, Tag, ProductionTaskNotification, FactorDisplay, },
+        components: {
+            Tooltip,
+            LineActions,
+            Tag,
+            ProductionTaskNotification,
+            FactorDisplay,
+            CollapsibleList,
+            Attachments,
+            Tasks,
+        },
 
         data() {
             return {}
         },
 
         computed: {
-            hasDetails() {
-                return (this.order.attachments.length || (this.getCustomTasks(this.order.productions).length && this.userCanProduction));
-            },
-
             productionsByGrants() {
                 const productionSlugs = DEPARTMENTS.map(d => d.slug)
                 return this.order.productions.filter(prod => {
@@ -180,7 +195,7 @@
                 return className;
             },
             getAgreementStatusName(statusId) {
-                return this.statuses[statusId];
+                return this.taskStatuses[statusId];
             },
 
             getStatusData(status) {

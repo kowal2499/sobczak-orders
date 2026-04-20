@@ -8,9 +8,9 @@ export const statuses = [
     { value: 3, name: i18n.t('_status_dpt__finished'), color: '#8FBC8F', className: 'dropdown-green1' },
     { value: 4, name: i18n.t('_status_dpt__not_applicable'), color: '#419D78', className: 'dropdown-green2' },
 
-    { value: 10, name: i18n.t('_status_dpt__to_order'), color: '#FFF', className: 'dropdown-white' },
-    { value: 11, name: i18n.t('_status_dpt__ordered_waiting'), color: '#87CEFA', className: 'dropdown-blue' },
-    { value: 12, name: i18n.t('_status_dpt__realized_in_stock'), color: '#8FBC8F', className: 'dropdown-green1' }
+    // { value: 10, name: i18n.t('_status_dpt__to_order'), color: '#FFF', className: 'dropdown-white' },
+    // { value: 11, name: i18n.t('_status_dpt__ordered_waiting'), color: '#87CEFA', className: 'dropdown-blue' },
+    // { value: 12, name: i18n.t('_status_dpt__realized_in_stock'), color: '#8FBC8F', className: 'dropdown-green1' }
 ];
 
 export const agreementStatuses = [

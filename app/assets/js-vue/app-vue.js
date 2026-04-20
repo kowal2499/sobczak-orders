@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import { timeago } from './src/services/timeago';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import components from './src/components/root-components';
@@ -17,14 +18,17 @@ import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch, faPhone, faEnvelope,
-    faExclamationCircle,
+    faExclamationCircle, faChevronUp, faChevronDown, faArrowRight,
 } from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch,
-    faPhone, faEnvelope, faExclamationCircle,)
+    faPhone, faEnvelope, faExclamationCircle, faChevronUp, faChevronDown, faArrowRight)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+
+import PortalVue from 'portal-vue'
+Vue.use(PortalVue)
 
 window.EventBus = new Vue();
 
@@ -65,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return value;
         }
     });
+
+    Vue.filter('timeago', value => timeago(value, i18n.locale));
 
     Vue.filter('roundFloat', value => {
         return (Math.round(value * 100)/100).toFixed(2)

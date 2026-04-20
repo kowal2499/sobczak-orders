@@ -19,7 +19,7 @@
 						first-number last-number size="sm"
         />
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort">
+        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort" sticky-header>
             <tr v-for="(line, key) in agreementLines" :key="key">
                 <td>
                     <line-actions :line="line" @lineChanged="fetchData()"/>
@@ -48,7 +48,9 @@
                     </tooltip>
                     <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
                 </td>
-                <td><span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span></td>
+                <td>
+                    <span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span>
+                </td>
                 <td>
                     <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
                         {{ $t(getProductionStatusData(line.productions)['title']) }}
@@ -89,7 +91,7 @@
             Tooltip, LineActions, CollapsibleCard, TagsIndicator },
 
         props: {
-            statuses: {
+            taskStatuses: {
                 type: Object,
                 default: () => {}
             },
@@ -271,7 +273,7 @@
             },
 
             getAgreementStatusName(statusId) {
-                return this.statuses[parseInt(statusId)];
+                return this.taskStatuses[parseInt(statusId)];
             },
 
             getAgreementStatusClass(statusId) {

@@ -63,6 +63,7 @@ export default {
     '_production_schedule': 'Production schedule',
     '_date_start': 'Start date',
     '_date_end': 'End date',
+    '_showMore': 'Show more',
 
 
     '_impersonate': {
