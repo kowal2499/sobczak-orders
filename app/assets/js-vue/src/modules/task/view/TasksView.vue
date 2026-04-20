@@ -130,7 +130,7 @@ export default {
         </div>
 
         <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-success btn-sm" :disabled="isBusy" @click="addTask">
+            <button v-if="$user.can('task.orphans:create')" class="btn btn-success btn-sm" :disabled="isBusy" @click="addTask">
                 <font-awesome-icon icon="plus" /> {{ $t('task.addTask') }}
             </button>
             <button v-show="showSaveButton" class="btn btn-primary btn-sm" :disabled="isBusy" @click="save">

@@ -2,3 +2,15 @@ app_module:
   namespace: task
   description: Moduł zarządzania zadaniami
   active: true
+  grants:
+      - name: Zadania własne
+        description: Widoczność zadań nie mających przypisanego właściciela
+        slug: task.orphans
+        type: select
+        options:
+          - label: Tworzenie
+            optionSlug: create
+          - label: Odczyt
+            optionSlug: read
+          - label: Edycja
+            optionSlug: update
