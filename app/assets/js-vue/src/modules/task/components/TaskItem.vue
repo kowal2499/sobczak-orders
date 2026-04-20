@@ -38,7 +38,7 @@ export default {
         },
         canEdit() {
             if (!this.proxyData.owner) {
-                return this.$user.can('task.orphans:update');
+                return this.$user.can("task.orphans:update");
             }
             return canEditTask(this.proxyData.owner, this.$user.getId());
         },
