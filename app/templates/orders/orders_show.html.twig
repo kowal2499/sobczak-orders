@@ -4,9 +4,8 @@
 
 {% block body %}
 
-
 <orders-list
-    :statuses="{{ statuses|json_encode() }}"
+    :task-statuses="{{ taskStatuses|json_encode() }}"
     :status="{{ status }}"
 ></orders-list>
 

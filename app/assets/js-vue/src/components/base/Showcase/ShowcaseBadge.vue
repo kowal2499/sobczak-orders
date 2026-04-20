@@ -33,12 +33,12 @@ export default {
 
         .badge-label {
             position: absolute;
-            top: 0;
+            top: -0.3rem;
             left: 0.3rem;
             transform: translate(0, -50%);
             color: rgba(var(--colorPrimaryRgb), 0.7);
             padding: 0 0.2rem;
-            font-size: 0.6rem;
+            font-size: 0.75rem;
             line-height: 1;
             z-index: 1;
             white-space: nowrap;

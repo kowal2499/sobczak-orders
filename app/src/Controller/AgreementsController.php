@@ -37,7 +37,7 @@ class AgreementsController extends AbstractController
     {
         return $this->render('orders/orders_show.html.twig', [
             'title' => $t->trans('Lista zamówień', [], 'agreements'),
-            'statuses' => AgreementLine::getStatuses(),
+            'taskStatuses' => AgreementLine::getStatuses(),
             'status' => $status
         ]);
     }

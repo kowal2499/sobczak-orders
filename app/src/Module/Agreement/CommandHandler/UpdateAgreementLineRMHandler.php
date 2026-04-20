@@ -22,6 +22,7 @@ use App\Module\Production\Factor\FactorCalculator;
 use App\Module\Tag\Entity\TagAssignment;
 use App\Repository\AgreementLineRepository;
 use App\Service\UploaderHelper;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class UpdateAgreementLineRMHandler
@@ -32,6 +33,7 @@ class UpdateAgreementLineRMHandler
         private readonly AgreementLineRMRepositoryInterface $modelRepository,
         private readonly FactorCalculator $factorCalculator,
         private readonly UploaderHelper $uploaderHelper,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -81,6 +83,7 @@ class UpdateAgreementLineRMHandler
         $model->setAgreement($this->getAgreement($agreementLine));
         $model->setTags($this->getTags($agreementLine));
         $model->setAttachments($this->getAttachments($agreementLine));
+        $model->setTasks($this->getTasks($agreementLine));
 
         $productions = $this->getProductionsData($agreementLine);
         $model->setProductions(array_values($productions));
@@ -248,5 +251,36 @@ class UpdateAgreementLineRMHandler
         $customer = $agreementLine->getAgreement()->getCustomer();
         $person = implode(' ', array_filter([$customer->getFirstName(), $customer->getLastName()]));
         return trim($customer->getName() . ($person ? " ($person)" : ''));
+    }
+
+    private function getTasks(AgreementLine $agreementLine): array
+    {
+        $taskRepository = $this->em->getRepository(\App\Module\Task\Entity\Task::class);
+        $tasks = $taskRepository->findByAgreementLine($agreementLine);
+
+        return array_map(function ($task) {
+            return [
+                'id' => $task->getId(),
+                'dateStart' => $task->getDateStart()?->format('Y-m-d H:i:s'),
+                'dateEnd' => $task->getDateEnd()?->format('Y-m-d H:i:s'),
+                'status' => $task->getStatus(),
+                'type' => $task->getType(),
+                'title' => $task->getTitle(),
+                'description' => $task->getDescription(),
+                'ownerId' => $task->getOwner()?->getId(),
+                'ownerName' => $task->getOwner()?->getUserFullName(),
+                'createdAt' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+                'statusLogs' => array_map(fn($log) => [
+                    'id' => $log->getId(),
+                    'currentStatus' => $log->getCurrentStatus(),
+                    'previousStatus' => $log->getPreviousStatus(),
+                    'createdAt' => $log->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'user' => $log->getUser() ? [
+                        'id' => $log->getUser()->getId(),
+                        'userFullName' => $log->getUser()->getUserFullName(),
+                    ] : null,
+                ], $task->getStatusLogs()->toArray()),
+            ];
+        }, $tasks);
     }
 }

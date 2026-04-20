@@ -63,6 +63,7 @@ export default {
     '_production_schedule': 'Harmonogram produkcji',
     '_date_start': 'Data rozpoczęcia',
     '_date_end': 'Data zakończenia',
+    '_showMore': 'Pokaż więcej',
 
     '_impersonate': {
         'title': 'Zmień użytkownika',
