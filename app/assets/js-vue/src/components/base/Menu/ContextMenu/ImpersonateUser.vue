@@ -20,6 +20,14 @@ export default defineComponent({
             return this.users(true).filter(user => user.id !== this.$user.user.id)
         },
 
+        filteredUsersList() {
+            if (!this.filterQuery.trim()) return this.usersList
+            const q = this.filterQuery.trim().toLowerCase()
+            return this.usersList.filter(user =>
+                `${user.firstName} ${user.lastName}`.toLowerCase().includes(q)
+            )
+        },
+
         impersonateBackHref() {
             return '/?_switch_user=_exit'
         }
@@ -39,6 +47,7 @@ export default defineComponent({
 
     data: () => ({
         locked: false,
+        filterQuery: '',
     }),
 })
 </script>
@@ -49,9 +58,15 @@ export default defineComponent({
             <div class="alert alert-info">
                 {{ $t('_impersonate.description')}}
             </div>
-            <table class="table" v-if="usersList.length">
+            <input
+                v-model="filterQuery"
+                type="text"
+                class="form-control mb-2"
+                placeholder="Filtruj po imieniu i nazwisku..."
+            />
+            <table class="table" v-if="filteredUsersList.length">
                 <tbody>
-                    <tr v-for="user in usersList">
+                    <tr v-for="user in filteredUsersList" :key="user.id">
                         <td>{{ user.id }}</td>
                         <td>{{ user.firstName }}</td>
                         <td>{{ user.lastName }}</td>

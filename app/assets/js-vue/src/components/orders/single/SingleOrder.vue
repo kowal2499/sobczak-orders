@@ -23,7 +23,7 @@
                     ></details-widget>
                 </collapsible-card>
 
-                <collapsible-card title="Zadania" :locked="locked">
+                <collapsible-card title="Zadania" :locked="locked" v-if="$user.can('task.orphans:read')">
                     <tasks-view ref="tasksView" :agreementLineId="lineId" :show-save-button="false" />
                 </collapsible-card>
             </div>
@@ -115,7 +115,7 @@
             async save() {
                 this.locked = true;
                 try {
-                    if (!await this.$refs.tasksView.validate()) {
+                    if (this.$refs.tasksView && !await this.$refs.tasksView.validate()) {
                         this.$flash.warning(this.$t('orders.taskValidationFailed'));
                         return;
                     }
@@ -125,10 +125,12 @@
                         confirmedDate: this.orderData.confirmedDate,
                         description: this.orderData.description,
                         factor: this.orderData.factor,
-                        productions: this.orderData.productions.tasks.map(task => ({
-                            ...task,
-                            statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
-                        })),
+                        productions: this.orderData.productions.tasks
+                            .filter(task => task.departmentSlug !== 'custom_task')
+                            .map(task => ({
+                                ...task,
+                                statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
+                            })),
                         tags: this.orderData.productions.tags
                     });
 
@@ -141,7 +143,9 @@
                         });
                     }
 
-                    await this.$refs.tasksView.save();
+                    if (this.$refs.tasksView) {
+                        await this.$refs.tasksView.save();
+                    }
 
                     this.$flash.success(this.$t('orders.changesWereSaved'));
                     EventBus.$emit('statusUpdated');

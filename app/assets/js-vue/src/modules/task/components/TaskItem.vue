@@ -37,11 +37,13 @@ export default {
             return !this.proxyData.id;
         },
         canEdit() {
+            if (!this.proxyData.owner) {
+                return this.$user.can('task.orphans:update');
+            }
             return canEditTask(this.proxyData.owner, this.$user.getId());
         },
         editableStatusOptions() {
-            const editable = canEditTask(this.proxyData.owner, this.$user.getId());
-            return this.statusOptions.map(opt => ({ ...opt, disabled: !editable }));
+            return this.statusOptions.map(opt => ({ ...opt, disabled: !this.canEdit }));
         },
         sortedStatusLogs() {
             return (this.proxyData.statusLogs || []).slice().reverse();

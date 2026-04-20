@@ -33,7 +33,12 @@ export default {
 
         statusOptionsForTask(task) {
             const owner = task.ownerId ? { id: task.ownerId } : null;
-            const editable = canEditTask(owner, this.$user.getId());
+            let editable;
+            if (!owner) {
+                editable = this.$user.can('task.orphans:update');
+            } else {
+                editable = canEditTask(owner, this.$user.getId());
+            }
             return getTaskStatuses(TASK_TYPE_CUSTOM).map(opt => ({ ...opt, disabled: !editable }))
         },
     },

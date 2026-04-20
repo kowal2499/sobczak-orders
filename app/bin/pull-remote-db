@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ENV_REMOTE="$PROJECT_ROOT/.env.remote"
+
+if [[ ! -f "$ENV_REMOTE" ]]; then
+    echo "ERROR: $ENV_REMOTE not found."
+    echo ""
+    echo "Create it with:"
+    echo "  REMOTE_HOST=some_host"
+    echo "  REMOTE_DB=some_db"
+    echo "  REMOTE_DB_USER=user"
+    echo "  REMOTE_DB_PASS=secret"
+    exit 1
+fi
+
+# shellcheck disable=SC1090
+source "$ENV_REMOTE"
+
+: "${REMOTE_HOST:?Missing REMOTE_HOST in .env.remote}"
+: "${REMOTE_DB:?Missing REMOTE_DB in .env.remote}"
+: "${REMOTE_DB_USER:?Missing REMOTE_DB_USER in .env.remote}"
+: "${REMOTE_DB_PASS:?Missing REMOTE_DB_PASS in .env.remote}"
+
+LOCAL_DB="sobczak_app"
+LOCAL_ROOT_PASS="root"
+
+echo "==> Checking Docker container..."
+cd "$PROJECT_ROOT"
+if ! docker compose ps mysql | grep -q "running\|Up"; then
+    echo "ERROR: MySQL container is not running. Start it with: docker compose up -d"
+    exit 1
+fi
+
+echo "==> Dropping and recreating local database '$LOCAL_DB'..."
+docker compose exec -T mysql mysql -uroot -p"$LOCAL_ROOT_PASS" \
+    -e "DROP DATABASE IF EXISTS \`$LOCAL_DB\`; CREATE DATABASE \`$LOCAL_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+echo "==> Dumping remote database '$REMOTE_DB' from '$REMOTE_HOST' and importing locally..."
+START=$(date +%s)
+
+ssh "$REMOTE_HOST" "mysqldump -u'$REMOTE_DB_USER' -p'$REMOTE_DB_PASS' --single-transaction --no-tablespaces '$REMOTE_DB'" \
+    | docker compose exec -T mysql mysql -uroot -p"$LOCAL_ROOT_PASS" "$LOCAL_DB"
+
+END=$(date +%s)
+echo "==> Done. Import completed in $((END - START))s."
