@@ -13,19 +13,18 @@
         <div class="row">
             <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
-                    <template #header v-if="canEditLine()">
-                        <b-button size="sm" variant="success" :disabled="false === canAddNewTask || locked" @click="addCustomTask()">
-                            {{ $t('orders.newTask') }}
-                        </b-button>
-                    </template>
                     <production-widget v-model="orderData.productions"/>
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
                     <details-widget
                         v-model="orderData"
-                        :statuses="statuses"
+                        :taskStatuses="taskStatuses"
                     ></details-widget>
+                </collapsible-card>
+
+                <collapsible-card title="Zadania" :locked="locked">
+                    <tasks-view ref="tasksView" :agreementLineId="lineId" :show-save-button="false" />
                 </collapsible-card>
             </div>
 
@@ -83,14 +82,15 @@
     import moment from "moment";
     import Sidebar from '@/components/base/Sidebar.vue'
     import FactorsView from '@/modules/agreementLineList/view/FactorsView'
+    import TasksView from '@/modules/task/view/TasksView'
 
     export default {
         name: "SingleOrder",
         components: {
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
-            Sidebar, FactorsView,
+            Sidebar, FactorsView, TasksView,
         },
-        props: ['lineId', 'statuses'],
+        props: ['lineId', 'taskStatuses'],
 
         data() {
             return {
@@ -105,73 +105,56 @@
                         tags: []
                     },
                     Product: {},
-                    Agreement: {}
+                    Agreement: {},
+                    tasks: [],
                 },
             }
         },
 
         methods: {
-            save() {
+            async save() {
                 this.locked = true;
-                ordersApi.updateOrder(this.lineId, {
-                    status: this.orderData.status,
-                    confirmedDate: this.orderData.confirmedDate,
-                    description: this.orderData.description,
-                    factor: this.orderData.factor,
-                    productions: this.orderData.productions.tasks.map(task => ({
-                        ...task,
-                        statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
-                    })),
-                    tags: this.orderData.productions.tags
-                })
-                    .then(({data}) => {
-                        if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
+                try {
+                    if (!await this.$refs.tasksView.validate()) {
+                        this.$flash.warning(this.$t('orders.taskValidationFailed'));
+                        return;
+                    }
 
-                            data.newStatuses.forEach(newStatus => {
-                                let production = this.orderData.productions.tasks.find(prod => { return prod.id === newStatus.productionId; });
-                                if (production && production.statusLogs) {
-                                    production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
-                                }
-                            })
-                        }
+                    const { data } = await ordersApi.updateOrder(this.lineId, {
+                        status: this.orderData.status,
+                        confirmedDate: this.orderData.confirmedDate,
+                        description: this.orderData.description,
+                        factor: this.orderData.factor,
+                        productions: this.orderData.productions.tasks.map(task => ({
+                            ...task,
+                            statusLogs: task.statusLogs.map(log => ({...log, user: (log.user || {id: null}).id}))
+                        })),
+                        tags: this.orderData.productions.tags
+                    });
 
-                        EventBus.$emit('message', {
-                            type: 'success',
-                            content: this.$t('orders.changesWereSaved')
-                        });
-
-                        EventBus.$emit('statusUpdated');
-                    })
-                    .catch((data) => {
-                        for (let msg of data.response.data) {
-                            EventBus.$emit('message', {
-                                type: 'error',
-                                content: msg
-                            });
-                        }
-                    })
-                    .finally(() => { this.locked = false;})
-            },
-
-            addCustomTask() {
-                this.orderData.productions.tasks.push({
-                    dateStart: null,
-                    dateEnd: null,
-                    departmentSlug: 'custom_task',
-                    description: null,
-                    id: null,
-                    title: this.$t('orders.newTask'),
-                    status: "10",
-                    statusLogs: [{
-                            id: null,
-                            currentStatus: "10",
-                            createdAt: (new moment()).format('YYYY-MM-DD HH:mm:ss'),
-                            user: {
-                                id: this.$user.getId(),
-                                userFullName: this.$user.getName(),
+                    if (data && Array.isArray(data.newStatuses) && data.newStatuses.length > 0) {
+                        data.newStatuses.forEach(newStatus => {
+                            let production = this.orderData.productions.tasks.find(prod => { return prod.id === newStatus.productionId; });
+                            if (production && production.statusLogs) {
+                                production.statusLogs.push({ createdAt: newStatus.createdAt, currentStatus: newStatus.currentStatus });
                             }
-                    }],
-                });
+                        });
+                    }
+
+                    await this.$refs.tasksView.save();
+
+                    this.$flash.success(this.$t('orders.changesWereSaved'));
+                    EventBus.$emit('statusUpdated');
+                } catch (error) {
+                    const messages = error?.response?.data;
+                    if (Array.isArray(messages)) {
+                        for (let msg of messages) {
+                            this.$flash.danger(msg);
+                        }
+                    }
+                } finally {
+                    this.locked = false;
+                }
             },
 
             canEditLine() {

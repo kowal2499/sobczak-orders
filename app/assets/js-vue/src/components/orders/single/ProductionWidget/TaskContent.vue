@@ -85,7 +85,7 @@
             @closeModal="showDeleteModal = false"
             @answerYes="handleDelete()"
         >
-            {{ $t('orders.shouldDeleteTask') }} '{{ proxyData.title }}'?
+            {{ $t('orders.shouldDeleteTask') }} '{{ proxyData.title || '' }}'?
         </confirmation-modal>
     </b-row>
 </template>

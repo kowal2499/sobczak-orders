@@ -1,21 +1,17 @@
 <template>
     <div class="wrapper">
         <div class="table-responsive has-dropdown">
-            <table class="table">
+            <table class="table" ref="table">
                 <thead>
                     <tr>
-                        <th v-for="cell in headers" :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.thClass || ''">
+                        <th v-for="(cell, key) in headers" :key=key :colspan="cell.colspan || ''" :rowspan="cell.rowspan || ''" :class="cell.thClass || ''">
                             <div
-                                v-for="item in cell.items"
+                                v-for="(item, key) in cell.items"
+                                :key="key"
                                 :class="['header-item', item.sortKey && 'header-item--sortable', item.wrapperClass, (item.sortKey === headerSort.sortKey) && 'header-item--selected']"
                                 @click="item.sortKey ? sortBy(item.sortKey) : null"
                             >
                                 {{ item.name }}
-<!--                                <a href="#" v-if="item.sortKey" @click.prevent="sortBy(item.sortKey)">-->
-<!--                                    {{ item.name }}-->
-<!--                                </a>-->
-<!--                                <span v-else>{{ item.name }}</span>-->
-
                                 <template v-if="item.sortKey === headerSort.sortKey">
                                     <i :class="headerSort.order === 'ASC' && 'fa fa-arrow-up sort-direction'" />
                                     <i :class="headerSort.order === 'DESC' && 'fa fa-arrow-down sort-direction'" />
@@ -30,70 +26,118 @@
             </table>
         </div>
 
+        <div class="table-responsive table-clone has-dropdown">
+            <table ref="tableClone" class="table" />
+        </div>
+
         <transition name="fade">
             <div class="courtain text-center" v-if="loading">
                 <i class="fa fa-spinner fa-spin fa-2x mt-4"/>
             </div>
         </transition>
-
     </div>
 </template>
 
 <script>
-    export default {
-        name: "TablePlus",
+import { StickyTableHeader } from "vh-sticky-table-header";
 
-        props: {
-            loading: {
-                type: Boolean,
-                default: false
-            },
+export default {
+    name: "TablePlus",
 
-            headers: {
-                type: Array,
-                default: []
-            },
-
-            initialSort: {
-                type: String,
-                default: ''
-            }
+    props: {
+        loading: {
+            type: Boolean,
+            default: false
         },
 
-        data() {
-            return {
-                headerSort: {
-                    sortKey: '',
-                    order: ''
-                }
-            }
+        headers: {
+            type: Array,
+            default: () => ([])
         },
 
-        mounted() {
-            if (this.initialSort.length > 0) {
-                this.headerSort.sortKey = this.initialSort.replace(/_.+$/, '');
-                this.headerSort.order = this.initialSort.replace(/^.+_/, '').toUpperCase();
-            }
+        initialSort: {
+            type: String,
+            default: ''
         },
 
-        methods: {
-            sortBy(sortKey) {
-                if (this.headerSort.sortKey === sortKey) {
-                    this.headerSort.order = (this.headerSort.order === 'ASC') ? 'DESC' : 'ASC';
-                } else {
-                    this.headerSort.sortKey = sortKey;
-                    this.headerSort.order = 'ASC';
-                }
-                this.$emit('sortChanged', this.headerSort.sortKey.concat('_', this.headerSort.order.toLowerCase()));
+        stickyHeader: {
+            type: Boolean,
+            default: false
+        }
+    },
+
+    mounted() {
+        if (this.initialSort.length > 0) {
+            this.headerSort.sortKey = this.initialSort.replace(/_.+$/, '');
+            this.headerSort.order = this.initialSort.replace(/^.+_/, '').toUpperCase();
+        }
+
+        if (this.stickyHeader) {
+            this.initStickyHeader();
+        }
+    },
+
+    beforeDestroy() {
+        if (this.stickyTable) {
+            this.stickyTable.destroy();
+        }
+    },
+
+    watch: {
+        loading(newVal, oldVal) {
+            if (this.stickyHeader && oldVal === true && newVal === false) {
+                this.$nextTick(() => this.initStickyHeader());
             }
         }
-    }
+    },
+
+    methods: {
+        initStickyHeader() {
+            if (this.stickyTable) {
+                this.stickyTable.destroy();
+                this.stickyTable = null;
+            }
+            if (this.$refs.table && this.$refs.tableClone) {
+                this.stickyTable = new StickyTableHeader(
+                    this.$refs.table,
+                    this.$refs.tableClone,
+                    { max: 0 }
+                );
+            }
+        },
+
+        sortBy(sortKey) {
+            if (this.headerSort.sortKey === sortKey) {
+                this.headerSort.order = (this.headerSort.order === 'ASC') ? 'DESC' : 'ASC';
+            } else {
+                this.headerSort.sortKey = sortKey;
+                this.headerSort.order = 'ASC';
+            }
+            this.$emit('sortChanged', this.headerSort.sortKey.concat('_', this.headerSort.order.toLowerCase()));
+        }
+    },
+
+    data() {
+        return {
+            headerSort: {
+                sortKey: '',
+                order: ''
+            },
+            stickyTable: null,
+        }
+    },
+}
 </script>
 
 <style scoped lang="scss">
 
     .wrapper {
         position: relative;
+
+        .table-clone {
+            background-color: var(--colorWhite);
+            box-shadow: 0 4px 6px -2px rgba(var(--colorGrayRgb), 0.3);
+        }
 
         .courtain {
             position: absolute;
@@ -116,7 +160,6 @@
             .header-item {
                 position: relative;
                 font-size: 0.85rem;
-                padding: 0 1rem;
 
                 a {
                     color: #666;

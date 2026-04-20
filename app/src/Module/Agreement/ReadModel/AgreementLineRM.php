@@ -148,6 +148,9 @@ class AgreementLineRM
     #[ORM\Column(type: 'json')]
     private array $attachments;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $tasks = [];
+
     #[ORM\Column(type: 'text')]
     private string $q;
 
@@ -161,6 +164,7 @@ class AgreementLineRM
         $this->productions = [];
         $this->tags = [];
         $this->attachments = [];
+        $this->tasks = [];
     }
 
     public function getAgreementLineId(): int
@@ -565,6 +569,22 @@ class AgreementLineRM
         $this->dpt06EndDate = $dpt06EndDate;
     }
 
+    /**
+     * @return array
+     */
+    public function getTasks(): array
+    {
+        return $this->tasks ?? [];
+    }
+
+    /**
+     * @param array $tasks
+     */
+    public function setTasks(array $tasks): void
+    {
+        $this->tasks = $tasks;
+    }
+
     public function getQ(): string
     {
         return $this->q;
@@ -614,6 +634,7 @@ class AgreementLineRM
             'productions' => $this->productions,
             'tags' => $this->tags,
             'attachments' => $this->attachments,
+            'tasks' => $this->tasks,
             'q' => $this->q,
         ];
     }
