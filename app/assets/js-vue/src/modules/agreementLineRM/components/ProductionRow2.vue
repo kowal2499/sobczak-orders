@@ -25,7 +25,7 @@
             </span>
         </td>
 
-        <td>
+        <td v-if="userCanReadTasks">
             <Tasks
                 :tasks="order.tasks || []"
                 :deadline="order.confirmedDate"
@@ -150,7 +150,6 @@
             Tag,
             ProductionTaskNotification,
             FactorDisplay,
-            CollapsibleList,
             Attachments,
             Tasks,
         },
@@ -160,6 +159,10 @@
         },
 
         computed: {
+            userCanReadTasks() {
+                return this.$user.can('task.orphans:read');
+            },
+
             productionsByGrants() {
                 const productionSlugs = DEPARTMENTS.map(d => d.slug)
                 return this.order.productions.filter(prod => {

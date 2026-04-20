@@ -6,6 +6,13 @@
                 :locked="locked"
             >
                 <div class="d-flex justify-content-end align-items-center gap-4 mb-3">
+                    <input
+                        v-model="filterQuery"
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Filtruj po imieniu i nazwisku..."
+                        style="width: 220px"
+                    />
                     <b-form-checkbox v-model="showInactiveUsers" switch>
                         <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
                     </b-form-checkbox>
@@ -27,13 +34,13 @@
                         </thead>
 
                         <tbody>
-                            <tr v-for="user in usersList">
+                            <tr v-for="user in filteredUsersList" :key="user.id">
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.firstName }}</td>
                                 <td>{{ user.lastName }}</td>
                                 <td>{{ user.email }}</td>
                                 <td>
-                                    <span v-for="role in user.roles">
+                                    <span v-for="role in user.roles" :key="role">
                                         <span class="badge badge-info mr-1">{{ getRoleName(role) }}</span>
                                     </span>
                                 </td>
@@ -42,13 +49,14 @@
                                     <i v-else class="fa fa-times text-danger"></i>
                                 </td>
                                 <td>
-                                    <dropdown class="icon-only">
-                                        <template>
-                                            <a class="dropdown-item" :href="getRouting().get('security_user_edit') + '/' + user.id">
-                                                <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
-                                            </a>
+                                    <b-dropdown no-caret right boundary="window" toggle-class="btn-sm btn-light icon-only">
+                                        <template #button-content>
+                                            <i class="fa fa-bars"></i>
                                         </template>
-                                    </dropdown>
+                                        <b-dropdown-item :href="getRouting().get('security_user_edit') + '/' + user.id">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
+                                        </b-dropdown-item>
+                                    </b-dropdown>
                                 </td>
                             </tr>
                         </tbody>
@@ -62,7 +70,6 @@
 
 <script>
     import CollapsibleCard from "../base/CollapsibleCard";
-    import Dropdown from "../base/Dropdown";
     import routing from "../../api/routing";
     import helpers from "../../helpers";
     import store from "@/store";
@@ -70,7 +77,7 @@
     import { mapGetters } from "vuex";
 
     export default {
-        components: { CollapsibleCard, Dropdown },
+        components: { CollapsibleCard },
 
         name: "UsersList",
 
@@ -83,6 +90,14 @@
 
             usersList() {
                 return this.users(!this.showInactiveUsers)
+            },
+
+            filteredUsersList() {
+                if (!this.filterQuery.trim()) return this.usersList
+                const q = this.filterQuery.trim().toLowerCase()
+                return this.usersList.filter(user =>
+                    `${user.firstName} ${user.lastName}`.toLowerCase().includes(q)
+                )
             }
         },
 
@@ -106,6 +121,7 @@
             return {
                 locked: false,
                 showInactiveUsers: false,
+                filterQuery: '',
             }
         },
     }

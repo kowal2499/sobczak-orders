@@ -1,5 +1,6 @@
 .env
 .env.deployer
+.env.remote
 backup
 services/mysql
 .idea
