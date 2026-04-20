@@ -315,8 +315,8 @@
                 const headers = [
                     { name: this.$t('actions')},
                     { name: this.$t('ID'), sortKey: 'id' },
-                    { name: 'Załączniki' },
-                    { name: 'Zadania' },
+                    { name: this.$t('attachments') },
+                    { name: this.$t('tasks') },
                     this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
                     { name: this.$t('orders.issuedBy'), sortKey: 'user' },
                     { name: this.$t('customer'), sortKey: 'customer' },

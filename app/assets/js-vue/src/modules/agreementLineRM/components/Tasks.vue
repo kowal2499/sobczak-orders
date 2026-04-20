@@ -1,9 +1,10 @@
 <script>
 import DropdownList from '../../../components/base/DropdownList'
-import helpers from "@/helpers";
 import ProductionTaskNotification from "../../../components/production/ProductionTaskNotification";
 import StatusDropdown from "../../../components/base/StatusDropdown";
 import { canEditTask } from "../../task/specification/canEditTask";
+import { getTaskStatuses } from "@/modules/task/configuration/taskStatuses";
+import { TASK_TYPE_CUSTOM } from "@/modules/task/configuration/taskDefinitions";
 
 export default {
     name: "Tasks",
@@ -24,12 +25,6 @@ export default {
         StatusDropdown,
     },
 
-    computed: {
-        statusOptions() {
-            return helpers.statusesPerTaskType('custom_task')
-        }
-    },
-
     methods: {
         updateTask(task, newStatus) {
             task.status = newStatus;
@@ -39,17 +34,15 @@ export default {
         statusOptionsForTask(task) {
             const owner = task.ownerId ? { id: task.ownerId } : null;
             const editable = canEditTask(owner, this.$user.getId());
-            return this.statusOptions.map(opt => ({ ...opt, disabled: !editable }));
+            return getTaskStatuses(TASK_TYPE_CUSTOM).map(opt => ({ ...opt, disabled: !editable }))
         },
-
-        statusesPerTaskType: helpers.statusesPerTaskType
     },
 }
 </script>
 
 <template>
     <DropdownList :items="tasks">
-        <template #default="{ item, index }">
+        <template #default="{ item }">
             <div class="custom-task d-flex flex-column" style="gap: 2px">
                 <label class="m-0">{{ item.title || '' }}</label>
                 <status-dropdown

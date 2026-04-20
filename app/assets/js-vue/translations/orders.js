@@ -50,6 +50,8 @@ export default {
         contact: 'Contact',
         products: 'Products',
         number: 'Number',
+        attachments: 'Attachments',
+        tasks: 'Tasks',
         orders: {
             factor: 'Factor',
             factorDesc: 'Bonus factor. Value \'100\' means that the factor is equal \'1\'. It is allowed to use values higher than 100.',
@@ -151,6 +153,8 @@ export default {
         address: 'Adres',
         contact: 'Kontakt',
         products: 'Produkty',
+        attachments: 'Załączniki',
+        tasks: 'Zadania',
         orders: {
             factor: 'Współczynnik bazowy',
             factorDesc: 'Współczynnik dla premii i planowania produkcji. Wartość \'100\' oznacza współczynnik w wysokości \'1\'. Można podawać wartości wyższe niż 100.',

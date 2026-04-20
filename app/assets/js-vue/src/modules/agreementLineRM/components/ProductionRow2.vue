@@ -195,7 +195,7 @@
                 return className;
             },
             getAgreementStatusName(statusId) {
-                return this.statuses[statusId];
+                return this.taskStatuses[statusId];
             },
 
             getStatusData(status) {

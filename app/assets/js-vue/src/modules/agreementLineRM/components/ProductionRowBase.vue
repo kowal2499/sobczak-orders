@@ -13,7 +13,7 @@
                 type: Object,
                 default: () => {}
             },
-            statuses: {
+            taskStatuses: {
                 type: Object,
                 default: () => {}
             },
