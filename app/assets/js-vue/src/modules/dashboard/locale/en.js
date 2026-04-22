@@ -12,6 +12,7 @@ export default {
     'firstFreeDay': 'Estimated date for the completion of all orders',
     'tasksCompleted': 'Completed production tasks',
     'capacityMetric': 'Production departments capacity',
+    'weeklyCapacityMetric': 'Weekly capacity utilization',
 
     'productionMetric': {
         'baseFactor': 'Base factor',

@@ -12,6 +12,7 @@ export default {
     'firstFreeDay': 'Planowany dzień zrealizowania wszystkich zamówień',
     'tasksCompleted': 'Ukończone zadania produkcyjne',
     'capacityMetric': 'Obłożenie działów produkcji',
+    'weeklyCapacityMetric': 'Obłożenie tygodniowe',
 
     'productionMetric': {
         'baseFactor': 'Współczynnik bazowy',
