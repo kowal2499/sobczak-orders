@@ -4,7 +4,7 @@ import StatusIcon from './StatusIcon.vue'
 import DepartmentFactorValue from './DepartmentFactorValue.vue';
 import { statuses } from '@/helpers';
 export default defineComponent({
-    name: 'Details',
+    name: "DetailsDepartment",
     components: {DepartmentFactorValue, StatusIcon },
     props: {
         record: {

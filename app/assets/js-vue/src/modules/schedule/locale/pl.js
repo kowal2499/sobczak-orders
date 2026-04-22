@@ -4,4 +4,6 @@ export default {
     'capacityBurned': 'Współczynniki wykorzystane',
     'weeklyOrdersInCapacity': 'Zamówienia wpływające na obłożenie tygodniowe',
     'select': 'Wybierz',
+    'workingDaysShort': 'dni rob.',
+    'ordersCount': '{count} zleceń',
 }

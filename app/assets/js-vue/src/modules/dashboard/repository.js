@@ -34,3 +34,7 @@ export function getProductionFinishedDetails(start, end) {
 export function getDepartmentsCapacity(start, end) {
     return axios.get(`/reports/production/production-capacity`, {params: {start, end}});
 }
+
+export function getWeeklyCapacity(start, end) {
+    return axios.get(`/reports/schedule/capacity`, {params: {startDate: start, endDate: end}});
+}
