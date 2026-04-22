@@ -144,7 +144,7 @@ class ScheduleCapacityService
         \DateTimeImmutable $weekStart,
         \DateTimeImmutable $weekEnd
     ): array {
-        return array_filter($agreementLines, function (AgreementLineRM $agreementLine) use ($weekStart, $weekEnd) {
+        return array_values(array_filter($agreementLines, function (AgreementLineRM $agreementLine) use ($weekStart, $weekEnd) {
             $confirmedDate = $agreementLine->getConfirmedDate();
 
             if ($confirmedDate === null) {
@@ -157,7 +157,7 @@ class ScheduleCapacityService
             $end = $weekEnd->setTime(0, 0, 0);
 
             return $confirmed >= $start && $confirmed <= $end;
-        });
+        }));
     }
 
     /**

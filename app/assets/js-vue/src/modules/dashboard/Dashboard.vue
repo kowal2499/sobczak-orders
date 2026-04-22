@@ -48,14 +48,21 @@
         </div>
 
         <div class="row">
-            <div class="col-md-4 col-lg-3" v-if="canDashboardMetrics">
+            <div class="col-md-4 col-lg-3">
                 <DepartmentsBonusMetric
+                    v-if="canDashboardMetrics"
                     :is-busy="sourcesState.src03.isBusy"
                     :data="sourcesState.src03.data"
                 />
+                <WeeklyCapacityMetric
+                    v-if="canWeeklyCapacityMetric"
+                    :is-busy="sourcesState.src05.isBusy"
+                    :data="sourcesState.src05.data"
+                />
             </div>
-            <div class="col-md-10 col-lg-9" v-if="canCapacityMetric">
+            <div class="col-md-10 col-lg-9">
                 <CapacityMetric
+                    v-if="canCapacityMetric"
                     :is-busy="sourcesState.src04.isBusy"
                     :data="sourcesState.src04.data"
                 />
@@ -74,12 +81,13 @@ import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCount
 import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
 import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue"
+import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue"
 import PRIVILEGES from "../../definitions/userRoles";
 
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
-    getOldSummary, getDepartmentsCapacity
+    getOldSummary, getDepartmentsCapacity, getWeeklyCapacity
 } from "./repository";
 
 const START_YEAR = 2018;
@@ -107,6 +115,12 @@ const DATA_SOURCES = [
         fetcher: getDepartmentsCapacity,
         grant: 'reports.dashboard:capacity-utilization',
         active: true,
+    },
+    {
+        id: 'src05',
+        fetcher: getWeeklyCapacity,
+        grant: 'reports.dashboard:weekly-capacity',
+        active: true,
     }
 ]
 
@@ -121,6 +135,7 @@ export default {
         OrdersCountMetric,
         DepartmentsBonusMetric,
         CapacityMetric,
+        WeeklyCapacityMetric,
     },
 
     computed: {
@@ -157,6 +172,9 @@ export default {
         },
         canCapacityMetric() {
             return this.$user.can('reports.dashboard:capacity-utilization')
+        },
+        canWeeklyCapacityMetric() {
+            return this.$user.can('reports.dashboard:weekly-capacity')
         }
     },
 

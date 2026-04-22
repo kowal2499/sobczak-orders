@@ -37,7 +37,6 @@
                     <agreement-widget :agreement="orderData.Agreement" />
                 </collapsible-card>
 
-
                 <collapsible-card :title="$t('agreement_line_list.factorsForm.sidebarTitle')" :locked="locked" v-if="canManageFactors">
                     <Sidebar
                         :title="$t('agreement_line_list.factorsForm.sidebarTitle')"

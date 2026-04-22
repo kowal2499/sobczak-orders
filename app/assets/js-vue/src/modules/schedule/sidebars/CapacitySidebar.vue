@@ -6,6 +6,7 @@ import ShowcaseBadge from '@/components/base/Showcase/ShowcaseBadge.vue'
 
 import {getLocalDate} from '@/helpers'
 import {deburr} from "lodash";
+
 export default {
     name: "CapacitySidebar",
 
@@ -13,6 +14,10 @@ export default {
         data: {
             type: Object,
             default: () => ({}),
+        },
+        weekData: {
+            type: Object,
+            default: null,
         }
     },
 
@@ -24,18 +29,32 @@ export default {
     },
 
     mounted() {
-        if (this.data?.arg?.date) {
+        if (this.weekData) {
+            const from = this.formatDate(this.weekData.dateStart)
+            const to = this.formatDate(this.weekData.dateEnd)
+            this.$emit('set-title', `${this.$t('dashboard.weeklyCapacityMetric')}: ${from} – ${to}`)
+        } else if (this.data?.arg?.date) {
             this.$emit('set-title', `${this.$t('schedule.weeklyOrdersInCapacity')} - ${getLocalDate(this.data?.arg?.date)}`)
+        }
+    },
+
+    methods: {
+        formatDate(dateStr) {
+            if (!dateStr) return ''
+            const d = new Date(dateStr)
+            return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' })
         }
     },
 
     computed: {
         capacityData() {
+            if (this.weekData) {
+                return this.weekData
+            }
             return (this.data?.events?.capacity || [])[0]
         },
 
         filteredSelectedData() {
-            // this.capacityData
             let data = this.capacityData?.agreementLines || []
             const lines = Object.values(data)
 
@@ -46,7 +65,7 @@ export default {
             const searchTerm = deburr(this.q).toLowerCase()
 
             return lines.filter(item =>
-                deburr(item.q || '').toLowerCase().includes(searchTerm)
+                deburr(item.q || `${item.customerName} ${item.productName} ${item.orderNumber}`).toLowerCase().includes(searchTerm)
             )
         },
     },
