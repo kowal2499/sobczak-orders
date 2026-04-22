@@ -9,13 +9,15 @@ use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
+use Symfony\Component\Security\Core\Security;
 
 class ScheduleCapacityService
 {
     public function __construct(
         private readonly AgreementLineRMRepository $agreementLineRepo,
         private readonly WorkCapacityRepository $workCapacityRepo,
-        private readonly WorkScheduleService $workScheduleService
+        private readonly WorkScheduleService $workScheduleService,
+        private readonly Security $security,
     ) {
     }
 
@@ -53,6 +55,7 @@ class ScheduleCapacityService
 
             $weekCapacity = $this->getCapacityByRange($weekRunner, $weekEnd, $holidays, $capacities);
             $weekCapacityBurned = $this->getCapacityBurned($agreementLines);
+            $visibleAgreementLines = $this->filterByOwnership($agreementLines);
 
             $dayRunner = clone $weekRunner;
             while ($dayRunner <= $weekEnd) {
@@ -62,7 +65,7 @@ class ScheduleCapacityService
                         $dayRunner,
                         $weekCapacity,
                         $weekCapacityBurned,
-                        $agreementLines,
+                        $visibleAgreementLines,
                     );
                 }
                 $dayRunner = $dayRunner->modify('+1 day');
@@ -129,6 +132,32 @@ class ScheduleCapacityService
                 'sort' => 'dateConfirmed_ASC',
             ],
         ])->getResult();
+    }
+
+    /**
+     * @param AgreementLineRM[] $agreementLines
+     * @return AgreementLineRM[]
+     */
+    private function filterByOwnership(array $agreementLines): array
+    {
+        if (!$this->security->isGranted('ROLE_CUSTOMER')) {
+            return $agreementLines;
+        }
+
+        $customerIds = array_filter(
+            $this->security->getUser()->getCustomers()
+                ->map(fn ($c) => $c?->getId())
+                ->toArray()
+        );
+
+        if (empty($customerIds)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $agreementLines,
+            fn (AgreementLineRM $line) => in_array($line->getCustomerId(), $customerIds, true)
+        ));
     }
 
     /**
