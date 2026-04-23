@@ -12,6 +12,7 @@ use App\Module\WorkConfiguration\Repository\WorkScheduleRepository;
 use App\Module\WorkConfiguration\Service\DefaultHolidaysProvider;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Security;
 
 class ScheduleCapacityServiceTest extends TestCase
 {
@@ -29,7 +30,8 @@ class ScheduleCapacityServiceTest extends TestCase
         $this->service = new ScheduleCapacityService(
             $this->agreementLineRepo,
             $this->workCapacityRepo,
-            new WorkScheduleService($this->workScheduleRepo, new DefaultHolidaysProvider())
+            new WorkScheduleService($this->workScheduleRepo, new DefaultHolidaysProvider()),
+            $this->createMock(Security::class),
         );
     }
 
