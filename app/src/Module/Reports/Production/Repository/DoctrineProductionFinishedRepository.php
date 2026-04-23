@@ -26,6 +26,11 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
         $query = $this->getQuery($start, $end)
             ->select('SUM(al.factor) as factors_summary')
             ->addSelect('COUNT(al.id) as count');
+
+        if ($this->security->isGranted('ROLE_CUSTOMER')) {
+            $query->join('al.Agreement', 'a')->join('a.Customer', 'c');
+        }
+
         $this->withConnectedCustomers($query);
         return $query->getQuery()->getSingleResult();
     }

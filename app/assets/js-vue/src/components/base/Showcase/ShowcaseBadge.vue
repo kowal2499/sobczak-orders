@@ -16,7 +16,9 @@ export default {
 <template>
     <div class="showcase-badge">
         <div :class="['badge-label', backgroundClass]">
-            <font-awesome-icon v-if="icon" :icon="icon" />
+            <div v-if="icon" class="badge-label-icon">
+                <font-awesome-icon :icon="icon" />
+            </div>
             <span v-if="label">{{ label }}</span>
         </div>
         <span class="badge-value"><slot name="value">{{ value }}</slot></span>
@@ -26,33 +28,28 @@ export default {
 <style scoped lang="scss">
     .showcase-badge {
         display: flex;
-        position: relative;
-        margin-top: 0.5rem;
-        //border-top: 1px solid rgba(var(--colorPrimaryRgb), 0.2);
-        //border-bottom: 1px solid rgba(var(--colorPrimaryRgb), 0.2);
+        flex-direction: column;
 
         .badge-label {
-            position: absolute;
-            top: -0.3rem;
-            left: 0.3rem;
-            transform: translate(0, -50%);
             color: rgba(var(--colorPrimaryRgb), 0.7);
             padding: 0 0.2rem;
             font-size: 0.75rem;
-            line-height: 1;
-            z-index: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.2;
+            display: flex;
+            align-items: flex-start;
+            gap: 3px;
 
-            svg {
-                color: rgba(var(--colorPrimaryRgb), 0.7);
-                margin-right: 2px;
+            .badge-label-icon {
+                flex-shrink: 0;
+                margin-top: 1px;
+
+                svg {
+                    color: rgba(var(--colorPrimaryRgb), 0.7);
+                }
             }
         }
         .badge-value {
-            flex: 1;
-            padding: 0.3rem 0.4rem 0.2rem 0.4rem;
+            padding: 0.1rem 0.2rem 0.2rem 0.2rem;
             text-align: left;
             font-size: .85rem;
         }
