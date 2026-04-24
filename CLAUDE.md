@@ -2,17 +2,29 @@
 
 ## Business Context
 
-Sobczak Orders is a production order management system. Key concepts:
+Sobczak Orders is a production order management system for stairs manufacturing company. Key concepts:
 
-- **Agreement** (aka Order): Main business document
-- **AgreementLine** (aka OrderLine): Single product in an order (usually one per Agreement). Central entity with broad relationships. Has:
-  - `confirmedDate`: delivery date confirmed to the customer
+- **Agreement** (aka Order): Main business document, represents a single order.
+- **AgreementLine** (aka OrderLine): Single product in an order (usually one per Agreement). Central entity with broad 
+relationships. Has:
+  - `confirmedDate`: delivery date proposed by customer and confirmed by factory
   - `factor`: parameter determining workload for a product
 - **Production**: Production tasks for AgreementLine directed to production departments
 - **Production departments** (identified by slug):
-  - Klejenie (dpt01), CNC (dpt02), Szlifowanie (dpt03), Lakierowanie (dpt04), Pakowanie (dpt05)
+  - Klejenie (dpt01), CNC (dpt02), Szlifowanie (dpt03), Lakierowanie (dpt04), Pakowanie (dpt05), INTOREX (dpt06)
+- **Task**: Other tasks for AgreementLine, optionally directed to a specific user
+- **Factor**: Parameter determining workload for a product, used for workloads measurement and also serves as bonus 
+and penalty basis for employees. 
 - **Customer**: Order recipient
 - **WorkConfiguration**: Work time and holiday configuration
+
+## General purpose of the project
+- Track orders
+- Track factors and workloads
+- Employees' bonuses and penalties tracker
+- Schedule production tasks
+- Analyze production capacity and its usage
+- Estimate order delivery dates according to capacity usage
 
 ## Tech Stack
 
@@ -20,6 +32,20 @@ Sobczak Orders is a production order management system. Key concepts:
 - **Frontend**: Vue 2.7 components communicating via axios HTTP, `assets/` directory
 - **JS Bundler**: symfony/webpack-encore v4
 - **Dev environment**: Docker Compose (`php-apache` and `mysql` containers)
+
+## Commands (Makefile)
+
+```bash
+make up        # uruchom kontenery Docker (detached)
+make down      # zatrzymaj kontenery
+make dev       # up + npm run watch (codzienny start)
+make watch     # tylko webpack watcher (npm run watch)
+make check     # composer check w kontenerze (cs-fix + phpstan)
+make test      # phpunit w kontenerze; make test F=tests/End2End/...
+make cc        # cache:clear (dev + test)
+make bash      # shell w kontenerze php-apache
+make pull-db   # pobierz bazę z produkcji
+```
 
 ## Naming Conventions
 
@@ -123,7 +149,7 @@ public function __invoke(CreateAgreementCommand $command): void
 Agreement (1) ----< (N) AgreementLine (N) >---- (1) Product
     |                        |
     v                        v
-Customer (1)           Production (N) [departmentSlug dpt01-dpt05]
+Customer (1)           Production (N) [departmentSlug dpt01-dpt06]
 ```
 
 ### AgreementLine Read Model
@@ -154,7 +180,7 @@ Examples: `orders.create`, `production.view`, `production.edit`, `work-configura
 - One Agreement contains many AgreementLines
 
 ### 2. Production
-- Production tasks for departments (dpt01–dpt05)
+- Production tasks for departments (dpt01–dpt06)
 - Extends `BaseTask`
 - Task taskStatuses: PENDING, IN_PROGRESS, COMPLETED
 - Contains only production tasks — non-standard tasks belong to the Task module
@@ -191,8 +217,7 @@ Examples: `orders.create`, `production.view`, `production.edit`, `work-configura
 - Run tests inside Docker container
 
 ```bash
-# Run an End2End test
-cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor/bin/phpunit tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php
+make test F=tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php
 ```
 
 ```php
