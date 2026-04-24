@@ -173,6 +173,25 @@ Custom permission system (not Symfony Security Voters):
 
 Examples: `orders.create`, `production.view`, `production.edit`, `work-configuration.capacity`
 
+### Customer ownership filtering (ROLE_CUSTOMER)
+
+Users can have assigned customers (`User::getCustomers()`). If a user has `ROLE_CUSTOMER`, endpoints returning AgreementLine data must filter results to only show lines belonging to their customers. This applies to **display data only** — aggregate values (e.g. capacity totals) must still be calculated company-wide.
+
+Established pattern used in `ProductionRepository`, `AgreementLineRepository`, `DoctrineProductionFinishedRepository`, `ScheduleCapacityService`:
+
+```php
+if ($this->security->isGranted('ROLE_CUSTOMER')) {
+    $customerIds = array_filter(
+        $this->security->getUser()->getCustomers()
+            ->map(fn ($c) => $c?->getId())
+            ->toArray()
+    );
+    // filter data by $customerIds
+}
+```
+
+`AgreementLineRMRepository` supports this via the `ownedBy` search key (accepts a `User` object).
+
 ## Modules
 
 ### 1. Orders (Agreements)
