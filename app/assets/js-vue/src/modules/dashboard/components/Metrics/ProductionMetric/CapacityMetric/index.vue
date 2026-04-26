@@ -117,6 +117,14 @@ export default defineComponent({
             Obłożenie działów produkcji
         </template>
 
+        <template #description>
+            <p v-html="$t('dashboard.descriptions.capacity.p1')"></p>
+            <p v-html="$t('dashboard.descriptions.capacity.p2')"></p>
+            <p v-html="$t('dashboard.descriptions.capacity.p3')"></p>
+            <p v-html="$t('dashboard.descriptions.capacity.p4')"></p>
+            <p v-html="$t('dashboard.descriptions.capacity.p5')"></p>
+        </template>
+
         <Chart
             :style="{height: '300px'}"
             :chartOptions="{
@@ -128,6 +136,11 @@ export default defineComponent({
                       type: 'linear',
                       ticks: { min: 0, beginAtZero: true }
                     }]
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem) => parseFloat(tooltipItem.yLabel.toFixed(2)).toString()
+                    }
                 },
                 onHover: (evt, activeElements) => {
                     const el = evt && evt.target

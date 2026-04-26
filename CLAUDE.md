@@ -192,6 +192,42 @@ if ($this->security->isGranted('ROLE_CUSTOMER')) {
 
 `AgreementLineRMRepository` supports this via the `ownedBy` search key (accepts a `User` object).
 
+## Data Visibility Rules
+
+The application serves a single company with multiple internal users. There is no multi-tenancy. Visibility is controlled by two orthogonal mechanisms: Symfony roles and module-level grants.
+
+### ROLE_CUSTOMER — customer-scoped visibility
+
+Users with `ROLE_CUSTOMER` may only see data belonging to their assigned customers (relation `user_customer`). This affects:
+
+- **Customer** listings
+- **Agreement** listings
+- **AgreementLine** listings (and any view derived from them)
+
+`User::getCustomers()` returns the assigned customers. Filter by their IDs wherever these entities are queried. Aggregate/capacity values must still be calculated company-wide (not filtered).
+
+### ROLE_PRODUCTION — production visibility gate
+
+Users **without** `ROLE_PRODUCTION` must not see any production data:
+
+- The `Production` entity listings must be hidden entirely
+- All views, API endpoints, and UI sections related to production departments must be inaccessible
+
+### Production department visibility (grants)
+
+Users **with** `ROLE_PRODUCTION` are further restricted by module grants controlling which departments they can see:
+
+| Grant | Department |
+|---|---|
+| `production.show.gluing` | dpt01 — Klejenie |
+| `production.show.cnc` | dpt02 — CNC |
+| `production.show.grinding` | dpt03 — Szlifowanie |
+| `production.show.laquering` | dpt04 — Lakierowanie |
+| `production.show.packing` | dpt05 — Pakowanie |
+| `production.show.intorex` | dpt06 — INTOREX |
+
+When returning production data, filter rows to only departments for which the user holds the corresponding grant. Check grants with `#[IsGranted('production.show.gluing')]` in controllers or `this.$user.can('production.show.gluing')` in Vue.
+
 ## Modules
 
 ### 1. Orders (Agreements)

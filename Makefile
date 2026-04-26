@@ -1,6 +1,8 @@
-DOCKER_COMPOSE = docker compose
-PHP_CONTAINER  = php-apache
-ASSETS_DIR     = app/assets
+SHELL          := /bin/bash
+DOCKER_COMPOSE  = docker compose
+PHP_CONTAINER   = php-apache
+ASSETS_DIR      = app/assets
+NVM_INIT        = source ~/.nvm/nvm.sh && cd $(ASSETS_DIR) && nvm use
 
 .PHONY: up down logs dev watch lint check test bash cc pull-db
 
@@ -19,10 +21,10 @@ dev: up watch
 
 ## Frontend
 watch:
-	cd $(ASSETS_DIR) && npm run watch
+	$(NVM_INIT) && npm run watch
 
 lint:
-	cd $(ASSETS_DIR) && npm run lint
+	$(NVM_INIT) && npm run lint
 
 ## PHP / Backend
 check:
