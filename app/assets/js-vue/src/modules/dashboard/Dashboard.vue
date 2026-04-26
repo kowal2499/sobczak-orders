@@ -69,7 +69,6 @@
                     :is-busy="sourcesState.src03.isBusy"
                     :data="sourcesState.src03.data"
                 />
-
             </div>
         </div>
     </collapsible-card>

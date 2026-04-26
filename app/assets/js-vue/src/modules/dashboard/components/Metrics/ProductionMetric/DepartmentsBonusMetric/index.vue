@@ -58,6 +58,13 @@ export default defineComponent({
             {{ $t("dashboard.tasksCompleted") }}
         </template>
 
+        <template #description>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p1')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p2')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p3')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p4')"></p>
+        </template>
+
         <template #default>
             <Sidebar
                 :title="$t('dashboard.tasksCompleted')"

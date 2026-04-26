@@ -2,17 +2,29 @@
 
 ## Business Context
 
-Sobczak Orders is a production order management system. Key concepts:
+Sobczak Orders is a production order management system for stairs manufacturing company. Key concepts:
 
-- **Agreement** (aka Order): Main business document
-- **AgreementLine** (aka OrderLine): Single product in an order (usually one per Agreement). Central entity with broad relationships. Has:
-  - `confirmedDate`: delivery date confirmed to the customer
+- **Agreement** (aka Order): Main business document, represents a single order.
+- **AgreementLine** (aka OrderLine): Single product in an order (usually one per Agreement). Central entity with broad 
+relationships. Has:
+  - `confirmedDate`: delivery date proposed by customer and confirmed by factory
   - `factor`: parameter determining workload for a product
 - **Production**: Production tasks for AgreementLine directed to production departments
 - **Production departments** (identified by slug):
-  - Klejenie (dpt01), CNC (dpt02), Szlifowanie (dpt03), Lakierowanie (dpt04), Pakowanie (dpt05)
+  - Klejenie (dpt01), CNC (dpt02), Szlifowanie (dpt03), Lakierowanie (dpt04), Pakowanie (dpt05), INTOREX (dpt06)
+- **Task**: Other tasks for AgreementLine, optionally directed to a specific user
+- **Factor**: Parameter determining workload for a product, used for workloads measurement and also serves as bonus 
+and penalty basis for employees. 
 - **Customer**: Order recipient
 - **WorkConfiguration**: Work time and holiday configuration
+
+## General purpose of the project
+- Track orders
+- Track factors and workloads
+- Employees' bonuses and penalties tracker
+- Schedule production tasks
+- Analyze production capacity and its usage
+- Estimate order delivery dates according to capacity usage
 
 ## Tech Stack
 
@@ -20,6 +32,20 @@ Sobczak Orders is a production order management system. Key concepts:
 - **Frontend**: Vue 2.7 components communicating via axios HTTP, `assets/` directory
 - **JS Bundler**: symfony/webpack-encore v4
 - **Dev environment**: Docker Compose (`php-apache` and `mysql` containers)
+
+## Commands (Makefile)
+
+```bash
+make up        # uruchom kontenery Docker (detached)
+make down      # zatrzymaj kontenery
+make dev       # up + npm run watch (codzienny start)
+make watch     # tylko webpack watcher (npm run watch)
+make check     # composer check w kontenerze (cs-fix + phpstan)
+make test      # phpunit w kontenerze; make test F=tests/End2End/...
+make cc        # cache:clear (dev + test)
+make bash      # shell w kontenerze php-apache
+make pull-db   # pobierz bazę z produkcji
+```
 
 ## Naming Conventions
 
@@ -123,7 +149,7 @@ public function __invoke(CreateAgreementCommand $command): void
 Agreement (1) ----< (N) AgreementLine (N) >---- (1) Product
     |                        |
     v                        v
-Customer (1)           Production (N) [departmentSlug dpt01-dpt05]
+Customer (1)           Production (N) [departmentSlug dpt01-dpt06]
 ```
 
 ### AgreementLine Read Model
@@ -166,6 +192,42 @@ if ($this->security->isGranted('ROLE_CUSTOMER')) {
 
 `AgreementLineRMRepository` supports this via the `ownedBy` search key (accepts a `User` object).
 
+## Data Visibility Rules
+
+The application serves a single company with multiple internal users. There is no multi-tenancy. Visibility is controlled by two orthogonal mechanisms: Symfony roles and module-level grants.
+
+### ROLE_CUSTOMER — customer-scoped visibility
+
+Users with `ROLE_CUSTOMER` may only see data belonging to their assigned customers (relation `user_customer`). This affects:
+
+- **Customer** listings
+- **Agreement** listings
+- **AgreementLine** listings (and any view derived from them)
+
+`User::getCustomers()` returns the assigned customers. Filter by their IDs wherever these entities are queried. Aggregate/capacity values must still be calculated company-wide (not filtered).
+
+### ROLE_PRODUCTION — production visibility gate
+
+Users **without** `ROLE_PRODUCTION` must not see any production data:
+
+- The `Production` entity listings must be hidden entirely
+- All views, API endpoints, and UI sections related to production departments must be inaccessible
+
+### Production department visibility (grants)
+
+Users **with** `ROLE_PRODUCTION` are further restricted by module grants controlling which departments they can see:
+
+| Grant | Department |
+|---|---|
+| `production.show.gluing` | dpt01 — Klejenie |
+| `production.show.cnc` | dpt02 — CNC |
+| `production.show.grinding` | dpt03 — Szlifowanie |
+| `production.show.laquering` | dpt04 — Lakierowanie |
+| `production.show.packing` | dpt05 — Pakowanie |
+| `production.show.intorex` | dpt06 — INTOREX |
+
+When returning production data, filter rows to only departments for which the user holds the corresponding grant. Check grants with `#[IsGranted('production.show.gluing')]` in controllers or `this.$user.can('production.show.gluing')` in Vue.
+
 ## Modules
 
 ### 1. Orders (Agreements)
@@ -173,7 +235,7 @@ if ($this->security->isGranted('ROLE_CUSTOMER')) {
 - One Agreement contains many AgreementLines
 
 ### 2. Production
-- Production tasks for departments (dpt01–dpt05)
+- Production tasks for departments (dpt01–dpt06)
 - Extends `BaseTask`
 - Task taskStatuses: PENDING, IN_PROGRESS, COMPLETED
 - Contains only production tasks — non-standard tasks belong to the Task module
@@ -210,8 +272,7 @@ if ($this->security->isGranted('ROLE_CUSTOMER')) {
 - Run tests inside Docker container
 
 ```bash
-# Run an End2End test
-cd /home/romek/projects/sobczak-app && docker compose exec php-apache php vendor/bin/phpunit tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php
+make test F=tests/End2End/Modules/WorkConfiguration/WorkCapacityControllerTest.php
 ```
 
 ```php

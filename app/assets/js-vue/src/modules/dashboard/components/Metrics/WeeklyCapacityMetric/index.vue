@@ -61,6 +61,13 @@ export default {
 <template>
     <MetricLayout :is-busy="isBusy" class="border-left-warning">
         <template #title>{{ $t('dashboard.weeklyCapacityMetric') }}</template>
+
+        <template #description>
+            <p v-html="$t('dashboard.descriptions.weeklyCapacity.p1')"></p>
+            <p v-html="$t('dashboard.descriptions.weeklyCapacity.p2')"></p>
+            <p v-html="$t('dashboard.descriptions.weeklyCapacity.p3')"></p>
+        </template>
+
         <div v-if="weeks.length">
             <WeekCapacityCard
                 v-for="(week, idx) in weeks"
