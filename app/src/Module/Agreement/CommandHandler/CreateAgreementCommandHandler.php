@@ -11,6 +11,7 @@ use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
 use App\Module\Production\Command\CreateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\FactorSource;
+use App\Module\Production\Service\GhostProductionTaskService;
 use App\Module\Tag\Command\AssignTagsCommand;
 use App\Repository\CustomerRepository;
 use App\Repository\ProductRepository;
@@ -29,6 +30,7 @@ class CreateAgreementCommandHandler
         private CommandBus $commandBus,
         private EventBus $eventBus,
         private AgreementLineTaggingPolicy $taggingPolicy,
+        private GhostProductionTaskService $ghostProductionTaskService,
     ) {
     }
 
@@ -41,6 +43,7 @@ class CreateAgreementCommandHandler
             $agreement = $this->createAgreement($command, $customer);
             $linesToTag = $this->createAgreementLines($command, $agreement);
             $this->handleAttachments($command, $agreement);
+            $this->createGhostProductionTasks($agreement);
 
             $this->em->flush();
 
@@ -173,6 +176,13 @@ class CreateAgreementCommandHandler
     {
         foreach ($agreement->getAgreementLines() as $line) {
             $this->eventBus->dispatch(new AgreementLineWasCreatedEvent($line->getId()));
+        }
+    }
+
+    private function createGhostProductionTasks(Agreement $agreement): void
+    {
+        foreach ($agreement->getAgreementLines() as $line) {
+            $this->ghostProductionTaskService->createForAgreementLine($line);
         }
     }
 }

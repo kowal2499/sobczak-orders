@@ -20,6 +20,7 @@
                     <details-widget
                         v-model="orderData"
                         :taskStatuses="taskStatuses"
+                        :hasGhost="hasGhost"
                     ></details-widget>
                 </collapsible-card>
 
@@ -149,9 +150,11 @@
                     this.$flash.success(this.$t('orders.changesWereSaved'));
                     EventBus.$emit('statusUpdated');
                 } catch (error) {
-                    const messages = error?.response?.data;
-                    if (Array.isArray(messages)) {
-                        for (let msg of messages) {
+                    const data = error?.response?.data;
+                    if (data?.errors?.title) {
+                        this.$flash.danger(data.errors.title);
+                    } else if (Array.isArray(data)) {
+                        for (let msg of data) {
                             this.$flash.danger(msg);
                         }
                     }
@@ -215,6 +218,9 @@
             },
             canManageFactors() {
                 return this.$user.can('production.factor_adjustment');
+            },
+            hasGhost() {
+                return this.orderData.productions.tasks.some(task => task.isGhost)
             }
         }
     }

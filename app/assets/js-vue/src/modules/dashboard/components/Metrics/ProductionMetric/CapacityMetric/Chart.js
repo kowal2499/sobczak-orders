@@ -9,20 +9,29 @@ export default defineComponent({
         chartOptions: { type: Object, default: () => ({}) },
         clickHandler: { type: Function, default: null },
     },
+    watch: {
+        chartData(newVal, oldVal) { if (newVal !== oldVal) this.render() },
+        chartOptions(newVal, oldVal) { if (newVal !== oldVal) this.render() },
+    },
     mounted() {
-        this.renderChart(this.chartData, this.chartOptions)
+        this.render()
+    },
+    methods: {
+        render() {
+            this.renderChart(this.chartData, this.chartOptions)
 
-        const chart = this.$data._chart
-        if (chart) {
-            chart.options.onClick = (evt, activeElements) => {
-                if (!activeElements || activeElements.length === 0) return
-                const first = activeElements[0]
-                const index = first._index
-                const datasetIndex = first._datasetIndex
-                const payload = { index, datasetIndex }
-                this.$emit('bar-click', payload)
+            const chart = this.$data._chart
+            if (chart) {
+                chart.options.onClick = (evt, activeElements) => {
+                    if (!activeElements || activeElements.length === 0) return
+                    const first = activeElements[0]
+                    const index = first._index
+                    const datasetIndex = first._datasetIndex
+                    const payload = { index, datasetIndex }
+                    this.$emit('bar-click', payload)
+                }
+                chart.update()
             }
-            chart.update()
-        }
+        },
     }
 })

@@ -19,6 +19,11 @@ export default {
         }
     },
     computed: {
+        isGhostOrder() {
+            return Array.isArray(this.data.productions)
+                && this.data.productions.length > 0
+                && this.data.productions.every(p => p.isGhost === true)
+        },
         badges() {
             return [
                 { icon: 'user', label: this.$t('_customer'), value: this.data.customerName },
@@ -62,7 +67,11 @@ export default {
 </script>
 
 <template>
-    <div class="details m-3">
+    <div class="details m-3" :class="{ 'ghost-order': isGhostOrder }">
+        <div v-if="isGhostOrder" class="ghost-banner mb-2">
+            <i class="fa fa-clock-o mr-1" aria-hidden="true"></i>
+            {{ $t('dashboard.ghostOrderBanner') }}
+        </div>
         <div class="row">
             <div v-for="(badge, index) in badges" :key="index" class="col-md-6">
                 <ShowcaseBadge
@@ -138,5 +147,8 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.ghost-order {
+    background-color: rgba(179, 157, 219, 0.06);
+}
 
 </style>

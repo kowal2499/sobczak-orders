@@ -29,6 +29,10 @@ class Production extends BaseTask
     #[Groups(['_main', '_linePanel'])]
     private $status;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[Groups(['_main', '_linePanel'])]
+    private bool $isGhost = false;
+
 
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\ManyToOne(targetEntity: AgreementLine::class, inversedBy: 'productions')]
@@ -72,6 +76,23 @@ class Production extends BaseTask
     {
         $this->status = $status;
 
+
+        return $this;
+    }
+
+    public function isGhost(): bool
+    {
+        return $this->isGhost;
+    }
+
+    public function getIsGhost(): bool
+    {
+        return $this->isGhost;
+    }
+
+    public function setIsGhost(bool $isGhost): self
+    {
+        $this->isGhost = $isGhost;
 
         return $this;
     }

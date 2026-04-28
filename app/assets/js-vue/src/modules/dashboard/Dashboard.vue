@@ -53,6 +53,8 @@
                             v-if="canCapacityMetric"
                             :is-busy="sourcesState.src04.isBusy"
                             :data="sourcesState.src04.data"
+                            :date-start="dateRangeStart"
+                            :date-end="dateRangeEnd"
                         />
                     </div>
                 </div>
@@ -62,6 +64,8 @@
                     v-if="canWeeklyCapacityMetric"
                     :is-busy="sourcesState.src05.isBusy"
                     :data="sourcesState.src05.data"
+                    :date-start="dateRangeStart"
+                    :date-end="dateRangeEnd"
                 />
 
                 <DepartmentsBonusMetric
