@@ -87,6 +87,7 @@ class BaseSupplier
             $agreement,
             $customer,
             $factors,
+            (bool) ($row['isGhost'] ?? false),
         );
     }
 }

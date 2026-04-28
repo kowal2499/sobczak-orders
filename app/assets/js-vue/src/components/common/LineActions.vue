@@ -126,7 +126,6 @@
 </template>
 
 <script>
-import Dropdown from '../base/Dropdown';
 import ApiNewOrder from "../../api/neworder"
 import {
     AGREEMENT_LINE_STATUS_ARCHIVED,
@@ -148,7 +147,6 @@ import FactorsView from '@/modules/agreementLineList/view/FactorsView'
 export default {
     name: 'LineActions',
     components: {
-        Dropdown,
         ConfirmableAction,
         StartProductionAction,
         Sidebar,
@@ -197,7 +195,10 @@ export default {
         },
 
         hasProduction() {
-            return Array.isArray(this.line.productions) && this.line.productions.length !== 0;
+            return Array.isArray(this.line.productions)
+                && this.line.productions.length !== 0
+                && !this.line.productions.some(p => p.isGhost)
+            ;
         },
 
         canManageFactors() {

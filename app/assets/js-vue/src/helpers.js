@@ -14,10 +14,11 @@ export const statuses = [
 ];
 
 export const agreementStatuses = [
-    { value: 5, className: 'badge-danger', name: i18n.t('_status_agreement__cancelled') },
-    { value: 10, className: 'badge-primary', name: i18n.t('_status_agreement__new') },
-    { value: 15, className: 'badge-warning', name: i18n.t('_status_agreement__in_realization') },
-    { value: 20, className: 'badge-success', name: i18n.t('_status_agreement__finished') },
+    { value: 5, className: 'badge-secondary', name: i18n.t('_status_agreement__waiting') },
+    { value: 10, className: 'badge-primary', name: i18n.t('_status_agreement__manufacturing') },
+    { value: 15, className: 'badge-warning', name: i18n.t('_status_agreement__warehouse') },
+    { value: 20, className: 'badge-success', name: i18n.t('_status_agreement__archived') },
+    { value: 25, className: 'badge-danger', name: i18n.t('_status_agreement__deleted') },
 ];
 
 export const agreementStatusesMap = agreementStatuses.reduce((acc, status) => {

@@ -1,18 +1,20 @@
 <template>
     <div class="card shadow">
-        <div class="card-body">
+        <div class="card-body" :class="isBusy && 'opacity-50'">
             <div class="d-flex justify-content-between">
                 <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                     <slot name="title" />
                 </div>
-                <div class="text-right" :id="popoverTargetId" v-if="$slots.description">
-                    <font-awesome-icon icon="info-circle" class="text-primary" />
+                <div class="text-right">
+                    <font-awesome-icon v-if="isBusy" icon="spinner" spin />
+                    <span v-show="!isBusy && $slots.description" :id="popoverTargetId">
+                        <font-awesome-icon icon="info-circle" class="text-primary" />
+                    </span>
                 </div>
             </div>
 
             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                <font-awesome-icon v-if="isBusy" icon="spinner" spin/>
-                <slot v-else />
+                <slot />
             </div>
 
             <b-popover :target=popoverTargetId triggers="hover">

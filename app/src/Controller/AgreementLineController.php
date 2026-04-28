@@ -38,15 +38,14 @@ class AgreementLineController extends BaseController
     #[Route(path: '/agreement/line/{id}', name: 'agreement_line_details', options: ['expose' => true], methods: ['GET'])]
     public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t): Response
     {
-        $statuses = [];
-        foreach (AgreementLine::getStatuses() as $key => $value) {
-            $statuses[$key] = $t->trans($value, [], 'agreements');
-        }
+        $taskStatuses = array_map(function ($value) use ($t) {
+            return $t->trans($value, [], 'agreements');
+        }, AgreementLine::getStatuses());
 
         return $this->render('agreement_line/order_details.html.twig', [
             'title' => $t->trans('Panel zamówienia', [], 'agreements'),
             'agreementLineId' => $request->attributes->getInt('id'),
-            'statuses' => $statuses
+            'taskStatuses' => $taskStatuses
         ]);
     }
 
@@ -136,6 +135,7 @@ class AgreementLineController extends BaseController
         MessageBusInterface $messageBus,
         AgreementLineRepository $agreementLineRepository,
         EventBus $eventBus,
+        TranslatorInterface $translator,
     ): JsonResponse
     {
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
@@ -157,6 +157,13 @@ class AgreementLineController extends BaseController
             $productionsBySlug = [];
             foreach ($agreementLine->getProductions() as $prod) {
                 $productionsBySlug[$prod->getDepartmentSlug()] = $prod;
+            }
+
+            foreach ($productions as $record) {
+                $production = $productionsBySlug[$record['departmentSlug']] ?? null;
+                if ($production !== null && $production->isGhost() && isset($record['status']) && (string) $record['status'] !== $production->getStatus()) {
+                    throw new \LogicException($translator->trans('Nie można zmieniać statusów zadań w trybie prognozy. Najpierw zleć produkcję.', [], 'agreements'));
+                }
             }
 
             foreach ($productions as $record) {

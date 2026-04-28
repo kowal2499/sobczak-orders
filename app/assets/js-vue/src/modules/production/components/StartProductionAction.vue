@@ -64,7 +64,7 @@ import ModalAction from "../../../components/base/ModalAction.vue";
 import StartProductionForm from "./StartProductionForm.vue";
 import StrategySelect from "./StrategySelect.vue";
 import ApiNewOrder from "../../../api/neworder";
-import helpers from "../../../helpers";
+import helpers, { getLocalDate } from "../../../helpers";
 import { applyStrategy } from "../services/productionScheduler";
 import { dateToString, parseYMD } from "@/services/datesService";
 import CollapsibleCard from "@/components/base/CollapsibleCard.vue";
@@ -114,7 +114,7 @@ export default {
 
     methods: {
         beforeOpen(callback) {
-            this.form = getForm();
+            this.form = getForm(this.agreementLine.productions);
             callback && callback();
         },
 
@@ -176,11 +176,21 @@ export default {
     })
 }
 
-function getForm() {
+function getForm(productions = []) {
+
+    const initialValues = productions.reduce((acc, p) => {
+        acc[p.departmentSlug] = {
+            dateStart: getLocalDate(p.dateStart),
+            dateEnd: getLocalDate(p.dateEnd),
+        };
+        return acc;
+    }, {});
+
+
     return helpers.getDepartments().map(d => ({
         slug: d.slug,
-        dateStart: null,
-        dateEnd: null,
+        dateStart: initialValues[d.slug]?.dateStart || null,
+        dateEnd: initialValues[d.slug]?.dateEnd || null,
     }));
 }
 

@@ -222,6 +222,7 @@ class UpdateAgreementLineRMHandler
             $productionModel->setIsStartDelayed($production->getIsStartDelayed());
             $productionModel->setIsCompleted($production->getIsCompleted());
             $productionModel->setCompletedAt($production->getCompletedAt());
+            $productionModel->setIsGhost($production->isGhost());
 
             if (in_array($production->getDepartmentSlug(), TaskTypes::getDefaultSlugs())) {
                 $factorRatio = $this->factorCalculator->calculate(

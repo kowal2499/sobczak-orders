@@ -46,6 +46,7 @@ export default {
             class="mb-1"
             :capacity="weekData.capacity"
             :capacity-burned="weekData.capacityBurned"
+            :capacity-burned-forecast="weekData.capacityBurnedForecast || 0"
         />
 
         <div class="text-muted mb-1" style="font-size: 0.75rem">

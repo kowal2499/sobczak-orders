@@ -112,7 +112,7 @@ class DoctrineProductionFinishedRepository extends ServiceEntityRepository
                 'al.productions',
                 'pr',
                 'WITH',
-                'pr.departmentSlug IN (:departments) AND pr.status = :qualifiedStatus'
+                'pr.departmentSlug IN (:departments) AND pr.status = :qualifiedStatus AND pr.isGhost = 0'
             )
 //            ->join('al.productions', 'pr')
             ->addSelect('pr.completedAt')

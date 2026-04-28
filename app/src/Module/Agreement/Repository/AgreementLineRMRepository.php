@@ -53,6 +53,16 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         foreach ($criteria['search'] as $key => $value) {
             switch ($key) {
                 case 'hasProduction':
+                    // Default semantics: at least one non-ghost production task.
+                    // Legacy RMs without the `isGhost` field are treated as non-ghost.
+                    $qb->andWhere("l.productions != '[]'");
+                    $qb->andWhere(
+                        "(l.productions LIKE :hasNonGhost1 OR l.productions NOT LIKE :hasGhostKey)"
+                    );
+                    $qb->setParameter('hasNonGhost1', '%"isGhost":false%');
+                    $qb->setParameter('hasGhostKey', '%"isGhost"%');
+                    break;
+                case 'hasProductionIncludingGhost':
                     $qb->andWhere("l.productions != '[]'");
                     break;
                 case 'dateStart':
