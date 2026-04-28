@@ -106,6 +106,8 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($supplier->getRecords($start, $end));
+        $includeGhost = $request->query->getBoolean('includeGhost');
+
+        return $this->json($supplier->getRecords($start, $end, [], $includeGhost));
     }
 }

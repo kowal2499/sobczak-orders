@@ -18,22 +18,35 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
 
     public function getProductions(
         ?\DateTimeInterface $start,
-        ?\DateTimeInterface $end
+        ?\DateTimeInterface $end,
+        bool $includeGhost = false
     ): array {
         $query = $this->createQueryBuilder('p');
         $this->withProductionDepartments($query);
         $this->withinTaskCompletionDate($query, $start, $end);
+        if (!$includeGhost) {
+            $this->withoutGhost($query);
+        }
         return $this->baseQuery($query);
     }
 
     public function getCapacityInTime(
         \DateTimeInterface $start,
-        \DateTimeInterface $end
+        \DateTimeInterface $end,
+        bool $includeGhost = false
     ): array {
         $query = $this->createQueryBuilder('p');
         $this->withProductionDepartments($query);
         $this->withinTaskDuration($query, $start, $end);
-         return $this->baseQuery($query);
+        if (!$includeGhost) {
+            $this->withoutGhost($query);
+        }
+        return $this->baseQuery($query);
+    }
+
+    private function withoutGhost(QueryBuilder $qb): void
+    {
+        $qb->andWhere('p.isGhost = 0');
     }
 
     private function withinTaskCompletionDate(
@@ -43,6 +56,7 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
     ): void {
         $qb->andWhere('p.isCompleted = 1');
         $qb->andWhere('p.completedAt IS NOT NULL');
+        $qb->andWhere('p.isGhost = 0');
         if ($start) {
             $qb
                 ->andWhere('p.completedAt >= :dateStart')
@@ -87,6 +101,7 @@ class DoctrineProductionTasksRepository extends ServiceEntityRepository
             ->addSelect('p.dateStart')
             ->addSelect('p.dateEnd')
             ->addSelect('p.status')
+            ->addSelect('p.isGhost')
             ->addSelect('al.id')
             ->addSelect('al.factor')
             ->addSelect('al.productionStartDate')

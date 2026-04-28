@@ -2,6 +2,7 @@
 import {defineComponent} from 'vue'
 import StrategyCascade from "../services/productionScheduler/strategyCascade";
 import StrategyInitial from "../services/productionScheduler/strategyFast";
+import { getDateStrategies } from "../repository/strategiesRepository";
 import VueSelect from 'vue-select'
 
 export default defineComponent({
@@ -18,11 +19,16 @@ export default defineComponent({
     methods: {
         fetchStrategies() {
             this.isLoading = true
-            return Promise.resolve({data: [
-                StrategyCascade, StrategyInitial
-            ]}).then(({data}) => {
-                this.strategies = data
-            }).finally(() => this.isLoading = true)
+            return getDateStrategies()
+                .then(({ data }) => {
+                    this.strategies = (Array.isArray(data) && data.length)
+                        ? data
+                        : [StrategyCascade, StrategyInitial]
+                })
+                .catch(() => {
+                    this.strategies = [StrategyCascade, StrategyInitial]
+                })
+                .finally(() => { this.isLoading = false })
         },
 
         onSelected(strategy) {

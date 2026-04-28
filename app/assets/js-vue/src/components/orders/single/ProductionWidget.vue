@@ -1,5 +1,10 @@
 <template>
     <div>
+        <div v-if="hasGhost" class="ghost-banner mb-2">
+            <i class="fa fa-clock-o mr-1" aria-hidden="true"></i>
+            {{ $t('dashboard.ghostOrderBanner') }}
+        </div>
+
         <b-tabs pills card vertical nav-wrapper-class="production-tab-panel">
             <b-tab
                 v-for="tab in tabs"
@@ -82,6 +87,9 @@
                     })
                 }
                 return byId
+            },
+            hasGhost() {
+                return this.proxyData.tasks.some(task => task.isGhost)
             }
         },
         methods: {

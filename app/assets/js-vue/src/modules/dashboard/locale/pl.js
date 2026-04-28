@@ -13,6 +13,9 @@ export default {
     'tasksCompleted': 'Ukończone zadania produkcyjne',
     'capacityMetric': 'Obłożenie działów produkcji',
     'weeklyCapacityMetric': 'Obłożenie tygodniowe',
+    'showForecast': 'Pokaż prognozę zadań oczekujących',
+    'forecastLabel': 'Prognoza',
+    'ghostOrderBanner': 'Zadania w prognozie - produkcja jeszcze nie została zlecona',
 
     'productionMetric': {
         'baseFactor': 'Współczynnik bazowy',
@@ -28,7 +31,7 @@ export default {
             'p2': 'Pokazuje zaplanowane obłożenie każdego działu produkcji w wybranym okresie. Każde zadanie jest przypisywane do miesiąca według <strong>zaplanowanej daty zakończenia pracy w danym dziale</strong> — ustalanej w momencie zlecenia do produkcji.',
             'p3': 'Raport obejmuje zadania z planowaną datą zakończenia w wybranym zakresie, które zostały już zlecone do produkcji — zarówno w trakcie realizacji, jak i zakończone. Nie uwzględnia bonusów ani kar.',
             'p4': 'Uwaga: zadania, których praca w danym dziale trwa dłużej niż jeden miesiąc, są widoczne wyłącznie w miesiącu planowanego zakończenia, a nie w miesiącu startu.',
-            'p5': 'Raport nie pokazuje zamówień, których produkcja jeszcze nie została zlecona.',
+            'p5': 'Raport nie pokazuje zamówień, których produkcja jeszcze nie została zlecona, chyba, że aktywny jest tryb prognozy.',
         },
         'tasksCompleted': {
             'p1': 'Raport operuje wyłącznie na danych zadań produkcyjnych — status samego zamówienia ani jego planowana data realizacji nie mają wpływu na wyniki.',
@@ -39,7 +42,7 @@ export default {
         'weeklyCapacity': {
             'p1': 'Pokazuje tygodniowe zestawienie <strong>zdolności produkcyjnej</strong> firmy na tle <strong>obłożenia wynikającego z przyjętych zamówień</strong>. Dla każdego tygodnia pasek postępu ilustruje, jaka część dostępnej zdolności jest zajęta przez zamówienia z terminem dostawy przypadającym w danym tygodniu.',
             'p2': 'Zdolność tygodniowa jest wyliczana na podstawie skonfigurowanych norm dziennych, z pominięciem dni wolnych i świąt. Obłożenie to suma współczynników zamówień, których <strong>potwierdzony termin dostawy</strong> przypada w danym tygodniu — nie są to daty zadań produkcyjnych, lecz terminy uzgodnione z klientem.',
-            'p3': 'Raport uwzględnia wyłącznie zamówienia, dla których uruchomiono produkcję. Zamówienia bez zlecenia produkcyjnego nie wpływają na wynik.',
+            'p3': 'Raport uwzględnia wyłącznie zamówienia, dla których uruchomiono produkcję. Zamówienia bez zlecenia produkcyjnego nie wpływają na wynik, chyba, że aktywny jest tryb prognozy.',
         },
     }
 }

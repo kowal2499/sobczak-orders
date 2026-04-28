@@ -13,6 +13,9 @@ export default {
     'tasksCompleted': 'Completed production tasks',
     'capacityMetric': 'Production departments capacity',
     'weeklyCapacityMetric': 'Weekly capacity utilization',
+    'showForecast': 'Show pending orders forecast',
+    'forecastLabel': 'Forecast',
+    'ghostOrderBanner': 'Order in forecast — production has not yet been started',
 
     'productionMetric': {
         'baseFactor': 'Base factor',
@@ -28,7 +31,7 @@ export default {
             'p2': 'Shows the planned workload for each production department in the selected period. Each task is assigned to a month based on the <strong>planned completion date for the given department</strong> — set when the task is assigned to production.',
             'p3': 'The report includes tasks with a planned completion date within the selected range that have already been assigned to production — both in progress and completed. Bonuses and penalties are not included.',
             'p4': 'Note: tasks spanning more than one month in a given department are visible only in the month of their planned completion, not in the month they started.',
-            'p5': 'The report does not show orders for which production has not yet been assigned.',
+            'p5': 'The report does not show orders for which production has not yet been assigned, unless forecast mode is enabled.',
         },
         'tasksCompleted': {
             'p1': 'The report operates exclusively on production task data — the order status and its planned completion date have no effect on the results.',
@@ -39,7 +42,7 @@ export default {
         'weeklyCapacity': {
             'p1': 'Shows a weekly breakdown of the company\'s <strong>production capacity</strong> against the <strong>workload from accepted orders</strong>. For each week, the progress bar shows how much of the available capacity is occupied by orders with a delivery date falling in that week.',
             'p2': 'Weekly capacity is calculated based on configured daily norms, excluding days off and holidays. The workload is the sum of factors for orders whose <strong>confirmed delivery date</strong> falls in that week — these are not production task dates, but dates agreed with the customer.',
-            'p3': 'The report only includes orders for which production has been initiated. Orders without a production assignment do not affect the result.',
+            'p3': 'The report only includes orders for which production has been initiated. Orders without a production assignment do not affect the result, unless forecast mode is enabled.',
         },
     }
 }

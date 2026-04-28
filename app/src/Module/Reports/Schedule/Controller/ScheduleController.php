@@ -33,11 +33,12 @@ class ScheduleController extends BaseController
         }
 
         ['start' => $start, 'end' => $end] = $result;
+        $includeGhost = $request->query->getBoolean('includeGhost');
 
         return $this->json(
             array_map(
                 fn(ScheduleCapacityDTO $capacityDTO) => $capacityDTO->toArray(),
-                $service->calculateBurnout($start, $end)
+                $service->calculateBurnout($start, $end, $includeGhost)
             ),
             Response::HTTP_OK
         );
