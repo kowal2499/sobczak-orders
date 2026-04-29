@@ -11,6 +11,10 @@ export default defineComponent({
             type: Object,
             default: () => ({})
         },
+        isGhost: {
+            type: Boolean,
+            default: false
+        },
     },
     methods: {
         panelUrl(id) {
@@ -30,6 +34,10 @@ export default defineComponent({
 
 <template>
     <div class="details mx-3">
+        <div v-if="isGhost" class="ghost-banner mb-2">
+            <i class="fa fa-clock-o mr-1" aria-hidden="true"></i>
+            {{ $t('dashboard.ghostOrderBanner') }}
+        </div>
         <div class="d-flex justify-content-between">
         <div>
             <div><font-awesome-icon icon="user" /> {{ record.customerName }}</div>
