@@ -10,6 +10,7 @@ import MetricLayout from '../../MetricLayout.vue'
 import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import Chart from './Chart.js'
 import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
+import { deburr } from 'lodash'
 import exportFields from './exportFields'
 import { getDepartmentsCapacity } from '../../../../repository'
 
@@ -79,6 +80,16 @@ export default defineComponent({
             }
             return this.forecastData.filter(item => item.isGhost === true)
         },
+        ghostInnerData() {
+            return this.mapDetails(this.ghostOnlyData).map(item => this.addSearchKey(item))
+        },
+        filteredGhostInnerData() {
+            if (!this.q) {
+                return this.ghostInnerData
+            }
+            const searchTerm = deburr(this.q).toLowerCase()
+            return this.ghostInnerData.filter(item => (item._search || '').includes(searchTerm))
+        },
         perDepartmentData() {
             return this.aggregateByDepartment(this.data)
         },
@@ -97,6 +108,22 @@ export default defineComponent({
                 })
                 .filter(record => record.data.factor !== null)
                 .sort((a, b) => a.data.production.dateStart ? (new Date(a.data.production.dateStart) > new Date(b.data.production.dateStart) ? 1 : -1) : 0)
+        },
+        perDptGhostAgreementData() {
+            if (!this.activeDepartmentSlug || !this.showForecast) {
+                return []
+            }
+            const dptKey = `involved_${this.activeDepartmentSlug}`
+            return this.filteredGhostInnerData
+                .map(data => {
+                    const {involved_dpt01, involved_dpt02, involved_dpt03, involved_dpt04, involved_dpt05, involved_dpt06, ...rest} = data
+                    return {...rest, data: data[dptKey] || {}, _isGhost: true }
+                })
+                .filter(record => record.data.factor !== null)
+                .sort((a, b) => a.data.production.dateStart ? (new Date(a.data.production.dateStart) > new Date(b.data.production.dateStart) ? 1 : -1) : 0)
+        },
+        perDptAllData() {
+            return [...this.perDptAgreementData, ...this.perDptGhostAgreementData]
         },
         activeDepartmentName() {
             const dpt = DEPARTMENTS.find(d => d.slug === this.activeDepartmentSlug)
@@ -249,9 +276,10 @@ export default defineComponent({
                     </template>
                     <template #content>
                         <DetailsDepartment
-                            v-for="record in perDptAgreementData"
-                            :key="record.id"
+                            v-for="(record, i) in perDptAllData"
+                            :key="`${record._isGhost ? 'ghost' : 'real'}-${record.id}-${i}`"
                             :record="record"
+                            :is-ghost="!!record._isGhost"
                         />
                     </template>
                 </SidebarLayout>
