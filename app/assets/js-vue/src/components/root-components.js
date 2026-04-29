@@ -37,4 +37,6 @@ export default {
     ...TagsModule,
     ContextMenu,
     DevContainer,
+
+    DifferencesReport: () => import('../modules/reports/DifferencesReport/index.vue')
 }

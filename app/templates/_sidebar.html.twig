@@ -115,6 +115,23 @@
         {% endif %}
 
         {% if is_granted('ROLE_ADMIN') %}
+            <menu-item
+                :active="{% if active in ['reports_view_differences'] %}true{% else %}false{% endif %}"
+                :title-icon="'fa fa-line-chart'"
+                :title="'{{ 'Raporty'|trans }}'"
+            >
+                <div class="submenu collapse-inner">
+                    <a href="{{ path('reports_view_differences') }}"
+                       class="{% if active in ['reports_view_differences'] %}active{% endif %}"
+                    >
+                        {{ 'Raport rozbieżności'|trans }}
+                    </a>
+                </div>
+            </menu-item>
+        {% endif %}
+
+
+        {% if is_granted('ROLE_ADMIN') %}
 
             <hr class="sidebar-divider">
 
