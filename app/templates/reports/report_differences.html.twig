@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% trans_default_domain 'reports' %}
+
+{% block title %}{{ 'Raport rozbieżności od planu'|trans }}{% endblock %}
+
+{% block body %}
+    <app>
+        <differences-report></differences-report>
+    </app>
+{% endblock %}
