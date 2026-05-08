@@ -34,6 +34,10 @@ class SyncReadModel extends Command
 
         $output->writeln(['', 'AgreementLine Read Model Sync', '========================']);
 
+        $output->writeln('Czyszczenie tabeli agreement_line_rm...');
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement($connection->getDatabasePlatform()->getTruncateTableSQL('agreement_line_rm', true));
+
         $totalCount = $this->agreementLineRepository->count([]);
         $progressBar = new ProgressBar($output, $totalCount);
         $progressBar->start();

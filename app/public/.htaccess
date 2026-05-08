@@ -25,6 +25,16 @@ DirectoryIndex index.php
 
     RewriteEngine On
 
+    # --- Block scanner probes early, before Symfony bootstrap ---
+    # Any direct .php access except the Symfony front controller (/index.php).
+    # Catches phpinfo.php, wp-login.php, *.php.bak, *.php~, *.php.old etc.
+    RewriteCond %{REQUEST_URI} \.(?:php|phtml|phps|php[0-9])(?:[./~]|$) [NC]
+    RewriteCond %{REQUEST_URI} !^/index\.php(?:/|$) [NC]
+    RewriteRule ^ - [F,L]
+
+    # Common WordPress / admin tool / dotfile / VCS probes (no .php extension).
+    RewriteRule "(?:^|/)(?:wp-|xmlrpc|phpinfo|_phpinfo|adminer|phpmyadmin|\.env|\.git|\.svn|\.hg)" - [F,L,NC]
+
     # Determine the RewriteBase automatically and set it as environment variable.
     # If you are using Apache aliases to do mass virtual hosting or installed the
     # project in a subdirectory, the base path will be prepended to allow proper
