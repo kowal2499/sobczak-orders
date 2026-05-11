@@ -23,13 +23,19 @@
 
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <div class="topbar d-flex justify-content-between">
+            <div class="topbar">
 
-                <div class="p-1">
-                    {% include('_language_switcher.html.twig') %}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="p-1">
+                        {% include('_language_switcher.html.twig') %}
+                    </div>
+                    <context-menu />
                 </div>
 
-                <context-menu />
+                <div class="d-flex justify-content-end">
+                    {% block breadcrumbs %}{% endblock %}
+                </div>
+
             </div>
 
             <!-- Main Content -->
