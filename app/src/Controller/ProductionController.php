@@ -81,21 +81,33 @@ class ProductionController extends BaseController
         $repository = $em->getRepository(Production::class);
         $productionSlugs = array_map(fn($d) => $d->value, DepartmentEnum::getProductionDepartments());
 
-        if ($repository->findBy([
+        $existing = $repository->findBy([
             'agreementLine' => $agreementLine,
-            'departmentSlug' => $productionSlugs
-        ])) {
-            throw new ProductionAlreadyExistsException();
+            'departmentSlug' => $productionSlugs,
+        ]);
+
+        $existingByDept = [];
+        foreach ($existing as $production) {
+            if (!$production->isGhost()) {
+                throw new ProductionAlreadyExistsException();
+            }
+            $existingByDept[$production->getDepartmentSlug()] = $production;
         }
 
         $response = [];
         foreach (DepartmentEnum::getProductionDepartments() as $dept) {
-            $production = new Production();
+            $production = $existingByDept[$dept->value] ?? null;
+            if ($production === null) {
+                $production = new Production();
+                $production
+                    ->setAgreementLine($agreementLine)
+                    ->setTitle($dept->getName())
+                    ->setDepartmentSlug($dept->value)
+                    ->setCreatedAt(new \DateTime());
+            }
+
             $production
-                ->setAgreementLine($agreementLine)
-                ->setTitle($dept->getName())
-                ->setDepartmentSlug($dept->value)
-                ->setCreatedAt(new \DateTime())
+                ->setIsGhost(false)
                 ->setUpdatedAt(new \DateTime());
 
             foreach ($schedule as $dptSchedule) {
@@ -156,11 +168,20 @@ class ProductionController extends BaseController
         ProductionRepository $taskRepository,
     ): JsonResponse
     {
+        $productionId = $request->request->getInt('productionId');
+        $existing = $taskRepository->find($productionId);
+        if ($existing && $existing->isGhost()) {
+            return $this->json(
+                ['error' => 'Cannot change status of a ghost production task'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
         $messageBus->dispatch(new UpdateStatusCommand(
-            $request->request->getInt('productionId'),
+            $productionId,
             $request->request->getInt('newStatus')
         ));
-        return $this->json($taskRepository->find($request->request->getInt('productionId')), Response::HTTP_OK, [], [
+        return $this->json($taskRepository->find($productionId), Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel']
         ]);
     }

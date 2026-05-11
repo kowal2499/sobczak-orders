@@ -31,10 +31,18 @@ export function getProductionFinishedDetails(start, end) {
     return axios.get(`/reports/production/production-finished-details`, {params: {start, end}});
 }
 
-export function getDepartmentsCapacity(start, end) {
-    return axios.get(`/reports/production/production-capacity`, {params: {start, end}});
+export function getDepartmentsCapacity(start, end, { includeGhost = false } = {}) {
+    const params = { start, end };
+    if (includeGhost) {
+        params.includeGhost = 1;
+    }
+    return axios.get(`/reports/production/production-capacity`, { params });
 }
 
-export function getWeeklyCapacity(start, end) {
-    return axios.get(`/reports/schedule/capacity`, {params: {startDate: start, endDate: end}});
+export function getWeeklyCapacity(start, end, { includeGhost = false } = {}) {
+    const params = { startDate: start, endDate: end };
+    if (includeGhost) {
+        params.includeGhost = 1;
+    }
+    return axios.get(`/reports/schedule/capacity`, { params });
 }

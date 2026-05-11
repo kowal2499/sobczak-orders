@@ -4,14 +4,12 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Status</label><br>
-
-                    <div v-for="(singleStatus, key) in statuses">
+                    <div v-for="(singleStatus, key) in taskStatuses" :key="key">
                         <label>
                             <input type="radio" :value="key" v-model="status" :disabled="!canEditStatus()">
                             {{ singleStatus }}
                         </label>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -44,7 +42,15 @@
 
     export default {
         name: "DetailsWidget",
-        props: ['value', 'statuses'],
+        props: {
+            value: Object,
+            taskStatuses: Object,
+            hasGhost: {
+                type: Boolean,
+                default: false
+            }
+        },
+
         components: { DatePicker },
 
         computed: {
@@ -88,11 +94,9 @@
             },
 
             canEditStatus() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION);
+                return this.$user.can(this.$privilages.CAN_PRODUCTION) && !this.hasGhost;
             }
         }
-
-
     }
 </script>
 

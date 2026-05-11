@@ -75,6 +75,7 @@ class ProductionRepository extends ServiceEntityRepository
     {
         $query =  $this
             ->createQueryBuilder('p')
+            ->andWhere('p.isGhost = 0')
             ->andWhere('p.createdAt <= :val')
             ->andWhere('p.departmentSlug = \'dpt05\'')
             ->andWhere('p.status != \'3\'')
@@ -97,6 +98,7 @@ class ProductionRepository extends ServiceEntityRepository
         $query = $this
             ->createQueryBuilder('p')
             ->join('p.statusLogs', 'log')
+            ->andWhere('p.isGhost = 0')
             ->andWhere('p.status = \'3\'')
             ->andWhere('p.departmentSlug = \'dpt05\'')
             ->andWhere('log.currentStatus = \'3\'')

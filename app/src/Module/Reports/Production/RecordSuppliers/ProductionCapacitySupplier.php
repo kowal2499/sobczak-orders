@@ -36,12 +36,16 @@ class ProductionCapacitySupplier extends BaseSupplier implements RecordSupplierI
         return [];
     }
 
-    public function getRecords(?\DateTimeInterface $start, ?\DateTimeInterface $end, array $departments = []): array
-    {
+    public function getRecords(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        array $departments = [],
+        bool $includeGhost = false
+    ): array {
         if (!$start || !$end) {
             return [];
         }
-        $rows = $this->repository->getCapacityInTime($start, $end);
+        $rows = $this->repository->getCapacityInTime($start, $end, $includeGhost);
         return $this->transformRows($rows, FactorSource::FACTOR_ADJUSTMENT_RATIO);
     }
 }

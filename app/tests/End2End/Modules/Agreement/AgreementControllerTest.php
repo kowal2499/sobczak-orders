@@ -160,7 +160,8 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertEquals(AgreementLine::STATUS_WAITING, $readModel01->getStatus());
         $this->assertFalse($readModel01->isDeleted());
         $this->assertFalse($readModel01->isArchived());
-        $this->assertFalse($readModel01->hasProduction());
+        $this->assertTrue($readModel01->hasProduction());
+        array_map(fn($p) => $this->assertTrue($p->isGhost()), $readModel01->getProductions());
 
         $readModel02 = $this->agreementLineRMRepository->find($lines[1]->getId());
         $this->assertNotNull($readModel02);
@@ -176,7 +177,8 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertEquals(AgreementLine::STATUS_WAITING, $readModel02->getStatus());
         $this->assertFalse($readModel02->isDeleted());
         $this->assertFalse($readModel02->isArchived());
-        $this->assertFalse($readModel02->hasProduction());
+        $this->assertTrue($readModel02->hasProduction());
+        array_map(fn($p) => $this->assertTrue($p->isGhost()), $readModel02->getProductions());
 
         // Verify tags - only first product should have capacity exceeded tag
         $this->getManager()->clear(); // Force reload from DB

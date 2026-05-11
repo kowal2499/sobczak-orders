@@ -1,14 +1,26 @@
 <template>
     <div class="card shadow">
-        <div class="card-body">
-            <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
-                <slot name="title" />
+        <div class="card-body" :class="isBusy && 'opacity-50'">
+            <div class="d-flex justify-content-between">
+                <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
+                    <slot name="title" />
+                </div>
+                <div class="text-right">
+                    <font-awesome-icon v-if="isBusy" icon="spinner" spin />
+                    <span v-show="!isBusy && $slots.description" :id="popoverTargetId">
+                        <font-awesome-icon icon="info-circle" class="text-primary" />
+                    </span>
+                </div>
             </div>
 
             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                <font-awesome-icon v-if="isBusy" icon="spinner" spin/>
-                <slot v-else />
+                <slot />
             </div>
+
+            <b-popover :target=popoverTargetId triggers="hover">
+                <template #title><span class="text-primary"><slot name="title" /></span></template>
+                <slot name="description" />
+            </b-popover>
         </div>
     </div>
 </template>
@@ -21,11 +33,20 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    computed: {
+        popoverTargetId() {
+            return `popover-target-${this._uid}`
+        }
     }
 }
 </script>
 
 <style scoped lang="scss">
+:deep(strong) {
+    color: var(--colorPrimary)
+}
+
 .card {
     width: 100%;
     min-height: 150px;

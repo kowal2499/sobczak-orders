@@ -87,7 +87,7 @@ class DoctrineProductionPendingRepository extends ServiceEntityRepository
                 'al.productions',
                 'pr',
                 'WITH',
-                'pr.departmentSlug IN (:departments) AND pr.status IN (:qualifiedStatuses)'
+                'pr.departmentSlug IN (:departments) AND pr.status IN (:qualifiedStatuses) AND pr.isGhost = 0'
             )
             ->addSelect('pr.completedAt')
             ->setParameter('departments', [

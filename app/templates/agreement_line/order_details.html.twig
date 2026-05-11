@@ -2,6 +2,16 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li class="breadcrumb-item"><a href="{{ path('agreements_show') }}">Lista zamówień</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Panel zamówienia</li>
+    </ol>
+</nav>
+{% endblock %}
+
 {% block body %}
-    <single-order :line-id="{{ agreementLineId }}" :taskStatuses="{{ taskStatuses|json_encode }}"></single-order>
+    <single-order :line-id="{{ agreementLineId }}" :task-statuses="{{ taskStatuses|json_encode }}"></single-order>
 {% endblock %}

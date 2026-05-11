@@ -18,6 +18,7 @@ class ProductionRM
     private ?DateTimeInterface $completedAt;
     private ?AssembledFactorDTO $factorRatio;
     private ?AssembledFactorDTO $factorBonus;
+    private bool $isGhost;
 
     public function __construct(
         string $departmentSlug,
@@ -30,6 +31,7 @@ class ProductionRM
         ?DateTimeInterface $completedAt = null,
         ?AssembledFactorDTO $factorRatio = null,
         ?AssembledFactorDTO $factorBonus = null,
+        bool $isGhost = false,
     ) {
         $this->id = $id;
         $this->departmentSlug = $departmentSlug;
@@ -41,6 +43,17 @@ class ProductionRM
         $this->completedAt = $completedAt;
         $this->factorRatio = $factorRatio;
         $this->factorBonus = $factorBonus;
+        $this->isGhost = $isGhost;
+    }
+
+    public function isGhost(): bool
+    {
+        return $this->isGhost;
+    }
+
+    public function setIsGhost(bool $isGhost): void
+    {
+        $this->isGhost = $isGhost;
     }
 
     public function getId(): ?int
@@ -156,6 +169,7 @@ class ProductionRM
             'completedAt' => $this->completedAt?->format('Y-m-d H:i:s'),
             'factorRatio' => $this->factorRatio?->toArray() ?? null,
             'factorBonus' => $this->factorBonus?->toArray() ?? null,
+            'isGhost' => $this->isGhost,
         ];
     }
 
@@ -172,6 +186,7 @@ class ProductionRM
             completedAt: isset($data['completedAt']) ? new DateTime($data['completedAt']) : null,
             factorRatio: $data['factorRatio'] ? AssembledFactorDTO::fromArray($data['factorRatio']) : null,
             factorBonus: $data['factorBonus'] ? AssembledFactorDTO::fromArray($data['factorBonus']) : null,
+            isGhost: (bool) ($data['isGhost'] ?? false),
         );
     }
 }

@@ -15,7 +15,7 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <b-row>
+            <b-row v-if="!proxyData.isGhost">
                 <b-col sm="8">
                     <b-form-group :label="$t('orders.status')">
                         <b-form-select
@@ -49,7 +49,7 @@
                 </b-col>
             </b-row>
 
-            <b-row>
+            <b-row v-if="!proxyData.isGhost">
                 <b-col>
                     <div class="text-right">
                         <a href="#" @click.prevent="showHistory = !showHistory">
@@ -63,7 +63,7 @@
                             <th>{{ $t('orders.user') }}</th>
                         </tr>
 
-                        <tr v-for="status in proxyData.statusLogs">
+                        <tr v-for="(status, key) in proxyData.statusLogs" :key="key">
                             <td>{{ getStatusNameByCode(status.currentStatus) }}</td>
                             <td>{{ status.createdAt | formatDate() }}</td>
                             <td>{{ status.user ? status.user.userFullName : '' }}</td>

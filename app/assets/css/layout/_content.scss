@@ -20,7 +20,24 @@ div#content-wrapper {
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
-        height: 80px;
+
+        .breadcrumb {
+            font-size: 0.78rem;
+            background-color: transparent;
+            padding: 0;
+            margin: 4px 0 0;
+
+            a {
+                color: var(--colorPrimary);
+                &:hover { opacity: 0.75; text-decoration: none; }
+            }
+
+            .breadcrumb-item,
+            .breadcrumb-item.active,
+            .breadcrumb-item + .breadcrumb-item::before {
+                color: #adb5bd;
+            }
+        }
     }
 
     .text-primary {

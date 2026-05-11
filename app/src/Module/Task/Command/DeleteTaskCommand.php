@@ -10,7 +10,6 @@ class DeleteTaskCommand
         #[Assert\NotBlank]
         #[Assert\Positive]
         public readonly int $taskId,
-
         #[Assert\NotBlank]
         #[Assert\Positive]
         public readonly int $userId,

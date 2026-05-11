@@ -26,8 +26,11 @@ class ScheduleCapacityService
      * @param \DateTimeImmutable $end
      * @return ScheduleCapacityDTO[]
      */
-    public function calculateBurnout(\DateTimeImmutable $start, \DateTimeImmutable $end): array
-    {
+    public function calculateBurnout(
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end,
+        bool $includeGhost = false
+    ): array {
         /**
             1. Wyznacz granice zakresów, od pierwszego dnia tygodnia (poniedziałek) zawierającego $start,
                do ostatniego dnia tygodnia (niedziela) zawierającego $end
@@ -45,7 +48,7 @@ class ScheduleCapacityService
 
         $holidays = $this->getFreeDays($rangeStart, $rangeEnd);
         $capacities = $this->getCapacities($rangeStart, $rangeEnd);
-        $allAgreementLines = $this->getAgreementLineRMs($rangeStart, $rangeEnd);
+        $allAgreementLines = $this->getAgreementLineRMs($rangeStart, $rangeEnd, $includeGhost);
         $result = [];
 
         $weekRunner = clone $rangeStart;
@@ -119,18 +122,28 @@ class ScheduleCapacityService
         return $date->modify('sunday this week');
     }
 
-    private function getAgreementLineRMs(\DateTimeImmutable $start, \DateTimeImmutable $end): array
-    {
-        return $this->agreementLineRepo->search([
-            'search' => [
-                'hasProduction' => true,
-                'dateDelivery' => [
-                    'start' => $start->format('Y-m-d'),
-                    'end' => $end->format('Y-m-d'),
-                ],
-                'statusNot' => [ AgreementLine::STATUS_DELETED, ],
-                'sort' => 'dateConfirmed_ASC',
+    private function getAgreementLineRMs(
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end,
+        bool $includeGhost = false
+    ): array {
+        $search = [
+            'dateDelivery' => [
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
             ],
+            'statusNot' => [ AgreementLine::STATUS_DELETED, ],
+            'sort' => 'dateConfirmed_ASC',
+        ];
+
+        if ($includeGhost) {
+            $search['hasProductionIncludingGhost'] = true;
+        } else {
+            $search['hasProduction'] = true;
+        }
+
+        return $this->agreementLineRepo->search([
+            'search' => $search,
         ])->getResult();
     }
 

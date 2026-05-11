@@ -49,7 +49,7 @@
                     <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
                 </td>
                 <td>
-                    <span class="badge" :class="getAgreementStatusClass(line.status)">{{ $t(getAgreementStatusName(line.status)) }}</span>
+                    <span class="badge" :class="getAgreementStatusClass(line.status)">{{ getAgreementStatusName(line.status) }}</span>
                 </td>
                 <td>
                     <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
@@ -83,6 +83,7 @@
     import LineActions from '../../common/LineActions';
     import CollapsibleCard from '../../base/CollapsibleCard';
     import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
+    import { agreementStatusesMap } from '@/helpers';
 
     export default {
         name: "OrdersList",
@@ -273,57 +274,37 @@
             },
 
             getAgreementStatusName(statusId) {
-                return this.taskStatuses[parseInt(statusId)];
+                const s = agreementStatusesMap[parseInt(statusId)];
+                return s ? s.name : statusId;
             },
 
             getAgreementStatusClass(statusId) {
-                let className = '';
-                switch (parseInt(statusId)) {
-                    case 5:
-                        className = 'badge-danger';
-                        break;
-                    case 10:
-                        className = 'badge-primary';
-                        break;
-                    case 15:
-                        className = 'badge-warning';
-                        break;
-                    case 20:
-                        className = 'badge-success';
-                        break;
-
-                    default:
-                        className = 'badge-primary'
-                }
-                return className;
+                const s = agreementStatusesMap[parseInt(statusId)];
+                return s ? s.className : 'badge-secondary';
             },
 
             getProductionStatusData(production) {
 
-                if (production && production.length === 0) {
+                const realProductions = Array.isArray(production)
+                    ? production.filter(p => !p.isGhost)
+                    : [];
+
+                if (realProductions.length === 0) {
                     return {
                         className: 'badge-danger',
                         title: 'Nie zlecone'
                     };
                 }
-                if (production && production[4] && parseInt(production[4].status) === 3) {
+                if (realProductions[4] && parseInt(realProductions[4].status) === 3) {
                     return {
                         className: 'badge-success',
                         title: 'Zakończona'
                     }
                 }
-                if (production && production.length > 0) {
-                    return {
-                        className: 'badge-primary',
-                        title: 'W trakcie'
-                    }
-                }
-
                 return {
-                    className: '',
-                    title: ''
-                };
-
+                    className: 'badge-primary',
+                    title: 'W trakcie'
+                }
             },
 
             userCanAddOrder() {

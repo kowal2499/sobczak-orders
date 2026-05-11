@@ -16,7 +16,13 @@ class ProductionReportRecordDTO
         private readonly ?AgreementDTO $agreement = null,
         private readonly ?CustomerDTO $customer = null,
         private readonly ?AssembledFactorDTO $factors = null,
+        private readonly bool $isGhost = false,
     ) {
+    }
+
+    public function getIsGhost(): bool
+    {
+        return $this->isGhost;
     }
 
     public function getDepartmentSlug(): string

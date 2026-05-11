@@ -13,6 +13,7 @@ use App\Module\Production\Command\CreateFactorCommand;
 use App\Module\Production\Command\UpdateFactorCommand;
 use App\Module\Production\DTO\FactorRatioDTO;
 use App\Module\Production\Entity\FactorSource;
+use App\Module\Production\Service\GhostProductionTaskService;
 use App\Repository\AgreementLineRepository;
 use App\Repository\AgreementRepository;
 use App\Repository\CustomerRepository;
@@ -33,6 +34,7 @@ class UpdateAgreementCommandHandler
         private UploaderHelper $uploaderHelper,
         private CommandBus $commandBus,
         private EventBus $eventBus,
+        private GhostProductionTaskService $ghostProductionTaskService,
     ) {
     }
 
@@ -158,12 +160,23 @@ class UpdateAgreementCommandHandler
                 $isNew = true;
             }
 
-            $line->setConfirmedDate(new \DateTime($requiredDate));
+            $newConfirmedDate = new \DateTime($requiredDate);
+            $oldConfirmedDate = $line->getConfirmedDate();
+            $confirmedDateChanged = $isNew || $oldConfirmedDate === null
+                || $oldConfirmedDate->format('Y-m-d') !== $newConfirmedDate->format('Y-m-d');
+
+            $line->setConfirmedDate($newConfirmedDate);
             $line->setProduct($product);
             $line->setFactor($factor);
             $line->setDescription($description);
 
             $this->em->persist($line);
+
+            if ($isNew) {
+                $this->ghostProductionTaskService->createForAgreementLine($line);
+            } elseif ($confirmedDateChanged) {
+                $this->ghostProductionTaskService->regenerateForAgreementLine($line);
+            }
 
             $agreementLineFactor = $line->getFactorFromCollection();
 
