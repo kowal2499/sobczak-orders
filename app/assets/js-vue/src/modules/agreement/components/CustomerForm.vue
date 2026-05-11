@@ -4,52 +4,28 @@
 
         <!-- Search Input -->
         <div class="mb-3" v-if="!selectedCustomer.id">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text text-primary background-color-white-100">
-                        <font-awesome-icon icon="search" />
-                    </div>
-
-                </div>
-                <input
-                    type="text"
-                    class="form-control"
-                    :placeholder="$t('agreement.customer.searchPlaceholder')"
-                    v-model="customerSearch"
-                />
-            </div>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="fetchingCustomers" class="loading-message">
-            <font-awesome-icon icon="spinner" spin class="mr-2" /> {{ $t('agreement.customer.searching') }}
-        </div>
-
-        <!-- Search Results -->
-        <div v-if="fetchComplete && !selectedCustomer.id" class="search-results">
-            <template v-if="customersFound.length > 0">
-                <div class="results-list">
-                    <button
-                        v-for="(customer, index) in customersFound"
-                        :key="customer.id"
-                        class="result-item"
-                        @click="choose(index)"
-                    >
-                        <div>
-                            <strong>{{ customer.name }}</strong>
-                            <br>
+            <vue-select
+                :options="customerOptions"
+                :filterable="false"
+                :loading="fetchingCustomers"
+                label="name"
+                :placeholder="$t('agreement.customer.searchPlaceholder')"
+                @search="debouncedSearch"
+                @input="onSelect"
+                class="customer-select"
+            >
+                <template v-slot:option="customer">
+                    <div>
+                        <strong>{{ customer.name }}</strong>
+                        <div v-if="formatAddress(customer)">
                             <small class="text-muted">{{ formatAddress(customer) }}</small>
                         </div>
-                        <font-awesome-icon icon="chevron-right" class="text-primary" />
-                    </button>
-                </div>
-            </template>
-
-            <template v-if="customersFound.length === 0 && customerSearch.length > 0">
-                <div class="no-results">
-                    <font-awesome-icon icon="exclamation-circle" class="mr-2" /> {{ $t('agreement.customer.notFound') }}
-                </div>
-            </template>
+                    </div>
+                </template>
+                <template v-slot:no-options>
+                    {{ $t('agreement.customer.notFound') }}
+                </template>
+            </vue-select>
         </div>
 
         <!-- Selected Customer -->
@@ -96,9 +72,12 @@
 <script>
 import api from '../../../api/neworder';
 import _ from 'lodash';
+import VueSelect from 'vue-select';
 
 export default {
     name: 'CustomerForm',
+
+    components: { VueSelect },
 
     props: {
         modelValue: {
@@ -111,60 +90,52 @@ export default {
 
     data() {
         return {
-            customerSearch: '',
-            customersFound: [],
+            customerOptions: [],
             selectedCustomer: {},
             fetchingCustomers: false,
-            fetchComplete: false
         };
     },
 
     created() {
-        this.debouncedSearch = _.debounce(this.searchCustomers, 500);
-
-        // Jeśli mamy już wybranego klienta, załaduj jego dane
+        this.debouncedSearch = _.debounce(this.onSearch, 500);
+        this.fetchAllCustomers();
         if (this.modelValue) {
             this.loadCustomer(this.modelValue);
         }
     },
 
     methods: {
-        searchCustomers() {
-            if (this.customerSearch.length < 2) {
-                this.customersFound = [];
-                this.fetchComplete = false;
-                return;
-            }
-
+        fetchAllCustomers() {
             this.fetchingCustomers = true;
-            this.fetchComplete = false;
-
-            api.findCustomers(this.customerSearch)
+            api.findCustomers('')
                 .then(({data}) => {
-                    this.customersFound = Array.isArray(data) ? data : [];
-                })
-                .catch((error) => {
-                    console.error('Error searching customers:', error);
-                    this.customersFound = [];
+                    this.customerOptions = Array.isArray(data) ? data : [];
                 })
                 .finally(() => {
                     this.fetchingCustomers = false;
-                    this.fetchComplete = true;
                 });
         },
 
-        choose(index) {
-            this.selectedCustomer = { ...this.customersFound[index] };
-            this.$emit('update:modelValue', this.selectedCustomer.id);
-            this.customersFound = [];
-            this.customerSearch = '';
-            this.fetchComplete = false;
+        onSearch(searchText, loading) {
+            loading(true);
+            api.findCustomers(searchText)
+                .then(({data}) => {
+                    this.customerOptions = Array.isArray(data) ? data : [];
+                })
+                .finally(() => {
+                    loading(false);
+                });
+        },
+
+        onSelect(customer) {
+            if (!customer) return;
+            this.selectedCustomer = { ...customer };
+            this.$emit('update:modelValue', customer.id);
         },
 
         clearSelection() {
             this.selectedCustomer = {};
             this.$emit('update:modelValue', null);
-            this.customerSearch = '';
         },
 
         loadCustomer(customerId) {
@@ -173,9 +144,6 @@ export default {
                     if (data) {
                         this.selectedCustomer = data;
                     }
-                })
-                .catch((error) => {
-                    console.error('Error loading customer:', error);
                 });
         },
 
@@ -191,10 +159,6 @@ export default {
     },
 
     watch: {
-        customerSearch() {
-            this.debouncedSearch();
-        },
-
         modelValue(newVal) {
             if (newVal && !this.selectedCustomer.id) {
                 this.loadCustomer(newVal);
@@ -206,6 +170,22 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.customer-select {
+    .vs__search::placeholder {
+        color: gray;
+    }
+    .vs__dropdown-option--highlight {
+        background: var(--colorPrimary);
+        color: #fff !important;
+
+        .text-muted {
+            color: #d5d5d5 !important;
+        }
+    }
+}
+</style>
+
 <style lang="scss" scoped>
 
 .section-title {
@@ -215,61 +195,6 @@ export default {
     color: var(--colorPrimary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-}
-
-.loading-message {
-    color: #0c5460;
-    background: #d1ecf1;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-}
-
-.search-results {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.875rem 1rem;
-    background: var(--colorWhite100);
-    border: 1px solid var(--colorGrayLight80);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-    width: 100%;
-
-    &:hover {
-        border-color: var(--colorGrayLight40);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    strong {
-        color: var(--colorText);
-    }
-
-    small {
-        font-size: 0.85rem;
-    }
-}
-
-.no-results {
-    color: #856404;
-    background: #fff3cd;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    text-align: center;
-    font-size: 0.9rem;
 }
 
 .selected-customer {
