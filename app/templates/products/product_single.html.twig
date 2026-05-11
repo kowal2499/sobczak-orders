@@ -7,9 +7,9 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li class="breadcrumb-item"><a href="{{ path('products_show') }}">Lista produktów</a></li>
+        <li class="breadcrumb-item"><a href="{{ path('products_show') }}">{{ 'Lista produktów'|trans }}</a></li>
         <li class="breadcrumb-item active" aria-current="page">
-            {{ app.request.attributes.get('_route') == 'products_new' ? 'Nowy produkt' : 'Edycja produktu' }}
+            {{ (app.request.attributes.get('_route') == 'products_new' ? 'Nowy produkt' : 'Edycja produktu')|trans }}
         </li>
     </ol>
 </nav>
