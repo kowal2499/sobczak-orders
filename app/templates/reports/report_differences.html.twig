@@ -3,6 +3,16 @@
 
 {% block title %}{{ 'Raport rozbieżności od planu'|trans }}{% endblock %}
 
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li class="breadcrumb-item">Raporty</li>
+        <li class="breadcrumb-item active" aria-current="page">Raport rozbieżności</li>
+    </ol>
+</nav>
+{% endblock %}
+
 {% block body %}
     <app>
         <differences-report></differences-report>
