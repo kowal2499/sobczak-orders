@@ -10,6 +10,7 @@ export default {
         'attachments': 'Załączniki',
         'saveNew': 'Zapisz zamówienie',
         'saveEdit': 'Zapisz zmiany',
+        'attachmentUploadFailed': 'Przesyłanie plików nie powiodło się. Usuń nieudane pliki i dodaj je ponownie.',
     },
     'customer': {
         'sectionTitle': 'Klient',

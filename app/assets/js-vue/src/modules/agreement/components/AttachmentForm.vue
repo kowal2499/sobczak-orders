@@ -7,7 +7,7 @@
             @vdropzone-file-added="onFileAdded"
             @vdropzone-removed-file="onFileRemoved"
             @vdropzone-queue-complete="$emit('vdropzone-queue-complete')"
-            @vdropzone-error="(file, message, xhr) => $emit('vdropzone-error', file, message, xhr)"
+            @vdropzone-error="onDropzoneError"
         />
     </div>
 </template>
@@ -24,6 +24,7 @@ export default {
     data() {
         return {
             removedIds: [],
+            errorFiles: [],
         };
     },
 
@@ -56,10 +57,14 @@ export default {
 
         processQueue(url, appendFormValues) {
             this.$refs.dropzone.setOption('url', url);
-            this.$refs.dropzone.$on('vdropzone-sending', (file, xhr, formData) => {
+            this.$refs.dropzone.$once('vdropzone-sending-multiple', (files, xhr, formData) => {
                 appendFormValues(formData);
             });
             this.$refs.dropzone.processQueue();
+        },
+
+        getErrorFiles() {
+            return this.$refs.dropzone.getFilesWithStatus('error');
         },
 
         loadExistingFiles(attachments) {
@@ -77,6 +82,26 @@ export default {
             });
         },
 
+        onDropzoneError(file, message, xhr) {
+            if (!xhr) {
+                // Lokalny błąd walidacji (za duży plik, zły typ) — brak requestu do serwera
+                this.$emit('vdropzone-file-rejected', message);
+            } else {
+                // Z odpowiedzi serwera wyciągamy komunikat per plik (uploadMultiple
+                // powoduje, że dropzone domyślnie wsadzi to samo `message` każdemu plikowi).
+                const perFileMessage = this.findPerFileMessage(file, xhr);
+                if (perFileMessage) {
+                    this.replaceErrorMessageInDom(file, perFileMessage);
+                    message = perFileMessage;
+                }
+                this.$emit('vdropzone-error', file, message, xhr);
+            }
+            if (!this.errorFiles.includes(file)) {
+                this.errorFiles.push(file);
+            }
+            this.$emit('error-state-changed', this.errorFiles.length > 0);
+        },
+
         onFileAdded() {
             this.$emit('files-changed', this.getQueuedFiles());
         },
@@ -85,7 +110,32 @@ export default {
             if (file.id) {
                 this.removedIds.push(file.id);
             }
+            const idx = this.errorFiles.indexOf(file);
+            if (idx !== -1) {
+                this.errorFiles.splice(idx, 1);
+            }
             this.$emit('files-changed', this.getQueuedFiles());
+            this.$emit('error-state-changed', this.errorFiles.length > 0);
+        },
+
+        findPerFileMessage(file, xhr) {
+            try {
+                const data = JSON.parse(xhr.responseText);
+                if (Array.isArray(data.errors)) {
+                    const match = data.errors.find(e => e.filename === file.name);
+                    return match ? match.message : null;
+                }
+            } catch (e) { /* responseText nie jest JSON-em — fallback do domyślnego message */ }
+            return null;
+        },
+
+        replaceErrorMessageInDom(file, message) {
+            if (!file.previewElement) {
+                return;
+            }
+            file.previewElement.querySelectorAll('[data-dz-errormessage]').forEach(el => {
+                el.textContent = message;
+            });
         }
     }
 };
@@ -108,6 +158,35 @@ export default {
 
         .dz-message {
             margin: 0.5rem 0;
+        }
+
+        .dz-preview {
+            // Przycisk remove wyśrodkowany horyzontalnie dla wszystkich miniatur
+            .dz-remove {
+                left: 50%;
+                transform: translateX(-50%);
+                margin-left: 0;
+            }
+
+            &.dz-error {
+                // Komunikat zawsze widoczny, nie tylko na hover
+                .dz-error-message {
+                    opacity: 1;
+                    pointer-events: none;
+                }
+
+                // Przycisk remove: góra, wyśrodkowany, na hover, z tłem dla czytelności
+                .dz-remove {
+                    z-index: 1001;
+                    top: 5px;
+                    bottom: auto;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    margin-left: 0;
+                    background-color: rgba(0, 0, 0, 0.55);
+                    border-radius: 4px;
+                }
+            }
         }
     }
 }

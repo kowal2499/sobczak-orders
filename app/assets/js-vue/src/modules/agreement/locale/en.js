@@ -10,6 +10,7 @@ export default {
         'attachments': 'Attachments',
         'saveNew': 'Save order',
         'saveEdit': 'Save changes',
+        'attachmentUploadFailed': 'File upload failed. Please remove the failed files and add them again.',
     },
     'customer': {
         'sectionTitle': 'Customer',
