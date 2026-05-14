@@ -114,6 +114,15 @@
             </li>
         {% endif %}
 
+        {% if is_granted('reports.production_calendar') %}
+            <li class="nav-item {% if active == 'schedule_production_v2' %}active{% endif %}">
+                <a href="{{ path('schedule_production_v2') }}" class="nav-link">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <span>{{ 'Kalendarz v2'|trans }}</span>
+                </a>
+            </li>
+        {% endif %}
+
         {% if is_granted('ROLE_ADMIN') %}
             <menu-item
                 :active="{% if active in ['reports_view_differences'] %}true{% else %}false{% endif %}"

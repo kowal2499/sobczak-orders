@@ -34,6 +34,7 @@ export default {
     Roles: () => import('../modules/configuration/views/Roles.vue'),
     ProductionConfiguration: () => import('../modules/configuration/views/Production.vue'),
     ScheduleProduction: () => import('../modules/schedule/views/ScheduleProduction.vue'),
+    ScheduleProductionV2: () => import('../modules/schedule/views/ScheduleProduction2.vue'),
     ...TagsModule,
     ContextMenu,
     DevContainer,
