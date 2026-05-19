@@ -6,6 +6,7 @@ use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
+use App\Module\Production\ValueObject\DepartmentEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -143,6 +144,42 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                 case 'q':
                     $qb->andWhere("l.q Like :q");
                     $qb->setParameter('q', '%' . $value . '%');
+                    break;
+                case 'dptDateRange':
+                    if (
+                        !isset($value['start'], $value['end'], $value['departments'])
+                        || !is_array($value['departments'])
+                        || empty($value['departments'])
+                        || \DateTime::createFromFormat('Y-m-d', $value['start']) === false
+                        || \DateTime::createFromFormat('Y-m-d', $value['end']) === false
+                    ) {
+                        break;
+                    }
+                    $allowedDpts = array_map(
+                        fn (DepartmentEnum $dept) => $dept->value,
+                        DepartmentEnum::getProductionDepartments()
+                    );
+                    $departments = array_values(array_intersect($allowedDpts, $value['departments']));
+                    if (empty($departments)) {
+                        $qb->andWhere('1 = 0');
+                        break;
+                    }
+                    $rangeStart = new \DateTime($value['start'] . ' 00:00:00');
+                    $rangeEnd = new \DateTime($value['end'] . ' 23:59:59');
+                    $orx = $qb->expr()->orX();
+                    foreach ($departments as $dpt) {
+                        $startCol = 'l.' . $dpt . 'StartDate';
+                        $endCol = 'l.' . $dpt . 'EndDate';
+                        $orx->add($qb->expr()->andX(
+                            $qb->expr()->isNotNull($startCol),
+                            $qb->expr()->isNotNull($endCol),
+                            $qb->expr()->lte($startCol, ':dptRangeEnd'),
+                            $qb->expr()->gte($endCol, ':dptRangeStart'),
+                        ));
+                    }
+                    $qb->andWhere($orx);
+                    $qb->setParameter('dptRangeStart', $rangeStart);
+                    $qb->setParameter('dptRangeEnd', $rangeEnd);
                     break;
             }
         }

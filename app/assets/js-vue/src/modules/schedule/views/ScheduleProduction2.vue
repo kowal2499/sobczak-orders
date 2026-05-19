@@ -1,146 +1,213 @@
 <script>
 import ResourceCalendar from "@/modules/schedule/components/ResourceCalendar/ResourceCalendar.vue";
+import VueSelect from 'vue-select'
 import moment from 'moment'
+import { fetchProductionResources } from "@/modules/schedule/repository/scheduleRepository";
+import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
 
-const m = (offset) => moment().startOf('month').add(offset, 'days').format('YYYY-MM-DD')
+const STATUS_OPTIONS = ['pending', 'in_progress', 'completed', 'cancelled']
 
 export default {
     name: "ScheduleProduction2",
 
     components: {
-        ResourceCalendar
+        ResourceCalendar,
+        VueSelect,
     },
 
     data() {
         return {
-            lastAction: null,
-            resources: [
-                { id: 'dpt01', name: 'Klejenie' },
-                { id: 'dpt02', name: 'CNC' },
-                { id: 'dpt03', name: 'Szlifowanie' },
-                { id: 'dpt04', name: 'Lakierowanie' },
-                { id: 'dpt05', name: 'Pakowanie' },
-                { id: 'dpt06', name: 'INTOREX' }
-            ],
-            events: [
-                // Klejenie — dwa nakładające się zlecenia (test lane packing)
-                {
-                    id: 'e1', resourceId: 'dpt01', resourceName: 'Klejenie',
-                    orderName: 'Zlecenie #1001', orderStatus: 'in_progress', eventType: 'order',
-                    dateStart: m(1), dateEnd: m(8)
-                },
-                {
-                    id: 'e2', resourceId: 'dpt01', resourceName: 'Klejenie',
-                    orderName: 'Zlecenie #1002', orderStatus: 'pending', eventType: 'order',
-                    dateStart: m(4), dateEnd: m(12)
-                },
-                {
-                    id: 'e3', resourceId: 'dpt01', resourceName: 'Klejenie',
-                    orderName: 'Zlecenie #1003', orderStatus: 'completed', eventType: 'order',
-                    dateStart: m(0), dateEnd: m(5)
-                },
-                // CNC
-                {
-                    id: 'e4', resourceId: 'dpt02', resourceName: 'CNC',
-                    orderName: 'Zlecenie #2001', orderStatus: 'in_progress', eventType: 'order',
-                    dateStart: m(2), dateEnd: m(10)
-                },
-                {
-                    id: 'e5', resourceId: 'dpt02', resourceName: 'CNC',
-                    orderName: 'Serwis maszyny', orderStatus: 'pending', eventType: 'maintenance',
-                    color: '#fce4ec',
-                    dateStart: m(14), dateEnd: m(15)
-                },
-                // Szlifowanie
-                {
-                    id: 'e6', resourceId: 'dpt03', resourceName: 'Szlifowanie',
-                    orderName: 'Zlecenie #3001', orderStatus: 'pending', eventType: 'order',
-                    dateStart: m(5), dateEnd: m(18)
-                },
-                // Lakierowanie (użyje slotu resource-dpt04)
-                {
-                    id: 'e7', resourceId: 'dpt04', resourceName: 'Lakierowanie',
-                    orderName: 'Zlecenie #4001', orderStatus: 'in_progress', eventType: 'order',
-                    dateStart: m(0), dateEnd: m(7)
-                },
-                {
-                    id: 'e8', resourceId: 'dpt04', resourceName: 'Lakierowanie',
-                    orderName: 'Zlecenie #4002', orderStatus: 'cancelled', eventType: 'order',
-                    dateStart: m(9), dateEnd: m(20)
-                },
-                // Pakowanie
-                {
-                    id: 'e9', resourceId: 'dpt05', resourceName: 'Pakowanie',
-                    orderName: 'Zlecenie #5001', orderStatus: 'completed', eventType: 'order',
-                    dateStart: m(3), dateEnd: m(9)
-                },
-                // INTOREX — background event (np. przerwa technologiczna)
-                {
-                    id: 'e10', resourceId: 'dpt06', resourceName: 'INTOREX',
-                    orderName: 'Przerwa technologiczna', orderStatus: 'pending', eventType: 'background',
-                    color: 'rgba(255, 152, 0, 0.25)',
-                    dateStart: m(10), dateEnd: m(14)
-                },
-                {
-                    id: 'e11', resourceId: 'dpt06', resourceName: 'INTOREX',
-                    orderName: 'Zlecenie #6001', orderStatus: 'in_progress', eventType: 'order',
-                    dateStart: m(0), dateEnd: m(6)
-                }
-            ]
+            currentMonth: moment().format('YYYY-MM'),
+            includeGhost: false,
+            loading: false,
+            rawResources: [],
+            rawEvents: [],
+            filters: {
+                departments: [],
+                statuses: [],
+                agreementLineIds: [],
+            },
         }
     },
 
+    computed: {
+        allLabel() {
+            return this.$t('schedule.all')
+        },
+
+        departmentOptions() {
+            return this.rawResources.map(r => ({ value: r.id, label: r.name }))
+        },
+
+        statusOptions() {
+            return STATUS_OPTIONS.map(s => ({
+                value: s,
+                label: this.$t(`schedule.status.${s}`),
+                color: (STATUS_COLORS[s] && STATUS_COLORS[s].bg) || '#e9ecef',
+                borderColor: (STATUS_COLORS[s] && STATUS_COLORS[s].border) || '#adb5bd',
+            }))
+        },
+
+        agreementLineOptions() {
+            const seen = new Map()
+            for (const e of this.rawEvents) {
+                if (seen.has(e.agreementLineId)) continue
+                const m = e.meta || {}
+                const label = [m.orderNumber, m.customerName, m.productName]
+                    .filter(Boolean)
+                    .join(' — ')
+                seen.set(e.agreementLineId, {
+                    value: e.agreementLineId,
+                    label: label || `#${e.agreementLineId}`,
+                    orderNumber: m.orderNumber || '',
+                })
+            }
+            return [...seen.values()].sort((a, b) =>
+                String(a.orderNumber).localeCompare(String(b.orderNumber))
+            )
+        },
+
+        filteredEvents() {
+            const { departments, statuses, agreementLineIds } = this.filters
+            return this.rawEvents.filter(e => {
+                if (departments.length && !departments.includes(e.resourceId)) return false
+                if (statuses.length && !statuses.includes(e.orderStatus)) return false
+                if (agreementLineIds.length && !agreementLineIds.includes(e.agreementLineId)) return false
+                return true
+            })
+        },
+
+        filteredResources() {
+            const { departments } = this.filters
+            if (!departments.length) return this.rawResources
+            const set = new Set(departments)
+            return this.rawResources.filter(r => set.has(r.id))
+        },
+    },
+
+    created() {
+        this.loadMonth(this.currentMonth)
+    },
+
     methods: {
-        onEventMoved({ previous, updated }) {
-            const idx = this.events.findIndex(e => e.id === updated.id)
-            if (idx !== -1) this.$set(this.events, idx, updated)
-            this.lastAction = `Przeniesiono: ${updated.orderName} → ${updated.resourceId} (${updated.dateStart} – ${updated.dateEnd})`
+        rangeFor(month) {
+            const m = moment(month, 'YYYY-MM')
+            return {
+                start: m.clone().startOf('month').format('YYYY-MM-DD'),
+                end: m.clone().endOf('month').format('YYYY-MM-DD'),
+            }
         },
-        onEventResized({ previous, updated }) {
-            const idx = this.events.findIndex(e => e.id === updated.id)
-            if (idx !== -1) this.$set(this.events, idx, updated)
-            this.lastAction = `Zmieniono rozmiar: ${updated.orderName} → do ${updated.dateEnd}`
+
+        loadMonth(month) {
+            const { start, end } = this.rangeFor(month)
+            this.loading = true
+            return fetchProductionResources(start, end, this.includeGhost)
+                .then(({ data }) => {
+                    this.rawResources = data.resources || []
+                    this.rawEvents = data.events || []
+                })
+                .catch(() => {
+                    window.EventBus.$emit('message', {
+                        type: 'danger',
+                        content: this.$t('schedule.loadError'),
+                    })
+                })
+                .finally(() => {
+                    this.loading = false
+                })
         },
-        onEventCreated(event) {
-            this.events.push(event)
-            this.lastAction = `Utworzono: ${event.orderName} w ${event.resourceName} (${event.dateStart} – ${event.dateEnd})`
+
+        onMonthChange(month) {
+            this.currentMonth = month
+            this.loadMonth(month)
         },
-        onEventClick(event) {
-            this.lastAction = `Kliknięto: ${event.orderName} [${event.orderStatus}]`
-        }
-    }
+
+        onGhostToggle() {
+            this.loadMonth(this.currentMonth)
+        },
+    },
 }
 </script>
 
 <template>
     <div>
+        <div class="row align-items-end mb-3">
+            <div class="col-md-3">
+                <label class="form-label small mb-1">{{ $t('schedule.filters.department') }}</label>
+                <vue-select
+                    v-model="filters.departments"
+                    :options="departmentOptions"
+                    :reduce="o => o.value"
+                    :placeholder="allLabel"
+                    multiple
+                />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">{{ $t('schedule.filters.status') }}</label>
+                <vue-select
+                    v-model="filters.statuses"
+                    :options="statusOptions"
+                    :reduce="o => o.value"
+                    :placeholder="allLabel"
+                    multiple
+                >
+                    <template #option="{ label, color, borderColor }">
+                        <span class="status-swatch" :style="{ background: color, borderColor }" />
+                        <span>{{ label }}</span>
+                    </template>
+                    <template #selected-option="{ label, color, borderColor }">
+                        <span class="status-swatch" :style="{ background: color, borderColor }" />
+                        <span>{{ label }}</span>
+                    </template>
+                </vue-select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small mb-1">{{ $t('schedule.filters.agreementLine') }}</label>
+                <vue-select
+                    v-model="filters.agreementLineIds"
+                    :options="agreementLineOptions"
+                    :reduce="o => o.value"
+                    :placeholder="allLabel"
+                    multiple
+                />
+            </div>
+            <div class="col-md-2">
+                <b-form-checkbox
+                    :checked="includeGhost"
+                    switch
+                    size="sm"
+                    @change="val => { includeGhost = val; onGhostToggle() }"
+                >
+                    {{ $t('schedule.showGhost') }}
+                </b-form-checkbox>
+            </div>
+        </div>
+
         <ResourceCalendar
-            :resources="resources"
-            :events="events"
-            @event-moved="onEventMoved"
-            @event-resized="onEventResized"
-            @event-created="onEventCreated"
-            @event-click="onEventClick"
+            :resources="filteredResources"
+            :events="filteredEvents"
+            :value="currentMonth"
+            :interactive="false"
+            @month-change="onMonthChange"
         >
-            <!-- Slot per typ eventu -->
             <template #event-type-order="{ event }">
-                <span class="event-label fw-semibold">📦 {{ event.orderName }}</span>
-            </template>
-            <template #event-type-maintenance="{ event }">
-                <span class="event-label text-danger">🔧 {{ event.orderName }}</span>
-            </template>
-            <!-- Slot per resource (dpt04 - Lakierowanie ma inny wygląd) -->
-            <template #resource-dpt04="{ event }">
-                <span class="event-label" style="font-style:italic">🎨 {{ event.orderName }}</span>
+                <span class="event-label fw-semibold">
+                    <span v-if="event.meta && event.meta.isGhost">👻</span>
+                    {{ event.orderName }}
+                </span>
             </template>
         </ResourceCalendar>
-
-        <div v-if="lastAction" class="mt-3 alert alert-info small">
-            {{ lastAction }}
-        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
-
+.status-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    border-radius: 2px;
+    border: 1px solid;
+    vertical-align: middle;
+}
 </style>

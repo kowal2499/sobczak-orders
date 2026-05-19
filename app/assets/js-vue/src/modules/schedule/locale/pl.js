@@ -6,4 +6,27 @@ export default {
     'select': 'Wybierz',
     'workingDaysShort': 'dni rob.',
     'ordersCount': '{count} zleceń',
+    'filters': {
+        'department': 'Dział',
+        'status': 'Status',
+        'agreementLine': 'Zamówienie',
+    },
+    'showGhost': 'Pokaż prognozę',
+    'status': {
+        'pending': 'Oczekujące',
+        'in_progress': 'W trakcie',
+        'completed': 'Zakończone',
+        'cancelled': 'Anulowane',
+    },
+    'loadError': 'Nie udało się załadować danych kalendarza',
+    'all': 'Wszystkie',
+    'dayAbbr': {
+        '0': 'Nd',
+        '1': 'Pn',
+        '2': 'Wt',
+        '3': 'Śr',
+        '4': 'Cz',
+        '5': 'Pt',
+        '6': 'Sb',
+    },
 }
