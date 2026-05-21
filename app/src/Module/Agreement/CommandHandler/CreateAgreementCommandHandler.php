@@ -51,7 +51,6 @@ class CreateAgreementCommandHandler
 
             $this->assignTags($linesToTag, $command->userId);
             $this->createFactors($agreement);
-            $this->emitAgreementLineCreatedEvents($agreement);
 
             $this->em->commit();
         } catch (\Exception $e) {
@@ -60,6 +59,7 @@ class CreateAgreementCommandHandler
         }
 
         $this->logAgreementCreated($agreement, $command->userId);
+        $this->emitAgreementLineCreatedEvents($agreement);
     }
 
     private function logAgreementCreated(Agreement $agreement, int $userId): void
