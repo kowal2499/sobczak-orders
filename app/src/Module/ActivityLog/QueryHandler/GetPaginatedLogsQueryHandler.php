@@ -13,11 +13,15 @@ use App\Module\ActivityLog\ReadModel\LogUserReadModel;
 use App\Module\ActivityLog\ReadModel\PaginatedLogs;
 use App\Module\ActivityLog\Repository\ActivityLogRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GetPaginatedLogsQueryHandler
 {
+    private const TRANSLATION_DOMAIN = 'activity_log';
+
     public function __construct(
         private readonly ActivityLogRepository $activityLogRepository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -95,12 +99,23 @@ class GetPaginatedLogsQueryHandler
         return new LogModel(
             id: (int) $log->getId(),
             type: $log->getType(),
-            content: $log->getContent(),
+            content: $this->translateContent($log->getContent(), $log->getContentParams()),
             date: $log->getCreatedAt(),
             user: $userModel,
             level: $log->getLevel(),
             priority: $log->getPriority(),
             fields: $fields,
+            contentParams: $log->getContentParams(),
         );
+    }
+
+    private function translateContent(string $key, ?array $params): string
+    {
+        $translatorParams = [];
+        foreach ($params ?? [] as $name => $value) {
+            $translatorParams['%' . $name . '%'] = is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE);
+        }
+
+        return $this->translator->trans($key, $translatorParams, self::TRANSLATION_DOMAIN);
     }
 }

@@ -24,6 +24,13 @@ final class AddActivityLogCommand
         public readonly ?int $authorUserId = null,
         public readonly ?\DateTimeInterface $createdDate = null,
         public readonly LogPriority $priority = LogPriority::normal,
+        /**
+         * Presentation-only parameters used to interpolate the translation key in $message.
+         *
+         * @var array<string, mixed>|null
+         */
+        #[Assert\Type('array')]
+        public readonly ?array $contentParams = null,
     ) {
     }
 }

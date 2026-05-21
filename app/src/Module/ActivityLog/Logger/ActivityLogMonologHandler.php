@@ -14,14 +14,15 @@ use Monolog\Logger;
  * dispatches, so producers don't need to know about CQRS.
  *
  * Reserved context keys (extracted, not stored as fields):
- *   - type         → log type (default: "default")
- *   - priority     → LogPriority enum value (default: normal)
- *   - createdDate  → \DateTimeInterface or parseable string
+ *   - type           → log type (default: "default")
+ *   - priority       → LogPriority enum value (default: normal)
+ *   - createdDate    → \DateTimeInterface or parseable string
+ *   - contentParams  → array of i18n interpolation parameters (presentation only, not queryable)
  *   - impersonateUserId → forwarded into contextData so the command handler can apply it
  */
 class ActivityLogMonologHandler extends AbstractProcessingHandler
 {
-    private const RESERVED_KEYS = ['type', 'priority', 'createdDate'];
+    private const RESERVED_KEYS = ['type', 'priority', 'createdDate', 'contentParams'];
 
     public function __construct(
         private readonly CommandBus $commandBus,
@@ -38,6 +39,7 @@ class ActivityLogMonologHandler extends AbstractProcessingHandler
         $type = isset($context['type']) ? (string) $context['type'] : 'default';
         $priority = LogPriority::tryFrom((string) ($context['priority'] ?? '')) ?? LogPriority::normal;
         $createdDate = $this->parseCreatedDate($context['createdDate'] ?? null);
+        $contentParams = is_array($context['contentParams'] ?? null) ? $context['contentParams'] : null;
         $level = LogLevel::tryFrom((string) ($record['level_name'] ?? '')) ?? LogLevel::INFO;
 
         $contextData = $context;
@@ -54,6 +56,7 @@ class ActivityLogMonologHandler extends AbstractProcessingHandler
             authorUserId: null,
             createdDate: $createdDate,
             priority: $priority,
+            contentParams: $contentParams,
         ));
     }
 

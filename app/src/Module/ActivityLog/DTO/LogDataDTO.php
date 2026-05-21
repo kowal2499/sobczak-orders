@@ -8,7 +8,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class LogDataDTO
 {
     /**
-     * @param FieldDataDTO[] $fields
+     * @param FieldDataDTO[]            $fields
+     * @param array<string, mixed>|null $contentParams Presentation-only parameters for interpolating
+     *                                                 the translation key in $message.
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -18,6 +20,8 @@ final class LogDataDTO
         public readonly array $fields = [],
         public readonly ?\DateTimeInterface $createdDate = null,
         public readonly LogPriority $priority = LogPriority::normal,
+        #[Assert\Type('array')]
+        public readonly ?array $contentParams = null,
     ) {
     }
 

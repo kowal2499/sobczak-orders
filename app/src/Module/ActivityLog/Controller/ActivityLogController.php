@@ -171,7 +171,15 @@ class ActivityLogController extends BaseController
         $priority = LogPriority::tryFrom((string) ($data['priority'] ?? LogPriority::normal->value))
             ?? LogPriority::normal;
 
-        return new LogDataDTO($message, $fields, $createdDate, $priority);
+        $contentParams = null;
+        if (array_key_exists('contentParams', $data)) {
+            if (!is_array($data['contentParams'])) {
+                throw new \InvalidArgumentException('"contentParams" must be an object if provided.');
+            }
+            $contentParams = $data['contentParams'];
+        }
+
+        return new LogDataDTO($message, $fields, $createdDate, $priority, $contentParams);
     }
 
     private function buildPaginatedLogFilter(array $data, Request $request): PaginatedLogFilter
@@ -226,6 +234,7 @@ class ActivityLogController extends BaseController
             'id' => $log->id,
             'type' => $log->type,
             'content' => $log->content,
+            'contentParams' => $log->contentParams,
             'date' => $log->date->format(\DateTimeInterface::ATOM),
             'level' => $log->level->value,
             'priority' => $log->priority->value,

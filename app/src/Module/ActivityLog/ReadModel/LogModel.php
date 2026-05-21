@@ -8,7 +8,8 @@ use App\Module\ActivityLog\ValueObject\LogPriority;
 final class LogModel
 {
     /**
-     * @param LogFieldReadModel[] $fields
+     * @param LogFieldReadModel[]       $fields
+     * @param array<string, mixed>|null $contentParams
      */
     public function __construct(
         public readonly int $id,
@@ -19,6 +20,7 @@ final class LogModel
         public readonly LogLevel $level,
         public readonly LogPriority $priority,
         public readonly array $fields,
+        public readonly ?array $contentParams = null,
     ) {
     }
 }

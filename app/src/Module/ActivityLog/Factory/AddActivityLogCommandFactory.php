@@ -20,6 +20,7 @@ final class AddActivityLogCommandFactory
             authorUserId: $authorUserId,
             createdDate: $data->createdDate,
             priority: $data->priority,
+            contentParams: $data->contentParams,
         );
     }
 }

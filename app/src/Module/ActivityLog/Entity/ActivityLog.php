@@ -29,6 +29,12 @@ class ActivityLog
     #[ORM\Column(type: 'text')]
     private string $content;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(name: 'content_params', type: 'json', nullable: true)]
+    private ?array $contentParams = null;
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $user;
@@ -57,18 +63,25 @@ class ActivityLog
     #[ORM\OneToMany(mappedBy: 'log', targetEntity: LogField::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $logFields;
 
+    /**
+     * @param array<string, mixed>|null $contentParams Presentation-only parameters for interpolation of the
+     *                                                 translation key held in $content. Not queryable — use LogField
+     *                                                 for filterable/groupable data.
+     */
     public function __construct(
         string $type,
         string $content,
         ?User $user,
         LogLevel $level = LogLevel::INFO,
         LogPriority $priority = LogPriority::normal,
+        ?array $contentParams = null,
     ) {
         $this->type = $type;
         $this->content = $content;
         $this->user = $user;
         $this->level = $level;
         $this->priority = $priority;
+        $this->contentParams = $contentParams;
         $this->logFields = new ArrayCollection();
     }
 
@@ -85,6 +98,14 @@ class ActivityLog
     public function getContent(): string
     {
         return $this->content;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getContentParams(): ?array
+    {
+        return $this->contentParams;
     }
 
     public function getUser(): ?User

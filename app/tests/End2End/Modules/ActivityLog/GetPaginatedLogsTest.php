@@ -191,6 +191,65 @@ class GetPaginatedLogsTest extends ApiTestCase
         $this->assertEquals('msg-2', $payload['items'][1]['content']);
     }
 
+    public function testShouldReturnTranslatedContentForKnownKey(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['activity-log.read']);
+        $client = $this->login($user);
+
+        $log = new ActivityLog(
+            'agreement.created',
+            'activity_log.agreement.created',
+            $user,
+            LogLevel::INFO,
+            LogPriority::normal,
+        );
+        $log->addLogField('id', '7');
+        $this->activityLogRepository->save($log, true);
+        $this->getManager()->clear();
+
+        // When
+        $client->request('GET', '/log/agreement.created', [], [], ['CONTENT_TYPE' => 'application/json']);
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $payload = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $payload['items']);
+        $this->assertSame('Zamówienie zostało utworzone', $payload['items'][0]['content']);
+    }
+
+    public function testShouldExposeContentParamsInSerializedResponse(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['activity-log.read']);
+        $client = $this->login($user);
+
+        $log = new ActivityLog(
+            'agreement.status_changed',
+            'activity_log.agreement.status_changed',
+            $user,
+            LogLevel::INFO,
+            LogPriority::normal,
+            ['old' => 'DRAFT', 'new' => 'WAITING'],
+        );
+        $log->addLogField('id', '99');
+        $this->activityLogRepository->save($log, true);
+        $this->getManager()->clear();
+
+        // When
+        $client->request('GET', '/log/agreement.status_changed', [], [], ['CONTENT_TYPE' => 'application/json']);
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $payload = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $payload['items']);
+        $this->assertSame(
+            ['old' => 'DRAFT', 'new' => 'WAITING'],
+            $payload['items'][0]['contentParams'],
+        );
+        $this->assertSame('activity_log.agreement.status_changed', $payload['items'][0]['content']);
+    }
+
     public function testShouldReturn403WithoutGrant(): void
     {
         $user = $this->createUser();

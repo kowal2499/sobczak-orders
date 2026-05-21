@@ -40,6 +40,7 @@ class AddActivityLogCommandHandler
                 $user,
                 $command->level ?? LogLevel::INFO,
                 $command->priority,
+                $command->contentParams,
             );
 
             foreach ($contextData as $name => $value) {

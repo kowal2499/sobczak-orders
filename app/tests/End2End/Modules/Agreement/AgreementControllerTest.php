@@ -7,6 +7,9 @@ use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Module\ActivityLog\Entity\ActivityLog;
+use App\Module\ActivityLog\Repository\ActivityLogRepository;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
 use App\Module\Production\Entity\FactorSource;
@@ -24,6 +27,7 @@ class AgreementControllerTest extends ApiTestCase
     private AgreementLineRMRepository $agreementLineRMRepository;
     private TagAssignmentRepository $tagAssignmentRepository;
     private FactorRepository $factorRepository;
+    private ActivityLogRepository $activityLogRepository;
     private EntityFactory $factory;
     private array $tempFiles = [];
 
@@ -35,6 +39,7 @@ class AgreementControllerTest extends ApiTestCase
         $this->agreementLineRMRepository = $this->get(AgreementLineRMRepository::class);
         $this->tagAssignmentRepository = $this->get(TagAssignmentRepository::class);
         $this->factorRepository = $this->get(FactorRepository::class);
+        $this->activityLogRepository = $this->get(ActivityLogRepository::class);
         $this->factory = new EntityFactory($this->getManager());
         $this->tempFiles = [];
 
@@ -204,6 +209,21 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertCount(1, $factorsForLine2, 'Second product should have 1 factor');
         $this->assertEquals(FactorSource::AGREEMENT_LINE, $factorsForLine2[0]->getSource());
         $this->assertEquals(0.15, $factorsForLine2[0]->getFactorValue());
+
+        // Verify activity log was emitted
+        $logs = $this->activityLogRepository->findBy(['type' => AgreementActivityLogType::AGREEMENT_CREATED->value]);
+        $this->assertCount(1, $logs, 'Exactly one agreement.created log should be stored');
+
+        /** @var ActivityLog $log */
+        $log = $logs[0];
+        $this->assertEquals('activity_log.agreement.created', $log->getContent());
+        $this->assertEquals($user->getId(), $log->getUser()?->getId());
+
+        $logFields = [];
+        foreach ($log->getLogFields() as $field) {
+            $logFields[$field->getName()] = $field->getValue();
+        }
+        $this->assertSame(['id' => (string) $order->getId()], $logFields);
     }
 
     public function testShouldUpdateAgreementWithModifiedAndDeletedLines(): void

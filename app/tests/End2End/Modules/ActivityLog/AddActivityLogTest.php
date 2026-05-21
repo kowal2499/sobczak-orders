@@ -177,6 +177,49 @@ class AddActivityLogTest extends ApiTestCase
         $this->assertSame('7', $fields['agreementId']);
     }
 
+    public function testShouldPersistContentParamsSeparatelyFromFields(): void
+    {
+        // Given
+        $user = $this->createUser([], [], ['activity-log.create']);
+        $client = $this->login($user);
+        $this->getManager()->clear();
+
+        // When
+        $client->request(
+            'POST',
+            '/log/agreement.status_changed',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'message' => 'activity_log.agreement.status_changed',
+                'fields' => [
+                    ['name' => 'id', 'value' => '42'],
+                ],
+                'contentParams' => [
+                    'old' => 'DRAFT',
+                    'new' => 'WAITING',
+                    'customerName' => 'Jan Kowalski',
+                ],
+            ]),
+        );
+
+        // Then
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+
+        $this->getManager()->clear();
+        $log = $this->activityLogRepository->findOneBy(['type' => 'agreement.status_changed']);
+        $this->assertNotNull($log);
+        $this->assertSame(
+            ['old' => 'DRAFT', 'new' => 'WAITING', 'customerName' => 'Jan Kowalski'],
+            $log->getContentParams(),
+        );
+
+        // contentParams must not leak into LogField
+        $fields = $this->fieldsByName($log);
+        $this->assertSame(['id' => '42'], $fields);
+    }
+
     public function testShouldFailWhenImpersonatedUserMissing(): void
     {
         $author = $this->createUser([], [], ['activity-log.create']);
