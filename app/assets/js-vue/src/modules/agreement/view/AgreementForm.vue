@@ -258,12 +258,14 @@ export default {
             }
 
             this.$flash.success(this.$t('_saveSuccess'));
+            this.isSaving = false;
 
             if (!this.agreementId) {
                 window.location.replace(routing.get('agreements_show'));
+                return;
             }
 
-            this.isSaving = false;
+            this.loadAgreement();
         },
 
         onSaveError() {
@@ -300,11 +302,9 @@ export default {
                             this.addProduct();
                         }
 
-                        if (data.attachments && data.attachments.length > 0) {
-                            this.$nextTick(() => {
-                                this.$refs.attachmentForm.loadExistingFiles(data.attachments);
-                            });
-                        }
+                        this.$nextTick(() => {
+                            this.$refs.attachmentForm.loadExistingFiles(data.attachments || []);
+                        });
                     }
                 })
                 .catch((error) => {

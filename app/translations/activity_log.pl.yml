@@ -1,0 +1,5 @@
+activity_log:
+    agreement:
+        created: 'Zamówienie zostało utworzone'
+    agreement_line:
+        created: 'Pozycja zamówienia została utworzona'
