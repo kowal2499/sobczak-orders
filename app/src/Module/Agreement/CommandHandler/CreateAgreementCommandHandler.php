@@ -5,6 +5,8 @@ namespace App\Module\Agreement\CommandHandler;
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Attachment;
+use App\Module\ActivityLog\Command\AddActivityLogCommand;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
 use App\Module\Agreement\Command\CreateAgreementCommand;
 use App\Module\Agreement\Event\AgreementLineWasCreatedEvent;
 use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
@@ -49,13 +51,25 @@ class CreateAgreementCommandHandler
 
             $this->assignTags($linesToTag, $command->userId);
             $this->createFactors($agreement);
-            $this->emitAgreementLineCreatedEvents($agreement);
 
             $this->em->commit();
         } catch (\Exception $e) {
             $this->em->rollback();
             throw $e;
         }
+
+        $this->logAgreementCreated($agreement, $command->userId);
+        $this->emitAgreementLineCreatedEvents($agreement);
+    }
+
+    private function logAgreementCreated(Agreement $agreement, int $userId): void
+    {
+        $this->commandBus->dispatch(new AddActivityLogCommand(
+            message: 'activity_log.agreement.created',
+            type: AgreementActivityLogType::AGREEMENT_CREATED->value,
+            contextData: ['id' => (string) $agreement->getId()],
+            authorUserId: $userId,
+        ));
     }
 
     private function getCustomer(int $customerId): \App\Entity\Customer

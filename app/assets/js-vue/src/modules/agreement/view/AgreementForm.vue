@@ -63,6 +63,8 @@
                     ref="attachmentForm"
                     @vdropzone-queue-complete="onSaveSuccess"
                     @vdropzone-error="onSaveError"
+                    @vdropzone-file-rejected="onFileRejected"
+                    @error-state-changed="hasErrorFiles = $event"
                 />
             </div>
         </div>
@@ -72,7 +74,7 @@
             <button
                 class="btn btn-primary btn-lg"
                 @click="save"
-                :disabled="!canSave"
+                :disabled="!canSave || isSaving"
                 type="button"
             >
                 <i class="fa fa-check-square-o"></i>
@@ -121,6 +123,7 @@ export default {
             waiting: false,
             products: [],
             isSaving: false,
+            hasErrorFiles: false,
         };
     },
 
@@ -159,7 +162,8 @@ export default {
                 this.form.products.length > 0 &&
                 this.form.products.every(p => p.productId !== null) &&
                 this.form.products.every(p => p.requiredDate !== null) &&
-                this.isNumberValid
+                this.isNumberValid &&
+                !this.hasErrorFiles
             );
         }
     },
@@ -223,8 +227,15 @@ export default {
             };
 
             // Jeżeli są załączone pliki, request wysyła dropzone
-            if (this.$refs.attachmentForm.getQueuedFiles().length > 0) {
+            const queuedFiles = this.$refs.attachmentForm.getQueuedFiles();
+            const errorFiles  = this.$refs.attachmentForm.getErrorFiles();
+
+            if (queuedFiles.length > 0) {
                 this.$refs.attachmentForm.processQueue(url, appendFormValues);
+            } else if (errorFiles.length > 0) {
+                this.$flash.danger(this.$t('agreement.form.attachmentUploadFailed'));
+                this.isSaving = false;
+                return;
             } else {
                 const formData = new FormData();
                 appendFormValues(formData);
@@ -247,17 +258,26 @@ export default {
             }
 
             this.$flash.success(this.$t('_saveSuccess'));
+            this.isSaving = false;
 
             if (!this.agreementId) {
                 window.location.replace(routing.get('agreements_show'));
+                return;
             }
 
-            this.isSaving = false;
+            this.loadAgreement();
         },
 
         onSaveError() {
+            if (!this.isSaving) {
+                return;
+            }
             this.isSaving = false;
             this.$flash.danger(this.$t('_saveError'));
+        },
+
+        onFileRejected(message) {
+            this.$flash.danger(message);
         },
 
         loadAgreement() {
@@ -266,6 +286,7 @@ export default {
                 .then(({data}) => {
                     if (data) {
                         this.form.customerId = data.customerId;
+                        this.isNumberValid = true;
                         this.form.orderNumber = this.initialOrderNumber = data.orderNumber;
 
                         if (data.products && data.products.length > 0) {
@@ -281,11 +302,9 @@ export default {
                             this.addProduct();
                         }
 
-                        if (data.attachments && data.attachments.length > 0) {
-                            this.$nextTick(() => {
-                                this.$refs.attachmentForm.loadExistingFiles(data.attachments);
-                            });
-                        }
+                        this.$nextTick(() => {
+                            this.$refs.attachmentForm.loadExistingFiles(data.attachments || []);
+                        });
                     }
                 })
                 .catch((error) => {
