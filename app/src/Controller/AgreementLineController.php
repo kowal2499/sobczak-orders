@@ -6,9 +6,12 @@ use App\Entity\AgreementLine;
 use App\Entity\User;
 use App\Form\AgreementLineType;
 use App\Message\Task\UpdateStatusCommand;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
+use App\Module\Agreement\Command\LogAgreementLineActivityCommand;
 use App\Module\Agreement\Event\AgreementLineWasUpdatedEvent;
 use App\Module\Tag\Command\AssignTagsCommand;
 use App\Repository\AgreementLineRepository;
+use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -136,8 +139,10 @@ class AgreementLineController extends BaseController
         AgreementLineRepository $agreementLineRepository,
         EventBus $eventBus,
         TranslatorInterface $translator,
+        CommandBus $commandBus,
     ): JsonResponse
     {
+        $oldStatus = $agreementLine->getStatus();
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
 
         /** @var User $user */
@@ -150,6 +155,16 @@ class AgreementLineController extends BaseController
 
             $em->persist($agreementLine);
             $em->flush();
+
+            if ($agreementLine->getStatus() !== $oldStatus) {
+                $logType = AgreementActivityLogType::forStatus($agreementLine->getStatus());
+                if ($logType !== null) {
+                    $commandBus->dispatch(new LogAgreementLineActivityCommand(
+                        $agreementLine->getId(),
+                        $logType,
+                    ));
+                }
+            }
 
             $payload = json_decode($request->getContent(), true) ?? [];
             $productions = $payload['productions'] ?? [];
@@ -232,11 +247,18 @@ class AgreementLineController extends BaseController
         $statusId,
         EntityManagerInterface $em,
         EventBus $eventBus,
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $agreementLine->setStatus((int)$statusId);
         $em->flush();
         $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
+
+        $logType = AgreementActivityLogType::forStatus((int) $statusId);
+        if ($logType !== null) {
+            $commandBus->dispatch(new LogAgreementLineActivityCommand($agreementLine->getId(), $logType));
+        }
+
         return $this->json([]);
     }
 
@@ -253,11 +275,16 @@ class AgreementLineController extends BaseController
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
         EventBus $eventBus,
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $agreementLine->setDeleted(true);
         $em->flush();
         $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
+        $commandBus->dispatch(new LogAgreementLineActivityCommand(
+            $agreementLine->getId(),
+            AgreementActivityLogType::AGREEMENT_LINE_DELETED,
+        ));
         return new JsonResponse();
     }
 }

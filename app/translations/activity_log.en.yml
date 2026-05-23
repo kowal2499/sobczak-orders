@@ -3,3 +3,8 @@ activity_log:
         created: 'Agreement has been created'
     agreement_line:
         created: 'Order line has been created'
+        archived: 'Order line has been archived'
+        sent_to_warehouse: 'Order line has been sent to warehouse'
+        restored: 'Order line has been restored to waiting'
+        deleted: 'Order line has been deleted'
+        production_started: 'Production has been started for the order line'
