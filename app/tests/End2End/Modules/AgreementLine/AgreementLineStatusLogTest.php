@@ -56,15 +56,14 @@ class AgreementLineStatusLogTest extends ApiTestCase
         );
     }
 
-    public function testShouldLogStatusChangeWhenUpdateChangesStatus(): void
+    public function testShouldIgnoreStatusChangeSentToUpdateEndpoint(): void
     {
-        // Given — existing line in WAITING, then PUT with status=WAREHOUSE
+        // Given — existing line in WAITING; update payload tries to push it to WAREHOUSE
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
         $line = $this->chainFactory->make([], ['status' => AgreementLine::STATUS_WAITING]);
         $lineId = $line->getId();
-        $agreementId = $line->getAgreement()->getId();
         $this->getManager()->clear();
 
         // When
@@ -84,17 +83,21 @@ class AgreementLineStatusLogTest extends ApiTestCase
             ]),
         );
 
-        // Then
+        // Then — request succeeds, but status is untouched and no status log is emitted
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
         $this->getManager()->clear();
-        $this->assertLogMatches(
-            AgreementActivityLogType::AGREEMENT_LINE_SENT_TO_WAREHOUSE,
-            'activity_log.agreement_line.sent_to_warehouse',
-            $lineId,
-            $agreementId,
-            $user->getId(),
+        $reloaded = $this->getManager()->find(AgreementLine::class, $lineId);
+        $this->assertSame(
+            AgreementLine::STATUS_WAITING,
+            $reloaded->getStatus(),
+            'Status must not be changed via the update endpoint',
         );
+        // The non-status fields are still persisted
+        $this->assertSame('updated', $reloaded->getDescription());
+
+        $logs = $this->activityLogRepository->findAll();
+        $this->assertCount(0, $logs, 'No status log should be emitted from the update endpoint');
     }
 
     public function testShouldNotLogStatusChangeWhenUpdateKeepsSameStatus(): void

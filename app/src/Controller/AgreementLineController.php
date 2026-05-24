@@ -8,6 +8,7 @@ use App\Form\AgreementLineType;
 use App\Message\Task\UpdateStatusCommand;
 use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
 use App\Module\Agreement\Command\LogAgreementLineActivityCommand;
+use App\Module\Agreement\Command\LogProductionDateChangedCommand;
 use App\Module\Agreement\Event\AgreementLineWasUpdatedEvent;
 use App\Module\Tag\Command\AssignTagsCommand;
 use App\Repository\AgreementLineRepository;
@@ -143,6 +144,7 @@ class AgreementLineController extends BaseController
     ): JsonResponse
     {
         $oldStatus = $agreementLine->getStatus();
+        $oldProductionDates = $this->snapshotProductionDates($agreementLine);
         $form = $this->createForm(AgreementLineType::class, $agreementLine);
 
         /** @var User $user */
@@ -153,18 +155,12 @@ class AgreementLineController extends BaseController
             /** @var AgreementLine $agreementLine */
             $agreementLine = $form->getData();
 
+            $agreementLine->setStatus($oldStatus);
+
             $em->persist($agreementLine);
             $em->flush();
 
-            if ($agreementLine->getStatus() !== $oldStatus) {
-                $logType = AgreementActivityLogType::forStatus($agreementLine->getStatus());
-                if ($logType !== null) {
-                    $commandBus->dispatch(new LogAgreementLineActivityCommand(
-                        $agreementLine->getId(),
-                        $logType,
-                    ));
-                }
-            }
+            $this->logProductionDateChanges($agreementLine, $oldProductionDates, $commandBus);
 
             $payload = json_decode($request->getContent(), true) ?? [];
             $productions = $payload['productions'] ?? [];
@@ -211,6 +207,64 @@ class AgreementLineController extends BaseController
             ObjectNormalizer::GROUPS => ['_linePanel'],
             DateTimeNormalizer::FORMAT_KEY => 'Y-m-d H:i:s',
         ]);
+    }
+
+    /**
+     * Captures dateStart/dateEnd of each existing production keyed by production id,
+     * so date changes applied by the form can be detected after flush.
+     *
+     * @return array<int, array{start: ?string, end: ?string}>
+     */
+    private function snapshotProductionDates(AgreementLine $agreementLine): array
+    {
+        $snapshot = [];
+        foreach ($agreementLine->getProductions() as $production) {
+            $snapshot[$production->getId()] = [
+                'start' => $production->getDateStart()?->format('Y-m-d'),
+                'end' => $production->getDateEnd()?->format('Y-m-d'),
+            ];
+        }
+        return $snapshot;
+    }
+
+    /**
+     * Emits a separate log per changed date (start / end), carrying the old and new value.
+     * Both changed → two logs.
+     *
+     * @param array<int, array{start: ?string, end: ?string}> $oldDates
+     */
+    private function logProductionDateChanges(
+        AgreementLine $agreementLine,
+        array $oldDates,
+        CommandBus $commandBus,
+    ): void {
+        foreach ($agreementLine->getProductions() as $production) {
+            $old = $oldDates[$production->getId()] ?? null;
+            if ($old === null) {
+                continue; // newly added production — not a date change
+            }
+
+            $newStart = $production->getDateStart()?->format('Y-m-d');
+            $newEnd = $production->getDateEnd()?->format('Y-m-d');
+
+            if ($old['start'] !== $newStart) {
+                $commandBus->dispatch(new LogProductionDateChangedCommand(
+                    $production->getId(),
+                    AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_DATE_START_CHANGED,
+                    $old['start'],
+                    $newStart,
+                ));
+            }
+
+            if ($old['end'] !== $newEnd) {
+                $commandBus->dispatch(new LogProductionDateChangedCommand(
+                    $production->getId(),
+                    AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_DATE_END_CHANGED,
+                    $old['end'],
+                    $newEnd,
+                ));
+            }
+        }
     }
 
     /**

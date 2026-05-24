@@ -215,7 +215,7 @@ class GetPaginatedLogsTest extends ApiTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $payload = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(1, $payload['items']);
-        $this->assertSame('Zamówienie zostało utworzone', $payload['items'][0]['content']);
+        $this->assertSame('Utworzenie zamówienia', $payload['items'][0]['content']);
     }
 
     public function testShouldExposeContentParamsInSerializedResponse(): void

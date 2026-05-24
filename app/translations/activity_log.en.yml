@@ -1,10 +1,13 @@
 activity_log:
     agreement:
-        created: 'Agreement has been created'
+        created: 'Order created'
     agreement_line:
-        created: 'Order line has been created'
-        archived: 'Order line has been archived'
-        sent_to_warehouse: 'Order line has been sent to warehouse'
-        restored: 'Order line has been restored to waiting'
-        deleted: 'Order line has been deleted'
-        production_started: 'Production has been started for the order line'
+        created: 'Order line added (%productName%)'
+        archived: "Status changed to 'Archived' (%productName%)"
+        sent_to_warehouse: "Status changed to 'Warehouse' (%productName%)"
+        restored: "Status changed to 'Waiting' (%productName%)"
+        deleted: 'Order line deleted (%productName%)'
+        production_started: 'Production started (%productName%)'
+        production_status_changed: "Production status changed to '%statusName%' (%departmentName%)"
+        production_date_start_changed: 'Production start date changed (%departmentName%): %oldDate% → %newDate%'
+        production_date_end_changed: 'Production end date changed (%departmentName%): %oldDate% → %newDate%'
