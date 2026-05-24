@@ -3,12 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Definitions\TaskTypes;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
+use App\Module\Agreement\Command\LogAgreementLineActivityCommand;
 use App\Module\Production\ValueObject\DepartmentEnum;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
 use App\Message\AgreementLine\UpdateProductionCompletionDate;
 use App\Message\AgreementLine\UpdateProductionStartDate;
 use App\Message\Task\UpdateStatusCommand;
+use App\System\CommandBus;
 use App\Module\WorkConfiguration\Entity\WorkCapacity;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Repository\WorkCapacityRepository;
@@ -69,6 +72,7 @@ class ProductionController extends BaseController
         EntityManagerInterface $em,
         MessageBusInterface $messageBus,
         Request $request,
+        CommandBus $commandBus,
     ): JsonResponse
     {
         $params = $request->request->all();
@@ -136,6 +140,11 @@ class ProductionController extends BaseController
         $agreementLine->setStatus(AgreementLine::STATUS_MANUFACTURING);
         $em->persist($agreementLine);
         $em->flush();
+
+        $commandBus->dispatch(new LogAgreementLineActivityCommand(
+            $agreementLine->getId(),
+            AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_STARTED,
+        ));
 
         // set statuses
         array_map(function (Production $production) use ($messageBus) {

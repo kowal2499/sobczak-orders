@@ -43,4 +43,11 @@ export default {
         'removeFile': 'Usuń',
         'cancelUpload': 'Anuluj',
     },
+    'activityLog': {
+        'sectionTitle': 'Historia zmian',
+        'empty': 'Brak historii zmian dla tego zamówienia',
+        'loading': 'Ładowanie historii...',
+        'loadFailed': 'Nie udało się pobrać historii zmian',
+        'system': 'System',
+    },
 }

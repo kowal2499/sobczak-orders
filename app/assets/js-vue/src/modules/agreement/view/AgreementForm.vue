@@ -1,85 +1,102 @@
 <template>
     <div class="agreement-form">
-        <!-- Customer Section -->
-        <customer-form
-            :model-value="form.customerId"
-            @update:modelValue="form.customerId = $event"
-            class="mb-3"
-        />
+        <div class="row">
+            <div :class="agreementId ? 'col-12 col-lg-8' : 'col-12'">
+                <!-- Customer Section -->
+                <customer-form
+                    :model-value="form.customerId"
+                    @update:modelValue="form.customerId = $event"
+                    class="mb-3"
+                />
 
-        <!-- Products Section -->
-        <div class="section-container mb-3">
-            <div class="section-header">
-                <h6 class="section-title">{{ $t('agreement.form.sectionProducts') }}</h6>
-                <button
-                    class="btn btn-sm btn-success"
-                    @click="addProduct"
-                    type="button"
-                    :disabled="!!agreementId && !$user.can('order.manage:edit')"
-                >
-                    <i class="fa fa-plus"></i> {{ $t('agreement.form.addProduct') }}
-                </button>
-            </div>
-
-            <div v-if="form.products.length === 0" class="empty-message">
-                {{ $t('agreement.form.emptyProducts') }}
-            </div>
-
-            <product-row
-                v-for="(product, index) in form.products"
-                :key="index"
-                :product="product"
-                :products="products"
-                :disable-remove="form.products.length === 1"
-                @update:product="updateProduct(index, $event)"
-                @remove="removeProduct(index)"
-                class="mb-2"
-            />
-        </div>
-
-        <!-- Order Details & Attachments Section -->
-        <div class="section-container mb-3">
-            <h6 class="section-title">{{ $t('agreement.form.sectionDetails') }}</h6>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">{{ $t('agreement.form.orderNumber') }}</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        v-model="form.orderNumber"
-                        :placeholder="$t('agreement.form.orderNumberPlaceholder')"
-                    />
-                    <div v-if="form.orderNumber && !isNumberValid" class="alert alert-danger mt-2 mb-0">
-                        <strong>{{ $t('agreement.form.orderNumberUsed') }}</strong>
+                <!-- Products Section -->
+                <div class="section-container mb-3">
+                    <div class="section-header">
+                        <h6 class="section-title">{{ $t('agreement.form.sectionProducts') }}</h6>
+                        <button
+                            class="btn btn-sm btn-success"
+                            @click="addProduct"
+                            type="button"
+                            :disabled="!!agreementId && !$user.can('order.manage:edit')"
+                        >
+                            <i class="fa fa-plus"></i> {{ $t('agreement.form.addProduct') }}
+                        </button>
                     </div>
+
+                    <div v-if="form.products.length === 0" class="empty-message">
+                        {{ $t('agreement.form.emptyProducts') }}
+                    </div>
+
+                    <product-row
+                        v-for="(product, index) in form.products"
+                        :key="index"
+                        :product="product"
+                        :products="products"
+                        :disable-remove="form.products.length === 1"
+                        @update:product="updateProduct(index, $event)"
+                        @remove="removeProduct(index)"
+                        class="mb-2"
+                    />
+                </div>
+
+                <!-- Order Details & Attachments Section -->
+                <div class="section-container mb-3">
+                    <h6 class="section-title">{{ $t('agreement.form.sectionDetails') }}</h6>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ $t('agreement.form.orderNumber') }}</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                v-model="form.orderNumber"
+                                :placeholder="$t('agreement.form.orderNumberPlaceholder')"
+                            />
+                            <div v-if="form.orderNumber && !isNumberValid" class="alert alert-danger mt-2 mb-0">
+                                <strong>{{ $t('agreement.form.orderNumberUsed') }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="attachments-subsection">
+                        <label class="form-label">{{ $t('agreement.form.attachments') }}</label>
+                        <attachment-form
+                            ref="attachmentForm"
+                            @vdropzone-queue-complete="onSaveSuccess"
+                            @vdropzone-error="onSaveError"
+                            @vdropzone-file-rejected="onFileRejected"
+                            @error-state-changed="hasErrorFiles = $event"
+                        />
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="action-bar">
+                    <button
+                        class="btn btn-primary btn-lg"
+                        @click="save"
+                        :disabled="!canSave || isSaving"
+                        type="button"
+                    >
+                        <i class="fa fa-check-square-o"></i>
+                        {{ agreementId ? $t('agreement.form.saveEdit') : $t('agreement.form.saveNew') }}
+                    </button>
                 </div>
             </div>
 
-            <!-- Attachments -->
-            <div class="attachments-subsection">
-                <label class="form-label">{{ $t('agreement.form.attachments') }}</label>
-                <attachment-form
-                    ref="attachmentForm"
-                    @vdropzone-queue-complete="onSaveSuccess"
-                    @vdropzone-error="onSaveError"
-                    @vdropzone-file-rejected="onFileRejected"
-                    @error-state-changed="hasErrorFiles = $event"
-                />
+            <!-- Right column: activity log (edit mode only) -->
+            <div v-if="agreementId" class="col-12 col-lg-4">
+                <div class="section-container activity-log-card">
+                    <h6 class="section-title">{{ $t('agreement.activityLog.sectionTitle') }}</h6>
+                    <ActivityLogList
+                        ref="activityLog"
+                        :fetcher="activityLogFetcher"
+                        :load-on-mount="true"
+                        compact
+                    />
+                </div>
             </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="action-bar">
-            <button
-                class="btn btn-primary btn-lg"
-                @click="save"
-                :disabled="!canSave || isSaving"
-                type="button"
-            >
-                <i class="fa fa-check-square-o"></i>
-                {{ agreementId ? $t('agreement.form.saveEdit') : $t('agreement.form.saveNew') }}
-            </button>
         </div>
     </div>
 </template>
@@ -88,6 +105,8 @@
 import CustomerForm from '../components/CustomerForm.vue';
 import AttachmentForm from '../components/AttachmentForm.vue';
 import ProductRow from '../components/ProductRow.vue';
+import ActivityLogList from '../components/ActivityLogList.vue';
+import { fetchActivityLogsForAgreement } from '../repository/activityLogRepository';
 import api from '../../../api/neworder';
 import routing from "@/api/routing";
 
@@ -105,7 +124,8 @@ export default {
     components: {
         CustomerForm,
         AttachmentForm,
-        ProductRow
+        ProductRow,
+        ActivityLogList,
     },
 
     props: {
@@ -165,7 +185,11 @@ export default {
                 this.isNumberValid &&
                 !this.hasErrorFiles
             );
-        }
+        },
+        activityLogFetcher() {
+            const id = this.agreementId;
+            return () => fetchActivityLogsForAgreement(id);
+        },
     },
 
     methods: {
@@ -266,6 +290,7 @@ export default {
             }
 
             this.loadAgreement();
+            this.$refs.activityLog?.load();
         },
 
         onSaveError() {

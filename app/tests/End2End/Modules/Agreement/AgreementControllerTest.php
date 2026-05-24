@@ -227,7 +227,7 @@ class AgreementControllerTest extends ApiTestCase
         $agreementLog = $allLogs[0];
         $this->assertEquals('activity_log.agreement.created', $agreementLog->getContent());
         $this->assertEquals($user->getId(), $agreementLog->getUser()?->getId());
-        $this->assertSame(['id' => (string) $order->getId()], $this->logFields($agreementLog));
+        $this->assertSame(['agreementId' => (string) $order->getId()], $this->logFields($agreementLog));
 
         // Both line logs reference the same agreementId and one of the line ids
         $expectedLineIds = [(string) $lines[0]->getId(), (string) $lines[1]->getId()];

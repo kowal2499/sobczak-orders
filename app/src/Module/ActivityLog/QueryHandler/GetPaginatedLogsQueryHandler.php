@@ -36,6 +36,11 @@ class GetPaginatedLogsQueryHandler
 
         LogFinder::applyTypeFilter($qb, 'lg', $query->type);
 
+        if ($filter->typePrefix !== null) {
+            $qb->andWhere('lg.type LIKE :typePrefix')
+                ->setParameter('typePrefix', $filter->typePrefix . '%');
+        }
+
         foreach ($filter->fields as $index => $fieldFilter) {
             LogFinder::applyFieldFilter($qb, 'lg', $fieldFilter, $index);
         }
