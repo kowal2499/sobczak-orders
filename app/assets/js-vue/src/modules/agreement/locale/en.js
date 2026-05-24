@@ -43,4 +43,11 @@ export default {
         'removeFile': 'Remove',
         'cancelUpload': 'Cancel',
     },
+    'activityLog': {
+        'sectionTitle': 'Logs',
+        'empty': 'No logs for this order',
+        'loading': 'Loading logs...',
+        'loadFailed': 'Failed to load logs',
+        'system': 'System',
+    },
 }

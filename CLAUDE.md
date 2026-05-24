@@ -135,6 +135,7 @@ public function __invoke(CreateAgreementCommand $command): void
 - Use **PHP Attributes** (not annotations) for entity mapping
 - Entities are clean — no business logic (only simple helper methods)
 - Entities live in `src/Module/[ModuleName]/Entity/`
+- **Each module with entities must be registered in `config/packages/doctrine.yaml` under `orm.mappings`** (despite `auto_mapping: true`, mappings are declared explicitly per module). After adding, run `bin/console cache:clear --env=test` before tests will pick it up.
 
 ### Entity inheritance
 
@@ -260,6 +261,25 @@ When returning production data, filter rows to only departments for which the us
 
 ### 6. Reports
 - Production reports, calendar reports, order statistics, dashboards
+
+### 7. ActivityLog
+- Central, append-only journal of business events with structured key/value fields
+- Entities: `ActivityLog` (`activity_log`), `LogField` (`activity_log_field`)
+- **ValueObjects**: `LogLevel` (PSR-3: DEBUG…EMERGENCY, default `INFO`), `LogPriority` (`normal`, `high`)
+- Append-only — no setters for `type`, `content`, `user` after construction; `addLogField($name, $value)` is **idempotent by name** (first value wins); DB unique index `(activity_log_id, name)` enforces it
+- Write side: `AddActivityLogCommand` + `AddActivityLogCommandHandler`; supports impersonation via `contextData['impersonateUserId']` (overrides author; key is stripped from persisted fields); dispatches `ActivityLogWasAddedEvent` after `$em->commit()`
+- Read side: `GetPaginatedLogsQuery` (filter by `type`, list of `FieldFilter`, optional `filterBy` to narrow returned fields), `CountLogsByFieldQuery` (grouped count); both use ORM QueryBuilder + Doctrine `Paginator`; helper `Query/Helper/LogFinder` keeps JOIN logic shared
+- REST: `POST /log/{type}` (grant `activity-log.create`), `GET /log[/{type}]` (grant `activity-log.read`), `GET /log/{type}/count-by/{groupBy}` (grant `activity-log.read`); GET endpoints accept filter payload via JSON body
+- Monolog integration: dedicated `activity_log` channel routed to `App\Module\ActivityLog\Logger\ActivityLogMonologHandler` (in `config/packages/monolog.yaml`); producers can call `$logger->info($message, ['type' => 'agreement.created', ...$fields])` instead of building the command manually
+- **Channel semantics — opt-in, not catch-all**: only logs sent on the `activity_log` channel reach the DB. The handler has a whitelist `channels: [activity_log]`, and `main`/`console` handlers have `!activity_log` so the same record is not also written to files/console. To log to the DB, inject the channel-scoped logger:
+  ```php
+  public function __construct(
+      #[Autowire(service: 'monolog.logger.activity_log')]
+      private LoggerInterface $activityLogger,
+  ) {}
+  ```
+  A plain `$this->logger->info(...)` (default `app` channel) does **not** persist anything to `activity_log` — it goes to the regular file log as before.
+- Author is an integer FK to `User` (`user_id`, nullable for system-triggered logs)
 
 ## Testing
 

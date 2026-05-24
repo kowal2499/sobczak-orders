@@ -69,6 +69,9 @@ export default {
 
         loadExistingFiles(attachments) {
             this.removedIds = [];
+            this.errorFiles = [];
+            this.$refs.dropzone.removeAllFiles(true);
+            this.$emit('error-state-changed', false);
             attachments.forEach(attachment => {
                 const mockFile = {
                     id: attachment.id,

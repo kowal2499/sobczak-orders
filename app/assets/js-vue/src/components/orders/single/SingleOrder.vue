@@ -65,6 +65,18 @@
                         :tooltip="false"
                     />
                 </collapsible-card>
+
+                <collapsible-card
+                    :title="$t('agreement.activityLog.sectionTitle')"
+                    :locked="locked"
+                >
+                    <ActivityLogList
+                        ref="activityLog"
+                        :fetcher="activityLogFetcher"
+                        :load-on-mount="true"
+                        compact
+                    />
+                </collapsible-card>
             </div>
         </div>
     </div>
@@ -83,12 +95,14 @@
     import Sidebar from '@/components/base/Sidebar.vue'
     import FactorsView from '@/modules/agreementLineList/view/FactorsView'
     import TasksView from '@/modules/task/view/TasksView'
+    import ActivityLogList from '@/modules/agreement/components/ActivityLogList.vue'
+    import { fetchActivityLogsForAgreementLine } from '@/modules/agreement/repository/activityLogRepository'
 
     export default {
         name: "SingleOrder",
         components: {
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
-            Sidebar, FactorsView, TasksView,
+            Sidebar, FactorsView, TasksView, ActivityLogList,
         },
         props: ['lineId', 'taskStatuses'],
 
@@ -147,6 +161,8 @@
                         await this.$refs.tasksView.save();
                     }
 
+                    this.$refs.activityLog?.load();
+
                     this.$flash.success(this.$t('orders.changesWereSaved'));
                     EventBus.$emit('statusUpdated');
                 } catch (error) {
@@ -202,6 +218,10 @@
         },
 
         computed: {
+            activityLogFetcher() {
+                const lineId = this.lineId;
+                return () => fetchActivityLogsForAgreementLine(lineId);
+            },
             prodToSave() {
                 let toSave = _.cloneDeep(this.orderData.productions.tasks);
                 for (let prod of toSave) {
