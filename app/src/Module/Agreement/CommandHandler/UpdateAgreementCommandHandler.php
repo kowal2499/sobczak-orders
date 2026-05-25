@@ -5,6 +5,9 @@ namespace App\Module\Agreement\CommandHandler;
 use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Attachment;
+use App\Entity\Customer;
+use App\Entity\Product;
+use App\Module\Agreement\Command\LogAgreementUpdatedCommand;
 use App\Module\Agreement\Command\UpdateAgreementCommand;
 use App\Module\Agreement\Event\AgreementLineWasCreatedEvent;
 use App\Module\Agreement\Event\AgreementLineWasDeletedEvent;
@@ -46,13 +49,17 @@ class UpdateAgreementCommandHandler
             $agreement = $this->getAgreement($command->agreementId);
             $customer = $this->getCustomer($command->customerId);
 
+            $changes = $this->detectAgreementChanges($agreement, $customer, $command->orderNumber);
+
             $this->updateAgreement($agreement, $customer, $command->orderNumber);
 
             $oldAgreementLineIds = $this->getExistingLineIds($agreement);
             $processResult = $this->processAgreementLines($command, $agreement, $oldAgreementLineIds);
+            $changes = array_merge($changes, $processResult['lineChanges']);
 
-            $this->removeAttachments($command->removedAttachmentIds, $agreement);
-            $this->addNewAttachments($command->attachments, $agreement);
+            $removedNames = $this->removeAttachments($command->removedAttachmentIds, $agreement);
+            $addedNames = $this->addNewAttachments($command->attachments, $agreement);
+            $changes = array_merge($changes, $this->buildAttachmentChanges($addedNames, $removedNames));
 
             $this->em->persist($agreement);
             $this->em->flush();
@@ -68,6 +75,10 @@ class UpdateAgreementCommandHandler
                 $processResult['eventsUpdated'],
                 $processResult['eventsDeleted']
             );
+
+            if ($changes !== []) {
+                $this->commandBus->dispatch(new LogAgreementUpdatedCommand($command->agreementId, $changes));
+            }
         } catch (\Exception $e) {
             $this->em->rollback();
             throw $e;
@@ -83,7 +94,7 @@ class UpdateAgreementCommandHandler
         return $agreement;
     }
 
-    private function getCustomer(int $customerId): \App\Entity\Customer
+    private function getCustomer(int $customerId): Customer
     {
         $customer = $this->customerRepository->find($customerId);
         if (!$customer) {
@@ -92,12 +103,62 @@ class UpdateAgreementCommandHandler
         return $customer;
     }
 
-    private function updateAgreement(Agreement $agreement, \App\Entity\Customer $customer, string $orderNumber): void
+    private function updateAgreement(Agreement $agreement, Customer $customer, string $orderNumber): void
     {
         $agreement
             ->setCustomer($customer)
             ->setOrderNumber($orderNumber)
         ;
+    }
+
+    /**
+     * Captures agreement-level changes (customer, order number) before the entity is mutated.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function detectAgreementChanges(Agreement $agreement, Customer $customer, string $orderNumber): array
+    {
+        $changes = [];
+
+        $oldCustomer = $agreement->getCustomer();
+        if ($oldCustomer?->getId() !== $customer->getId()) {
+            $changes[] = [
+                'scope' => 'agreement',
+                'field' => 'customer',
+                'old' => $oldCustomer?->getName() ?? '',
+                'new' => $customer->getName() ?? '',
+            ];
+        }
+
+        $oldOrderNumber = (string) $agreement->getOrderNumber();
+        if ($oldOrderNumber !== $orderNumber) {
+            $changes[] = [
+                'scope' => 'agreement',
+                'field' => 'orderNumber',
+                'old' => $oldOrderNumber,
+                'new' => $orderNumber,
+            ];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * @param array<int, string> $addedNames
+     * @param array<int, string> $removedNames
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildAttachmentChanges(array $addedNames, array $removedNames): array
+    {
+        $changes = [];
+        foreach ($addedNames as $name) {
+            $changes[] = ['scope' => 'agreement', 'field' => 'attachmentAdded', 'value' => $name];
+        }
+        foreach ($removedNames as $name) {
+            $changes[] = ['scope' => 'agreement', 'field' => 'attachmentRemoved', 'value' => $name];
+        }
+
+        return $changes;
     }
 
     private function getExistingLineIds(Agreement $agreement): array
@@ -113,7 +174,8 @@ class UpdateAgreementCommandHandler
      * @param UpdateAgreementCommand $command
      * @param Agreement $agreement
      * @param array $oldAgreementLineIds
-     * @return array{factorCommands: array, eventsCreated: array, eventsUpdated: array, eventsDeleted: array}
+     * @return array{factorCommands: array, eventsCreated: array, eventsUpdated: array,
+     *               eventsDeleted: array, lineChanges: array}
      * @throws \Exception
      */
     private function processAgreementLines(
@@ -125,6 +187,7 @@ class UpdateAgreementCommandHandler
         $eventsCreated = [];
         $eventsUpdated = [];
         $eventsDeleted = [];
+        $lineChanges = [];
 
         foreach ($command->products as $productData) {
             $productId = (int) ($productData['productId'] ?? 0);
@@ -165,12 +228,36 @@ class UpdateAgreementCommandHandler
             $confirmedDateChanged = $isNew || $oldConfirmedDate === null
                 || $oldConfirmedDate->format('Y-m-d') !== $newConfirmedDate->format('Y-m-d');
 
+            $oldProduct = null;
+            $oldFactor = null;
+            $oldDescription = '';
+            if (!$isNew) {
+                $oldProduct = $line->getProduct();
+                $oldFactor = $line->getFactor();
+                $oldDescription = (string) $line->getDescription();
+            }
+
             $line->setConfirmedDate($newConfirmedDate);
             $line->setProduct($product);
             $line->setFactor($factor);
             $line->setDescription($description);
 
             $this->em->persist($line);
+
+            if (!$isNew) {
+                $lineChanges = array_merge($lineChanges, $this->detectLineChanges(
+                    $line,
+                    $oldProduct,
+                    $product,
+                    $oldFactor,
+                    $factor,
+                    $oldConfirmedDate,
+                    $newConfirmedDate,
+                    $confirmedDateChanged,
+                    $oldDescription,
+                    $description,
+                ));
+            }
 
             if ($isNew) {
                 $this->ghostProductionTaskService->createForAgreementLine($line);
@@ -217,21 +304,125 @@ class UpdateAgreementCommandHandler
             'eventsCreated' => $eventsCreated,
             'eventsUpdated' => $eventsUpdated,
             'eventsDeleted' => $eventsDeleted,
+            'lineChanges' => $lineChanges,
         ];
     }
 
-    private function removeAttachments(array $removedAttachmentIds, Agreement $agreement): void
+    /**
+     * Builds change descriptors for a single existing agreement line. The product name labels
+     * the line so multiple lines within one order remain distinguishable in the activity log.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function detectLineChanges(
+        AgreementLine $line,
+        ?Product $oldProduct,
+        Product $newProduct,
+        ?float $oldFactor,
+        float $newFactor,
+        ?\DateTimeInterface $oldConfirmedDate,
+        \DateTimeInterface $newConfirmedDate,
+        bool $confirmedDateChanged,
+        string $oldDescription,
+        string $newDescription
+    ): array {
+        $lineId = $line->getId();
+        $productName = $newProduct->getName() ?? '';
+        $changes = [];
+
+        if ($oldProduct?->getId() !== $newProduct->getId()) {
+            $changes[] = $this->lineChange(
+                $lineId,
+                $productName,
+                'product',
+                $oldProduct?->getName() ?? '',
+                $newProduct->getName() ?? '',
+            );
+        }
+
+        if (!$this->factorsEqual($oldFactor, $newFactor)) {
+            $changes[] = $this->lineChange(
+                $lineId,
+                $productName,
+                'factor',
+                $this->formatFactor($oldFactor),
+                $this->formatFactor($newFactor),
+            );
+        }
+
+        if ($confirmedDateChanged) {
+            $changes[] = $this->lineChange(
+                $lineId,
+                $productName,
+                'confirmedDate',
+                $oldConfirmedDate?->format('Y-m-d') ?? '',
+                $newConfirmedDate->format('Y-m-d'),
+            );
+        }
+
+        if (trim($oldDescription) !== trim($newDescription)) {
+            $changes[] = $this->lineChange($lineId, $productName, 'description', $oldDescription, $newDescription);
+        }
+
+        return $changes;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function lineChange(int $lineId, string $productName, string $field, string $old, string $new): array
     {
+        return [
+            'scope' => 'line',
+            'lineId' => $lineId,
+            'productName' => $productName,
+            'field' => $field,
+            'old' => $old,
+            'new' => $new,
+        ];
+    }
+
+    private function factorsEqual(?float $a, float $b): bool
+    {
+        if ($a === null) {
+            return false;
+        }
+
+        return abs($a - $b) < 1e-9;
+    }
+
+    private function formatFactor(?float $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return rtrim(rtrim(number_format($value, 4, '.', ''), '0'), '.');
+    }
+
+    /**
+     * @return array<int, string> original names of the attachments that were actually removed
+     */
+    private function removeAttachments(array $removedAttachmentIds, Agreement $agreement): array
+    {
+        $removedNames = [];
         foreach ($removedAttachmentIds as $attachmentId) {
             $attachment = $this->em->find(Attachment::class, (int) $attachmentId);
             if ($attachment && $attachment->getAgreement()->getId() === $agreement->getId()) {
+                $removedNames[] = $attachment->getOriginalName() ?? $attachment->getName() ?? '';
                 $this->em->remove($attachment);
             }
         }
+
+        return $removedNames;
     }
 
-    private function addNewAttachments(array $attachments, Agreement $agreement): void
+    /**
+     * @return array<int, string> original names of the attachments that were added
+     */
+    private function addNewAttachments(array $attachments, Agreement $agreement): array
     {
+        $addedNames = [];
         foreach ($attachments as $file) {
             if (!$file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
                 continue;
@@ -244,7 +435,10 @@ class UpdateAgreementCommandHandler
             $attachment->setOriginalName($fileNames['originalFileName']);
             $attachment->setExtension($fileNames['extension']);
             $this->em->persist($attachment);
+            $addedNames[] = $fileNames['originalFileName'];
         }
+
+        return $addedNames;
     }
 
     private function deleteRemovedLines(array $lineIds): void

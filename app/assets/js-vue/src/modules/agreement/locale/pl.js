@@ -49,5 +49,20 @@ export default {
         'loading': 'Ładowanie historii...',
         'loadFailed': 'Nie udało się pobrać historii zmian',
         'system': 'System',
+        'changes': {
+            'lineLabel': 'Pozycja „{product}"',
+            'lineLabelUnknown': 'Pozycja',
+            'emptyValue': '—',
+            'attachmentAdded': 'Dodano załącznik: {name}',
+            'attachmentRemoved': 'Usunięto załącznik: {name}',
+            'field': {
+                'customer': 'Klient',
+                'orderNumber': 'Numer zamówienia',
+                'product': 'Produkt',
+                'factor': 'Współczynnik',
+                'confirmedDate': 'Data realizacji',
+                'description': 'Opis',
+            },
+        },
     },
 }
