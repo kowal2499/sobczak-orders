@@ -1,6 +1,7 @@
 activity_log:
     agreement:
         created: 'Order created'
+        updated: 'Order updated'
     agreement_line:
         created: 'Order line added (%productName%)'
         archived: "Status changed to 'Archived' (%productName%)"

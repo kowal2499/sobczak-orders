@@ -1,6 +1,7 @@
 activity_log:
     agreement:
         created: 'Utworzenie zamówienia'
+        updated: 'Edycja zamówienia'
     agreement_line:
         created: 'Dodanie pozycji zamówienia (%productName%)'
         archived: "Zmiana statusu na 'Archiwum' (%productName%)"

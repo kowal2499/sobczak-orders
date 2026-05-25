@@ -49,5 +49,20 @@ export default {
         'loading': 'Loading logs...',
         'loadFailed': 'Failed to load logs',
         'system': 'System',
+        'changes': {
+            'lineLabel': 'Item "{product}"',
+            'lineLabelUnknown': 'Item',
+            'emptyValue': '—',
+            'attachmentAdded': 'Attachment added: {name}',
+            'attachmentRemoved': 'Attachment removed: {name}',
+            'field': {
+                'customer': 'Customer',
+                'orderNumber': 'Order number',
+                'product': 'Product',
+                'factor': 'Factor',
+                'confirmedDate': 'Realization date',
+                'description': 'Description',
+            },
+        },
     },
 }
