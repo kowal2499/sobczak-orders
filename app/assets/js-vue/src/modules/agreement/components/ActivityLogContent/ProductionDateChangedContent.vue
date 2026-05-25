@@ -5,9 +5,6 @@
 <script>
 import ChangeContent from './ChangeContent.vue';
 
-// Renders a production date change (start or end) as:
-//   "<Department>, zmiana daty rozpoczęcia/zakończenia"
-//   <old date> → <new date>
 export default {
     name: 'ProductionDateChangedContent',
     components: { ChangeContent },
