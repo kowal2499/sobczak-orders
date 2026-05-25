@@ -11,6 +11,7 @@ final class LogProductionActivityCommand
         #[Assert\Positive]
         public readonly int $productionId,
         public readonly AgreementActivityLogType $type,
+        public readonly ?int $oldStatusId = null,
     ) {
     }
 }

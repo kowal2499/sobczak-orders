@@ -55,6 +55,8 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
             return;
         }
 
+        $oldStatus = null !== $task->getStatus() ? (int)$task->getStatus() : null;
+
         $this->statusService->setStatus($task, $command->getNewStatus());
 
         $statusLog = new StatusLog();
@@ -71,6 +73,7 @@ class UpdateStatusCommandHandler implements MessageHandlerInterface
         $this->commandBus->dispatch(new LogProductionActivityCommand(
             $task->getId(),
             AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_STATUS_CHANGED,
+            $oldStatus,
         ));
 
         $this->messageBus->dispatch(new UpdateProductionCompletionDate($task->getAgreementLine()->getId()));

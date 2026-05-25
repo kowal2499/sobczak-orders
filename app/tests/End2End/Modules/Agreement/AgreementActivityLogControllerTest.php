@@ -133,7 +133,7 @@ class AgreementActivityLogControllerTest extends ApiTestCase
             $user,
             ['id' => (string) $lineId, 'agreementId' => (string) $agreementId],
             new \DateTime('2026-05-01 10:00:00'),
-            ['departmentName' => 'Klejenie', 'statusName' => 'W trakcie'],
+            ['departmentName' => 'Klejenie', 'oldStatusName' => 'Oczekuje', 'newStatusName' => 'W trakcie'],
         );
         $this->seedLog(
             AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_DATE_START_CHANGED->value,
