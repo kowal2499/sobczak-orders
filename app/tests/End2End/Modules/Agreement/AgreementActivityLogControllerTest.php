@@ -217,6 +217,35 @@ class AgreementActivityLogControllerTest extends ApiTestCase
      * @param array<string, string> $fields
      * @param array<string, mixed>|null $contentParams
      */
+    public function testShouldLocalizeStatusAndDepartmentNamesForEnglishLocale(): void
+    {
+        // Given — a status-change log holding canonical Polish enum names
+        $user = $this->createUser([], [], ['activity-log.read']);
+        $client = $this->login($user);
+
+        $agreementId = 9100;
+        $this->seedLog(
+            AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_STATUS_CHANGED->value,
+            'activity_log.agreement_line.production_status_changed',
+            $user,
+            ['id' => '9201', 'agreementId' => (string) $agreementId],
+            new \DateTime('2026-05-01 09:00:00'),
+            ['departmentName' => 'Klejenie', 'oldStatusName' => 'Oczekuje', 'newStatusName' => 'W trakcie'],
+        );
+        $this->getManager()->clear();
+
+        // When — request in the English locale (LocaleSubscriber honours the `locale` query param)
+        $client->request('GET', '/agreement/' . $agreementId . '/activity-log?locale=en');
+
+        // Then — enum-derived content-param values are localized on the backend
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $payload = json_decode($client->getResponse()->getContent(), true);
+        $params = $payload['items'][0]['contentParams'];
+        $this->assertSame('Gluing', $params['departmentName']);
+        $this->assertSame('Awaiting', $params['oldStatusName']);
+        $this->assertSame('In progress', $params['newStatusName']);
+    }
+
     private function seedLog(
         string $type,
         string $content,

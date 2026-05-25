@@ -3,7 +3,7 @@
         <div class="header">{{ title }}</div>
         <ul class="change-list">
             <li v-for="(row, i) in rows" :key="i">
-                <span v-if="row.label" class="label">{{ row.label }}: </span>{{ displayValue(row.old) }} <i class="fa fa-long-arrow-right change-arrow" aria-hidden="true"></i> {{ displayValue(row.new) }}
+                <span v-if="row.label" class="label">{{ row.label }}: </span><template v-if="hasOld(row)">{{ displayValue(row.old) }} <i class="fa fa-long-arrow-right change-arrow" aria-hidden="true"></i> </template>{{ displayValue(row.new) }}
             </li>
         </ul>
     </div>
@@ -27,6 +27,10 @@ export default {
         },
     },
     methods: {
+        // An initial value (e.g. the first production status) has no predecessor: skip the "old → " part.
+        hasOld(row) {
+            return row.old !== null && row.old !== undefined;
+        },
         displayValue(value) {
             const v = (value ?? '').toString();
             if (v === '') {
