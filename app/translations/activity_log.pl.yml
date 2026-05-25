@@ -9,6 +9,6 @@ activity_log:
         restored: "Zmiana statusu na 'Oczekujące' (%productName%)"
         deleted: 'Usunięcie pozycji zamówienia (%productName%)'
         production_started: 'Uruchomienie produkcji (%productName%)'
-        production_status_changed: "Zmiana statusu produkcji na '%statusName%' (%departmentName%)"
+        production_status_changed: "Zmiana statusu produkcji (%departmentName%): %oldStatusName% → %newStatusName%"
         production_date_start_changed: 'Zmiana daty rozpoczęcia produkcji (%departmentName%): %oldDate% → %newDate%'
         production_date_end_changed: 'Zmiana daty zakończenia produkcji (%departmentName%): %oldDate% → %newDate%'

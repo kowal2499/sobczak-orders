@@ -71,7 +71,8 @@ class ProductionStatusLogTest extends ApiTestCase
         $log = $logs[0];
         // Raw content is the translation key; interpolation happens at read time (query handler).
         $this->assertEquals('activity_log.agreement_line.production_status_changed', $log->getContent());
-        $this->assertSame('W trakcie', $log->getContentParams()['statusName']);
+        $this->assertSame('Oczekuje', $log->getContentParams()['oldStatusName']);
+        $this->assertSame('W trakcie', $log->getContentParams()['newStatusName']);
         $this->assertSame('Klejenie', $log->getContentParams()['departmentName']);
         $this->assertEquals($user->getId(), $log->getUser()?->getId());
 

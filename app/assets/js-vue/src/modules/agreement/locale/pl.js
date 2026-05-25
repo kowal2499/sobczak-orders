@@ -53,6 +53,9 @@ export default {
             'lineLabel': 'Pozycja „{product}"',
             'lineLabelUnknown': 'Pozycja',
             'emptyValue': '—',
+            'productionStatus': 'Zmiana statusu: {department}',
+            'productionDateStart': 'Zmiana daty rozpoczęcia: {department}',
+            'productionDateEnd': 'Zmiana daty zakończenia: {department}',
             'attachmentAdded': 'Dodano załącznik: {name}',
             'attachmentRemoved': 'Usunięto załącznik: {name}',
             'field': {

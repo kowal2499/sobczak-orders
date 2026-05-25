@@ -9,6 +9,6 @@ activity_log:
         restored: "Status changed to 'Waiting' (%productName%)"
         deleted: 'Order line deleted (%productName%)'
         production_started: 'Production started (%productName%)'
-        production_status_changed: "Production status changed to '%statusName%' (%departmentName%)"
+        production_status_changed: "Production status changed (%departmentName%): %oldStatusName% → %newStatusName%"
         production_date_start_changed: 'Production start date changed (%departmentName%): %oldDate% → %newDate%'
         production_date_end_changed: 'Production end date changed (%departmentName%): %oldDate% → %newDate%'
