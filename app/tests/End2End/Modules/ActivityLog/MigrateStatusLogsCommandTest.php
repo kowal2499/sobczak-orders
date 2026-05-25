@@ -93,7 +93,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
         // Exactly one log per real status change of our production, chronological old → new chain
         $logs = array_values(array_filter($allLogs, fn (ActivityLog $log) => $this->fieldValue($log, 'id') === (string) $lineId));
         $this->assertCount(3, $logs);
-        $this->assertChange($logs[0], '—', 'Oczekuje', '2026-05-01 08:00:00', $lineId, $agreementId, $userId);
+        $this->assertChange($logs[0], null, 'Oczekuje', '2026-05-01 08:00:00', $lineId, $agreementId, $userId);
         $this->assertChange($logs[1], 'Oczekuje', 'W trakcie', '2026-05-02 09:00:00', $lineId, $agreementId, $userId);
         $this->assertChange($logs[2], 'W trakcie', 'Zakończone', '2026-05-03 10:00:00', $lineId, $agreementId, $userId);
     }
@@ -150,7 +150,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
 
     private function assertChange(
         ActivityLog $log,
-        string $expectedOld,
+        ?string $expectedOld,
         string $expectedNew,
         string $expectedCreatedAt,
         int $lineId,
@@ -159,7 +159,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
     ): void {
         $params = $log->getContentParams();
         $this->assertSame('Klejenie', $params['departmentName']);
-        $this->assertSame($expectedOld, $params['oldStatusName']);
+        $this->assertSame($expectedOld, $params['oldStatusName'] ?? null);
         $this->assertSame($expectedNew, $params['newStatusName']);
         $this->assertSame($expectedCreatedAt, $log->getCreatedAt()->format('Y-m-d H:i:s'));
         $this->assertSame($userId, $log->getUser()?->getId());

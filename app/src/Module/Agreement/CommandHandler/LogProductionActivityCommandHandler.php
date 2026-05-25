@@ -11,8 +11,6 @@ use App\System\CommandBus;
 
 class LogProductionActivityCommandHandler
 {
-    private const NO_STATUS = '—';
-
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly ProductionRepository $productionRepository,
@@ -46,7 +44,7 @@ class LogProductionActivityCommandHandler
             ],
             contentParams: [
                 'departmentName' => $department?->getName() ?? (string) $production->getDepartmentSlug(),
-                'oldStatusName' => $oldStatus?->getName() ?? self::NO_STATUS,
+                'oldStatusName' => $oldStatus?->getName(),
                 'newStatusName' => $status?->getName() ?? (string) $production->getStatus(),
             ],
         ));

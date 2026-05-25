@@ -37,8 +37,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class MigrateStatusLogsCommand extends Command
 {
-    private const NO_STATUS = '—';
-
     public function __construct(
         private readonly EntityManagerInterface $em,
     ) {
@@ -204,7 +202,7 @@ class MigrateStatusLogsCommand extends Command
             LogPriority::normal,
             [
                 'departmentName' => $department?->getName() ?? $change['departmentSlug'],
-                'oldStatusName' => $oldStatus?->getName() ?? self::NO_STATUS,
+                'oldStatusName' => $oldStatus?->getName(),
                 'newStatusName' => $newStatus?->getName() ?? (string) $change['newStatus'],
             ],
         );
