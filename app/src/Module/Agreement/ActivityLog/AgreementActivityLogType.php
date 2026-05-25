@@ -7,6 +7,7 @@ use App\Entity\AgreementLine;
 enum AgreementActivityLogType: string
 {
     case AGREEMENT_CREATED = 'agreement.created';
+    case AGREEMENT_UPDATED = 'agreement.updated';
     case AGREEMENT_LINE_CREATED = 'agreement_line.created';
     case AGREEMENT_LINE_ARCHIVED = 'agreement_line.archived';
     case AGREEMENT_LINE_SENT_TO_WAREHOUSE = 'agreement_line.sent_to_warehouse';

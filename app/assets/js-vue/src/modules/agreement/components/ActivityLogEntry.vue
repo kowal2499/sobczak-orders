@@ -25,13 +25,13 @@
 import { format as timeago } from 'timeago.js';
 import Avatar from '@/components/base/Avatar.vue';
 import DefaultContent from './ActivityLogContent/DefaultContent.vue';
+import AgreementUpdatedContent from './ActivityLogContent/AgreementUpdatedContent.vue';
 
 // Map of log.type -> Vue component used to render its content area.
 // Add an entry here when a new log type needs custom rendering (e.g. field-diff).
 // Falls back to DefaultContent for unmapped types.
 const RENDERERS = {
-    // Example future entry:
-    // 'agreement_line.fields_changed': FieldsDiffContent,
+    'agreement.updated': AgreementUpdatedContent,
 };
 
 function pad(n) {
