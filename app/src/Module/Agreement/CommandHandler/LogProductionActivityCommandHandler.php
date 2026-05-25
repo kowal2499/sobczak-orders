@@ -11,6 +11,8 @@ use App\System\CommandBus;
 
 class LogProductionActivityCommandHandler
 {
+    private const NO_STATUS = '—';
+
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly ProductionRepository $productionRepository,
@@ -31,6 +33,9 @@ class LogProductionActivityCommandHandler
 
         $department = DepartmentEnum::tryFrom((string) $production->getDepartmentSlug());
         $status = ProductionTaskStatus::tryFrom((int) $production->getStatus());
+        $oldStatus = $command->oldStatusId !== null
+            ? ProductionTaskStatus::tryFrom($command->oldStatusId)
+            : null;
 
         $this->commandBus->dispatch(new AddActivityLogCommand(
             message: 'activity_log.' . $command->type->value,
@@ -41,7 +46,8 @@ class LogProductionActivityCommandHandler
             ],
             contentParams: [
                 'departmentName' => $department?->getName() ?? (string) $production->getDepartmentSlug(),
-                'statusName' => $status?->getName() ?? (string) $production->getStatus(),
+                'oldStatusName' => $oldStatus?->getName() ?? self::NO_STATUS,
+                'newStatusName' => $status?->getName() ?? (string) $production->getStatus(),
             ],
         ));
     }

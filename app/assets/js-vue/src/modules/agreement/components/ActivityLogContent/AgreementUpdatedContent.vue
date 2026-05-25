@@ -4,7 +4,8 @@
 
         <ul v-if="agreementChanges.length" class="change-list">
             <li v-for="(change, i) in agreementChanges" :key="`a-${i}`">
-                {{ formatAgreementChange(change) }}
+                <template v-if="isAttachment(change)">{{ attachmentMessage(change) }}</template>
+                <template v-else>{{ fieldLabel(change.field) }}: {{ displayValue(change.old) }} <i class="fa fa-long-arrow-right change-arrow" aria-hidden="true"></i> {{ displayValue(change.new) }}</template>
             </li>
         </ul>
 
@@ -12,7 +13,7 @@
             <div class="line-label">{{ lineLabel(group) }}</div>
             <ul class="change-list">
                 <li v-for="(change, i) in group.changes" :key="`l-${group.lineId}-${i}`">
-                    {{ formatFieldChange(change) }}
+                    {{ fieldLabel(change.field) }}: {{ displayValue(change.old) }} <i class="fa fa-long-arrow-right change-arrow" aria-hidden="true"></i> {{ displayValue(change.new) }}
                 </li>
             </ul>
         </div>
@@ -68,17 +69,14 @@ export default {
                 ? this.$t('agreement.activityLog.changes.lineLabel', { product: group.productName })
                 : this.$t('agreement.activityLog.changes.lineLabelUnknown');
         },
-        formatAgreementChange(change) {
-            if (change.field === 'attachmentAdded') {
-                return this.$t('agreement.activityLog.changes.attachmentAdded', { name: change.value });
-            }
-            if (change.field === 'attachmentRemoved') {
-                return this.$t('agreement.activityLog.changes.attachmentRemoved', { name: change.value });
-            }
-            return this.formatFieldChange(change);
+        isAttachment(change) {
+            return change.field === 'attachmentAdded' || change.field === 'attachmentRemoved';
         },
-        formatFieldChange(change) {
-            return `${this.fieldLabel(change.field)}: ${this.displayValue(change.old)} → ${this.displayValue(change.new)}`;
+        attachmentMessage(change) {
+            const key = change.field === 'attachmentAdded'
+                ? 'agreement.activityLog.changes.attachmentAdded'
+                : 'agreement.activityLog.changes.attachmentRemoved';
+            return this.$t(key, { name: change.value });
         },
     },
 };
@@ -117,5 +115,10 @@ export default {
 
 .line-group .change-list {
     margin-left: 0.75rem;
+}
+
+.change-arrow {
+    margin: 0 0.25rem;
+    color: #adb5bd;
 }
 </style>

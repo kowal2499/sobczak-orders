@@ -1,22 +1,17 @@
 <template>
     <div class="entry" :class="{ compact }">
-        <div v-if="!compact" class="dates">
-            <div class="ago">{{ relativeDate }}</div>
-            <div class="absolute">{{ absoluteDate }}</div>
+        <div class="entry-meta">
+            <Avatar :name="authorName" class="entry-avatar" />
+            <div class="dates">
+                <span class="ago">{{ relativeDate }}</span>
+                <span class="absolute">{{ absoluteDate }}</span>
+            </div>
         </div>
 
         <span class="dot" aria-hidden="true"></span>
 
-        <div v-if="compact" class="dates-above">
-            <span class="ago">{{ relativeDate }}</span>
-            <span class="absolute">{{ absoluteDate }}</span>
-        </div>
-
         <div class="bubble">
-            <Avatar :name="authorName" />
-            <div class="content">
-                <component :is="contentRenderer" :log="log" />
-            </div>
+            <component :is="contentRenderer" :log="log" />
         </div>
     </div>
 </template>
@@ -26,12 +21,17 @@ import { format as timeago } from 'timeago.js';
 import Avatar from '@/components/base/Avatar.vue';
 import DefaultContent from './ActivityLogContent/DefaultContent.vue';
 import AgreementUpdatedContent from './ActivityLogContent/AgreementUpdatedContent.vue';
+import ProductionStatusChangedContent from './ActivityLogContent/ProductionStatusChangedContent.vue';
+import ProductionDateChangedContent from './ActivityLogContent/ProductionDateChangedContent.vue';
 
 // Map of log.type -> Vue component used to render its content area.
 // Add an entry here when a new log type needs custom rendering (e.g. field-diff).
 // Falls back to DefaultContent for unmapped types.
 const RENDERERS = {
     'agreement.updated': AgreementUpdatedContent,
+    'agreement_line.production_status_changed': ProductionStatusChangedContent,
+    'agreement_line.production_date_start_changed': ProductionDateChangedContent,
+    'agreement_line.production_date_end_changed': ProductionDateChangedContent,
 };
 
 function pad(n) {
@@ -85,9 +85,25 @@ export default {
     padding: 0.75rem 0;
 }
 
-.dates {
-    text-align: right;
+// Author avatar + dates, sitting above the bubble, aligned to the right.
+.entry-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
     padding-top: 0.5rem;
+}
+
+.entry-avatar {
+    flex-shrink: 0;
+}
+
+.dates {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
     line-height: 1.25;
 }
 
@@ -122,9 +138,7 @@ export default {
     border: 1px solid var(--colorGrayLight80);
     border-radius: 6px;
     padding: 0.75rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    min-width: 0; // allow long text to wrap rather than overflow
 }
 
 // Arrow pointing left towards the dot — two triangles to mimic a 1px border.
@@ -149,15 +163,9 @@ export default {
     border-right: 9px solid #fff;
 }
 
-.content {
-    flex: 1;
-    padding-top: 0.25rem;
-    min-width: 0; // allow text to wrap inside flex item
-}
-
-// Compact mode: timeline axis + dot stay; dates column removed.
+// Compact mode: timeline axis + dot stay; meta (avatar + dates) sits on top.
 // Layout: 2 columns ([dot] [1fr]) × 2 rows.
-//   Row 1: empty col 1 | dates (right-aligned)
+//   Row 1: empty col 1 | entry-meta (avatar + dates, right-aligned)
 //   Row 2: dot         | bubble (arrow pointing left at the dot)
 .entry.compact {
     display: grid;
@@ -168,9 +176,10 @@ export default {
     align-items: start;
     padding: 0.5rem 0;
 
-    .dates-above {
+    .entry-meta {
         grid-column: 2;
         grid-row: 1;
+        padding-top: 0;
     }
 
     .dot {
@@ -185,27 +194,6 @@ export default {
         grid-row: 2;
         padding: 0.625rem;
     }
-
-    .content {
-        padding-top: 0;
-    }
-}
-
-.dates-above {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-size: 0.75rem;
-    line-height: 1.2;
-
-    .ago {
-        color: #212529;
-        font-weight: 500;
-    }
-
-    .absolute {
-        color: #adb5bd;
-    }
 }
 
 @media (max-width: 768px) {
@@ -217,12 +205,9 @@ export default {
         padding: 0.5rem 0;
     }
 
-    .dates {
-        text-align: left;
+    .entry-meta {
         padding-top: 0;
-        display: flex;
-        align-items: baseline;
-        gap: 0.5rem;
+        justify-content: flex-start;
     }
 
     .ago {

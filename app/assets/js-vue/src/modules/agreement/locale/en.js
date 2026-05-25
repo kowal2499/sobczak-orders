@@ -53,6 +53,9 @@ export default {
             'lineLabel': 'Item "{product}"',
             'lineLabelUnknown': 'Item',
             'emptyValue': '—',
+            'productionStatus': 'Status change: {department}',
+            'productionDateStart': 'Start date change: {department}',
+            'productionDateEnd': 'End date change: {department}',
             'attachmentAdded': 'Attachment added: {name}',
             'attachmentRemoved': 'Attachment removed: {name}',
             'field': {
