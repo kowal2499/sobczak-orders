@@ -6,7 +6,7 @@
                     <label>Status</label><br>
                     <div v-for="(singleStatus, key) in taskStatuses" :key="key">
                         <label>
-                            <input type="radio" :value="key" v-model="status" :disabled="!canEditStatus()">
+                            <input type="radio" :value="key" v-model="status" disabled>
                             {{ singleStatus }}
                         </label>
                     </div>
@@ -91,11 +91,10 @@
                     ...this.value,
                     ...val
                 })
-            },
-
-            canEditStatus() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION) && !this.hasGhost;
             }
+            // Status is read-only in this panel. It is changed only via dedicated flows:
+            // archive/warehouse/restore/delete from the order list, and "start production".
+            // The update endpoint (/agreement_line/update) ignores any incoming status change.
         }
     }
 </script>

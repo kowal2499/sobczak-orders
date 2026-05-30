@@ -1,0 +1,29 @@
+activity_log:
+    agreement:
+        created: 'Order created'
+        updated: 'Order updated'
+    agreement_line:
+        created: 'Order line added (%productName%)'
+        archived: "Status changed to 'Archived' (%productName%)"
+        sent_to_warehouse: "Status changed to 'Warehouse' (%productName%)"
+        restored: "Status changed to 'Waiting' (%productName%)"
+        deleted: 'Order line deleted (%productName%)'
+        production_started: 'Production started (%productName%)'
+        production_status_changed: "Production status changed (%departmentName%): %oldStatusName% → %newStatusName%"
+        production_date_start_changed: 'Production start date changed (%departmentName%): %oldDate% → %newDate%'
+        production_date_end_changed: 'Production end date changed (%departmentName%): %oldDate% → %newDate%'
+
+# Enum-derived values stored in content params. The key is the canonical Polish name (the value the log
+# holds); read-side translation localizes it. Polish needs no entries — the raw value is already correct.
+Oczekuje: 'Awaiting'
+Rozpoczęte: 'Started'
+'W trakcie': 'In progress'
+Zakończone: 'Completed'
+'Nie dotyczy': 'N/A'
+Klejenie: 'Gluing'
+CNC: 'CNC'
+Szlifowanie: 'Grinding'
+Lakierowanie: 'Varnishing'
+Pakowanie: 'Packing'
+Intorex: 'Intorex'
+'Zadanie niestandardowe': 'Custom task'

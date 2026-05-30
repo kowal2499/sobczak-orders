@@ -1,0 +1,14 @@
+activity_log:
+    agreement:
+        created: 'Utworzenie zamówienia'
+        updated: 'Edycja zamówienia'
+    agreement_line:
+        created: 'Dodanie pozycji zamówienia (%productName%)'
+        archived: "Zmiana statusu na 'Archiwum' (%productName%)"
+        sent_to_warehouse: "Zmiana statusu na 'Magazyn' (%productName%)"
+        restored: "Zmiana statusu na 'Oczekujące' (%productName%)"
+        deleted: 'Usunięcie pozycji zamówienia (%productName%)'
+        production_started: 'Uruchomienie produkcji (%productName%)'
+        production_status_changed: "Zmiana statusu produkcji (%departmentName%): %oldStatusName% → %newStatusName%"
+        production_date_start_changed: 'Zmiana daty rozpoczęcia produkcji (%departmentName%): %oldDate% → %newDate%'
+        production_date_end_changed: 'Zmiana daty zakończenia produkcji (%departmentName%): %oldDate% → %newDate%'

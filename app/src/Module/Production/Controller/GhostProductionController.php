@@ -3,6 +3,9 @@
 namespace App\Module\Production\Controller;
 
 use App\Entity\Production;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
+use App\Module\Agreement\Command\LogProductionDateChangedCommand;
+use App\System\CommandBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,6 +21,7 @@ class GhostProductionController extends AbstractController
         int $id,
         Request $request,
         EntityManagerInterface $em,
+        CommandBus $commandBus,
     ): JsonResponse {
         $production = $em->find(Production::class, $id);
         if ($production === null) {
@@ -34,6 +38,9 @@ class GhostProductionController extends AbstractController
         $dateStart = $payload['dateStart'] ?? null;
         $dateEnd = $payload['dateEnd'] ?? null;
 
+        $oldStart = $production->getDateStart()?->format('Y-m-d');
+        $oldEnd = $production->getDateEnd()?->format('Y-m-d');
+
         if ($dateStart !== null) {
             $production->setDateStart(new \DateTime($dateStart));
         }
@@ -44,8 +51,38 @@ class GhostProductionController extends AbstractController
 
         $em->flush();
 
+        $this->logDateChanges($production, $oldStart, $oldEnd, $commandBus);
+
         return $this->json($production, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel'],
         ]);
+    }
+
+    private function logDateChanges(
+        Production $production,
+        ?string $oldStart,
+        ?string $oldEnd,
+        CommandBus $commandBus,
+    ): void {
+        $newStart = $production->getDateStart()?->format('Y-m-d');
+        $newEnd = $production->getDateEnd()?->format('Y-m-d');
+
+        if ($oldStart !== $newStart) {
+            $commandBus->dispatch(new LogProductionDateChangedCommand(
+                $production->getId(),
+                AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_DATE_START_CHANGED,
+                $oldStart,
+                $newStart,
+            ));
+        }
+
+        if ($oldEnd !== $newEnd) {
+            $commandBus->dispatch(new LogProductionDateChangedCommand(
+                $production->getId(),
+                AgreementActivityLogType::AGREEMENT_LINE_PRODUCTION_DATE_END_CHANGED,
+                $oldEnd,
+                $newEnd,
+            ));
+        }
     }
 }

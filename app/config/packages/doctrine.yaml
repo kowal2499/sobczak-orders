@@ -74,6 +74,12 @@ doctrine:
                 prefix: 'App\Module\Task\Entity'
                 alias: Task
                 type: attribute
+            ActivityLog:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/ActivityLog/Entity'
+                prefix: 'App\Module\ActivityLog\Entity'
+                alias: ActivityLog
+                type: attribute
 
 when@test:
     doctrine:

@@ -7,6 +7,9 @@ use App\Entity\AgreementLine;
 use App\Entity\Attachment;
 use App\Entity\Customer;
 use App\Entity\Product;
+use App\Module\ActivityLog\Entity\ActivityLog;
+use App\Module\ActivityLog\Repository\ActivityLogRepository;
+use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Agreement\Service\AgreementLineTaggingPolicy;
 use App\Module\Production\Entity\FactorSource;
@@ -24,6 +27,7 @@ class AgreementControllerTest extends ApiTestCase
     private AgreementLineRMRepository $agreementLineRMRepository;
     private TagAssignmentRepository $tagAssignmentRepository;
     private FactorRepository $factorRepository;
+    private ActivityLogRepository $activityLogRepository;
     private EntityFactory $factory;
     private array $tempFiles = [];
 
@@ -35,6 +39,7 @@ class AgreementControllerTest extends ApiTestCase
         $this->agreementLineRMRepository = $this->get(AgreementLineRMRepository::class);
         $this->tagAssignmentRepository = $this->get(TagAssignmentRepository::class);
         $this->factorRepository = $this->get(FactorRepository::class);
+        $this->activityLogRepository = $this->get(ActivityLogRepository::class);
         $this->factory = new EntityFactory($this->getManager());
         $this->tempFiles = [];
 
@@ -204,6 +209,49 @@ class AgreementControllerTest extends ApiTestCase
         $this->assertCount(1, $factorsForLine2, 'Second product should have 1 factor');
         $this->assertEquals(FactorSource::AGREEMENT_LINE, $factorsForLine2[0]->getSource());
         $this->assertEquals(0.15, $factorsForLine2[0]->getFactorValue());
+
+        // Verify activity log was emitted: 1 agreement.created + 2 agreement_line.created
+        $allLogs = $this->activityLogRepository->findBy([], ['createdAt' => 'ASC', 'id' => 'ASC']);
+        $this->assertCount(3, $allLogs, 'Expected 1 agreement.created + 2 agreement_line.created');
+
+        // Order: agreement first, then both lines
+        $this->assertEquals(
+            AgreementActivityLogType::AGREEMENT_CREATED->value,
+            $allLogs[0]->getType(),
+            'agreement log must come before line logs',
+        );
+        $this->assertEquals(AgreementActivityLogType::AGREEMENT_LINE_CREATED->value, $allLogs[1]->getType());
+        $this->assertEquals(AgreementActivityLogType::AGREEMENT_LINE_CREATED->value, $allLogs[2]->getType());
+
+        /** @var ActivityLog $agreementLog */
+        $agreementLog = $allLogs[0];
+        $this->assertEquals('activity_log.agreement.created', $agreementLog->getContent());
+        $this->assertEquals($user->getId(), $agreementLog->getUser()?->getId());
+        $this->assertSame(['agreementId' => (string) $order->getId()], $this->logFields($agreementLog));
+
+        // Both line logs reference the same agreementId and one of the line ids
+        $expectedLineIds = [(string) $lines[0]->getId(), (string) $lines[1]->getId()];
+        $actualLineIds = [];
+        foreach ([$allLogs[1], $allLogs[2]] as $lineLog) {
+            $this->assertEquals('activity_log.agreement_line.created', $lineLog->getContent());
+            $this->assertEquals($user->getId(), $lineLog->getUser()?->getId());
+
+            $fields = $this->logFields($lineLog);
+            $this->assertSame((string) $order->getId(), $fields['agreementId']);
+            $actualLineIds[] = $fields['id'];
+        }
+        sort($expectedLineIds);
+        sort($actualLineIds);
+        $this->assertSame($expectedLineIds, $actualLineIds);
+    }
+
+    private function logFields(ActivityLog $log): array
+    {
+        $out = [];
+        foreach ($log->getLogFields() as $field) {
+            $out[$field->getName()] = $field->getValue();
+        }
+        return $out;
     }
 
     public function testShouldUpdateAgreementWithModifiedAndDeletedLines(): void
@@ -391,6 +439,92 @@ class AgreementControllerTest extends ApiTestCase
         $factorsForLine2 = $this->factorRepository->findBy(['agreementLine' => $line02Id]);
         $this->assertCount(1, $factorsForLine2);
         $this->assertEquals(2.0, $factorsForLine2[0]->getFactorValue());
+    }
+
+    public function testShouldLogAgreementLineCreatedWhenUpdateAddsNewLine(): void
+    {
+        // Given — existing agreement with one line, no logs yet
+        $user = $this->createUser();
+        $client = $this->login($user);
+
+        $customer = $this->factory->make(Customer::class);
+        $existingProduct = $this->factory->make(Product::class);
+        $newProduct = $this->factory->make(Product::class);
+        $this->getManager()->flush();
+
+        $agreement = new Agreement();
+        $agreement
+            ->setCreateDate(new \DateTime())
+            ->setUpdateDate(new \DateTime())
+            ->setCustomer($customer)
+            ->setUser($user)
+            ->setOrderNumber('UPDATE-LOG-TEST');
+
+        $existingLine = new AgreementLine();
+        $existingLine->setProduct($existingProduct)
+            ->setConfirmedDate(new \DateTime('2024-12-01'))
+            ->setDescription('existing')
+            ->setFactor(1.0)
+            ->setStatus(AgreementLine::STATUS_WAITING)
+            ->setDeleted(false)
+            ->setArchived(false);
+        $agreement->addAgreementLine($existingLine);
+
+        $this->getManager()->persist($existingLine);
+        $this->getManager()->persist($agreement);
+        $this->getManager()->flush();
+
+        $existingLineId = $existingLine->getId();
+        $agreementId = $agreement->getId();
+        $newProductId = $newProduct->getId();
+        $this->getManager()->clear();
+
+        // When — update keeps existing line + adds a new line (no `id` key)
+        $client->request('POST', '/orders/patch/' . $agreementId, [
+            'customerId' => $customer->getId(),
+            'orderNumber' => 'UPDATE-LOG-TEST',
+            'products' => [
+                [
+                    'id' => $existingLineId,
+                    'productId' => $existingProduct->getId(),
+                    'description' => 'existing',
+                    'requiredDate' => '2024-12-01',
+                    'factor' => 1.0,
+                    'isCapacityExceeded' => false,
+                ],
+                [
+                    'productId' => $newProductId,
+                    'description' => 'new line',
+                    'requiredDate' => '2024-12-20',
+                    'factor' => 2.5,
+                    'isCapacityExceeded' => false,
+                ],
+            ],
+        ]);
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $this->getManager()->clear();
+        $logs = $this->activityLogRepository->findBy([], ['createdAt' => 'ASC', 'id' => 'ASC']);
+
+        // Update must NOT emit an agreement.created log (only line creation)
+        $this->assertCount(1, $logs, 'Update should log only the newly added line');
+        $this->assertEquals(AgreementActivityLogType::AGREEMENT_LINE_CREATED->value, $logs[0]->getType());
+
+        $fields = [];
+        foreach ($logs[0]->getLogFields() as $field) {
+            $fields[$field->getName()] = $field->getValue();
+        }
+        $this->assertSame((string) $agreementId, $fields['agreementId']);
+
+        // The line id in the log must point to the new line, not the existing one
+        $newLine = $this->agreementRepository->find($agreementId)
+            ->getAgreementLines()
+            ->filter(fn (AgreementLine $l) => $l->getId() !== $existingLineId)
+            ->first();
+        $this->assertNotFalse($newLine, 'New line must exist');
+        $this->assertSame((string) $newLine->getId(), $fields['id']);
     }
 
     private function createTestFile(string $filename, string $mimeType): UploadedFile
