@@ -22,15 +22,17 @@ export function eventPositionStyle(event) {
   }
 }
 
+// Keyed by production task status (ProductionTaskStatus)
 export const STATUS_COLORS = {
-  pending:     { bg: '#fff3cd', border: '#ffc107', text: '#856404' },
-  in_progress: { bg: '#cff4fc', border: '#0dcaf0', text: '#055160' },
-  completed:   { bg: '#d1e7dd', border: '#198754', text: '#0a3622' },
-  cancelled:   { bg: '#f8d7da', border: '#dc3545', text: '#58151c' }
+  awaits:         { bg: '#fff3cd', border: '#ffc107', text: '#856404' },
+  started:        { bg: '#ffe5d0', border: '#fd7e14', text: '#7a3d00' },
+  in_progress:    { bg: '#cff4fc', border: '#0dcaf0', text: '#055160' },
+  completed:      { bg: '#d1e7dd', border: '#198754', text: '#0a3622' },
+  not_applicable: { bg: '#e2e3e5', border: '#6c757d', text: '#41464b' }
 }
 
 export function eventColors(event) {
-  const status = STATUS_COLORS[event.orderStatus] || STATUS_COLORS.pending
+  const status = STATUS_COLORS[event.orderStatus] || STATUS_COLORS.awaits
   return {
     background: event.color || status.bg,
     borderColor: status.border,

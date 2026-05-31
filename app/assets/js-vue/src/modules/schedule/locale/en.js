@@ -13,10 +13,11 @@ export default {
     },
     'showGhost': 'Show forecast',
     'status': {
-        'pending': 'Pending',
+        'awaits': 'Awaiting',
+        'started': 'Started',
         'in_progress': 'In progress',
         'completed': 'Completed',
-        'cancelled': 'Cancelled',
+        'not_applicable': 'Not applicable',
     },
     'loadError': 'Failed to load calendar data',
     'saved': 'Schedule updated',

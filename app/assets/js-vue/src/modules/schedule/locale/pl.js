@@ -13,10 +13,11 @@ export default {
     },
     'showGhost': 'Pokaż prognozę',
     'status': {
-        'pending': 'Oczekujące',
+        'awaits': 'Oczekujące',
+        'started': 'Rozpoczęte',
         'in_progress': 'W trakcie',
         'completed': 'Zakończone',
-        'cancelled': 'Anulowane',
+        'not_applicable': 'Nie dotyczy',
     },
     'loadError': 'Nie udało się załadować danych kalendarza',
     'saved': 'Zapisano zmianę terminu',
