@@ -6,4 +6,27 @@ export default {
     'select': 'Select',
     'workingDaysShort': 'working days',
     'ordersCount': '{count} orders',
+    'filters': {
+        'department': 'Department',
+        'status': 'Status',
+        'agreementLine': 'Order',
+    },
+    'showGhost': 'Show forecast',
+    'status': {
+        'pending': 'Pending',
+        'in_progress': 'In progress',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+    },
+    'loadError': 'Failed to load calendar data',
+    'all': 'All',
+    'dayAbbr': {
+        '0': 'Su',
+        '1': 'Mo',
+        '2': 'Tu',
+        '3': 'We',
+        '4': 'Th',
+        '5': 'Fr',
+        '6': 'Sa',
+    },
 }

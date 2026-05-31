@@ -11,7 +11,7 @@ import {getLocalDate, getDepartmentName, getUserDepartments} from "@/helpers";
 import VueSelect from 'vue-select'
 
 export default {
-    name: "ScheduleProduction",
+    name: "CalendarGeneral",
 
     components: {
         Calendar,
@@ -75,7 +75,7 @@ export default {
                     return
                 }
 
-                if (false === this.$user.can('reports.production_calendar')) {
+                if (false === this.$user.can('reports.calendar_general')) {
                     return
                 }
 

@@ -14,7 +14,11 @@ app_module:
             optionSlug: capacity-utilization
           - label: Obłożenie tygodniowe
             optionSlug: weekly-capacity
-    - name: Kalendarz produkcji
-      description: Dostęp do kalendarza produkcji
-      slug: reports.production_calendar
+    - name: Kalendarz ogólny
+      description: Dostęp do kalendarza ogólnego
+      slug: reports.calendar_general
+      type: boolean
+    - name: Kalendarz zadań
+      description: Dostęp do kalendarza zadań
+      slug: reports.calendar_tasks
       type: boolean
