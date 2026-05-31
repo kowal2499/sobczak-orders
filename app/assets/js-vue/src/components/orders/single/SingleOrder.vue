@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
-                    <production-widget v-model="orderData.productions"/>
+                    <production-widget v-model="orderData.productions" :active-department="activeDepartment"/>
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
@@ -104,7 +104,7 @@
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
             Sidebar, FactorsView, TasksView, ActivityLogList,
         },
-        props: ['lineId', 'taskStatuses'],
+        props: ['lineId', 'taskStatuses', 'activeDepartment'],
 
         data() {
             return {
