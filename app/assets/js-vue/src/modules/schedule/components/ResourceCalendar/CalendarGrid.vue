@@ -65,7 +65,7 @@
         :key="event.id"
         :event="event"
         :is-dragging="isDraggingEvent(event.id)"
-        :interactive="interactive"
+        :interactive="isEventInteractive(event)"
         @mousedown.native.prevent="$emit('event-mousedown', event, $event)"
         @resize-mousedown="$emit('resize-mousedown', event, $event)"
         @click.native.stop="$emit('event-click', event)"
@@ -105,7 +105,8 @@ export default {
     selectionState: { type: Object, default: null },
     dragState: { type: Object, default: null },
     currentMonthMoment: { type: Object, required: true },
-    interactive: { type: Boolean, default: true }
+    interactive: { type: Boolean, default: true },
+    canEditEvent: { type: Function, default: null }
   },
   computed: {
     dayColumns() {
@@ -165,6 +166,11 @@ export default {
 
     isDraggingEvent(eventId) {
       return this.dragState && this.dragState.eventId === eventId
+    },
+
+    isEventInteractive(event) {
+      if (!this.interactive) return false
+      return this.canEditEvent ? !!this.canEditEvent(event) : true
     }
   }
 }
