@@ -8,7 +8,7 @@ import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/ut
 const STATUS_OPTIONS = ['pending', 'in_progress', 'completed', 'cancelled']
 
 export default {
-    name: "ScheduleProduction2",
+    name: "CalendarTasks",
 
     components: {
         ResourceCalendar,
@@ -99,6 +99,9 @@ export default {
         },
 
         loadMonth(month) {
+            if (false === this.$user.can('reports.calendar_tasks')) {
+                return Promise.resolve()
+            }
             const { start, end } = this.rangeFor(month)
             this.loading = true
             return fetchProductionResources(start, end, this.includeGhost)
