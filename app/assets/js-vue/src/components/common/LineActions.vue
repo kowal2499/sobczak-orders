@@ -37,7 +37,7 @@
 
             <template v-if="false === isTrashed">
                 <!-- sekcja wspólna -->
-                <b-dropdown-item v-if="$user.can('production.panel')" :href="`/agreement/line/${line.id}`" >
+                <b-dropdown-item v-if="$user.can('production.panel')" @click="orderPanelState = !orderPanelState">
                     <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
                 </b-dropdown-item>
 
@@ -122,6 +122,13 @@
                 <FactorsView :agreement-line="line" :agreement-line-id="line.id" @close="close" />
             </template>
         </Sidebar>
+
+        <OrderPanelDrawer
+            v-if="$user.can('production.panel')"
+            v-model="orderPanelState"
+            :line-id="line.id"
+            @saved="$emit('lineChanged')"
+        />
     </div>
 </template>
 
@@ -137,6 +144,7 @@ import ConfirmableAction from "../../modules/agreementLineList/Actions/Confirmab
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
+import OrderPanelDrawer from '@/modules/agreement/components/OrderPanelDrawer.vue'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -151,6 +159,7 @@ export default {
         StartProductionAction,
         Sidebar,
         FactorsView,
+        OrderPanelDrawer,
     },
     props: {
         line: {
@@ -207,7 +216,8 @@ export default {
     },
 
     data: () => ({
-        sidebarFactorsState: false
+        sidebarFactorsState: false,
+        orderPanelState: false,
     }),
 
     methods: {

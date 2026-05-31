@@ -2,11 +2,11 @@
     <div>
         <button
             @click.prevent="save"
-            :disabled="locked"
+            :disabled="locked || isSaving"
             href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
             v-if="canEditLine()"
         >
-            <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
+            <i :class="isSaving ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
             <span class="pl-1">{{ $t('orders.saveChanges') }}</span>
         </button>
 
@@ -109,6 +109,7 @@
         data() {
             return {
                 locked: false,
+                isSaving: false,
                 orderData: {
                     confirmedDate: '',
                     description: '',
@@ -122,12 +123,14 @@
                     Agreement: {},
                     tasks: [],
                 },
+                savedSnapshot: null,
             }
         },
 
         methods: {
             async save() {
                 this.locked = true;
+                this.isSaving = true;
                 try {
                     if (this.$refs.tasksView && !await this.$refs.tasksView.validate()) {
                         this.$flash.warning(this.$t('orders.taskValidationFailed'));
@@ -163,8 +166,10 @@
 
                     this.$refs.activityLog?.load();
 
-                    this.$flash.success(this.$t('orders.changesWereSaved'));
+                    this.snapshot();
+                    this.$flash.success(this.$t('_saveSuccess'));
                     EventBus.$emit('statusUpdated');
+                    this.$emit('saved');
                 } catch (error) {
                     const data = error?.response?.data;
                     if (data?.errors?.title) {
@@ -176,15 +181,42 @@
                     }
                 } finally {
                     this.locked = false;
+                    this.isSaving = true;
                 }
             },
 
             canEditLine() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            },
+
+            snapshot() {
+                this.savedSnapshot = _.cloneDeep(this.orderData);
+            },
+
+            revert() {
+                if (this.savedSnapshot) {
+                    this.orderData = _.cloneDeep(this.savedSnapshot);
+                }
+            },
+
+            handleBeforeunload(event) {
+                if (this.isDirty) {
+                    event.preventDefault();
+                    event.returnValue = '';
+                    return '';
+                }
+            }
+        },
+
+        watch: {
+            isDirty(val) {
+                this.$emit('dirty-change', val);
             }
         },
 
         mounted() {
+            window.addEventListener('beforeunload', this.handleBeforeunload);
+
             this.locked = true;
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
@@ -209,6 +241,7 @@
                                 }))
                             }
                         }
+                        this.snapshot();
                     }
                 })
                 .catch(() => {})
@@ -217,7 +250,17 @@
                 })
         },
 
+        beforeDestroy() {
+            window.removeEventListener('beforeunload', this.handleBeforeunload);
+        },
+
         computed: {
+            isDirty() {
+                if (!this.savedSnapshot) {
+                    return false;
+                }
+                return !_.isEqual(this.orderData, this.savedSnapshot);
+            },
             activityLogFetcher() {
                 const lineId = this.lineId;
                 return () => fetchActivityLogsForAgreementLine(lineId);

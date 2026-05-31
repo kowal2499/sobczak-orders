@@ -115,7 +115,7 @@ export default {
         day,
         isWeekend: isWeekend(year, month, day),
         isToday: isToday(year, month, day),
-        dayName: moment([year, month, day]).format('dd')
+        dayName: this.$t(`schedule.dayAbbr.${moment([year, month, day]).day()}`)
       }))
     }
   },
