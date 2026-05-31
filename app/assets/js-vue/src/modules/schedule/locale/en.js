@@ -19,6 +19,8 @@ export default {
         'cancelled': 'Cancelled',
     },
     'loadError': 'Failed to load calendar data',
+    'saved': 'Schedule updated',
+    'saveError': 'Failed to update schedule',
     'all': 'All',
     'dayAbbr': {
         '0': 'Su',

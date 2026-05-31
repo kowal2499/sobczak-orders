@@ -14,6 +14,7 @@
       :drag-state="dragState"
       :current-month-moment="currentMonthMoment"
       :interactive="interactive"
+      :can-edit-event="canEditEvent"
       v-bind="gridSlots"
       @cell-mousedown="onCellMousedown"
       @cell-mouseenter="onCellMouseenter"
@@ -55,7 +56,9 @@ export default {
     events: { type: Array, default: () => [] },
     value: { type: String, default: null },
     interactive: { type: Boolean, default: true },
-    allowCrossResource: { type: Boolean, default: false }
+    allowCrossResource: { type: Boolean, default: false },
+    allowCreate: { type: Boolean, default: true },
+    canEditEvent: { type: Function, default: null }
   },
   data() {
     return {
@@ -64,7 +67,8 @@ export default {
       dragState: null,
       selectionState: null,
       pendingNewEvent: null,
-      showNewEventModal: false
+      showNewEventModal: false,
+      suppressClick: false
     }
   },
   computed: {
@@ -193,9 +197,14 @@ export default {
       this.$emit('month-change', this.currentMonth)
     },
 
-    // ─── Drag events ────────────────────────────────────────────────
+    isEventEditable(event) {
+      if (!this.interactive) return false
+      return this.canEditEvent ? !!this.canEditEvent(event) : true
+    },
+
     onEventMousedown(event, nativeEvent) {
-      if (!this.interactive || nativeEvent.button !== 0) return
+      this.suppressClick = false
+      if (!this.isEventEditable(event) || nativeEvent.button !== 0) return
       this.dragState = {
         type: 'move',
         eventId: event.id,
@@ -207,7 +216,8 @@ export default {
       }
     },
     onResizeMousedown(event, nativeEvent) {
-      if (!this.interactive || nativeEvent.button !== 0) return
+      this.suppressClick = false
+      if (!this.isEventEditable(event) || nativeEvent.button !== 0) return
       this.dragState = {
         type: 'resize',
         eventId: event.id,
@@ -253,6 +263,9 @@ export default {
 
       if (type === 'move') {
         const offset = currentDayOffset || 0
+        if (offset !== 0 || currentResourceId !== originalEvent.resourceId) {
+          this.suppressClick = true
+        }
         ev.dateStart = moment(ev.dateStart).add(offset, 'days').format('YYYY-MM-DD')
         ev.dateEnd = moment(ev.dateEnd).add(offset, 'days').format('YYYY-MM-DD')
         ev.resourceId = currentResourceId
@@ -263,6 +276,7 @@ export default {
       if (type === 'resize') {
         const offset = currentEndDayOffset || 0
         if (offset !== 0) {
+          this.suppressClick = true
           ev.dateEnd = moment(ev.dateEnd).add(offset, 'days').format('YYYY-MM-DD')
           this.$set(this.localEvents, eventIndex, ev)
           this.$emit('event-resized', { previous: originalEvent, updated: ev })
@@ -271,12 +285,15 @@ export default {
     },
 
     onEventClick(event) {
+      if (this.suppressClick) {
+        this.suppressClick = false
+        return
+      }
       this.$emit('event-click', event)
     },
 
-    // ─── Cell selection ──────────────────────────────────────────────
     onCellMousedown(resourceId, day) {
-      if (!this.interactive) return
+      if (!this.interactive || !this.allowCreate) return
       this.selectionState = { resourceId, startDay: day, endDay: day, active: true }
     },
     onCellMouseenter(resourceId, day) {
@@ -304,7 +321,6 @@ export default {
       this.showNewEventModal = true
     },
 
-    // ─── New event modal ─────────────────────────────────────────────
     onNewEventSave(eventData) {
       this.localEvents.push(eventData)
       this.showNewEventModal = false

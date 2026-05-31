@@ -19,6 +19,8 @@ export default {
         'cancelled': 'Anulowane',
     },
     'loadError': 'Nie udało się załadować danych kalendarza',
+    'saved': 'Zapisano zmianę terminu',
+    'saveError': 'Nie udało się zapisać zmiany terminu',
     'all': 'Wszystkie',
     'dayAbbr': {
         '0': 'Nd',

@@ -1,17 +1,20 @@
 <script>
 import ResourceCalendar from "@/modules/schedule/components/ResourceCalendar/ResourceCalendar.vue";
+import OrderPanelDrawer from "@/modules/agreement/components/OrderPanelDrawer.vue";
 import VueSelect from 'vue-select'
 import moment from 'moment'
-import { fetchProductionResources } from "@/modules/schedule/repository/scheduleRepository";
+import { fetchProductionResources, updateProductionDates } from "@/modules/schedule/repository/scheduleRepository";
 import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
 
 const STATUS_OPTIONS = ['pending', 'in_progress', 'completed', 'cancelled']
+const EDITABLE_STATUSES = ['pending', 'in_progress']
 
 export default {
     name: "CalendarTasks",
 
     components: {
         ResourceCalendar,
+        OrderPanelDrawer,
         VueSelect,
     },
 
@@ -27,6 +30,8 @@ export default {
                 statuses: [],
                 agreementLineIds: [],
             },
+            panelLineId: null,
+            panelOpen: false,
         }
     },
 
@@ -128,6 +133,67 @@ export default {
         onGhostToggle() {
             this.loadMonth(this.currentMonth)
         },
+
+        canEditEvent(event) {
+            return this.$user.can('production.panel')
+                && EDITABLE_STATUSES.includes(event.orderStatus)
+        },
+
+        onEventClick(event) {
+            this.panelLineId = event.agreementLineId
+            this.panelOpen = false
+            this.$nextTick(() => {
+                this.panelOpen = true
+            })
+        },
+
+        onEventMoved({ previous, updated }) {
+            if (
+                previous.dateStart === updated.dateStart
+                && previous.dateEnd === updated.dateEnd
+                && previous.resourceId === updated.resourceId
+            ) {
+                return
+            }
+            this.saveDates(updated)
+        },
+
+        onEventResized({ updated }) {
+            this.saveDates(updated)
+        },
+
+        saveDates(event) {
+            const productionId = event.meta && event.meta.productionId
+            if (!productionId) {
+                return
+            }
+            return updateProductionDates(productionId, {
+                dateStart: event.dateStart,
+                dateEnd: event.dateEnd,
+            })
+                .then(() => {
+                    const target = this.rawEvents.find(e => e.id === event.id)
+                    if (target) {
+                        target.dateStart = event.dateStart
+                        target.dateEnd = event.dateEnd
+                    }
+                    window.EventBus.$emit('message', {
+                        type: 'success',
+                        content: this.$t('schedule.saved'),
+                    })
+                })
+                .catch(() => {
+                    window.EventBus.$emit('message', {
+                        type: 'danger',
+                        content: this.$t('schedule.saveError'),
+                    })
+                    this.loadMonth(this.currentMonth)
+                })
+        },
+
+        onPanelSaved() {
+            this.loadMonth(this.currentMonth)
+        },
     },
 }
 </script>
@@ -190,16 +256,28 @@ export default {
             :resources="filteredResources"
             :events="filteredEvents"
             :value="currentMonth"
-            :interactive="false"
+            :interactive="true"
+            :allow-create="false"
+            :can-edit-event="canEditEvent"
             @month-change="onMonthChange"
+            @event-click="onEventClick"
+            @event-moved="onEventMoved"
+            @event-resized="onEventResized"
         >
             <template #event-type-order="{ event }">
                 <span class="event-label fw-semibold">
-                    <span v-if="event.meta && event.meta.isGhost">👻</span>
                     {{ event.orderName }}
                 </span>
             </template>
         </ResourceCalendar>
+
+        <OrderPanelDrawer
+            v-if="panelLineId"
+            :key="panelLineId"
+            v-model="panelOpen"
+            :line-id="panelLineId"
+            @saved="onPanelSaved"
+        />
     </div>
 </template>
 
