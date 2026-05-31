@@ -157,6 +157,7 @@ class ScheduleProductionResourcesService
             dateStart: $production->getDateStart()->format('Y-m-d'),
             dateEnd: $production->getDateEnd()->format('Y-m-d'),
             meta: [
+                'productionId' => $production->getId(),
                 'agreementLineId' => $line->getAgreementLineId(),
                 'orderNumber' => $line->getOrderNumber(),
                 'customerName' => $line->getCustomerName(),
