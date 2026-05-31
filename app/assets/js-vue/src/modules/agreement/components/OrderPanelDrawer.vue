@@ -14,6 +14,7 @@
                     :key="lineId"
                     :line-id="lineId"
                     :task-statuses="taskStatuses"
+                    :active-department="activeDepartment"
                     @saved="onSaved"
                     @dirty-change="onDirtyChange"
                 />
@@ -43,6 +44,7 @@ export default {
     props: {
         value: { type: Boolean, default: false },
         lineId: { type: Number, required: true },
+        activeDepartment: { type: String, default: null },
     },
 
     data: () => ({

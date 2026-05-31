@@ -5,7 +5,7 @@
             {{ $t('dashboard.ghostOrderBanner') }}
         </div>
 
-        <b-tabs pills card vertical nav-wrapper-class="production-tab-panel">
+        <b-tabs v-model="activeTabIndex" pills card vertical nav-wrapper-class="production-tab-panel">
             <b-tab
                 v-for="tab in tabs"
                 :key="tab.id"
@@ -42,6 +42,14 @@
         name: "ProductionWidget",
         mixins: [proxyValue],
         components: {TagsWidget, DatePicker, ConfirmationModal, TaskContent },
+        props: {
+            activeDepartment: { type: String, default: null },
+        },
+        data() {
+            return {
+                activeTabIndex: 0,
+            }
+        },
         computed: {
             tabs() {
                 const systemTasks = [];
@@ -92,12 +100,32 @@
                 return this.proxyData.tasks.some(task => task.isGhost)
             }
         },
+        watch: {
+            tabs: {
+                immediate: true,
+                handler() {
+                    this.applyActiveDepartment()
+                }
+            },
+            activeDepartment() {
+                this.applyActiveDepartment()
+            }
+        },
         methods: {
             getStatusStyle(statusId) {
                 return helpers.getStatusStyle(statusId)
             },
             handleDelete(id) {
                 this.proxyData.tasks = this.proxyData.tasks.filter(task => task.id !== id);
+            },
+            applyActiveDepartment() {
+                if (!this.activeDepartment) {
+                    return
+                }
+                const index = this.tabs.findIndex(tab => tab.slug === this.activeDepartment)
+                if (index >= 0) {
+                    this.activeTabIndex = index
+                }
             },
         }
     }

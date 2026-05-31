@@ -6,8 +6,8 @@ import moment from 'moment'
 import { fetchProductionResources, updateProductionDates } from "@/modules/schedule/repository/scheduleRepository";
 import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
 
-const STATUS_OPTIONS = ['pending', 'in_progress', 'completed', 'cancelled']
-const EDITABLE_STATUSES = ['pending', 'in_progress']
+const STATUS_OPTIONS = ['awaits', 'started', 'in_progress', 'completed', 'not_applicable']
+const EDITABLE_STATUSES = ['awaits', 'started', 'in_progress']
 
 export default {
     name: "CalendarTasks",
@@ -32,6 +32,7 @@ export default {
             },
             panelLineId: null,
             panelOpen: false,
+            panelDepartment: null,
         }
     },
 
@@ -141,6 +142,7 @@ export default {
 
         onEventClick(event) {
             this.panelLineId = event.agreementLineId
+            this.panelDepartment = event.resourceId
             this.panelOpen = false
             this.$nextTick(() => {
                 this.panelOpen = true
@@ -276,6 +278,7 @@ export default {
             :key="panelLineId"
             v-model="panelOpen"
             :line-id="panelLineId"
+            :active-department="panelDepartment"
             @saved="onPanelSaved"
         />
     </div>

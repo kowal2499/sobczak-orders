@@ -75,7 +75,7 @@ class ScheduleProductionResourcesControllerTest extends BaseScheduleReportsTestC
         $this->assertCount(1, $content['events']);
         $this->assertSame('dpt01', $content['events'][0]['resourceId']);
         $this->assertSame('prod-5001', $content['events'][0]['id']);
-        $this->assertSame('in_progress', $content['events'][0]['orderStatus']);
+        $this->assertSame('started', $content['events'][0]['orderStatus']);
         $this->assertSame('AL-1001', $content['events'][0]['orderName']);
         $this->assertSame(1001, $content['events'][0]['agreementLineId']);
     }

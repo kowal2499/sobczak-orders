@@ -3,11 +3,11 @@
 namespace App\Module\Reports\Schedule\Service;
 
 use App\Entity\AgreementLine;
-use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Production\ValueObject\DepartmentEnum;
+use App\Module\Production\ValueObject\ProductionTaskStatus;
 use App\Module\Reports\Schedule\DTO\ScheduleEventDTO;
 use App\Module\Reports\Schedule\DTO\ScheduleResourceDTO;
 use Symfony\Component\Security\Core\Security;
@@ -169,13 +169,20 @@ class ScheduleProductionResourcesService
         );
     }
 
+    /**
+     * Maps the raw production task status to a stable frontend key matching
+     * ProductionTaskStatus (5 values), used by the calendar status filter and colours.
+     */
     private function mapStatus(?string $status): string
     {
-        return match ((string) $status) {
-            (string) TaskTypes::TYPE_DEFAULT_STATUS_STARTED => 'in_progress',
-            (string) TaskTypes::TYPE_DEFAULT_STATUS_COMPLETED => 'completed',
-            (string) TaskTypes::TYPE_DEFAULT_STATUS_NOT_APPLICABLE => 'cancelled',
-            default => 'pending',
+        $taskStatus = ProductionTaskStatus::tryFrom((int) $status) ?? ProductionTaskStatus::AWAITS;
+
+        return match ($taskStatus) {
+            ProductionTaskStatus::AWAITS => 'awaits',
+            ProductionTaskStatus::STARTED => 'started',
+            ProductionTaskStatus::IN_PROGRESS => 'in_progress',
+            ProductionTaskStatus::COMPLETED => 'completed',
+            ProductionTaskStatus::NOT_APPLICABLE => 'not_applicable',
         };
     }
 }
