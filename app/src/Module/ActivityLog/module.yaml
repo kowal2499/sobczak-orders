@@ -3,11 +3,6 @@ app_module:
   description: Centralny rejestr zdarzeń biznesowych
   active: true
   grants:
-    - name: Zapis logów aktywności
-      description: Możliwość rejestrowania zdarzeń w dzienniku aktywności
-      slug: activity-log.create
-      type: boolean
-
     - name: Odczyt logów aktywności
       description: Możliwość przeglądania dziennika aktywności
       slug: activity-log.read
