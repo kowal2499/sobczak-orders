@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ActivityLog\AgreementActivityLogType;
 use App\Module\Agreement\Command\LogAgreementLineActivityCommand;
+use App\Module\Agreement\Command\UpdateAgreementLineRM;
 use App\Module\Production\ValueObject\DepartmentEnum;
 use App\Entity\StatusLog;
 use App\Exceptions\Production\ProductionAlreadyExistsException;
@@ -60,8 +61,10 @@ class ProductionController extends BaseController
     /**
      * @IsGranted("ROLE_PRODUCTION")
      * @param AgreementLine $agreementLine
-     * @param ProductionTaskDatesResolver $datesResolver
      * @param EntityManagerInterface $em
+     * @param MessageBusInterface $messageBus
+     * @param Request $request
+     * @param CommandBus $commandBus
      * @return JsonResponse
      * @throws ProductionAlreadyExistsException
      */
@@ -157,6 +160,8 @@ class ProductionController extends BaseController
         $messageBus->dispatch(new UpdateProductionStartDate(
             $agreementLine->getId()
         ));
+
+        $commandBus->dispatch(new UpdateAgreementLineRM($agreementLine->getId()));
 
         return $this->json($response, Response::HTTP_OK, [], [
             ObjectNormalizer::GROUPS => ['_linePanel']
