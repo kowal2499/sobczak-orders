@@ -86,7 +86,7 @@
             </div>
 
             <!-- Right column: activity log (edit mode only) -->
-            <div v-if="agreementId" class="col-12 col-lg-4">
+            <div v-if="agreementId && $user.can('activity-log.read')" class="col-12 col-lg-4">
                 <div class="section-container activity-log-card">
                     <h6 class="section-title">{{ $t('agreement.activityLog.sectionTitle') }}</h6>
                     <ActivityLogList

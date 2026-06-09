@@ -67,6 +67,7 @@
                 </collapsible-card>
 
                 <collapsible-card
+                    v-if="$user.can('activity-log.read')"
                     :title="$t('agreement.activityLog.sectionTitle')"
                     :locked="locked"
                 >
