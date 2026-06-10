@@ -41,6 +41,59 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         }
     }
 
+    /**
+     * Agregat miernika "Orders Pending": linie rozpoczęte do końca zakresu i jeszcze niezakończone.
+     * Dolna granica (start) jest celowo pomijana — zgodnie z dotychczasowym zachowaniem miernika.
+     *
+     * @return array{factors_summary: string|float|null, count: int|string}
+     */
+    public function getPendingSummary(\DateTimeInterface $end): array
+    {
+        return $this->createQueryBuilder('l')
+            ->select('SUM(l.factor) as factors_summary')
+            ->addSelect('COUNT(l.agreementLineId) as count')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionEndDate IS NULL')
+            ->andWhere('l.productionStartDate <= :end')
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59))
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    /**
+     * Agregat miernika "Orders Finished": linie zakończone w zakresie (i wcześniej rozpoczęte).
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
+     *
+     * @param int[]|null $customerIds
+     * @return array{factors_summary: string|float|null, count: int|string}
+     */
+    public function getFinishedSummary(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->createQueryBuilder('l')
+            ->select('SUM(l.factor) as factors_summary')
+            ->addSelect('COUNT(l.agreementLineId) as count')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionStartDate IS NOT NULL')
+            ->andWhere('l.productionEndDate >= :start')
+            ->andWhere('l.productionEndDate <= :end')
+            ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+
+        if ($customerIds !== null) {
+            if (empty($customerIds)) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere('l.customerId IN (:customerIds)')
+                    ->setParameter('customerIds', $customerIds);
+            }
+        }
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
     public function search(?array $criteria)
     {
         $qb = $this->createQueryBuilder('l')

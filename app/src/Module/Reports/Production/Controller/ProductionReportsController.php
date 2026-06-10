@@ -18,8 +18,7 @@ class ProductionReportsController extends BaseController
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
     public function agreementLinesProductionSummary(
         Request $request,
-        OrdersPendingRecordSupplier $ordersPendingRecordSupplier,
-        OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier,
+        DashboardMetricProvider $metrics,
     ): Response {
 
         $result = $this->validateDateRange(
@@ -31,12 +30,10 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        $response = [];
-        foreach ([$ordersPendingRecordSupplier, $ordersFinishedRecordSupplier] as $supplier) {
-            $response[$supplier->getId()] = $supplier->getSummary($start, $end);
-        }
-
-        return $this->json($response);
+        return $this->json([
+            'orders_pending' => $metrics->getMetric('orders_pending', $start, $end),
+            'orders_finished' => $metrics->getMetric('orders_finished', $start, $end),
+        ]);
     }
 
     #[Route(path: '/production-finished-details', methods: ['GET'])]
