@@ -3,10 +3,9 @@
 namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
+use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
 use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
-use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
-use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
 use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,7 +77,7 @@ class ProductionReportsController extends BaseController
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
     public function productionTasksCompletionSummary(
         Request $request,
-        ProductionBonusSupplier $supplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -89,13 +88,13 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($supplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('departments_bonus', $start, $end));
     }
 
     #[Route(path: '/production-capacity', methods: ['GET'])]
     public function productionCapacity(
         Request $request,
-        ProductionCapacitySupplier $supplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -108,6 +107,6 @@ class ProductionReportsController extends BaseController
 
         $includeGhost = $request->query->getBoolean('includeGhost');
 
-        return $this->json($supplier->getRecords($start, $end, [], $includeGhost));
+        return $this->json($metrics->getMetric('capacity', $start, $end, $includeGhost));
     }
 }

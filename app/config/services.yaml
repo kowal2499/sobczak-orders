@@ -90,3 +90,10 @@ services:
         tags:
             - { name: messenger.message_handler, bus: messenger.bus.events }
 
+    # Strategie mierników dashboardu wstrzykiwane do providera (jedna klasa, wiele strategii)
+    App\Module\Reports\Production\Provider\DashboardMetricProvider:
+        arguments:
+            $strategies:
+                - '@App\Module\Reports\Production\Metric\CapacityMetricStrategy'
+                - '@App\Module\Reports\Production\Metric\DepartmentsBonusMetricStrategy'
+
