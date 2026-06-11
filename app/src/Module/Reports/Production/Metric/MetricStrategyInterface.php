@@ -14,7 +14,10 @@ interface MetricStrategyInterface
     public function getName(): string;
 
     /**
+     * Mierniki agregatowe (capacity/bonus/orders_*) wymagają obu dat. Mierniki szczegółów
+     * (orders_*_details) mogą działać z pominiętą dolną granicą — stąd daty są nullowalne.
+     *
      * @return array<int|string, mixed> wynik miernika gotowy do serializacji JSON
      */
-    public function compute(\DateTimeInterface $start, \DateTimeInterface $end, bool $includeGhost = false): array;
+    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array;
 }

@@ -14,7 +14,7 @@ class OrdersPendingMetricStrategy extends AbstractMetricStrategy
         return 'orders_pending';
     }
 
-    public function compute(\DateTimeInterface $start, \DateTimeInterface $end, bool $includeGhost = false): array
+    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
     {
         return $this->agreementLineRepo->getPendingSummary($end);
     }

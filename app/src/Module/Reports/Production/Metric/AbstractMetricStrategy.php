@@ -2,6 +2,7 @@
 
 namespace App\Module\Reports\Production\Metric;
 
+use App\Entity\User;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use Symfony\Component\Security\Core\Security;
@@ -41,5 +42,26 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
             $search['ownedBy'] = $this->security->getUser();
         }
         return $search;
+    }
+
+    /**
+     * Lista id przypisanych klientów dla ROLE_CUSTOMER, albo null gdy filtr nie obowiązuje
+     * (brak roli / brak przypisanych klientów — zgodnie z dotychczasowym zachowaniem).
+     *
+     * @return int[]|null
+     */
+    protected function ownedCustomerIds(): ?array
+    {
+        $user = $this->security->getUser();
+        if (!$this->security->isGranted('ROLE_CUSTOMER') || !$user instanceof User) {
+            return null;
+        }
+
+        $ids = array_values(array_filter(array_map(
+            fn ($customer) => $customer?->getId(),
+            $user->getCustomers()->toArray()
+        )));
+
+        return empty($ids) ? null : $ids;
     }
 }

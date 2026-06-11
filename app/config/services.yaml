@@ -98,4 +98,6 @@ services:
                 - '@App\Module\Reports\Production\Metric\DepartmentsBonusMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersPendingMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersFinishedMetricStrategy'
+                - '@App\Module\Reports\Production\Metric\OrdersPendingDetailsStrategy'
+                - '@App\Module\Reports\Production\Metric\OrdersFinishedDetailsStrategy'
 

@@ -41,7 +41,7 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     /**
      * @return ProductionReportRecordDTO[]
      */
-    public function compute(\DateTimeInterface $start, \DateTimeInterface $end, bool $includeGhost = false): array
+    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
     {
         $rangeStart = new \DateTime($start->format('Y-m-d') . ' 00:00:00');
         $rangeEnd = new \DateTime($end->format('Y-m-d') . ' 23:59:59');

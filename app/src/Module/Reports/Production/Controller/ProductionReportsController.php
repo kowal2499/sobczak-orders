@@ -4,8 +4,6 @@ namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
-use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
-use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
 use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,7 +37,7 @@ class ProductionReportsController extends BaseController
     #[Route(path: '/production-finished-details', methods: ['GET'])]
     public function productionFinishedDetails(
         Request $request,
-        OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -50,13 +48,13 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($ordersFinishedRecordSupplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('orders_finished_details', $start, $end));
     }
 
     #[Route(path: '/production-pending-details', methods: ['GET'])]
     public function productionPendingDetails(
         Request $request,
-        OrdersPendingRecordSupplier $ordersPendingRecordSupplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -68,7 +66,7 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($ordersPendingRecordSupplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('orders_pending_details', $start, $end));
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]

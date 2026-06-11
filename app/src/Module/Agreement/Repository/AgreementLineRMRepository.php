@@ -94,6 +94,58 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         return $qb->getQuery()->getSingleResult();
     }
 
+    /**
+     * Linie dla szczegółów miernika "Orders Pending": rozpoczęte do końca zakresu i niezakończone.
+     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null — bez filtra dat.
+     *
+     * @return AgreementLineRM[]
+     */
+    public function findPendingDetailLines(?\DateTimeInterface $end): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionEndDate IS NULL');
+
+        if ($end !== null) {
+            $qb->andWhere('l.productionStartDate <= :end')
+                ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Linie dla szczegółów miernika "Orders Finished": zakończone w zakresie (i wcześniej rozpoczęte).
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
+     *
+     * @param int[]|null $customerIds
+     * @return AgreementLineRM[]
+     */
+    public function findFinishedDetailLines(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionStartDate IS NOT NULL')
+            ->andWhere('l.productionEndDate >= :start')
+            ->andWhere('l.productionEndDate <= :end')
+            ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+
+        if ($customerIds !== null) {
+            if (empty($customerIds)) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere('l.customerId IN (:customerIds)')
+                    ->setParameter('customerIds', $customerIds);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function search(?array $criteria)
     {
         $qb = $this->createQueryBuilder('l')

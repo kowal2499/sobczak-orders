@@ -35,6 +35,7 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
     {
         parent::setUp();
         $this->em = $this->getManager();
+        $this->em->beginTransaction();
         $this->factory = new EntityFactory($this->em);
         $this->agreementLineRepository = $this->em->getRepository(AgreementLine::class);
         $this->productionHelpers = new ProductionFixtureHelpers($this->factory);
@@ -47,6 +48,12 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
 
         $this->handlerUnderTest = new UpdateProductionCompletionDateHandler($this->em, $this->service);
         $this->em->flush();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->em->rollback();
+        parent::tearDown();
     }
 
     public function testShouldSetCompletionDateAccordingToLatestCompletionDateOfAnyTask()
@@ -139,7 +146,5 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
         $agreementUnderTest = $this->agreementLineRepository->find($agreementLine->getId());
 
         $this->assertNull($agreementUnderTest->getProductionCompletionDate());
-
     }
-
 }

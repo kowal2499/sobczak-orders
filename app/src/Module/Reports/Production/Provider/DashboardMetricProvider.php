@@ -33,8 +33,8 @@ class DashboardMetricProvider
      */
     public function getMetric(
         string $metric,
-        \DateTimeInterface $start,
-        \DateTimeInterface $end,
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
         bool $includeGhost = false
     ): array {
         if (!isset($this->strategies[$metric])) {
