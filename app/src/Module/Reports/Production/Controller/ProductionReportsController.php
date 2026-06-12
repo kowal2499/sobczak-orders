@@ -3,10 +3,7 @@
 namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
-use App\Module\Reports\Production\RecordSuppliers\OrdersFinishedRecordSupplier;
-use App\Module\Reports\Production\RecordSuppliers\OrdersPendingRecordSupplier;
-use App\Module\Reports\Production\RecordSuppliers\ProductionBonusSupplier;
-use App\Module\Reports\Production\RecordSuppliers\ProductionCapacitySupplier;
+use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 use App\Utilities\DateValidationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,8 +16,7 @@ class ProductionReportsController extends BaseController
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
     public function agreementLinesProductionSummary(
         Request $request,
-        OrdersPendingRecordSupplier $ordersPendingRecordSupplier,
-        OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier,
+        DashboardMetricProvider $metrics,
     ): Response {
 
         $result = $this->validateDateRange(
@@ -32,18 +28,16 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        $response = [];
-        foreach ([$ordersPendingRecordSupplier, $ordersFinishedRecordSupplier] as $supplier) {
-            $response[$supplier->getId()] = $supplier->getSummary($start, $end);
-        }
-
-        return $this->json($response);
+        return $this->json([
+            'orders_pending' => $metrics->getMetric('orders_pending', $start, $end),
+            'orders_finished' => $metrics->getMetric('orders_finished', $start, $end),
+        ]);
     }
 
     #[Route(path: '/production-finished-details', methods: ['GET'])]
     public function productionFinishedDetails(
         Request $request,
-        OrdersFinishedRecordSupplier $ordersFinishedRecordSupplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -54,13 +48,13 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($ordersFinishedRecordSupplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('orders_finished_details', $start, $end));
     }
 
     #[Route(path: '/production-pending-details', methods: ['GET'])]
     public function productionPendingDetails(
         Request $request,
-        OrdersPendingRecordSupplier $ordersPendingRecordSupplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -72,13 +66,13 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($ordersPendingRecordSupplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('orders_pending_details', $start, $end));
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
     public function productionTasksCompletionSummary(
         Request $request,
-        ProductionBonusSupplier $supplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -89,13 +83,13 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($supplier->getRecords($start, $end));
+        return $this->json($metrics->getMetric('departments_bonus', $start, $end));
     }
 
     #[Route(path: '/production-capacity', methods: ['GET'])]
     public function productionCapacity(
         Request $request,
-        ProductionCapacitySupplier $supplier
+        DashboardMetricProvider $metrics
     ): Response {
         $result = $this->validateDateRange(
             $request->query->get('start'),
@@ -108,6 +102,6 @@ class ProductionReportsController extends BaseController
 
         $includeGhost = $request->query->getBoolean('includeGhost');
 
-        return $this->json($supplier->getRecords($start, $end, [], $includeGhost));
+        return $this->json($metrics->getMetric('capacity', $start, $end, $includeGhost));
     }
 }
