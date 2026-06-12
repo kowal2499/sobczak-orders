@@ -111,7 +111,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                 ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
     }
 
     /**
@@ -143,7 +143,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             }
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
     }
 
     public function search(?array $criteria)
