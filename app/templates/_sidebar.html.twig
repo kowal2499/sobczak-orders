@@ -105,13 +105,29 @@
             </li>
         {% endif %}
 
-        {% if is_granted('reports.production_calendar') %}
-            <li class="nav-item {% if active == 'schedule_production' %}active{% endif %}">
-                <a href="{{ path('schedule_production') }}" class="nav-link">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                    <span>{{ 'Kalendarz'|trans }}</span>
-                </a>
-            </li>
+        {% if is_granted('reports.calendar_general') or is_granted('reports.calendar_tasks') %}
+            <menu-item
+                :active="{% if active in ['schedule_production', 'schedule_production_v2'] %}true{% else %}false{% endif %}"
+                :title-icon="'fa fa-calendar'"
+                :title="'{{ 'Kalendarze'|trans }}'"
+            >
+                <div class="submenu collapse-inner">
+                    {% if is_granted('reports.calendar_general') %}
+                        <a href="{{ path('schedule_production') }}"
+                           class="{% if active == 'schedule_production' %}active{% endif %}"
+                        >
+                            {{ 'Kalendarz ogólny'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if is_granted('reports.calendar_tasks') %}
+                        <a href="{{ path('schedule_production_v2') }}"
+                           class="{% if active == 'schedule_production_v2' %}active{% endif %}"
+                        >
+                            {{ 'Kalendarz zadań'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            </menu-item>
         {% endif %}
 
         {% if is_granted('ROLE_ADMIN') %}

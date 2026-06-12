@@ -20,3 +20,15 @@ export function fetchAgreementLines(startDate, endDate) {
     params.append('endDate', endDate)
     return axios.get(`/reports/schedule/agreement-lines?${params.toString()}`)
 }
+
+export function fetchProductionResources(startDate, endDate, includeGhost = false) {
+    const params = new URLSearchParams()
+    params.append('startDate', startDate)
+    params.append('endDate', endDate)
+    params.append('includeGhost', includeGhost ? '1' : '0')
+    return axios.get(`/reports/schedule/production-resources?${params.toString()}`)
+}
+
+export function updateProductionDates(productionId, { dateStart, dateEnd }) {
+    return axios.put(`/production/${productionId}/dates`, { dateStart, dateEnd })
+}

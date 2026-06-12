@@ -2,18 +2,18 @@
     <div>
         <button
             @click.prevent="save"
-            :disabled="locked"
+            :disabled="locked || isSaving"
             href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
             v-if="canEditLine()"
         >
-            <i :class="locked ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
+            <i :class="isSaving ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
             <span class="pl-1">{{ $t('orders.saveChanges') }}</span>
         </button>
 
         <div class="row">
             <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
-                    <production-widget v-model="orderData.productions"/>
+                    <production-widget v-model="orderData.productions" :active-department="activeDepartment"/>
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderProcessing')" :locked="locked">
@@ -65,6 +65,19 @@
                         :tooltip="false"
                     />
                 </collapsible-card>
+
+                <collapsible-card
+                    v-if="$user.can('activity-log.read')"
+                    :title="$t('agreement.activityLog.sectionTitle')"
+                    :locked="locked"
+                >
+                    <ActivityLogList
+                        ref="activityLog"
+                        :fetcher="activityLogFetcher"
+                        :load-on-mount="true"
+                        compact
+                    />
+                </collapsible-card>
             </div>
         </div>
     </div>
@@ -83,18 +96,21 @@
     import Sidebar from '@/components/base/Sidebar.vue'
     import FactorsView from '@/modules/agreementLineList/view/FactorsView'
     import TasksView from '@/modules/task/view/TasksView'
+    import ActivityLogList from '@/modules/agreement/components/ActivityLogList.vue'
+    import { fetchActivityLogsForAgreementLine } from '@/modules/agreement/repository/activityLogRepository'
 
     export default {
         name: "SingleOrder",
         components: {
             CollapsibleCard, ProductionWidget, DetailsWidget, ProductWidget, AttachmentsWidget, AgreementWidget,
-            Sidebar, FactorsView, TasksView,
+            Sidebar, FactorsView, TasksView, ActivityLogList,
         },
-        props: ['lineId', 'taskStatuses'],
+        props: ['lineId', 'taskStatuses', 'activeDepartment'],
 
         data() {
             return {
                 locked: false,
+                isSaving: false,
                 orderData: {
                     confirmedDate: '',
                     description: '',
@@ -108,12 +124,14 @@
                     Agreement: {},
                     tasks: [],
                 },
+                savedSnapshot: null,
             }
         },
 
         methods: {
             async save() {
                 this.locked = true;
+                this.isSaving = true;
                 try {
                     if (this.$refs.tasksView && !await this.$refs.tasksView.validate()) {
                         this.$flash.warning(this.$t('orders.taskValidationFailed'));
@@ -147,8 +165,12 @@
                         await this.$refs.tasksView.save();
                     }
 
-                    this.$flash.success(this.$t('orders.changesWereSaved'));
+                    this.$refs.activityLog?.load();
+
+                    this.snapshot();
+                    this.$flash.success(this.$t('_saveSuccess'));
                     EventBus.$emit('statusUpdated');
+                    this.$emit('saved');
                 } catch (error) {
                     const data = error?.response?.data;
                     if (data?.errors?.title) {
@@ -160,15 +182,42 @@
                     }
                 } finally {
                     this.locked = false;
+                    this.isSaving = true;
                 }
             },
 
             canEditLine() {
                 return this.$user.can(this.$privilages.CAN_PRODUCTION);
+            },
+
+            snapshot() {
+                this.savedSnapshot = _.cloneDeep(this.orderData);
+            },
+
+            revert() {
+                if (this.savedSnapshot) {
+                    this.orderData = _.cloneDeep(this.savedSnapshot);
+                }
+            },
+
+            handleBeforeunload(event) {
+                if (this.isDirty) {
+                    event.preventDefault();
+                    event.returnValue = '';
+                    return '';
+                }
+            }
+        },
+
+        watch: {
+            isDirty(val) {
+                this.$emit('dirty-change', val);
             }
         },
 
         mounted() {
+            window.addEventListener('beforeunload', this.handleBeforeunload);
+
             this.locked = true;
 
             ordersApi.fetchAgreements({ agreementLineId: this.lineId })
@@ -193,6 +242,7 @@
                                 }))
                             }
                         }
+                        this.snapshot();
                     }
                 })
                 .catch(() => {})
@@ -201,7 +251,21 @@
                 })
         },
 
+        beforeDestroy() {
+            window.removeEventListener('beforeunload', this.handleBeforeunload);
+        },
+
         computed: {
+            isDirty() {
+                if (!this.savedSnapshot) {
+                    return false;
+                }
+                return !_.isEqual(this.orderData, this.savedSnapshot);
+            },
+            activityLogFetcher() {
+                const lineId = this.lineId;
+                return () => fetchActivityLogsForAgreementLine(lineId);
+            },
             prodToSave() {
                 let toSave = _.cloneDeep(this.orderData.productions.tasks);
                 for (let prod of toSave) {

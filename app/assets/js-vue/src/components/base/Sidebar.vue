@@ -1,11 +1,58 @@
 <script>
 import { defineComponent } from 'vue'
 
+let openCount = 0
+let savedScrollY = 0
+
+function lockBodyScroll() {
+    if (openCount === 0) {
+        savedScrollY = window.scrollY || window.pageYOffset
+        const scrollbarGap = window.innerWidth - document.documentElement.clientWidth
+
+        document.body.style.top = `-${savedScrollY}px`
+        document.body.style.left = '0'
+        document.body.style.right = '0'
+        document.body.style.width = '100%'
+        if (scrollbarGap > 0) {
+            document.body.style.paddingRight = `${scrollbarGap}px`
+        }
+        document.body.style.position = 'fixed'
+        document.body.classList.add('sidebar-open')
+    }
+    openCount += 1
+}
+
+function unlockBodyScroll() {
+    openCount = Math.max(0, openCount - 1)
+    if (openCount === 0) {
+        document.body.classList.remove('sidebar-open')
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.left = ''
+        document.body.style.right = ''
+        document.body.style.width = ''
+        document.body.style.paddingRight = ''
+        window.scrollTo(0, savedScrollY)
+    }
+}
+
 export default defineComponent({
     name: 'Sidebar',
+    inject: {
+        parentSidebarLevel: { default: -1 }
+    },
+    provide() {
+        return {
+            parentSidebarLevel: this.effectiveLevel
+        }
+    },
     props: {
         title: String,
         sidebarClass: String,
+        level: {
+            type: Number,
+            default: null
+        },
         lazy: {
             type: Boolean,
             default: true
@@ -14,59 +61,60 @@ export default defineComponent({
             type: Boolean,
             default: true
         },
+        beforeClose: {
+            type: Function,
+            default: null
+        },
         value: {
             type: Boolean,
             default: false
         }
     },
+    computed: {
+        effectiveLevel() {
+            return this.level !== null ? this.level : this.parentSidebarLevel + 1
+        },
+        combinedSidebarClass() {
+            const levelClass = `sidebar-level-${this.effectiveLevel}`
+            return this.sidebarClass ? `${levelClass} ${this.sidebarClass}` : levelClass
+        }
+    },
     watch: {
-        isOpen(val) {
+        async isOpen(val) {
             if (val) {
-                this.scrollY = window.scrollY || window.pageYOffset
-                const scrollbarGap = window.innerWidth - document.documentElement.clientWidth
-
-                // Ustaw inline style zanim zrobisz body fixed
-                document.body.style.top = `-${this.scrollY}px`
-                document.body.style.left = '0'
-                document.body.style.right = '0'
-                document.body.style.width = '100%'
-                if (scrollbarGap > 0) {
-                    document.body.style.paddingRight = `${scrollbarGap}px`
-                }
-                document.body.style.position = 'fixed'
-                document.body.classList.add('sidebar-open')
-
-                this.$nextTick(() => this.contentHeight = this.calcContentHeight())
-            } else {
-                document.body.classList.remove('sidebar-open')
-                document.body.style.position = ''
-                document.body.style.top = ''
-                document.body.style.left = ''
-                document.body.style.right = ''
-                document.body.style.width = ''
-                document.body.style.paddingRight = ''
-                window.scrollTo(0, this.scrollY)
+                this.bSidebarVisible = true
+                this.$emit('input', true)
+                return
             }
-            this.$emit('input', val)
+            if (this.closingInProgress) {
+                return
+            }
+            if (this.beforeClose) {
+                this.closingInProgress = true
+                const allowed = await this.beforeClose()
+                this.closingInProgress = false
+                if (!allowed) {
+                    this.isOpen = true
+                    return
+                }
+            }
+            this.bSidebarVisible = false
+            this.$emit('input', false)
         },
 
         value: {
-            handler() {
-                this.isOpen = this.value
+            handler(val) {
+                if (this.isOpen !== val) {
+                    this.isOpen = val
+                }
             },
             immediate: true
         }
     },
     beforeUnmount() {
-        if (this.isOpen) {
-            document.body.classList.remove('sidebar-open')
-            document.body.style.position = ''
-            document.body.style.top = ''
-            document.body.style.left = ''
-            document.body.style.right = ''
-            document.body.style.width = ''
-            document.body.style.paddingRight = ''
-            window.scrollTo(0, this.scrollY)
+        if (this.locked) {
+            unlockBodyScroll()
+            this.locked = false
         }
     },
 
@@ -79,6 +127,33 @@ export default defineComponent({
             this.isOpen = false
         },
 
+        onBSidebarInput(val) {
+            if (val) {
+                this.bSidebarVisible = true
+                return
+            }
+            if (this.isOpen) {
+                this.isOpen = false
+            } else {
+                this.bSidebarVisible = false
+            }
+        },
+
+        onShown() {
+            if (!this.locked) {
+                lockBodyScroll()
+                this.locked = true
+            }
+        },
+
+        onHidden() {
+            if (this.locked) {
+                unlockBodyScroll()
+                this.locked = false
+            }
+            this.$emit('closed')
+        },
+
         calcContentHeight() {
             const contentEl = this.$refs.content?.$el || this.$refs.content
             if (!contentEl) { return }
@@ -87,8 +162,10 @@ export default defineComponent({
     },
     data: () => ({
         isOpen: false,
-        scrollY: 0,
+        bSidebarVisible: false,
         contentHeight: null,
+        closingInProgress: false,
+        locked: false,
     })
 })
 </script>
@@ -99,9 +176,14 @@ export default defineComponent({
             :title="title"
             :lazy="lazy"
             :no-close-on-backdrop="noCloseOnBackdrop"
-            :sidebar-class="sidebarClass"
+            :no-close-on-esc="true"
+            :sidebar-class="combinedSidebarClass"
             right backdrop shadow
-            v-model="isOpen"
+            :visible="bSidebarVisible"
+            @input="onBSidebarInput"
+            @shown="onShown"
+            @hidden="onHidden"
+            @keydown.native.esc="closeSidebar"
         >
             <template #header>
                 <div class="d-flex gap-2 w-100">
@@ -139,14 +221,14 @@ export default defineComponent({
     $sizes: (25, 50, 75, 100);
     $breakpoints: (md, lg, xl);
 
-    // .size-25, .size-50, ...
+    > .b-sidebar-body { font-size: 0.95rem; }
+
     @each $s in $sizes {
         &.size-#{$s} {
             width: $s * 1%;
         }
     }
 
-    // .size-md-25, .size-lg-50, ...
     @each $bp in $breakpoints {
         @include media-breakpoint-up($bp) {
             @each $s in $sizes {
@@ -158,8 +240,16 @@ export default defineComponent({
     }
 }
 
+.b-sidebar.sidebar-level-1 { z-index: 1065 !important; }
+.b-sidebar.sidebar-level-2 { z-index: 1085 !important; }
+.b-sidebar.sidebar-level-3 { z-index: 1105 !important; }
+
 body.sidebar-open {
     overflow: hidden;
     top: 0;
+}
+
+body.sidebar-open .vs__dropdown-menu {
+    z-index: 1100 !important;
 }
 </style>

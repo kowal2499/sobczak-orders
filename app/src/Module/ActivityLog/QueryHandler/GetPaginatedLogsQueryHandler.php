@@ -36,6 +36,11 @@ class GetPaginatedLogsQueryHandler
 
         LogFinder::applyTypeFilter($qb, 'lg', $query->type);
 
+        if ($filter->typePrefix !== null) {
+            $qb->andWhere('lg.type LIKE :typePrefix')
+                ->setParameter('typePrefix', $filter->typePrefix . '%');
+        }
+
         foreach ($filter->fields as $index => $fieldFilter) {
             LogFinder::applyFieldFilter($qb, 'lg', $fieldFilter, $index);
         }
@@ -96,19 +101,48 @@ class GetPaginatedLogsQueryHandler
             $fields[] = new LogFieldReadModel($field->getName(), $field->getValue());
         }
 
+        $params = $this->translateParamValues($log->getContentParams());
+
         return new LogModel(
             id: (int) $log->getId(),
             type: $log->getType(),
-            content: $this->translateContent($log->getContent(), $log->getContentParams()),
+            content: $this->translateContent($log->getContent(), $params),
             date: $log->getCreatedAt(),
             user: $userModel,
             level: $log->getLevel(),
             priority: $log->getPriority(),
             fields: $fields,
-            contentParams: $log->getContentParams(),
+            contentParams: $params,
         );
     }
 
+    /**
+     * Runs every string content-param value through the translator (domain `activity_log`). Values with
+     * no matching translation are returned unchanged, so enum-derived names (statuses, departments) get
+     * localized while free-form data (dates, numbers, nested change arrays) passes through untouched.
+     *
+     * @param  array<string, mixed>|null $params
+     * @return array<string, mixed>|null
+     */
+    private function translateParamValues(?array $params): ?array
+    {
+        if ($params === null) {
+            return null;
+        }
+
+        $translated = [];
+        foreach ($params as $name => $value) {
+            $translated[$name] = is_string($value)
+                ? $this->translator->trans($value, [], self::TRANSLATION_DOMAIN)
+                : $value;
+        }
+
+        return $translated;
+    }
+
+    /**
+     * @param array<string, mixed>|null $params
+     */
     private function translateContent(string $key, ?array $params): string
     {
         $translatorParams = [];

@@ -18,6 +18,8 @@ final class PaginatedLogFilter
         public readonly array $fields = [],
         #[Assert\Length(max: 255)]
         public readonly ?string $filterBy = null,
+        #[Assert\Length(max: 255)]
+        public readonly ?string $typePrefix = null,
     ) {
     }
 }

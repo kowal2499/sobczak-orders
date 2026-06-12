@@ -30,6 +30,9 @@ class LogAgreementLineCreatedHandler
                 'id' => (string) $line->getId(),
                 'agreementId' => (string) $line->getAgreement()->getId(),
             ],
+            contentParams: [
+                'productName' => $line->getProduct()?->getName() ?? '',
+            ],
         ));
     }
 }

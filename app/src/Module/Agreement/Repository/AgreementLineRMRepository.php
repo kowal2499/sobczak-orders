@@ -6,6 +6,7 @@ use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
+use App\Module\Production\ValueObject\DepartmentEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -38,6 +39,111 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    /**
+     * Agregat miernika "Orders Pending": linie rozpoczęte do końca zakresu i jeszcze niezakończone.
+     * Dolna granica (start) jest celowo pomijana — zgodnie z dotychczasowym zachowaniem miernika.
+     *
+     * @return array{factors_summary: string|float|null, count: int|string}
+     */
+    public function getPendingSummary(\DateTimeInterface $end): array
+    {
+        return $this->createQueryBuilder('l')
+            ->select('SUM(l.factor) as factors_summary')
+            ->addSelect('COUNT(l.agreementLineId) as count')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionEndDate IS NULL')
+            ->andWhere('l.productionStartDate <= :end')
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59))
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    /**
+     * Agregat miernika "Orders Finished": linie zakończone w zakresie (i wcześniej rozpoczęte).
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
+     *
+     * @param int[]|null $customerIds
+     * @return array{factors_summary: string|float|null, count: int|string}
+     */
+    public function getFinishedSummary(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->createQueryBuilder('l')
+            ->select('SUM(l.factor) as factors_summary')
+            ->addSelect('COUNT(l.agreementLineId) as count')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionStartDate IS NOT NULL')
+            ->andWhere('l.productionEndDate >= :start')
+            ->andWhere('l.productionEndDate <= :end')
+            ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+
+        if ($customerIds !== null) {
+            if (empty($customerIds)) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere('l.customerId IN (:customerIds)')
+                    ->setParameter('customerIds', $customerIds);
+            }
+        }
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * Linie dla szczegółów miernika "Orders Pending": rozpoczęte do końca zakresu i niezakończone.
+     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null — bez filtra dat.
+     *
+     * @return AgreementLineRM[]
+     */
+    public function findPendingDetailLines(?\DateTimeInterface $end): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionEndDate IS NULL');
+
+        if ($end !== null) {
+            $qb->andWhere('l.productionStartDate <= :end')
+                ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Linie dla szczegółów miernika "Orders Finished": zakończone w zakresie (i wcześniej rozpoczęte).
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
+     *
+     * @param int[]|null $customerIds
+     * @return AgreementLineRM[]
+     */
+    public function findFinishedDetailLines(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.productionStartDate IS NOT NULL')
+            ->andWhere('l.productionEndDate >= :start')
+            ->andWhere('l.productionEndDate <= :end')
+            ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+
+        if ($customerIds !== null) {
+            if (empty($customerIds)) {
+                $qb->andWhere('1 = 0');
+            } else {
+                $qb->andWhere('l.customerId IN (:customerIds)')
+                    ->setParameter('customerIds', $customerIds);
+            }
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function search(?array $criteria)
@@ -143,6 +249,42 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                 case 'q':
                     $qb->andWhere("l.q Like :q");
                     $qb->setParameter('q', '%' . $value . '%');
+                    break;
+                case 'dptDateRange':
+                    if (
+                        !isset($value['start'], $value['end'], $value['departments'])
+                        || !is_array($value['departments'])
+                        || empty($value['departments'])
+                        || \DateTime::createFromFormat('Y-m-d', $value['start']) === false
+                        || \DateTime::createFromFormat('Y-m-d', $value['end']) === false
+                    ) {
+                        break;
+                    }
+                    $allowedDpts = array_map(
+                        fn (DepartmentEnum $dept) => $dept->value,
+                        DepartmentEnum::getProductionDepartments()
+                    );
+                    $departments = array_values(array_intersect($allowedDpts, $value['departments']));
+                    if (empty($departments)) {
+                        $qb->andWhere('1 = 0');
+                        break;
+                    }
+                    $rangeStart = new \DateTime($value['start'] . ' 00:00:00');
+                    $rangeEnd = new \DateTime($value['end'] . ' 23:59:59');
+                    $orx = $qb->expr()->orX();
+                    foreach ($departments as $dpt) {
+                        $startCol = 'l.' . $dpt . 'StartDate';
+                        $endCol = 'l.' . $dpt . 'EndDate';
+                        $orx->add($qb->expr()->andX(
+                            $qb->expr()->isNotNull($startCol),
+                            $qb->expr()->isNotNull($endCol),
+                            $qb->expr()->lte($startCol, ':dptRangeEnd'),
+                            $qb->expr()->gte($endCol, ':dptRangeStart'),
+                        ));
+                    }
+                    $qb->andWhere($orx);
+                    $qb->setParameter('dptRangeStart', $rangeStart);
+                    $qb->setParameter('dptRangeEnd', $rangeEnd);
                     break;
             }
         }

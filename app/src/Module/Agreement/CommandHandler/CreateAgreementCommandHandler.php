@@ -67,7 +67,7 @@ class CreateAgreementCommandHandler
         $this->commandBus->dispatch(new AddActivityLogCommand(
             message: 'activity_log.agreement.created',
             type: AgreementActivityLogType::AGREEMENT_CREATED->value,
-            contextData: ['id' => (string) $agreement->getId()],
+            contextData: ['agreementId' => (string) $agreement->getId()],
             authorUserId: $userId,
         ));
     }

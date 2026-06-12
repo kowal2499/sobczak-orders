@@ -3,11 +3,15 @@
 namespace App\Tests\End2End\Modules\ActivityLog;
 
 use App\Entity\User;
+use App\Module\ActivityLog\DTO\PaginatedLogFilter;
 use App\Module\ActivityLog\Entity\ActivityLog;
+use App\Module\ActivityLog\Query\GetPaginatedLogsQuery;
+use App\Module\ActivityLog\QueryHandler\GetPaginatedLogsQueryHandler;
 use App\Module\ActivityLog\Repository\ActivityLogRepository;
 use App\Module\ActivityLog\ValueObject\LogLevel;
 use App\Module\ActivityLog\ValueObject\LogPriority;
 use App\System\Test\ApiTestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GetPaginatedLogsTest extends ApiTestCase
 {
@@ -215,7 +219,7 @@ class GetPaginatedLogsTest extends ApiTestCase
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $payload = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(1, $payload['items']);
-        $this->assertSame('Zamówienie zostało utworzone', $payload['items'][0]['content']);
+        $this->assertSame('Utworzenie zamówienia', $payload['items'][0]['content']);
     }
 
     public function testShouldExposeContentParamsInSerializedResponse(): void
@@ -264,6 +268,44 @@ class GetPaginatedLogsTest extends ApiTestCase
     /**
      * @param array<string, string> $fields
      */
+    public function testShouldLocalizeContentParamValuesOnRead(): void
+    {
+        // Given — a status-change log whose content params hold canonical Polish enum names
+        $user = $this->createUser([], [], ['activity-log.read']);
+
+        $log = new ActivityLog(
+            'agreement_line.production_status_changed',
+            'activity_log.agreement_line.production_status_changed',
+            $user,
+            LogLevel::INFO,
+            LogPriority::normal,
+            ['departmentName' => 'Klejenie', 'oldStatusName' => 'Oczekuje', 'newStatusName' => 'W trakcie'],
+        );
+        $log->addLogField('agreementId', '4321');
+        $this->activityLogRepository->save($log, true);
+        $this->getManager()->clear();
+
+        /** @var TranslatorInterface $translator */
+        $translator = $this->get(TranslatorInterface::class);
+        $translator->setLocale('en');
+
+        /** @var GetPaginatedLogsQueryHandler $handler */
+        $handler = $this->get(GetPaginatedLogsQueryHandler::class);
+
+        // When — read in the English locale
+        $result = $handler(new GetPaginatedLogsQuery(
+            'agreement_line.production_status_changed',
+            new PaginatedLogFilter(1, 50),
+        ));
+
+        // Then — enum-derived values are localized on the backend
+        $this->assertCount(1, $result->items);
+        $params = $result->items[0]->contentParams;
+        $this->assertSame('Gluing', $params['departmentName']);
+        $this->assertSame('Awaiting', $params['oldStatusName']);
+        $this->assertSame('In progress', $params['newStatusName']);
+    }
+
     private function seedLog(
         string $type,
         string $content,
