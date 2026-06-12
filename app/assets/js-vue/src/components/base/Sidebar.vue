@@ -109,6 +109,20 @@ export default defineComponent({
                 }
             },
             immediate: true
+        },
+
+        bSidebarVisible(val) {
+            if (!val) {
+                return
+            }
+            // wysokość kontenera nie zależy od animacji wysuwania (translateX),
+            // więc można ją zmierzyć od razu, nie czekając na @shown
+            this.$nextTick(() => {
+                const height = this.calcContentHeight()
+                if (height) {
+                    this.contentHeight = height
+                }
+            })
         }
     },
     beforeUnmount() {
@@ -143,6 +157,9 @@ export default defineComponent({
             if (!this.locked) {
                 lockBodyScroll()
                 this.locked = true
+            }
+            if (this.contentHeight === null) {
+                this.contentHeight = this.calcContentHeight() || 0
             }
         },
 
@@ -196,7 +213,8 @@ export default defineComponent({
 
             <template #default>
                 <div ref="content" class="h-100">
-                    <slot name="sidebar-content"
+                    <slot v-if="contentHeight !== null"
+                          name="sidebar-content"
                           :open="openSidebar"
                           :close="closeSidebar"
                           :height="contentHeight"
