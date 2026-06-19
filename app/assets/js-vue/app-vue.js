@@ -18,13 +18,15 @@ import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch, faPhone, faEnvelope,
-    faExclamationCircle, faChevronUp, faChevronDown, faArrowRight,
+    faExclamationCircle, faChevronUp, faChevronDown, faArrowRight, faEye, faEyeSlash, faUndo,
+    faArrowsAlt,
 } from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch,
-    faPhone, faEnvelope, faExclamationCircle, faChevronUp, faChevronDown, faArrowRight)
+    faPhone, faEnvelope, faExclamationCircle, faChevronUp, faChevronDown, faArrowRight,
+    faEye, faEyeSlash, faUndo, faArrowsAlt)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 import PortalVue from 'portal-vue'

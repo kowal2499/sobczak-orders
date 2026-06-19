@@ -1,94 +1,64 @@
 <template>
     <collapsible-card :title="$t('dashboard.title')">
-        <b-form inline class="mb-4">
-            <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-            <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
-        </b-form>
+        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
+            <b-form inline class="mb-0">
+                <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
+                <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
+            </b-form>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div class="row">
-                    <div class="col-md-6">
-                        <WorkingDaysMetric
-                            :is-busy="sourcesState.src01.isBusy"
-                            :data="sourcesState.src01.data"
-                        />
-                    </div>
-                    <div class="col-md-6">
-                        <FactorsLimitMetric
-                            :is-busy="sourcesState.src01.isBusy"
-                            :data="sourcesState.src01.data"
-                        />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 col-lg-4" v-if="canDashboardMetrics">
-                        <OrdersCountMetric
-                            :is-busy="sourcesState.src02.isBusy"
-                            :data="sourcesState.src02.data"
-                            :filters="{ dateStart: dateRangeStart, dateEnd: dateRangeEnd }"
-                            status="orders_pending"
-                            class="border-left-primary"
-                        />
-                    </div>
-                    <div class="col-md-6 col-lg-4" v-if="canDashboardMetrics">
-                        <OrdersCountMetric
-                            :is-busy="sourcesState.src02.isBusy"
-                            :data="sourcesState.src02.data"
-                            :filters="{ dateStart: dateRangeStart, dateEnd: dateRangeEnd }"
-                            status="orders_finished"
-                            class="border-left-success"
-                        />
-                    </div>
-                    <div class="col-md-6 col-lg-4" v-if="canDashboardMetrics">
-                        <CompletionDateMetric
-                            :is-busy="sourcesState.src01.isBusy"
-                            :data="sourcesState.src01.data"
-                        />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <CapacityMetric
-                            v-if="canCapacityMetric"
-                            :is-busy="sourcesState.src04.isBusy"
-                            :data="sourcesState.src04.data"
-                            :date-start="dateRangeStart"
-                            :date-end="dateRangeEnd"
-                        />
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <WeeklyCapacityMetric
-                    v-if="canWeeklyCapacityMetric"
-                    :is-busy="sourcesState.src05.isBusy"
-                    :data="sourcesState.src05.data"
-                    :date-start="dateRangeStart"
-                    :date-end="dateRangeEnd"
-                />
-
-                <DepartmentsBonusMetric
-                    v-if="canDashboardMetrics"
-                    :is-busy="sourcesState.src03.isBusy"
-                    :data="sourcesState.src03.data"
-                />
+            <div>
+                <button
+                    v-if="editMode"
+                    class="btn btn-outline-secondary btn-sm mr-2"
+                    type="button"
+                    @click="resetLayout"
+                >
+                    <font-awesome-icon icon="undo" />
+                    {{ $t('dashboard.layout.reset') }}
+                </button>
+                <button
+                    class="btn btn-sm"
+                    :class="editMode ? 'btn-primary' : 'btn-outline-primary'"
+                    type="button"
+                    @click="editMode = !editMode"
+                >
+                    <font-awesome-icon icon="arrows-alt" />
+                    {{ editMode ? $t('dashboard.layout.done') : $t('dashboard.layout.edit') }}
+                </button>
             </div>
         </div>
+
+        <EditableGridLayout
+            v-if="gridLayout.length"
+            :layout="gridLayout"
+            :editable="editMode"
+            @update:layout="onLayoutUpdate"
+        >
+            <template #default="{ item }">
+                <div class="dashboard-widget" :class="{ 'dashboard-widget--hidden': editMode && !isVisible(item.i) }">
+                    <button
+                        v-if="editMode"
+                        class="dashboard-widget__visibility-toggle btn btn-sm btn-light"
+                        type="button"
+                        :title="$t(isVisible(item.i) ? 'dashboard.layout.hide' : 'dashboard.layout.show')"
+                        @click="toggleVisibility(item.i)"
+                    >
+                        <font-awesome-icon :icon="isVisible(item.i) ? 'eye-slash' : 'eye'" />
+                    </button>
+                    <component :is="widgetComponent(item.i)" v-bind="widgetProps(item.i)" />
+                </div>
+            </template>
+        </EditableGridLayout>
     </collapsible-card>
 </template>
 
 <script>
+import { debounce } from "lodash";
 import CollapsibleCard from "../../components/base/CollapsibleCard";
+import EditableGridLayout from "../../components/base/EditableGridLayout";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
-import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
-import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue"
-import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric/index.vue"
-import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
-import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue"
-import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue"
-import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue"
-import PRIVILEGES from "../../definitions/userRoles";
+import { WIDGETS, getAvailableWidgets, packDefaultLayout } from "./widgetRegistry";
+import { getUserSetting, saveUserSetting } from "../userSettings/repository";
 
 import {
     getAgreementLinesSummary,
@@ -97,37 +67,14 @@ import {
 } from "./repository";
 
 const START_YEAR = 2018;
+const LAYOUT_CONTEXT = 'dashboard.layout';
 
 const DATA_SOURCES = [
-    {
-        id: 'src01',
-        fetcher: getOldSummary,
-        active: true,
-    },
-    {
-        id: 'src02',
-        fetcher: getAgreementLinesSummary,
-        grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        active: true,
-    },
-    {
-        id: 'src03',
-        fetcher: getProductionTasksCompletionSummary,
-        grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        active: true,
-    },
-    {
-        id: 'src04',
-        fetcher: getDepartmentsCapacity,
-        grant: 'reports.dashboard:capacity-utilization',
-        active: true,
-    },
-    {
-        id: 'src05',
-        fetcher: getWeeklyCapacity,
-        grant: 'reports.dashboard:weekly-capacity',
-        active: true,
-    }
+    { id: 'src01', fetcher: getOldSummary, active: true },
+    { id: 'src02', fetcher: getAgreementLinesSummary, grant: 'canDashboardMetricsView', active: true },
+    { id: 'src03', fetcher: getProductionTasksCompletionSummary, grant: 'canDashboardMetricsView', active: true },
+    { id: 'src04', fetcher: getDepartmentsCapacity, grant: 'reports.dashboard:capacity-utilization', active: true },
+    { id: 'src05', fetcher: getWeeklyCapacity, grant: 'reports.dashboard:weekly-capacity', active: true },
 ]
 
 export default {
@@ -135,13 +82,7 @@ export default {
 
     components: {
         CollapsibleCard,
-        WorkingDaysMetric,
-        FactorsLimitMetric,
-        CompletionDateMetric,
-        OrdersCountMetric,
-        DepartmentsBonusMetric,
-        CapacityMetric,
-        WeeklyCapacityMetric,
+        EditableGridLayout,
     },
 
     computed: {
@@ -173,15 +114,19 @@ export default {
                 ? dateToString(lastDay(this.filters.year, this.filters.month))
                 : null
         },
-        canDashboardMetrics() {
-            return this.$user.can(PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW);
+        availableWidgets() {
+            return getAvailableWidgets(grant => this.$user.can(grant));
         },
-        canCapacityMetric() {
-            return this.$user.can('reports.dashboard:capacity-utilization')
+        availableWidgetsByKey() {
+            return this.availableWidgets.reduce((acc, widget) => {
+                acc[widget.key] = widget;
+                return acc;
+            }, {});
         },
-        canWeeklyCapacityMetric() {
-            return this.$user.can('reports.dashboard:weekly-capacity')
-        }
+        gridLayout() {
+            const items = this.editMode ? this.layoutItems : this.layoutItems.filter(item => item.visible);
+            return items.map(item => ({ i: item.key, x: item.x, y: item.y, w: item.w, h: item.h }));
+        },
     },
 
     created() {
@@ -194,12 +139,16 @@ export default {
             acc[item.id] = item
             return acc
         }, {})
+
+        this.persistLayout = debounce(this.saveLayout, 500);
     },
 
     mounted() {
         const today = new Date();
         this.filters.year = today.getFullYear();
         this.filters.month = today.getMonth();
+
+        this.loadLayout();
     },
 
     watch: {
@@ -231,14 +180,101 @@ export default {
     },
     data: () => ({
         sourcesState: {},
+        layoutItems: [],
+        editMode: false,
 
         filters: {
             month: null,
             year: null
         },
     }),
+
+    methods: {
+        widgetComponent(key) {
+            return this.availableWidgetsByKey[key]?.component;
+        },
+        widgetProps(key) {
+            const widget = this.availableWidgetsByKey[key];
+            return widget ? widget.props(this) : {};
+        },
+        isVisible(key) {
+            return !!this.layoutItems.find(item => item.key === key)?.visible;
+        },
+        async loadLayout() {
+            const { data } = await getUserSetting(LAYOUT_CONTEXT);
+            this.layoutItems = this.mergeLayout(data?.widgets ?? null);
+        },
+        mergeLayout(savedWidgets) {
+            const available = this.availableWidgets;
+
+            if (!savedWidgets || !savedWidgets.length) {
+                return packDefaultLayout(available);
+            }
+
+            const savedByKey = savedWidgets.reduce((acc, item) => {
+                acc[item.key] = item;
+                return acc;
+            }, {});
+
+            const kept = available
+                .filter(widget => savedByKey[widget.key])
+                .map(widget => ({ ...savedByKey[widget.key] }));
+
+            const newWidgets = available.filter(widget => !savedByKey[widget.key]);
+
+            if (!newWidgets.length) {
+                return kept;
+            }
+
+            const maxY = kept.reduce((max, item) => Math.max(max, item.y + item.h), 0);
+            const appended = packDefaultLayout(newWidgets, { startY: maxY });
+
+            return [...kept, ...appended];
+        },
+        saveLayout() {
+            saveUserSetting(LAYOUT_CONTEXT, { widgets: this.layoutItems });
+        },
+        onLayoutUpdate(newGridLayout) {
+            const positionsByKey = newGridLayout.reduce((acc, item) => {
+                acc[item.i] = item;
+                return acc;
+            }, {});
+
+            this.layoutItems = this.layoutItems.map(item => {
+                const updated = positionsByKey[item.key];
+                return updated ? { ...item, x: updated.x, y: updated.y, w: updated.w, h: updated.h } : item;
+            });
+
+            this.persistLayout();
+        },
+        toggleVisibility(key) {
+            this.layoutItems = this.layoutItems.map(item =>
+                item.key === key ? { ...item, visible: !item.visible } : item
+            );
+            this.persistLayout();
+        },
+        resetLayout() {
+            this.layoutItems = packDefaultLayout(this.availableWidgets);
+            this.persistLayout();
+        },
+    },
 }
 </script>
 
 <style scoped lang="scss">
+.dashboard-widget {
+    position: relative;
+    height: 100%;
+
+    &--hidden {
+        opacity: 0.4;
+    }
+
+    &__visibility-toggle {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        z-index: 10;
+    }
+}
 </style>
