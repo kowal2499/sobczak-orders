@@ -53,7 +53,7 @@ class ApiTestCase extends WebTestCase
     private function initializeClient(): KernelBrowser
     {
         if (!$this->client) {
-            $this->client = self::createClient();
+            $this->client = static::$booted ? static::getContainer()->get('test.client') : self::createClient();
         }
         return $this->client;
     }
