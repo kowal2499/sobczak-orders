@@ -1,0 +1,4 @@
+app_module:
+  namespace: user-setting
+  description: Przechowywanie ustawień użytkownika (np. układ dashboardu) w formie JSON, per kontekst
+  active: true

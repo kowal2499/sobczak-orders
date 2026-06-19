@@ -17,6 +17,14 @@ export default {
     'forecastLabel': 'Prognoza',
     'ghostOrderBanner': 'Zadania w prognozie - produkcja jeszcze nie została zlecona',
 
+    'layout': {
+        'edit': 'Edytuj układ',
+        'done': 'Zakończ edycję',
+        'reset': 'Przywróć domyślny układ',
+        'hide': 'Ukryj widget',
+        'show': 'Pokaż widget',
+    },
+
     'productionMetric': {
         'baseFactor': 'Współczynnik bazowy',
         'bonus': 'Bonus',

@@ -80,6 +80,12 @@ doctrine:
                 prefix: 'App\Module\ActivityLog\Entity'
                 alias: ActivityLog
                 type: attribute
+            UserSetting:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/UserSetting/Entity'
+                prefix: 'App\Module\UserSetting\Entity'
+                alias: UserSetting
+                type: attribute
 
 when@test:
     doctrine:

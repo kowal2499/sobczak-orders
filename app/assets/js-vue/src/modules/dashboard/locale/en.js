@@ -17,6 +17,14 @@ export default {
     'forecastLabel': 'Forecast',
     'ghostOrderBanner': 'Order in forecast — production has not yet been started',
 
+    'layout': {
+        'edit': 'Edit layout',
+        'done': 'Done editing',
+        'reset': 'Restore default layout',
+        'hide': 'Hide widget',
+        'show': 'Show widget',
+    },
+
     'productionMetric': {
         'baseFactor': 'Base factor',
         'bonus': 'Bonus',
