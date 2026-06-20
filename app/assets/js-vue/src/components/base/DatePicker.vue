@@ -9,6 +9,7 @@
         :show-week-number="true"
         :formatter="formatter"
         :disabled="isDisabled"
+        :placeholder="placeholder"
     />
 </template>
 
@@ -39,6 +40,10 @@
             width: {
                 type: String,
                 default: 'auto'
+            },
+            placeholder: {
+                type: String,
+                default: ''
             }
         },
 

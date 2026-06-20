@@ -17,6 +17,13 @@ export default defineComponent({
     name: 'DifferencesReport',
     components: { Sidebar, SidebarLayout, DetailsDepartment },
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('differences_report.breadcrumb.home') },
+                { label: this.$t('differences_report.breadcrumb.reports') },
+                { label: this.$t('differences_report.breadcrumb.current') },
+            ]
+        },
         yearsOptions() {
             const currentYear = new Date().getFullYear()
             const years = Array.from({ length: currentYear - START_YEAR + 2 }, (_, i) => i + START_YEAR).reverse()
@@ -215,16 +222,17 @@ export default defineComponent({
 
 <template>
     <div>
-        <div class="section-block d-flex align-items-center justify-content-between">
-            <span class="report-title">{{ $t('differences_report.title') }}</span>
-            <b-form inline>
-                <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-                <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
-                <b-spinner v-if="busy" small variant="secondary" />
-            </b-form>
-        </div>
+        <SectionBlockTitle block :title="$t('differences_report.title')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <b-form inline>
+                    <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
+                    <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
+                    <b-spinner v-if="busy" small variant="secondary" />
+                </b-form>
+            </template>
+        </SectionBlockTitle>
 
-        <div v-if="!busy && rows.length" class="section-block section-gap" style="padding: 2rem">
+        <SectionBlock v-if="!busy && rows.length" class="section-gap" style="padding: 2rem">
             <div class="table-responsive">
                 <table class="table table-sm table-hover diff-table mb-0">
                     <thead class="thead-light">
@@ -314,11 +322,11 @@ export default defineComponent({
                     </tbody>
                 </table>
             </div>
-        </div>
+        </SectionBlock>
 
-        <div v-else-if="!busy && odp !== null && !rows.length" class="section-block section-gap text-muted">
+        <SectionBlock v-else-if="!busy && odp !== null && !rows.length" class="section-gap text-muted">
             {{ $t('differences_report.no_data') }}
-        </div>
+        </SectionBlock>
 
         <div v-if="!busy && rows.length" class="legend section-gap">
             <div class="legend__row">
@@ -353,20 +361,6 @@ export default defineComponent({
 </template>
 
 <style scoped lang="scss">
-.report-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--colorPrimary);
-}
-
-.section-block {
-    background-color: #fff;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid #ddd;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
 .section-gap {
     margin-top: 2rem;
 }

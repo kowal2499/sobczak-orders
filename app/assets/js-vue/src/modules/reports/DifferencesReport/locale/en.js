@@ -1,6 +1,11 @@
 export default {
     title: 'Variance Report',
     no_data: 'No data for the selected period.',
+    breadcrumb: {
+        home: 'Dashboard',
+        reports: 'Reports',
+        current: 'Variance Report',
+    },
     col: {
         department: 'Department',
         totals: 'Totals',

@@ -1,12 +1,14 @@
 <template>
-    <collapsible-card :title="$t('dashboard.title')">
-        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
-            <b-form inline class="mb-0">
-                <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-                <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
-            </b-form>
+    <div>
+        <SectionBlock class="d-flex align-items-center justify-content-between flex-wrap">
+            <SectionBlockTitle :title="$t('dashboard.title')" />
 
-            <div>
+            <div class="d-flex align-items-center">
+                <b-form inline class="mb-0 mr-3">
+                    <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
+                    <b-form-select v-model="filters.month" :options="monthsOptions" />
+                </b-form>
+
                 <button
                     v-if="editMode"
                     class="btn btn-outline-secondary btn-sm mr-2"
@@ -26,35 +28,35 @@
                     {{ editMode ? $t('dashboard.layout.done') : $t('dashboard.layout.edit') }}
                 </button>
             </div>
-        </div>
+        </SectionBlock>
 
-        <EditableGridLayout
-            v-if="gridLayout.length"
-            :layout="gridLayout"
-            :editable="editMode"
-            @update:layout="onLayoutUpdate"
-        >
-            <template #default="{ item }">
-                <div class="dashboard-widget" :class="{ 'dashboard-widget--hidden': editMode && !isVisible(item.i) }">
-                    <button
-                        v-if="editMode"
-                        class="dashboard-widget__visibility-toggle btn btn-sm btn-light"
-                        type="button"
-                        :title="$t(isVisible(item.i) ? 'dashboard.layout.hide' : 'dashboard.layout.show')"
-                        @click="toggleVisibility(item.i)"
-                    >
-                        <font-awesome-icon :icon="isVisible(item.i) ? 'eye-slash' : 'eye'" />
-                    </button>
-                    <component :is="widgetComponent(item.i)" v-bind="widgetProps(item.i)" />
-                </div>
-            </template>
-        </EditableGridLayout>
-    </collapsible-card>
+        <SectionBlock v-if="gridLayout.length" class="section-gap">
+            <EditableGridLayout
+                :layout="gridLayout"
+                :editable="editMode"
+                @update:layout="onLayoutUpdate"
+            >
+                <template #default="{ item }">
+                    <div class="dashboard-widget" :class="{ 'dashboard-widget--hidden': editMode && !isVisible(item.i) }">
+                        <button
+                            v-if="editMode"
+                            class="dashboard-widget__visibility-toggle btn btn-sm btn-light"
+                            type="button"
+                            :title="$t(isVisible(item.i) ? 'dashboard.layout.hide' : 'dashboard.layout.show')"
+                            @click="toggleVisibility(item.i)"
+                        >
+                            <font-awesome-icon :icon="isVisible(item.i) ? 'eye-slash' : 'eye'" />
+                        </button>
+                        <component :is="widgetComponent(item.i)" v-bind="widgetProps(item.i)" />
+                    </div>
+                </template>
+            </EditableGridLayout>
+        </SectionBlock>
+    </div>
 </template>
 
 <script>
 import { debounce } from "lodash";
-import CollapsibleCard from "../../components/base/CollapsibleCard";
 import EditableGridLayout from "../../components/base/EditableGridLayout";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
 import { WIDGETS, getAvailableWidgets, packDefaultLayout } from "./widgetRegistry";
@@ -81,7 +83,6 @@ export default {
     name: 'Dashboard3',
 
     components: {
-        CollapsibleCard,
         EditableGridLayout,
     },
 
@@ -281,6 +282,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.section-gap {
+    margin-top: 2rem;
+}
+
 .dashboard-widget {
     position: relative;
     height: 100%;

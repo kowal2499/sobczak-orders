@@ -1,4 +1,10 @@
 export default {
+    'title': 'Kalendarz produkcji',
+    'breadcrumb': {
+        'home': 'Pulpit',
+        'calendar': 'Kalendarz',
+        'calendarV2': 'Kalendarz v2',
+    },
     'freeDay': 'Dzień wolny',
     'weekCapacity': 'Tygodniowa pula współczynników',
     'capacityBurned': 'Współczynniki wykorzystane',

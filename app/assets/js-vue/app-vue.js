@@ -4,6 +4,8 @@ import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
 import components from './src/components/root-components';
 import FormLayout from '@/components/base/Form/FormLayout.vue'
+import SectionBlock from '@/components/base/SectionBlock.vue'
+import SectionBlockTitle from '@/components/base/SectionBlockTitle.vue'
 import { privileges, Tasks, User, Roles } from "./src/services/privilages";
 import helpers from "./src/helpers";
 import routing from "./src/api/routing";
@@ -19,14 +21,14 @@ import { faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch, faPhone, faEnvelope,
     faExclamationCircle, faChevronUp, faChevronDown, faArrowRight, faEye, faEyeSlash, faUndo,
-    faArrowsAlt,
+    faArrowsAlt, faHome,
 } from '@fortawesome/free-solid-svg-icons'
 library.add(faSpinner, faUser, faHammer, faLink, faTimesCircle,
     faCheckCircle, faShoppingCart, faHashtag, faInfo, faInfoCircle, faTimes, faCheck,
     faClock, faCalendarDay, faCogs, faSquare, faDownload, faSave, faTrash, faBars, faUserPlus,
     faCalendarCheck, faChartLine, faChevronLeft, faChevronRight, faPlus, faSearch,
     faPhone, faEnvelope, faExclamationCircle, faChevronUp, faChevronDown, faArrowRight,
-    faEye, faEyeSlash, faUndo, faArrowsAlt)
+    faEye, faEyeSlash, faUndo, faArrowsAlt, faHome)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 import PortalVue from 'portal-vue'
@@ -79,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     Vue.component('FormLayout', FormLayout)
+    Vue.component('SectionBlock', SectionBlock)
+    Vue.component('SectionBlockTitle', SectionBlockTitle)
 
     init(user).then(() => {
         new Vue({
