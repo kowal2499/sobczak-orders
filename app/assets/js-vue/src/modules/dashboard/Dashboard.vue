@@ -178,16 +178,7 @@ export default {
             }
         }
     },
-    data: () => ({
-        sourcesState: {},
-        layoutItems: [],
-        editMode: false,
 
-        filters: {
-            month: null,
-            year: null
-        },
-    }),
 
     methods: {
         widgetComponent(key) {
@@ -201,8 +192,23 @@ export default {
             return !!this.layoutItems.find(item => item.key === key)?.visible;
         },
         async loadLayout() {
-            const { data } = await getUserSetting(LAYOUT_CONTEXT);
-            this.layoutItems = this.mergeLayout(data?.widgets ?? null);
+            const savedWidgets = await this.fetchSavedLayout();
+            this.layoutItems = this.mergeLayout(savedWidgets);
+
+            if (!savedWidgets) {
+                this.saveLayout();
+            }
+        },
+        async fetchSavedLayout() {
+            try {
+                const { data } = await getUserSetting(LAYOUT_CONTEXT);
+                return data?.widgets ?? null;
+            } catch (error) {
+                if (error.response?.status === 404) {
+                    return null;
+                }
+                throw error;
+            }
         },
         mergeLayout(savedWidgets) {
             const available = this.availableWidgets;
@@ -258,6 +264,17 @@ export default {
             this.persistLayout();
         },
     },
+
+    data: () => ({
+        sourcesState: {},
+        layoutItems: [],
+        editMode: false,
+
+        filters: {
+            month: null,
+            year: null
+        },
+    }),
 }
 </script>
 

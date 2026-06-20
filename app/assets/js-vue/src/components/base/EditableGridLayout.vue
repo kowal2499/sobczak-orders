@@ -79,7 +79,16 @@ export default {
         cloneLayout(layout) {
             return layout.map(item => ({ ...item }));
         },
+        layoutSignature(layout) {
+            return layout
+                .map(item => `${item.i}:${item.x}:${item.y}:${item.w}:${item.h}`)
+                .sort()
+                .join("|");
+        },
         onLayoutUpdated(newLayout) {
+            if (this.layoutSignature(newLayout) === this.layoutSignature(this.layout)) {
+                return;
+            }
             this.$emit("update:layout", this.cloneLayout(newLayout));
         },
     },
