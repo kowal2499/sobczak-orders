@@ -201,8 +201,9 @@ export default {
         },
         async fetchSavedLayout() {
             try {
-                const { data } = await getUserSetting(LAYOUT_CONTEXT);
-                return data?.widgets ?? null;
+                // Endpoint wraps the stored payload: { data: { widgets: [...] } }
+                const { data: body } = await getUserSetting(LAYOUT_CONTEXT);
+                return body?.data?.widgets ?? null;
             } catch (error) {
                 if (error.response?.status === 404) {
                     return null;
@@ -261,7 +262,8 @@ export default {
         },
         resetLayout() {
             this.layoutItems = packDefaultLayout(this.availableWidgets);
-            this.persistLayout();
+            this.saveLayout();
+            this.editMode = false;
         },
     },
 
@@ -282,6 +284,7 @@ export default {
 .dashboard-widget {
     position: relative;
     height: 100%;
+    overflow: hidden;
 
     &--hidden {
         opacity: 0.4;
