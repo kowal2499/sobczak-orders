@@ -13,6 +13,22 @@
         {{ encore_entry_link_tags('app') }}
         {{ encore_entry_link_tags('app-vue') }}
     {% endblock %}
+    {# Critical inline styles: render the sidebar collapsed (icons only) from the
+       first paint so the bundled stylesheet doesn't flash expanded labels. #}
+    <style>
+        #wrapper nav.sidebar .sidebar__label,
+        #wrapper nav.sidebar .submenu,
+        #wrapper nav.sidebar .sidebar__footer .dropdown-menu,
+        #wrapper nav.sidebar .sidebar__brand .sidebar__logo-full { display: none; }
+        #wrapper nav.sidebar { width: 3.8rem; overflow: hidden; background: #f8f9fc; border-right: 1px solid #d6d6d6; }
+        #content-wrapper { margin-left: 3.8rem; }
+        /* Hide the burger/backdrop pre-load on desktop only — on mobile the
+           bundle's media query must be able to reveal the burger. */
+        @media (min-width: 768px) {
+            #wrapper .sidebar-burger,
+            #wrapper .sidebar-backdrop { display: none; }
+        }
+    </style>
 </head>
 <body id="page-top">
 
@@ -21,22 +37,12 @@
 
         {% include('_sidebar.html.twig') %}
 
+        <button type="button" class="sidebar-burger" aria-label="{{ 'Menu'|trans }}">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+        </button>
+        <div class="sidebar-backdrop"></div>
+
         <div id="content-wrapper" class="d-flex flex-column">
-
-            <div class="topbar">
-
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="p-1">
-                        {% include('_language_switcher.html.twig') %}
-                    </div>
-                    <context-menu />
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    {% block breadcrumbs %}{% endblock %}
-                </div>
-
-            </div>
 
             <!-- Main Content -->
             <div id="content">

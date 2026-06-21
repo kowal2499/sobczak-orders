@@ -357,6 +357,42 @@ public function testShouldCreateAgreement(): void
 - Module-specific components: `assets/js-vue/src/modules/[ModuleName]/components/`
 - Shared components: `assets/js-vue/src/components/base/`
 
+### Page layout (SectionBlock)
+
+Views are composed of **`SectionBlock`** panels (`assets/js-vue/src/components/base/SectionBlock.vue`) — a white rounded card with border and subtle shadow. **Do not use `CollapsibleCard` for view scaffolding** (it was removed from the dashboard for this reason). Prefer flat `SectionBlock` sections.
+
+Standard structure: a title section followed by one or more content sections, each wrapped in its own `SectionBlock`:
+
+```vue
+<div>
+    <SectionBlock class="d-flex align-items-center justify-content-between flex-wrap">
+        <SectionBlockTitle :title="$t('module.title')" :breadcrumbs="breadcrumbs" />
+        <!-- right side: filters / action buttons -->
+    </SectionBlock>
+
+    <SectionBlock class="section-gap">
+        <!-- content -->
+    </SectionBlock>
+</div>
+```
+
+- Inner layout is the caller's responsibility — pass utility classes on the `SectionBlock` itself (e.g. `d-flex justify-content-between`); they merge onto the root.
+- Use `class="section-gap"` (`margin-top: 2rem`, defined locally per view) to separate stacked sections.
+
+**`SectionBlockTitle`** (`components/base/SectionBlockTitle.vue`) holds the view title and an optional breadcrumb beneath it, with shared muted breadcrumb styling. Breadcrumbs render **inside the title section**, not in the Twig topbar — when migrating a view, remove its `{% block breadcrumbs %}` from the Twig template. Pass breadcrumbs as a structured prop, last entry is the active (non-linked) crumb; an `icon` (FontAwesome name, must be registered in `app-vue.js`) replaces the label and keeps `label` as its aria-label:
+
+```js
+breadcrumbs() {
+    return [
+        { icon: 'home', href: '/', label: this.$t('module.breadcrumb.home') },
+        { label: this.$t('module.breadcrumb.section') },
+        { label: this.$t('module.breadcrumb.current') },
+    ]
+}
+```
+
+Reference implementations: `modules/dashboard/Dashboard.vue` (title only) and `modules/reports/DifferencesReport/index.vue` (title + breadcrumb).
+
 ### State & routing
 
 - No Vue Router — navigation via Twig views (full page reload)

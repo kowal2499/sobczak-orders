@@ -3,18 +3,14 @@
 
 {% block title %}{{ 'Konfiguracja produkcji'|trans }}{% endblock %}
 
-{% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li class="breadcrumb-item">{{ 'Konfiguracja'|trans }}</li>
-        <li class="breadcrumb-item active" aria-current="page">{{ 'Produkcja'|trans }}</li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block body %}
 <app>
+    <section-block-title block title="{{ 'Konfiguracja produkcji'|trans }}" :breadcrumbs="[
+        { icon: 'home', href: '/', label: '{{ 'Pulpit'|trans|e('js') }}' },
+        { label: '{{ 'Konfiguracja'|trans|e('js') }}' },
+        { label: '{{ 'Produkcja'|trans|e('js') }}' }
+    ]"></section-block-title>
+
     <production-configuration></production-configuration>
 </app>
 {% endblock %}

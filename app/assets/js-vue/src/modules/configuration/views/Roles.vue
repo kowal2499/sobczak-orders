@@ -1,5 +1,4 @@
 <script>
-import CollapsibleCard from '@/components/base/CollapsibleCard'
 import RolesNavigation from '../components/roles/RolesNavigation'
 import GrantsList from '../components/GrantsList'
 import GrantValue from '../components/GrantValue'
@@ -15,7 +14,6 @@ export default {
     components: {
         GrantValue,
         RoleModalForm,
-        CollapsibleCard,
         RolesNavigation,
         GrantsList,
     },
@@ -105,7 +103,7 @@ export default {
 </script>
 
 <template>
-    <CollapsibleCard :title="$t('auth.rolesConfigurationTitle')" :locked="true" no-padding>
+    <SectionBlock class="section-gap">
         <RolesNavigation>
             <template #actions>
                 <RoleModalForm @roleCreated="reset" />
@@ -122,7 +120,7 @@ export default {
                 </GrantsList>
             </template>
         </RolesNavigation>
-    </CollapsibleCard>
+    </SectionBlock>
 </template>
 
 <style scoped lang="scss">

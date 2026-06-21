@@ -37,6 +37,13 @@ export default {
     },
 
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('schedule.breadcrumb.home') },
+                { label: this.$t('schedule.breadcrumb.calendarV2') },
+            ]
+        },
+
         allLabel() {
             return this.$t('schedule.all')
         },
@@ -202,7 +209,9 @@ export default {
 
 <template>
     <div>
-        <div class="row align-items-end mb-3">
+        <SectionBlockTitle block :title="$t('schedule.title')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <div class="row align-items-end">
             <div class="col-md-3">
                 <label class="form-label small mb-1">{{ $t('schedule.filters.department') }}</label>
                 <vue-select
@@ -252,8 +261,11 @@ export default {
                     {{ $t('schedule.showGhost') }}
                 </b-form-checkbox>
             </div>
-        </div>
+                </div>
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
         <ResourceCalendar
             :resources="filteredResources"
             :events="filteredEvents"
@@ -272,6 +284,7 @@ export default {
                 </span>
             </template>
         </ResourceCalendar>
+        </SectionBlock>
 
         <OrderPanelDrawer
             v-if="panelLineId"

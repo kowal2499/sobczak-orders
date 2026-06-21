@@ -3,17 +3,14 @@
 
 {% block title %}{{ 'Konfiguracja użytkowników'|trans }}{% endblock %}
 
-{% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li class="breadcrumb-item">{{ 'Konfiguracja'|trans }}</li>
-        <li class="breadcrumb-item active" aria-current="page">{{ 'Użytkownicy'|trans }}</li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block body %}
-    <users-list></users-list>
+    <users-list
+        page-title="{{ 'Konfiguracja użytkowników'|trans }}"
+        :breadcrumbs="[
+            { icon: 'home', href: '/', label: '{{ 'Pulpit'|trans|e('js') }}' },
+            { label: '{{ 'Konfiguracja'|trans|e('js') }}' },
+            { label: '{{ 'Użytkownicy'|trans|e('js') }}' }
+        ]"
+    ></users-list>
 {% endblock %}
 

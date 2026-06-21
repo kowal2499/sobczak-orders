@@ -1,16 +1,24 @@
 <template>
-    <collapsible-card :title="$t('orders.list')">
-        <template v-slot:header>
-            <div v-if="userCanAddOrder()">
-                <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
-            </div>
-        </template>
+    <div>
+        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 orders-filters">
+                        <filters :filters-collection="args.filters"/>
+                    </div>
+                    <a
+                        v-if="userCanAddOrder()"
+                        :href="newOrderLink"
+                        class="btn btn-success btn-sm d-inline-flex align-items-center ml-3 orders-new-btn"
+                    >
+                        <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
+                    </a>
+                </div>
+            </template>
+        </SectionBlockTitle>
 
-        <template v-slot:filters>
-            <filters :filters-collection="args.filters"/>
-        </template>
-
-        <b-pagination
+        <SectionBlock class="section-gap">
+            <b-pagination
 						v-if="args.meta.pages > 1"
 						align="right"
 						v-model="args.meta.page"
@@ -67,29 +75,27 @@
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
         />
-    </collapsible-card>
+        </SectionBlock>
+    </div>
 </template>
 
 <script>
     import qs from 'qs';
     import moment from 'moment';
     import Filters from './Filters';
-    import Dropdown from '../../base/Dropdown';
     import api from '../../../api/neworder';
     import routing from  '../../../api/routing';
-    import ConfirmationModal from '../../base/ConfirmationModal';
     import TablePlus from '../../base/TablePlus';
     import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
-    import CollapsibleCard from '../../base/CollapsibleCard';
     import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
     import { agreementStatusesMap } from '@/helpers';
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, Dropdown, ConfirmationModal, TablePlus,
-            Tooltip, LineActions, CollapsibleCard, TagsIndicator },
+        components: { Filters, TablePlus,
+            Tooltip, LineActions, TagsIndicator },
 
         props: {
             taskStatuses: {
@@ -193,6 +199,13 @@
         },
 
         computed: {
+
+            breadcrumbs() {
+                return [
+                    { icon: 'home', href: '/', label: this.$t('dashboard.title') },
+                    { label: this.$t('orders.list') },
+                ]
+            },
 
             /**
              * Tworzenie queryString na podstawie zmiennych z data
@@ -316,6 +329,33 @@
 
 <style scoped>
 
+.section-gap {
+    margin-top: 2rem;
+}
+
+/* Let the filters take the row so the button collapses instead of wrapping. */
+.orders-filters {
+    min-width: 0;
+}
+
+.orders-new-btn {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.orders-new-btn .fa-plus {
+    flex: 0 0 auto; /* icon never shrinks away */
+}
+
+.orders-new-btn .addNewOrder {
+    margin-left: 0.6rem; /* larger icon–text gap */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* No room at all → icon only, with no leftover gap. */
 @media screen and (max-width: 768px) {
     span.addNewOrder {
         display: none;

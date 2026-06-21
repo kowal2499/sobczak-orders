@@ -37,6 +37,9 @@ class ApiTestCase extends WebTestCase
     {
         $client = $this->client ?? $this->initializeClient();
         $client->loginUser($user);
+        // Tests wrap fixtures in an uncommitted transaction; a kernel reboot between
+        // requests opens a new DB connection that can't see that uncommitted data.
+        $client->disableReboot();
         return $client;
     }
 
@@ -53,7 +56,7 @@ class ApiTestCase extends WebTestCase
     private function initializeClient(): KernelBrowser
     {
         if (!$this->client) {
-            $this->client = self::createClient();
+            $this->client = static::$booted ? static::getContainer()->get('test.client') : self::createClient();
         }
         return $this->client;
     }

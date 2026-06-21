@@ -24,6 +24,13 @@ export default {
     },
 
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('schedule.breadcrumb.home') },
+                { label: this.$t('schedule.breadcrumb.calendar') },
+            ]
+        },
+
         departmentOptions() {
             return getUserDepartments()
         },
@@ -186,12 +193,16 @@ export default {
 
 <template>
     <div class="schedule-production">
-        <ScheduleProductionFilters
-            :agreementLines="events.departments"
-            v-model="filters"
-            class="mb-3"
-        />
+        <SectionBlockTitle block :title="$t('schedule.title')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <ScheduleProductionFilters
+                    :agreementLines="events.departments"
+                    v-model="filters"
+                />
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
         <Calendar
             ref="calendar"
             :events="calendarEvents"
@@ -210,6 +221,8 @@ export default {
                 <b-dropdown-item-button @click="showSidebar('capacity', { arg, events })">Szczegóły obłożenia</b-dropdown-item-button>
             </template>
         </Calendar>
+        </SectionBlock>
+
         <Sidebar v-model="sidebar.isOpen" :title="sidebar.title" sidebar-class="size-75 size-lg-50">
             <template #sidebar-content>
                 <component

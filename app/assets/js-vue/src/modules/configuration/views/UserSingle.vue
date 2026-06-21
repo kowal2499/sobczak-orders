@@ -1,13 +1,8 @@
 <template>
-    <div class="row">
-        <div class="col-sm-12">
-            <waiting :description="'Trwa pobieranie danych'" v-if="!dataFetched"></waiting>
+    <div>
+        <waiting :description="'Trwa pobieranie danych'" v-if="!dataFetched"></waiting>
 
-            <collapsible-card
-                v-if="dataFetched"
-                :title="title"
-                :locked="locked"
-            >
+        <SectionBlock v-if="dataFetched" class="section-gap">
                 <div class="form-group row">
                     <label class="col-3 col-form-label">
                         Imię
@@ -137,13 +132,11 @@
                         </button-plus>
                     </div>
                 </div>
-            </collapsible-card>
-        </div>
+        </SectionBlock>
     </div>
 </template>
 
 <script>
-    import CollapsibleCard from "@/components/base/CollapsibleCard";
     import users from "../repository/users";
     import UserGrants from "../components/UserGrants"
     import helpers from "@/helpers";
@@ -160,7 +153,7 @@
     export default {
         name: "UserSingle",
 
-        components: {UserGrants, RoleSelect, CollapsibleCard, Waiting, ButtonPlus, RolePicker },
+        components: {UserGrants, RoleSelect, Waiting, ButtonPlus, RolePicker },
 
         props: {
             userId: {

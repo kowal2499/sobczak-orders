@@ -1,6 +1,6 @@
 <template>
     <div class="card shadow">
-        <div class="card-body" :class="isBusy && 'opacity-50'">
+        <div class="card-body card-body--scroll" :class="isBusy && 'opacity-50'">
             <div class="d-flex justify-content-between">
                 <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                     <slot name="title" />
@@ -47,11 +47,17 @@ export default {
     color: var(--colorPrimary)
 }
 
+// Inside the dashboard grid the card must fill its cell, not impose its own
+// intrinsic height/margins (leftovers from the old bootstrap-row layout) —
+// otherwise it overflows the grid item and overlaps neighbouring widgets.
 .card {
     width: 100%;
-    min-height: 150px;
-    margin-right: 20px;
-    margin-bottom: 2rem;
+    height: 100%;
+    margin: 0;
+}
+
+.card-body--scroll {
+    overflow-y: auto;
 }
 
 .border-left-success {

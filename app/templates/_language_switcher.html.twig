@@ -1,9 +1,9 @@
 <div class="dropdown language-switcher">
-    <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false">
         {% if app.request.locale == 'pl' %}
-            <img src="/imgs/pl.png"> Polski
+            <img src="/imgs/pl.png"> <span class="sidebar__label">Polski</span>
         {% else %}
-            <img src="/imgs/en.png"> English
+            <img src="/imgs/en.png"> <span class="sidebar__label">English</span>
         {% endif %}
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
