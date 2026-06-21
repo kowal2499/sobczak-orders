@@ -1,11 +1,8 @@
 <template>
-    <div class="row">
-        <div class="col-sm-12">
-            <collapsible-card
-                :title="'Użytkownicy systemu'"
-                :locked="locked"
-            >
-                <div class="d-flex justify-content-end align-items-center gap-4 mb-3">
+    <div>
+        <SectionBlockTitle block :title="pageTitle" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <div class="d-flex flex-wrap justify-content-end align-items-center gap-4">
                     <input
                         v-model="filterQuery"
                         type="text"
@@ -18,7 +15,10 @@
                     </b-form-checkbox>
                     <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
                 </div>
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
                 <div class="table-responsive has-dropdown" v-if="!locked">
                     <table class="table">
                         <thead>
@@ -62,14 +62,11 @@
                         </tbody>
                     </table>
                 </div>
-
-            </collapsible-card>
-        </div>
+        </SectionBlock>
     </div>
 </template>
 
 <script>
-    import CollapsibleCard from "../base/CollapsibleCard";
     import routing from "../../api/routing";
     import helpers from "../../helpers";
     import store from "@/store";
@@ -77,9 +74,18 @@
     import { mapGetters } from "vuex";
 
     export default {
-        components: { CollapsibleCard },
-
         name: "UsersList",
+
+        props: {
+            pageTitle: {
+                type: String,
+                default: ''
+            },
+            breadcrumbs: {
+                type: Array,
+                default: () => []
+            }
+        },
 
         mounted() {
             this.fetchData()

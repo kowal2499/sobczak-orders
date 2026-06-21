@@ -1,147 +1,415 @@
-div#wrapper nav.sidebar {
+// ============================================================
+// Collapsible icon-rail sidebar
+// Rest: narrow rail (icons only). Hover / keyboard focus: expands
+// as an overlay over the content (content does not reflow).
+// ============================================================
 
-    height: 100vh;
-    display: flex;
-    justify-content: flex-start;
-    overflow-y: auto;
+div#wrapper nav.sidebar {
 
     position: fixed;
     top: 0;
     left: 0;
+    height: 100vh;
+    width: $sidebar-rail-width;
+    z-index: 1030;
 
-    width: $sidebar-mobile-width !important;
+    display: flex;
+    flex-direction: column;
+    overflow: visible; // let footer flyouts escape the rail
 
-    img {
-        padding-left: 1rem;
-        padding-right: 1rem;
-        width: 100%;
-    }
+    transition: width 180ms ease;
 
+    // toned-down light variant: a quiet light-gray rail; --colorPrimary is
+    // reserved for icons and accents so the chrome no longer competes with
+    // the content
+    background-color: #f8f9fc;
+    border-right: 1px solid #d6d6d6;
 
+    // the Twig markup still carries .bg-gradient-primary — neutralise it
     &.bg-gradient-primary {
-        background-color: #4e73df;
-        background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#4e73df),to(#224abe));
-        background-image: linear-gradient(180deg,#4e73df 10%,#224abe 100%);
-        background-size: cover;
+        background-color: #f8f9fc;
+        background-image: none;
     }
 
     [v-cloak] {
         display: none;
     }
 
-    ul {
-        display: -webkit-box;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-        flex-direction: column;
-        padding-left: 0;
-        margin-top: 0;
-        margin-bottom: 0;
-        list-style: none;
+    // ----- brand -----
+    .sidebar__brand {
+        flex: 0 0 auto;
+        padding: 1rem 0;
+        background: #fff;
 
-
-        li.nav-item {
-            a.nav-link {
-
-                outline: none;
-
-                color: rgba(white, .6);
-                font-size: .95rem;
-                position: relative;
-                text-decoration: none;
-                background-color: transparent;
-                transition: all 0.4s;
-                padding-left: 0.5rem;
-
-                i:not(.expander) {
-                    display: none;
-                    margin-right: .35rem;
-                }
-
-                span {
-                    display: inline;
-                }
-
-                &:hover, &:hover i {
-                    color: white;
-                }
-            }
-
-            &.expanded .submenu {
-                display: block;
-            }
-
-            .submenu {
-                display: none;
-                background-color: rgba(0, 0, 0, 0.05);
-
-                a {
-                    display: block;
-                    padding: .4rem .7rem;
-                    font-size: 0.85rem;
-                    color: rgba(255, 255, 255, 0.6);
-                    text-decoration: none;
-                    white-space: nowrap;
-                    transition: all 0.4s;
-                }
-
-                a:hover {
-                    font-weight: bold;
-                    color: white;
-                }
-
-                a.active {
-                    font-weight: 700;
-                    color: white;
-                    background-color: rgba(0, 0, 0, 0.12);
-                }
-
-            }
-
-            &.active {
-                a.nav-link, i {
-                    color: white;
-                }
-
-                a.nav-link {
-                    font-weight: 700;
-                }
-
-            }
-
-            &.active:not(.expandable) {
-                a.nav-link {
-                    background-color: rgba(0, 0, 0, 0.12);
-                }
-            }
+        img {
+            height: auto;
         }
 
-        .sidebar-divider {
-            width: 60%;
+        .sidebar__logo-full {
+            display: none;
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+
+        // keep the mark within the rail-width column (centred over the nav
+        // icons) so it doesn't jump to the middle when the sidebar expands
+        .sidebar__logo-mark {
+            display: block;
+            width: 2.5rem;
+            margin: 0 auto 0 calc((#{$sidebar-rail-width} - 2.5rem) / 2);
         }
     }
 
-    @media (min-width: 768px) {
-        width: $sidebar-default-width !important;
+    // ----- navigation zone (the only scrollable part) -----
+    .sidebar__nav {
+        flex: 1 1 auto;
+        min-height: 0; // allow the list to shrink/scroll so the footer stays visible
+        overflow-y: auto;
+        overflow-x: hidden;
 
-        img {
-            width: 80%;
+        display: flex;
+        flex-direction: column;
+        padding-left: 0;
+        margin: 0;
+        list-style: none;
+
+        li.nav-item {
+
+            a.nav-link {
+                outline: none;
+                position: relative;
+                display: flex;
+                align-items: center;
+
+                color: #6e707e;
+                font-size: 0.95rem;
+                line-height: 1; // keep the icon the tallest item in both states
+                text-decoration: none;
+                background-color: transparent;
+                background-clip: padding-box;
+                // fixed row height so revealing the label/chevron on expand
+                // never changes the row height (no vertical shift)
+                min-height: 2.75rem;
+                padding: 0.75rem 0;
+                transition: color 0.2s, background-color 0.2s;
+
+                // icon column — fixed width = rail, so icons stay centered
+                // in the rail and aligned with each other when expanded
+                i:not(.expander) {
+                    flex: 0 0 $sidebar-rail-width;
+                    text-align: center;
+                    font-size: 1.2rem;
+                    color: var(--colorPrimary);
+                }
+
+                .expander {
+                    display: none; // only meaningful in expanded state
+                    margin-left: auto;
+                    margin-right: 0.9rem;
+                    color: var(--colorPrimary);
+                    transition: transform 0.2s;
+                }
+
+                &:hover {
+                    color: #3a3b45; // blue is reserved for the icon, not text
+                    background-color: rgba($mainBlue, 0.06);
+                }
+
+                &:focus-visible {
+                    outline: 2px solid var(--colorPrimary);
+                    outline-offset: -2px;
+                }
+            }
+
+            // submenu (accordion) — hidden by default, shown only when the
+            // sidebar is expanded (see expanded-state block below)
+            .submenu {
+                display: none;
+                background-color: #eceef2; // lighter than before, still below the main bg
+
+                a {
+                    display: block;
+                    padding: 0.4rem 0.7rem 0.4rem 2.5rem;
+                    font-size: 0.85rem;
+                    color: #6e707e;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        font-weight: bold;
+                        color: #3a3b45;
+                    }
+
+                    &.active {
+                        font-weight: 700;
+                        color: #3a3b45;
+                        background-color: rgba($mainBlue, 0.1);
+                    }
+                }
+            }
+
+            // active item — dark text, with the blue reserved for the icon,
+            // the left accent bar and the subtle tint
+            &.active > a.nav-link {
+                color: #3a3b45;
+                font-weight: 700;
+
+                i {
+                    color: var(--colorPrimary);
+                }
+
+                &::before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 3px;
+                    background: var(--colorPrimary);
+                }
+            }
+
+            &.active:not(.expandable) > a.nav-link {
+                background-color: rgba($mainBlue, 0.1);
+            }
+        }
+    }
+
+    // label text is hidden at rail width
+    .sidebar__label {
+        display: none;
+        white-space: nowrap;
+    }
+
+    .sidebar-divider {
+        width: 60%;
+        margin: 0.5rem auto;
+        border-color: #d6d6d6;
+    }
+
+    // ----- footer (user + language), pinned to the bottom -----
+    // Visually set apart from the navigation: its own subtle light panel.
+    .sidebar__footer {
+        flex: 0 0 auto;
+        padding: 0;
+        background: #fff;
+
+        .sidebar-divider {
+            display: none;
         }
 
-        ul li.nav-item a.nav-link {
-            display: block;
+        .language-switcher,
+        .s-dropdown {
             width: 100%;
-            text-align: left;
-            padding: 1rem;
+            display: flex;
+            flex-direction: column-reverse;
+        }
 
-            i:not(.expander) {
-                display: inline-block;
+        // triggers share the nav-link geometry: a fixed icon column (= rail
+        // width) followed by the label, so they line up with the menu above
+        > .language-switcher > button.btn,
+        .s-dropdown > button.btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: #6e707e;
+            // mirror the nav-link geometry so the row height (and item
+            // positions) stay identical between collapsed and expanded
+            min-height: 2.75rem;
+            line-height: 1;
+            padding: 0.75rem 0;
+            font-size: 0.95rem;
+            white-space: nowrap;
+
+            &:hover {
+                color: #3a3b45;
+            }
+
+            // chevron on the right, like the expandable nav items
+            // (\f054 = fa fa-chevron-right); hidden at rail width
+            &::after {
+                content: "\f054";
+                font-family: "FontAwesome";
+                font-weight: normal;
+                font-size: 0.8rem;
+                line-height: 1;
+                border: 0; // override Bootstrap's triangle caret
+                margin: 0 0.9rem 0 auto;
+                color: var(--colorPrimary);
+                display: none;
+                transition: transform 0.2s;
+            }
+
+            // leading icon (user menu) sits in the same column as nav icons
+            > i {
+                flex: 0 0 $sidebar-rail-width;
+                text-align: center;
+                font-size: 1.2rem;
+                margin: 0;
+                color: var(--colorPrimary);
+            }
+
+            // the flag keeps its real size, centred within that same column
+            // width — a flex-basis here would stretch the image instead
+            > img {
+                flex: 0 0 auto;
+                width: 20px;
+                height: auto;
+                margin: 0 calc((#{$sidebar-rail-width} - 20px) / 2);
+            }
+        }
+
+        // hide the language label and the user name at rail width
+        .s-dropdown > button.btn span,
+        .language-switcher > button.btn .sidebar__label {
+            display: none;
+        }
+
+        // dropdown options render inline, styled like the accordion submenu
+        // items (not a right-side flyout)
+        .dropdown-menu {
+            position: static !important;
+            float: none;
+            display: none;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            background: #fff;
+
+            &.show {
+                display: block;
+            }
+
+            .dropdown-item {
+                display: flex;
+                align-items: center;
+                padding: 0.5rem 0.7rem 0.5rem 2.5rem;
+                font-size: 0.85rem;
+                color: #6e707e;
+                white-space: nowrap;
+                background: transparent;
+                cursor: pointer;
+
+                i,
+                img {
+                    margin-right: 0.5rem;
+                }
+
+                &:hover,
+                &:focus {
+                    color: #3a3b45;
+                    background: rgba($mainBlue, 0.08);
+                }
             }
         }
     }
 }
 
+// ============================================================
+// Expanded state — hover, keyboard focus, or mobile "open"
+// ============================================================
+div#wrapper nav.sidebar:hover,
+div#wrapper nav.sidebar:focus-within,
+div#wrapper.sidebar-open nav.sidebar {
+    width: $sidebar-expanded-width;
+    box-shadow: 0.25rem 0 1.5rem rgba(0, 0, 0, 0.12);
 
+    .sidebar__label {
+        display: inline;
+    }
+
+    // selector mirrors the (more specific) collapsed rule so the reveal wins
+    .sidebar__nav li.nav-item a.nav-link .expander {
+        display: inline-block;
+    }
+
+    .sidebar__footer {
+        // labels reveal after the fixed icon column, aligned with nav labels
+        .s-dropdown > button.btn span {
+            display: inline;
+        }
+
+        // the chevron is only meaningful once labels are visible
+        > .language-switcher > button.btn::after,
+        .s-dropdown > button.btn::after {
+            display: inline-block;
+        }
+
+        // point it down while the menu is open (menu opens upward)
+        > .language-switcher:has(.dropdown-menu.show) > button.btn::after,
+        .s-dropdown:has(.dropdown-menu.show) > button.btn::after {
+            transform: rotate(90deg);
+        }
+    }
+}
+
+// submenu opens only when the sidebar is expanded AND the item is expanded
+div#wrapper nav.sidebar:hover .nav-item.expandable.expanded .submenu,
+div#wrapper nav.sidebar:focus-within .nav-item.expandable.expanded .submenu,
+div#wrapper.sidebar-open .nav-item.expandable.expanded .submenu {
+    display: block;
+}
+
+// ============================================================
+// Mobile hamburger + backdrop (no hover available)
+// ============================================================
+.sidebar-burger {
+    display: none;
+    position: fixed;
+    top: 0.6rem;
+    left: 0.6rem;
+    z-index: 1032;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: var(--colorPrimary);
+    box-shadow: 0 0.15rem 0.75rem rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1029;
+}
+
+@media (max-width: 767.98px) {
+    div#wrapper nav.sidebar {
+        width: $sidebar-expanded-width;
+        transform: translateX(-100%);
+        transition: transform 200ms ease;
+    }
+
+    div#wrapper.sidebar-open nav.sidebar {
+        transform: none;
+    }
+
+    .sidebar-burger {
+        display: inline-flex;
+    }
+
+    div#wrapper.sidebar-open .sidebar-backdrop {
+        display: block;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    div#wrapper nav.sidebar {
+        transition: none;
+    }
+}

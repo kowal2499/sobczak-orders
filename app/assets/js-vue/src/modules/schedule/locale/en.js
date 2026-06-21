@@ -1,4 +1,10 @@
 export default {
+    'title': 'Production calendar',
+    'breadcrumb': {
+        'home': 'Dashboard',
+        'calendar': 'Calendar',
+        'calendarV2': 'Calendar v2',
+    },
     freeDay: 'Free day',
     'weekCapacity': 'Weekly capacity',
     'capacityBurned': 'Capacity burned',

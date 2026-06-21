@@ -1,10 +1,13 @@
 <template>
-    <collapsible-card :title="$t('orders.productionSchedule')">
-        <template v-slot:filters>
-            <filters :filters-collection="args.filters" />
-        </template>
+    <div>
+        <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <filters :filters-collection="args.filters" />
+            </template>
+        </SectionBlockTitle>
 
-        <b-pagination
+        <SectionBlock class="section-gap">
+            <b-pagination
             v-if="args.meta.pages > 1"
             align="right"
             v-model="args.meta.page"
@@ -37,7 +40,8 @@
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
         />
-    </collapsible-card>
+        </SectionBlock>
+    </div>
 </template>
 
 <script>
@@ -48,7 +52,6 @@
     import Helpers, {DEPARTMENTS} from '../../../helpers';
     import Filters from '../../../components/production/Filters';
     import TablePlus from '../../../components/base/TablePlus';
-    import CollapsibleCard from "../../../components/base/CollapsibleCard";
     import ProductionRow from "../components/ProductionRow2";
     import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
     import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
@@ -57,7 +60,7 @@
     export default {
         name: "AgreementLineListRM",
 
-        components: {Filters, TablePlus, CollapsibleCard, ProductionRow},
+        components: {Filters, TablePlus, ProductionRow},
 
         props: {
             taskStatuses: {
@@ -283,6 +286,13 @@
         },
 
         computed: {
+            breadcrumbs() {
+                return [
+                    { icon: 'home', href: '/', label: this.$t('dashboard.title') },
+                    { label: this.$t('orders.productionSchedule') },
+                ]
+            },
+
             productionDepartmentHeaders() {
                 return this.departments.map((department, index) => {
                     const dep = DEPARTMENTS.find(d => d.slug === department.slug);
@@ -389,5 +399,8 @@
 
 <style scoped lang="scss">
 
+.section-gap {
+    margin-top: 2rem;
+}
 
 </style>

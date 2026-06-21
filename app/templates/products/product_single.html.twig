@@ -3,39 +3,27 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li class="breadcrumb-item"><a href="{{ path('products_show') }}">{{ 'Lista produktów'|trans }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">
-            {{ (app.request.attributes.get('_route') == 'products_new' ? 'Nowy produkt' : 'Edycja produktu')|trans }}
-        </li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block body %}
 
-    <div class="card shadow mb-4">
+    <section-block-title block title="{{ title }}" :breadcrumbs="[
+        { icon: 'home', href: '/', label: '{{ 'Pulpit'|trans|e('js') }}' },
+        { href: '{{ path('products_show') }}', label: '{{ 'Lista produktów'|trans|e('js') }}' },
+        { label: '{{ (app.request.attributes.get('_route') == 'products_new' ? 'Nowy produkt' : 'Edycja produktu')|trans|e('js') }}' }
+    ]"></section-block-title>
 
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
-        </div>
+    <section-block class="section-gap">
+        {{ form_start(form) }}
 
-        <div class="card-body">
+            {{ form_widget(form) }}
 
-            {{ form_start(form) }}
+            <a href="{{ path('products_show') }}" class="btn btn-light mr-3">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i> {{ 'Wstecz'|trans }}
+            </a>
+            <button type="submit" class="btn-primary btn">
+                <i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}
+            </button>
 
-                {{ form_widget(form) }}
-
-                <a href="{{ path('products_show') }}" class="btn btn-light mr-3"><i class="fa fa-arrow-left" aria-hidden="true"></i> {{ 'Wstecz'|trans }}</a>
-                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}</button>
-
-            {{ form_end(form) }}
-
-        </div>
-
-    </div>
+        {{ form_end(form) }}
+    </section-block>
 
 {% endblock %}

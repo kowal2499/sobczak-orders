@@ -3,82 +3,69 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="{{ path('dashboard_show') }}" aria-label="Pulpit"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li class="breadcrumb-item"><a href="{{ path('customers_show') }}">{{ 'Lista klientów'|trans }}</a></li>
-        <li class="breadcrumb-item active" aria-current="page">
-            {{ (app.request.attributes.get('_route') == 'customers_new' ? 'Nowy klient' : 'Edycja klienta')|trans }}
-        </li>
-    </ol>
-</nav>
-{% endblock %}
-
 {% block body %}
 
-    <div class="card shadow mb-4">
+    <section-block-title block title="{{ title }}" :breadcrumbs="[
+        { icon: 'home', href: '/', label: '{{ 'Pulpit'|trans|e('js') }}' },
+        { href: '{{ path('customers_show') }}', label: '{{ 'Lista klientów'|trans|e('js') }}' },
+        { label: '{{ (app.request.attributes.get('_route') == 'customers_new' ? 'Nowy klient' : 'Edycja klienta')|trans|e('js') }}' }
+    ]"></section-block-title>
 
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
-        </div>
+    <section-block class="section-gap">
+        {{ form_start(form) }}
 
-        <div class="card-body">
+            {{ form_row(form.name) }}
 
-            {{ form_start(form) }}
-
-                {{ form_row(form.name) }}
-
-                <div class="row">
-                    <div class="col-md-8">
-                        {{ form_row(form.street) }}
-                    </div>
-                    <div class="col-md-2">
-                        {{ form_row(form.street_number) }}
-                    </div>
-                    <div class="col-md-2">
-                        {{ form_row(form.apartment_number) }}
-                    </div>
+            <div class="row">
+                <div class="col-md-8">
+                    {{ form_row(form.street) }}
                 </div>
-
-                <div class="row">
-                    <div class="col-md-4">
-                        {{ form_row(form.postal_code) }}
-                    </div>
-                    <div class="col-md-4">
-                        {{ form_row(form.city) }}
-                    </div>
-                    <div class="col-md-4">
-                        {{ form_row(form.country) }}
-                    </div>
+                <div class="col-md-2">
+                    {{ form_row(form.street_number) }}
                 </div>
-
-
-                <div class="row">
-                    <div class="col">
-                        {{ form_row(form.first_name) }}
-                    </div>
-                    <div class="col">
-                        {{ form_row(form.last_name) }}
-                    </div>
+                <div class="col-md-2">
+                    {{ form_row(form.apartment_number) }}
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col">
-                        {{ form_row(form.phone) }}
-                    </div>
-
-                    <div class="col">
-                        {{ form_row(form.email) }}
-                    </div>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.postal_code) }}
                 </div>
+                <div class="col-md-4">
+                    {{ form_row(form.city) }}
+                </div>
+                <div class="col-md-4">
+                    {{ form_row(form.country) }}
+                </div>
+            </div>
 
-                <button type="submit" class="btn-primary btn"><i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}</button>
+            <div class="row">
+                <div class="col">
+                    {{ form_row(form.first_name) }}
+                </div>
+                <div class="col">
+                    {{ form_row(form.last_name) }}
+                </div>
+            </div>
 
-            {{ form_end(form) }}
+            <div class="row">
+                <div class="col">
+                    {{ form_row(form.phone) }}
+                </div>
+                <div class="col">
+                    {{ form_row(form.email) }}
+                </div>
+            </div>
 
-        </div>
+            <a href="{{ path('customers_show') }}" class="btn btn-light mr-3">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i> {{ 'Wstecz'|trans }}
+            </a>
+            <button type="submit" class="btn-primary btn">
+                <i class="fa fa-check-square-o" aria-hidden="true"></i> {{ 'Zapisz'|trans }}
+            </button>
 
-    </div>
+        {{ form_end(form) }}
+    </section-block>
 
 {% endblock %}

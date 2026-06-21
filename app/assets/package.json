@@ -65,6 +65,7 @@
     "vh-sticky-table-header": "^1.9.3",
     "vue-chartjs": "^3.5.1",
     "vue-cool-lightbox": "^2.7.5",
+    "vue-grid-layout": "^2.4.0",
     "vue-i18n": "^8.26.0",
     "vue-select": "^3.13.0",
     "vue2-datepicker": "^3.10.2",
