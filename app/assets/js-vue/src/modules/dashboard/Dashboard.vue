@@ -11,7 +11,7 @@
 
                 <button
                     v-if="editMode"
-                    class="btn btn-outline-secondary btn-sm mr-2"
+                    class="btn btn-outline-secondary btn-sm mr-2 d-none d-md-inline-block"
                     type="button"
                     @click="resetLayout"
                 >
@@ -19,7 +19,7 @@
                     {{ $t('dashboard.layout.reset') }}
                 </button>
                 <button
-                    class="btn btn-sm"
+                    class="btn btn-sm d-none d-md-inline-block"
                     :class="editMode ? 'btn-primary' : 'btn-outline-primary'"
                     type="button"
                     @click="editMode = !editMode"
