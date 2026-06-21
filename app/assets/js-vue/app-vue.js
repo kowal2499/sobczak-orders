@@ -84,6 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
     Vue.component('SectionBlock', SectionBlock)
     Vue.component('SectionBlockTitle', SectionBlockTitle)
 
+    // Mobile sidebar toggle (hover-expand is pure CSS; touch/narrow uses this).
+    // Delegated on `document` and resolving #wrapper fresh on each click, because
+    // Vue mounts on #app and re-renders the burger/backdrop nodes, which would
+    // detach any listeners bound to them directly.
+    const closeSidebar = () => {
+        const wrapper = document.getElementById('wrapper');
+        if (wrapper) wrapper.classList.remove('sidebar-open');
+    };
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!target || !target.closest) return;
+
+        if (target.closest('.sidebar-burger')) {
+            const wrapper = document.getElementById('wrapper');
+            if (wrapper) wrapper.classList.toggle('sidebar-open');
+        } else if (target.closest('.sidebar-backdrop') || target.closest('nav.sidebar a[href]')) {
+            closeSidebar();
+        }
+    });
+
     init(user).then(() => {
         new Vue({
             el: '#app',

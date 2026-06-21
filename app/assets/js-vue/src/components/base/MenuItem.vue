@@ -2,14 +2,10 @@
 
         <li class="nav-item expandable" :class="{'expanded': expanded, 'active': active}">
 
-            <a :href="path" class="nav-link d-flex justify-content-between align-items-center" @click.prevent="expanded = !expanded">
-
-                <span>
-                    <i :class="titleIcon" aria-hidden="true"></i>
-                    <span>{{ title }}</span>
-                </span>
-
-                <i class="fa fa-chevron-right mr-3 expander" aria-hidden="true" :class="{'fa-rotate-90': expanded}"></i>
+            <a :href="path" class="nav-link" @click.prevent="expanded = !expanded">
+                <i :class="titleIcon" aria-hidden="true"></i>
+                <span class="sidebar__label">{{ title }}</span>
+                <i class="fa fa-chevron-right expander" aria-hidden="true" :class="{'fa-rotate-90': expanded}"></i>
             </a>
 
             <slot></slot>

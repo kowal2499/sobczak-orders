@@ -2,18 +2,17 @@
 
 <nav class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
 
-    <div class="text-center mt-4 mb-3">
-        <img class="img-fluid" src="/imgs/logo-sobczak.png" alt="">
+    <div class="sidebar__brand text-center">
+        <img class="img-fluid sidebar__logo-full" src="/imgs/logo-sobczak.png" alt="Sobczak">
+        <img class="sidebar__logo-mark" src="/imgs/logo-sobczak-sm.png" alt="Sobczak">
     </div>
 
-    <ul v-cloak>
-
-        <hr class="sidebar-divider">
+    <ul class="sidebar__nav" v-cloak>
 
         <li class="nav-item {% if active == 'dashboard_show' %}active{% endif %}">
             <a href="{{ path('dashboard_show') }}" class="nav-link">
                 <i class="fa fa-tachometer" aria-hidden="true"></i>
-                <span>{{ 'Pulpit'|trans }}</span>
+                <span class="sidebar__label">{{ 'Pulpit'|trans }}</span>
             </a>
         </li>
 
@@ -21,7 +20,7 @@
             <li class="nav-item {% if active in ['products_show', 'products_new', 'products_edit'] %}active{% endif %}">
                 <a href="{{ path('products_show') }}" class="nav-link">
                     <i class="fa fa-star" aria-hidden="true"></i>
-                    <span>{{ 'Produkty'|trans }}</span>
+                    <span class="sidebar__label">{{ 'Produkty'|trans }}</span>
                 </a>
             </li>
         {% endif %}
@@ -30,7 +29,7 @@
             <li class="nav-item {% if active in ['customers_show', 'customers_new', 'customers_edit'] %}active{% endif %}">
                 <a href="{{ path('customers_show') }}" class="nav-link">
                     <i class="fa fa-users" aria-hidden="true"></i>
-                    <span>{{ 'Klienci'|trans }}</span>
+                    <span class="sidebar__label">{{ 'Klienci'|trans }}</span>
                 </a>
             </li>
         {% endif %}
@@ -100,7 +99,7 @@
             <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
                 <a href="{{ path('production_show') }}" class="nav-link">
                     <i class="fa fa-cogs" aria-hidden="true"></i>
-                    <span>{{ 'Produkcja'|trans }}</span>
+                    <span class="sidebar__label">{{ 'Produkcja'|trans }}</span>
                 </a>
             </li>
         {% endif %}
@@ -182,4 +181,10 @@
             </menu-item>
         {% endif %}
     </ul>
+
+    <div class="sidebar__footer">
+        <hr class="sidebar-divider">
+        {% include('_language_switcher.html.twig') %}
+        <context-menu></context-menu>
+    </div>
 </nav>
