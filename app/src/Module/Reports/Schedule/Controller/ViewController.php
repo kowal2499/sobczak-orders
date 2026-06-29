@@ -16,6 +16,13 @@ class ViewController extends BaseController
         return $this->render('schedule/schedule_production_v2.html.twig');
     }
 
+    #[Route(path: '/view/orders', name: 'schedule_orders', methods: ['GET'])]
+    #[IsGranted('reports.calendar_orders')]
+    public function calendarOrders(): Response
+    {
+        return $this->render('schedule/schedule_orders.html.twig');
+    }
+
     #[Route(path: '/view/production/basic', name: 'schedule_production', methods: ['GET'])]
     #[IsGranted('reports.calendar_general')]
     public function index(): Response

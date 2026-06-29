@@ -5,6 +5,18 @@ export default {
         'calendar': 'Calendar',
         'calendarV2': 'Calendar v2',
     },
+    'orders': {
+        'title': 'Orders calendar',
+        'breadcrumb': 'Orders calendar',
+        'showDetails': 'Show production',
+        'hideDetails': 'Hide production',
+        'status': {
+            '5': 'Waiting',
+            '10': 'In production',
+            '15': 'Warehouse',
+            '20': 'Archived',
+        },
+    },
     freeDay: 'Free day',
     'weekCapacity': 'Weekly capacity',
     'capacityBurned': 'Capacity burned',
