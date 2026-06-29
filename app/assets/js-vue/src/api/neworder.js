@@ -28,6 +28,13 @@ export default {
         return axios.post('/api/agreement-line/fetch', { search });
     },
 
+    // Orders list, served from the read model (no N+1) but reshaped to the
+    // same payload as fetchAgreements. Single-order editing still uses the
+    // live entity endpoint above.
+    fetchAgreementsFromReadModel(search) {
+        return axios.post('/agreement-line/rm/orders', { search });
+    },
+
 
 
     setAgreementStatus(agreementId, statusId) {

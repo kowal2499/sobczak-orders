@@ -269,7 +269,7 @@
                     bag.status = this.status;
                 }
 
-                api.fetchAgreements(bag)
+                api.fetchAgreementsFromReadModel(bag)
                     .then(({data}) => {
                         this.agreementLines = data.data || [];
                         this.args.meta.pages = data.meta.pages || 0;
