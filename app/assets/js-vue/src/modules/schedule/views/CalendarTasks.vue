@@ -3,7 +3,7 @@ import ResourceCalendar from "@/modules/schedule/components/ResourceCalendar/Res
 import OrderPanelDrawer from "@/modules/agreement/components/OrderPanelDrawer.vue";
 import VueSelect from 'vue-select'
 import moment from 'moment'
-import { fetchProductionResources, updateProductionDates } from "@/modules/schedule/repository/scheduleRepository";
+import { fetchProductionResources, updateProductionDates, fetchHolidays } from "@/modules/schedule/repository/scheduleRepository";
 import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
 
 const STATUS_OPTIONS = ['awaits', 'started', 'in_progress', 'completed', 'not_applicable']
@@ -25,6 +25,7 @@ export default {
             loading: false,
             rawResources: [],
             rawEvents: [],
+            holidays: [],
             filters: {
                 departments: [],
                 statuses: [],
@@ -117,6 +118,7 @@ export default {
             }
             const { start, end } = this.rangeFor(month)
             this.loading = true
+            this.loadHolidays(start, end)
             return fetchProductionResources(start, end, this.includeGhost)
                 .then(({ data }) => {
                     this.rawResources = data.resources || []
@@ -130,6 +132,18 @@ export default {
                 })
                 .finally(() => {
                     this.loading = false
+                })
+        },
+
+        loadHolidays(start, end) {
+            return fetchHolidays(start, end)
+                .then(({ data }) => {
+                    this.holidays = (data || [])
+                        .filter(h => h.date)
+                        .map(h => ({ date: h.date, description: h.description || '' }))
+                })
+                .catch(() => {
+                    this.holidays = []
                 })
         },
 
@@ -269,6 +283,7 @@ export default {
         <ResourceCalendar
             :resources="filteredResources"
             :events="filteredEvents"
+            :holidays="holidays"
             :value="currentMonth"
             :interactive="true"
             :allow-create="false"
