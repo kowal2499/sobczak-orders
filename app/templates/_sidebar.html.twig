@@ -104,9 +104,9 @@
             </li>
         {% endif %}
 
-        {% if is_granted('reports.calendar_general') or is_granted('reports.calendar_tasks') %}
+        {% if is_granted('reports.calendar_general') or is_granted('reports.calendar_tasks') or is_granted('reports.calendar_orders') %}
             <menu-item
-                :active="{% if active in ['schedule_production', 'schedule_production_v2'] %}true{% else %}false{% endif %}"
+                :active="{% if active in ['schedule_production', 'schedule_production_v2', 'schedule_orders'] %}true{% else %}false{% endif %}"
                 :title-icon="'fa fa-calendar'"
                 :title="'{{ 'Kalendarze'|trans }}'"
             >
@@ -116,6 +116,13 @@
                            class="{% if active == 'schedule_production_v2' %}active{% endif %}"
                         >
                             {{ 'Kalendarz produkcji'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if is_granted('reports.calendar_orders') %}
+                        <a href="{{ path('schedule_orders') }}"
+                           class="{% if active == 'schedule_orders' %}active{% endif %}"
+                        >
+                            {{ 'Kalendarz zamówień'|trans }}
                         </a>
                     {% endif %}
                     {% if is_granted('reports.calendar_general') %}

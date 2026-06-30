@@ -35,6 +35,7 @@ export default {
     ProductionConfiguration: () => import('../modules/configuration/views/Production.vue'),
     CalendarGeneral: () => import('../modules/schedule/views/CalendarGeneral.vue'),
     CalendarTasks: () => import('../modules/schedule/views/CalendarTasks.vue'),
+    CalendarOrders: () => import('../modules/schedule/views/CalendarOrders.vue'),
     ...TagsModule,
     ContextMenu,
     DevContainer,

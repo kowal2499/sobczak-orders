@@ -29,6 +29,13 @@ export function fetchProductionResources(startDate, endDate, includeGhost = fals
     return axios.get(`/reports/schedule/production-resources?${params.toString()}`)
 }
 
+export function fetchOrderResources(startDate, endDate) {
+    const params = new URLSearchParams()
+    params.append('startDate', startDate)
+    params.append('endDate', endDate)
+    return axios.get(`/reports/schedule/order-resources?${params.toString()}`)
+}
+
 export function updateProductionDates(productionId, { dateStart, dateEnd }) {
     return axios.put(`/production/${productionId}/dates`, { dateStart, dateEnd })
 }

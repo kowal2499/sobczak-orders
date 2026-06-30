@@ -22,3 +22,7 @@ app_module:
       description: Dostęp do kalendarza zadań
       slug: reports.calendar_tasks
       type: boolean
+    - name: Kalendarz zamówień
+      description: Dostęp do kalendarza zamówień
+      slug: reports.calendar_orders
+      type: boolean

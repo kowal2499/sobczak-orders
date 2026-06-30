@@ -162,6 +162,9 @@ export default {
   },
   methods: {
     rowHeight(resourceId) {
+      // A resource may request an explicit fixed height (e.g. compact single-bar rows).
+      const resource = this.resources.find(r => r.id === resourceId)
+      if (resource && resource.rowHeight) return resource.rowHeight
       const data = this.positionedEvents[resourceId]
       if (!data) return 60
       const maxLane = data.events.reduce((max, e) => Math.max(max, e.lane || 0), 0)
@@ -223,7 +226,11 @@ $header-height: 48px;
 
 .calendar-wrapper {
   overflow-x: auto;
-  overflow-y: visible;
+  // Own vertical scroll so the sticky header sticks within it. `200px` is the
+  // assumed space above the calendar (title + filters); tweak if needed. On a
+  // taller filter bar the page may add a second scrollbar — acceptable.
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
   border: 1px solid #dee2e6;
   border-radius: 4px;
   position: relative;

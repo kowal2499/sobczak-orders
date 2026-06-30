@@ -7,6 +7,7 @@ use App\Entity\AgreementLine;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
+use App\Module\Reports\Schedule\Service\ScheduleOrderResourcesService;
 use App\Module\Reports\Schedule\Service\ScheduleProductionResourcesService;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
@@ -91,6 +92,27 @@ class ScheduleController extends BaseController
 
         return $this->json(
             $service->getCalendarData($start, $end, $includeGhost),
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route(path: '/order-resources', methods: ['GET'])]
+    #[IsGranted('reports.calendar_orders')]
+    public function orderResources(
+        Request $request,
+        ScheduleOrderResourcesService $service
+    ): Response {
+        $result = $this->validateDateRange(
+            $request->query->get('startDate'),
+            $request->query->get('endDate')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
+
+        return $this->json(
+            $service->getCalendarData($start, $end),
             Response::HTTP_OK
         );
     }
