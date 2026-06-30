@@ -250,6 +250,21 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     $qb->andWhere("l.q Like :q");
                     $qb->setParameter('q', '%' . $value . '%');
                     break;
+                case 'orderDateRange':
+                    // Zamówienie trwa od daty utworzenia umowy (agreementCreateDate) do potwierdzonej
+                    // daty dostawy (confirmedDate). Zwracamy zamówienia, których zakres nachodzi na okno.
+                    if (
+                        !isset($value['start'], $value['end'])
+                        || \DateTime::createFromFormat('Y-m-d', $value['start']) === false
+                        || \DateTime::createFromFormat('Y-m-d', $value['end']) === false
+                    ) {
+                        break;
+                    }
+                    $qb->andWhere('l.agreementCreateDate <= :ordRangeEnd');
+                    $qb->andWhere('l.confirmedDate >= :ordRangeStart');
+                    $qb->setParameter('ordRangeStart', new \DateTime($value['start'] . ' 00:00:00'));
+                    $qb->setParameter('ordRangeEnd', new \DateTime($value['end'] . ' 23:59:59'));
+                    break;
                 case 'dptDateRange':
                     if (
                         !isset($value['start'], $value['end'], $value['departments'])

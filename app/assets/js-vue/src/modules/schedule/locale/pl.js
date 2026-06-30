@@ -5,6 +5,18 @@ export default {
         'calendar': 'Kalendarz',
         'calendarV2': 'Kalendarz v2',
     },
+    'orders': {
+        'title': 'Kalendarz zamówień',
+        'breadcrumb': 'Kalendarz zamówień',
+        'showDetails': 'Pokaż produkcję',
+        'hideDetails': 'Ukryj produkcję',
+        'status': {
+            '5': 'Oczekujące',
+            '10': 'W realizacji',
+            '15': 'Magazyn',
+            '20': 'Archiwum',
+        },
+    },
     'freeDay': 'Dzień wolny',
     'weekCapacity': 'Tygodniowa pula współczynników',
     'capacityBurned': 'Współczynniki wykorzystane',
