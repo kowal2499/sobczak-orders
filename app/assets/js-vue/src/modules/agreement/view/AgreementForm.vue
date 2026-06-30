@@ -318,7 +318,7 @@ export default {
                             this.form.products = data.products.map(p => ({
                                 id: p.id,
                                 productId: p.productId,
-                                factor: p.factor || 1,
+                                factor: p.factor ?? 0,
                                 description: p.description || null,
                                 requiredDate: p.requiredDate || null,
                                 isCapacityExceeded: p.isCapacityExceeded || false
