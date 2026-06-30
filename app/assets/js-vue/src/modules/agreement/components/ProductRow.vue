@@ -29,7 +29,7 @@
                     @input="handleFactorInput"
                     :value="formatFactorForDisplay(proxyProduct.factor)"
                     :placeholder="$t('agreement.product.factorPlaceholder')"
-                    min="1"
+                    min="0"
                     step="1"
                     :disabled="isLocked"
                 />
