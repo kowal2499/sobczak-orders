@@ -180,8 +180,8 @@ function getForm(productions = []) {
 
     const initialValues = productions.reduce((acc, p) => {
         acc[p.departmentSlug] = {
-            dateStart: getLocalDate(p.dateStart),
-            dateEnd: getLocalDate(p.dateEnd),
+            dateStart: p.dateStart ? getLocalDate(p.dateStart) : null,
+            dateEnd: p.dateEnd ? getLocalDate(p.dateEnd) : null,
         };
         return acc;
     }, {});
