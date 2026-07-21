@@ -33,6 +33,9 @@
                         :product="product"
                         :products="products"
                         :disable-remove="form.products.length === 1"
+                        :show-internal-number="form.products.length > 1"
+                        :index="index"
+                        :sibling-internal-numbers="siblingInternalNumbers(index)"
                         @update:product="updateProduct(index, $event)"
                         @remove="removeProduct(index)"
                         class="mb-2"
@@ -170,6 +173,10 @@ export default {
             }
         },
 
+        'form.products.length'() {
+            this.normalizeInternalNumbers();
+        },
+
         'form.orderNumber'() {
             this.validateNumber();
         }
@@ -183,8 +190,26 @@ export default {
                 this.form.products.every(p => p.productId !== null) &&
                 this.form.products.every(p => p.requiredDate !== null) &&
                 this.isNumberValid &&
+                !this.hasDuplicateInternalNumbers &&
                 !this.hasErrorFiles
             );
+        },
+        hasDuplicateInternalNumbers() {
+            if (this.form.products.length < 2) {
+                return false;
+            }
+            const seen = new Set();
+            for (const product of this.form.products) {
+                const value = (product.internalNumber || '').trim();
+                if (value === '') {
+                    continue;
+                }
+                if (seen.has(value)) {
+                    return true;
+                }
+                seen.add(value);
+            }
+            return false;
         },
         activityLogFetcher() {
             const id = this.agreementId;
@@ -204,6 +229,33 @@ export default {
                     console.error('Error loading products:', error);
                 });
         },
+        // Identyfikator wiersza nadajemy automatycznie (1, 2, 3...) tam, gdzie użytkownik
+        // nie wpisał własnej wartości. Przy jednym wierszu identyfikator jest zbędny.
+        normalizeInternalNumbers() {
+            if (this.form.products.length < 2) {
+                this.form.products.forEach(p => { p.internalNumber = null; });
+                return;
+            }
+
+            const taken = new Set(
+                this.form.products
+                    .map(p => (p.internalNumber || '').trim())
+                    .filter(v => v !== '')
+            );
+
+            let next = 1;
+            this.form.products.forEach(product => {
+                if ((product.internalNumber || '').trim() !== '') {
+                    return;
+                }
+                while (taken.has(String(next))) {
+                    next++;
+                }
+                product.internalNumber = String(next);
+                taken.add(String(next));
+            });
+        },
+
         addProduct() {
             this.form.products.push({
                 id: null,
@@ -211,8 +263,15 @@ export default {
                 factor: 0,
                 description: null,
                 requiredDate: null,
+                internalNumber: null,
                 isCapacityExceeded: false
             });
+        },
+
+        siblingInternalNumbers(index) {
+            return this.form.products
+                .filter((_, i) => i !== index)
+                .map(p => p.internalNumber);
         },
 
         updateProduct(index, updatedProduct) {
@@ -234,6 +293,7 @@ export default {
                 return;
             }
 
+            this.normalizeInternalNumbers();
             this.isSaving = true;
 
             const url = this.agreementId
@@ -321,6 +381,7 @@ export default {
                                 factor: p.factor ?? 0,
                                 description: p.description || null,
                                 requiredDate: p.requiredDate || null,
+                                internalNumber: p.internalNumber || null,
                                 isCapacityExceeded: p.isCapacityExceeded || false
                             }));
                         } else {

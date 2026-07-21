@@ -1,3 +1,5 @@
+import { orderDisplayNumber } from '@/helpers'
+
 export default {
     methods: {
         mapDetails(data) {
@@ -6,6 +8,7 @@ export default {
                     acc.set(item.agreementLine.id, {
                         ...item.agreementLine,
                         ...item.agreement,
+                        orderNumber: orderDisplayNumber(item.agreement.orderNumber, item.agreementLine.internalNumber),
                         factor: item.agreementLine.factor,
                         customerName: item.customer.name,
                         completedAt: item.completedAt,

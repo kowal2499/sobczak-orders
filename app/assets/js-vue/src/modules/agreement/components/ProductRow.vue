@@ -116,6 +116,29 @@
             </div>
         </div>
 
+        <div class="row g-2" v-if="showInternalNumber">
+            <div class="col-md-4">
+                <label class="form-label">
+                    {{ $t('agreement.product.internalNumber') }}
+                    <font-awesome-icon
+                        icon="info-circle"
+                        v-b-tooltip.hover :title="$t('agreement.product.internalNumberDesc')"
+                    />
+                </label>
+                <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    v-model="proxyProduct.internalNumber"
+                    :placeholder="$t('agreement.product.internalNumberPlaceholder')"
+                    :class="{ 'is-invalid': internalNumberDuplicate }"
+                    :disabled="isLocked"
+                />
+                <div v-if="internalNumberDuplicate" class="invalid-feedback d-block">
+                    {{ $t('agreement.product.internalNumberDuplicate') }}
+                </div>
+            </div>
+        </div>
+
         <div class="row g-2">
             <div class="col-12">
                 <label class="form-label">{{ $t('agreement.product.description') }}</label>
@@ -158,6 +181,18 @@ export default {
         disableRemove: {
             type: Boolean,
             default: false
+        },
+        showInternalNumber: {
+            type: Boolean,
+            default: false
+        },
+        siblingInternalNumbers: {
+            type: Array,
+            default: () => []
+        },
+        index: {
+            type: Number,
+            default: 0
         }
     },
 
@@ -190,6 +225,16 @@ export default {
 
         isConfirmationRequired() {
             return this.$user.can('order.unrestricted_required_date') && this.proxyProduct.isCapacityExceeded && this.proxyProduct.tempRealizationDate !== null;
+        },
+
+        internalNumberDuplicate() {
+            const current = (this.proxyProduct.internalNumber || '').trim();
+            if (!this.showInternalNumber || current === '') {
+                return false;
+            }
+            return this.siblingInternalNumbers
+                .map(n => (n || '').trim())
+                .includes(current);
         }
     },
 

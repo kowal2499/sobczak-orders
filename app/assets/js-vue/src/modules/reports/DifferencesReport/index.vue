@@ -1,6 +1,6 @@
 <script>
 import { defineComponent } from 'vue'
-import { DEPARTMENTS } from '@/helpers'
+import { DEPARTMENTS, orderDisplayNumber } from '@/helpers'
 import { MONTHS, dateToString, firstDay, lastDay } from '@/services/datesService'
 import { getDepartmentsCapacity, getProductionTasksCompletionSummary } from '@/modules/dashboard/repository'
 import Sidebar from '@/components/base/Sidebar.vue'
@@ -147,7 +147,7 @@ export default defineComponent({
                 id: r.agreementLine?.id,
                 customerName: r.customer?.name,
                 productName: r.agreementLine?.productName,
-                orderNumber: r.agreement?.orderNumber,
+                orderNumber: orderDisplayNumber(r.agreement?.orderNumber, r.agreementLine?.internalNumber),
                 data: {
                     factor: r.factors?.factor,
                     factorsStack: r.factors?.factorsStack || [],

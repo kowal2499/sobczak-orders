@@ -104,12 +104,23 @@ class CreateAgreementCommandHandler
     private function createAgreementLines(CreateAgreementCommand $command, Agreement $agreement): array
     {
         $linesToTag = [];
+        $seenInternalNumbers = [];
 
         foreach ($command->products as $productData) {
             $productId = (int) ($productData['productId'] ?? 0);
             $requiredDate = (string) ($productData['requiredDate'] ?? '');
             $description = (string) ($productData['description'] ?? '');
             $factor = (float) ($productData['factor'] ?? 0);
+            $internalNumber = $this->normalizeInternalNumber($productData['internalNumber'] ?? null);
+
+            if ($internalNumber !== null) {
+                if (in_array($internalNumber, $seenInternalNumbers, true)) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Duplicate internal number "%s" within the order', $internalNumber)
+                    );
+                }
+                $seenInternalNumbers[] = $internalNumber;
+            }
 
             $product = $this->productRepository->find($productId);
             if (!$product) {
@@ -122,6 +133,7 @@ class CreateAgreementCommandHandler
                 ->setConfirmedDate(new \DateTime($requiredDate))
                 ->setDescription($description)
                 ->setFactor($factor)
+                ->setInternalNumber($internalNumber)
                 ->setStatus(AgreementLine::STATUS_WAITING)
                 ->setDeleted(false)
                 ->setArchived(false)
@@ -138,7 +150,25 @@ class CreateAgreementCommandHandler
             }
         }
 
+        // Sufiks ma sens tylko przy wielu liniach — dla pojedynczej linii wyczyść.
+        if ($agreement->getAgreementLines()->count() === 1) {
+            $agreement->getAgreementLines()->first()->setInternalNumber(null);
+        }
+
         return $linesToTag;
+    }
+
+    /**
+     * Puste wartości traktujemy jak brak sufiksu (null), żeby nie kolidowały przy walidacji unikalności.
+     */
+    private function normalizeInternalNumber(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 
     private function handleAttachments(CreateAgreementCommand $command, Agreement $agreement): void

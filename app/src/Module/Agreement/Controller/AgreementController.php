@@ -94,6 +94,19 @@ class AgreementController extends AbstractController
             $this->commandBus->dispatch($command);
 
             return new JsonResponse(['success' => true], Response::HTTP_CREATED);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
+            // Odwiń wyjątek opakowany przez Messenger, aby walidacja zwracała 422.
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof \InvalidArgumentException) {
+                return new JsonResponse(
+                    ['error' => $nested->getMessage()],
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+            return new JsonResponse(
+                ['error' => 'An unexpected error occurred'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(
                 ['error' => $e->getMessage()],
@@ -181,6 +194,19 @@ class AgreementController extends AbstractController
             $this->commandBus->dispatch($command);
 
             return new JsonResponse(['success' => true], Response::HTTP_OK);
+        } catch (\Symfony\Component\Messenger\Exception\HandlerFailedException $e) {
+            // Odwiń wyjątek opakowany przez Messenger, aby walidacja zwracała 422.
+            $nested = $e->getNestedExceptions()[0] ?? null;
+            if ($nested instanceof \InvalidArgumentException) {
+                return new JsonResponse(
+                    ['error' => $nested->getMessage()],
+                    Response::HTTP_UNPROCESSABLE_ENTITY
+                );
+            }
+            return new JsonResponse(
+                ['error' => 'An unexpected error occurred'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(
                 ['error' => $e->getMessage()],

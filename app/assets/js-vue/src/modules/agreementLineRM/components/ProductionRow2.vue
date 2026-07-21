@@ -5,7 +5,7 @@
         </td>
 
         <td>
-            <span class="text-nowrap">{{ order.agreement.orderNumber || order.agreementLineId }}</span>
+            <span class="text-nowrap">{{ orderDisplayNumber(order.agreement.orderNumber, order.internalNumber) || order.agreementLineId }}</span>
             <div class="d-inline-flex">
                 <tag
                     v-for="(tag, key) in order.tags"
@@ -135,7 +135,7 @@
     import Tasks from "./Tasks";
     import LineActions from "./LineActions2";
     import Tag from "../../tags/widget/Tag";
-    import helpers, { getDepartmentName, DEPARTMENTS } from "../../../helpers";
+    import helpers, { getDepartmentName, DEPARTMENTS, orderDisplayNumber } from "../../../helpers";
     import ProductionTaskNotification from "../../../components/production/ProductionTaskNotification";
     import FactorDisplay from './FactorDisplay'
 
@@ -176,6 +176,7 @@
         },
 
         methods: {
+            orderDisplayNumber,
             getAgreementStatusClass(statusId) {
                 let className = '';
                 switch (parseInt(statusId)) {

@@ -1,5 +1,5 @@
 <script>
-import { statuses, getUserDepartments, getDepartmentName, getLocalDate } from '@/helpers'
+import { statuses, getUserDepartments, getDepartmentName, getLocalDate, orderDisplayNumber } from '@/helpers'
 import ShowcaseBadge from './ShowcaseBadge.vue'
 import ShowcaseAgreementLineStatus from "./ShowcaseAgreementLineStatus.vue";
 import DepartmentFactorValue
@@ -30,7 +30,7 @@ export default {
                 { icon: 'calendar-day', label: this.$t('_created_at'), value: this.data.agreementCreateDate },
                 { icon: 'shopping-cart', label: this.$t('_product'), value: this.data.productName },
                 { icon: 'calendar-check', label: this.$t('_confirmed_at'), value: this.data.confirmedDate },
-                { icon: 'hashtag', label: this.$t('_order_number'), value: this.data.orderNumber },
+                { icon: 'hashtag', label: this.$t('_order_number'), value: orderDisplayNumber(this.data.orderNumber, this.data.internalNumber) },
                 { icon: 'user-plus', label: this.$t('_created_by'), value: this.data.userName },
                 { icon: 'cogs', label: this.$t('_factor'), value: this.$options.filters.roundFloat(this.data.factor, 2) },
             ]

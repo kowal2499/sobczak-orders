@@ -35,7 +35,7 @@
                 </collapsible-card>
 
                 <collapsible-card :title="$t('orders.orderDetails')" :locked="locked" v-if="orderData.Agreement">
-                    <agreement-widget :agreement="orderData.Agreement" />
+                    <agreement-widget :agreement="orderData.Agreement" :internal-number="orderData.internalNumber" />
                 </collapsible-card>
 
                 <collapsible-card :title="$t('agreement_line_list.factorsForm.sidebarTitle')" :locked="locked" v-if="canManageFactors">
@@ -229,6 +229,7 @@
                             confirmedDate: src.confirmedDate,
                             factor: src.factor,
                             status: src.status,
+                            internalNumber: src.internalNumber,
                             Product: src.Product,
                             Agreement: src.Agreement,
                             description: src.description,
