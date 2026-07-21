@@ -19,6 +19,7 @@ class LegacyAgreementLineMapper
             'id' => $row['agreementLineId'] ?? null,
             'confirmedDate' => $this->formatDate($row['confirmedDate'] ?? null),
             'status' => $row['status'] ?? null,
+            'internalNumber' => $row['internalNumber'] ?? null,
             'description' => $row['description'] ?? null,
             'factor' => $row['factor'] ?? null,
             'productionCompletionDate' => $this->formatDate($row['productionEndDate'] ?? null),

@@ -79,6 +79,9 @@ class AgreementLineRM
     #[ORM\Column(type: 'string', length: 64)]
     private string $orderNumber;
 
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $internalNumber = null;
+
     #[ORM\Column(type: 'string', length: 126)]
     private string $customerName;
 
@@ -376,6 +379,28 @@ class AgreementLineRM
         $this->orderNumber = $orderNumber;
     }
 
+    public function getInternalNumber(): ?string
+    {
+        return $this->internalNumber;
+    }
+
+    public function setInternalNumber(?string $internalNumber): void
+    {
+        $this->internalNumber = $internalNumber;
+    }
+
+    /**
+     * Pełny numer linii do wyświetlenia: numer zamówienia + opcjonalny sufiks wewnętrzny.
+     */
+    public function getDisplayNumber(): string
+    {
+        if ($this->internalNumber !== null && $this->internalNumber !== '') {
+            return $this->orderNumber . '-' . $this->internalNumber;
+        }
+
+        return $this->orderNumber;
+    }
+
     public function getCustomerName(): string
     {
         return $this->customerName;
@@ -611,6 +636,7 @@ class AgreementLineRM
             'productionEndDate' => $this->productionEndDate?->format('Y-m-d'),
             'userName' => $this->userName,
             'orderNumber' => $this->orderNumber,
+            'internalNumber' => $this->internalNumber,
             'customerName' => $this->customerName,
             'productName' => $this->productName,
             'description' => $this->description,

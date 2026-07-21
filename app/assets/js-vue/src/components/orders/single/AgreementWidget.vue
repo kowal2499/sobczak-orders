@@ -2,7 +2,7 @@
     <div class="order-spec-list">
         <div>
             <div class="order-spec-list--item-title">{{ $t('orderNumber') }}</div>
-            <div>{{ agreement.orderNumber }}</div>
+            <div>{{ orderDisplayNumber(agreement.orderNumber, internalNumber) }}</div>
         </div>
 
         <div>
@@ -25,6 +25,7 @@
 
 <script>
     import CustomerDetails from "./CustomerDetails";
+    import { orderDisplayNumber } from '@/helpers';
 
     export default {
         name: "AgreementWidget",
@@ -34,6 +35,10 @@
                 type: Object,
                 required: true
             },
+            internalNumber: {
+                type: String,
+                default: null
+            },
             disableEdit: {
                 type: Boolean,
                 default: false
@@ -42,6 +47,10 @@
 
         components: {
             CustomerDetails
+        },
+
+        methods: {
+            orderDisplayNumber
         },
     }
 </script>

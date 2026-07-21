@@ -4,7 +4,7 @@ import AgreementLineRmShowcaseItem from "@/components/base/Showcase/AgreementLin
 import SidebarNavbar from "@/components/layout/SidebarNavbar.vue";
 import ShowcaseBadge from '@/components/base/Showcase/ShowcaseBadge.vue'
 
-import {getLocalDate} from '@/helpers'
+import {getLocalDate, orderDisplayNumber} from '@/helpers'
 import {deburr} from "lodash";
 
 export default {
@@ -64,9 +64,14 @@ export default {
 
             const searchTerm = deburr(this.q).toLowerCase()
 
-            return lines.filter(item =>
-                deburr(item.q || `${item.customerName} ${item.productName} ${item.orderNumber}`).toLowerCase().includes(searchTerm)
-            )
+            return lines.filter(item => {
+                const haystack = [
+                    item.q || `${item.customerName} ${item.productName} ${item.orderNumber}`,
+                    orderDisplayNumber(item.orderNumber, item.internalNumber),
+                ].join(' ')
+
+                return deburr(haystack).toLowerCase().includes(searchTerm)
+            })
         },
     },
     data: () => ({ q: '' })
@@ -79,7 +84,7 @@ export default {
               <div class="d-flex flex-row justify-content-between mx-2 gap-2">
                   <ShowcaseBadge
                     :label="$t('schedule.weekCapacity')"
-                    :value="String(capacityData.capacity)"
+                    :value="String($options.filters.roundFloat(capacityData.capacity))"
                     icon="cogs"
                   />
                   <ShowcaseBadge
@@ -87,7 +92,7 @@ export default {
                       icon="cogs"
                   >
                       <template #value>
-                          {{ capacityData.capacityBurned }} ({{ Math.round((capacityData.capacityBurned / capacityData.capacity) * 100) }}%)
+                          {{ capacityData.capacityBurned | roundFloat }} ({{ Math.round((capacityData.capacityBurned / capacityData.capacity) * 100) }}%)
                       </template>
                   </ShowcaseBadge>
                   <SidebarNavbar @search="q = $event" :show-excel-export-btn="false" />

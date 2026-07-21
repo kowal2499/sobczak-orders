@@ -12,7 +12,7 @@
                     icon-class="fa fa-exclamation-circle text-danger"
                     v-if="canDelete"
                 >
-                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.agreement.orderNumber }}'?</strong></p>
+                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ displayNumber }}'?</strong></p>
                     <ul class="list-unstyled">
                         <li>{{ line.product.name }}</li>
                     </ul>
@@ -28,7 +28,7 @@
                     :label="$t('restoreOrder')"
                     icon-class="fa fa-undo"
                 >
-                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.agreement.orderNumber }}'?</p>
+                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ displayNumber }}'?</p>
                     <ul class="list-unstyled">
                         <li>{{ line.product.name }}</li>
                     </ul>
@@ -65,7 +65,7 @@
                 >
                     <p class="text-info">{{ $t('setAsWarehoused') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.agreement.orderNumber }}</li>
+                        <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.product.name }}</li>
                         <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                     </ul>
@@ -80,7 +80,7 @@
                 >
                     <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.agreement.orderNumber }}</li>
+                        <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.product.name }}</li>
                         <li>{{ $t('customer') }}: {{ __mixin_customerName(line.customer) }}</li>
                     </ul>
@@ -94,7 +94,7 @@
                     anchor-class="text-danger"
                 >
                     <p class="text-info">
-                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.agreement.orderNumber}) }}</p>
+                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: displayNumber}) }}</p>
                     <ul class="list-unstyled">
                         <li>{{ line.product.name }}</li>
                     </ul>
@@ -139,6 +139,7 @@
 <script>
 import Dropdown from '../../../components/base/Dropdown';
 import ApiNewOrder from "../../../api/neworder"
+import { orderDisplayNumber } from "@/helpers"
 import {
     AGREEMENT_LINE_STATUS_ARCHIVED,
     AGREEMENT_LINE_STATUS_DELETED, AGREEMENT_LINE_STATUS_MANUFACTURING, AGREEMENT_LINE_STATUS_WAITING,
@@ -175,6 +176,9 @@ export default {
     },
 
     computed: {
+        displayNumber() {
+            return orderDisplayNumber(this.line.agreement.orderNumber, this.line.internalNumber);
+        },
         isTrashed() {
             return this.line && this.line.status === AGREEMENT_LINE_STATUS_DELETED
         },

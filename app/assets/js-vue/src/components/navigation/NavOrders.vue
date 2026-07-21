@@ -13,11 +13,18 @@
 
         </div>
 
+        <div class="submenu collapse-inner new-order-wrapper" v-if="userCanAddOrder">
+            <a :href="newOrderLink" class="new-order btn btn-success btn-sm">
+                <i class="fa fa-plus mr-2" aria-hidden="true"></i>{{ $t('newOrder') }}
+            </a>
+        </div>
+
     </div>
 </template>
 
 <script>
     import Api from '../../api/widgets';
+    import routing from '../../api/routing';
 
     const STATUS_ARCHIVED = 20;
 
@@ -29,7 +36,14 @@
         data() {
             return {
                 summary: [],
+                newOrderLink: routing.get('orders_view_new'),
             }
+        },
+
+        computed: {
+            userCanAddOrder() {
+                return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
+            },
         },
 
         mounted() {
@@ -72,6 +86,27 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.new-order-wrapper {
+    border-top: 1px solid #d6d9e0;
+    padding: 0.6rem 0.7rem;
+}
 
+// nadpisuje bazowe style linków submenu, żeby akcja wyglądała jak przycisk
+.new-order.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.35rem 0.6rem !important;
+    color: #fff !important;
+    font-size: 0.8rem;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus {
+        color: #fff !important;
+        font-weight: normal;
+    }
+}
 </style>

@@ -34,7 +34,7 @@
                 </td>
                 <td>
                     <div class="d-flex flex-column">
-                        <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
+                        <span class="text-nowrap">{{ orderDisplayNumber(line.Agreement.orderNumber, line.internalNumber) || line.Agreement.id }}</span>
                         <tags-indicator :logs="line.tags"/>
                     </div>
                 </td>
@@ -89,7 +89,7 @@
     import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
     import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
-    import { agreementStatusesMap } from '@/helpers';
+    import { agreementStatusesMap, orderDisplayNumber } from '@/helpers';
 
     export default {
         name: "OrdersList",
@@ -322,7 +322,9 @@
 
             userCanAddOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
-            }
+            },
+
+            orderDisplayNumber,
         },
     }
 </script>

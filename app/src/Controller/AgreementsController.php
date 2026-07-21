@@ -77,7 +77,8 @@ class AgreementsController extends AbstractController
                 'description' => $line->getDescription(),
                 'productId' => $line->getProduct()->getId(),
                 'requiredDate' => $line->getConfirmedDate()->format('Y-m-d'),
-                'factor' => (float) $line->getFactor()
+                'factor' => (float) $line->getFactor(),
+                'internalNumber' => $line->getInternalNumber(),
             ];
         }
 

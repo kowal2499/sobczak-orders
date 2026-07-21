@@ -151,7 +151,7 @@ class ScheduleProductionResourcesService
             id: 'prod-' . $production->getId(),
             resourceId: $production->getDepartmentSlug(),
             agreementLineId: $line->getAgreementLineId(),
-            orderName: $line->getOrderNumber(),
+            orderName: $line->getDisplayNumber(),
             orderStatus: $this->mapStatus($production->getStatus()),
             eventType: 'order',
             dateStart: $production->getDateStart()->format('Y-m-d'),
@@ -159,7 +159,7 @@ class ScheduleProductionResourcesService
             meta: [
                 'productionId' => $production->getId(),
                 'agreementLineId' => $line->getAgreementLineId(),
-                'orderNumber' => $line->getOrderNumber(),
+                'orderNumber' => $line->getDisplayNumber(),
                 'customerName' => $line->getCustomerName(),
                 'productName' => $line->getProductName(),
                 'isStartDelayed' => (bool) $production->isStartDelayed(),

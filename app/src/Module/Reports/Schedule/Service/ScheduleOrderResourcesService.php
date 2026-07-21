@@ -66,7 +66,7 @@ class ScheduleOrderResourcesService
         foreach ($lines as $line) {
             $orders[] = [
                 'id' => $line->getAgreementLineId(),
-                'orderNumber' => $line->getOrderNumber(),
+                'orderNumber' => $line->getDisplayNumber(),
                 'customerName' => $line->getCustomerName(),
                 'productName' => $line->getProductName(),
                 'status' => $line->getStatus(),

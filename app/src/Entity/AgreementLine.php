@@ -79,6 +79,10 @@ class AgreementLine
     #[Groups(['_main', '_linePanel'])]
     private $productionCompletionDate;
 
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    #[Groups(['_main', '_linePanel'])]
+    private ?string $internalNumber = null;
+
     public function __construct()
     {
         $this->productions = new ArrayCollection();
@@ -302,5 +306,31 @@ class AgreementLine
             }
         }
         return null;
+    }
+
+    public function getInternalNumber(): ?string
+    {
+        return $this->internalNumber;
+    }
+
+    public function setInternalNumber(?string $internalNumber): self
+    {
+        $this->internalNumber = $internalNumber;
+
+        return $this;
+    }
+
+    /**
+     * Pełny numer linii do wyświetlenia: numer zamówienia + opcjonalny sufiks wewnętrzny.
+     */
+    public function getDisplayNumber(): ?string
+    {
+        $orderNumber = $this->Agreement ? $this->Agreement->getOrderNumber() : null;
+
+        if ($this->internalNumber !== null && $this->internalNumber !== '') {
+            return $orderNumber . '-' . $this->internalNumber;
+        }
+
+        return $orderNumber;
     }
 }

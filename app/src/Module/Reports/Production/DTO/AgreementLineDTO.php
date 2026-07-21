@@ -9,13 +9,19 @@ class AgreementLineDTO
         private readonly ?float $factor = null,
         private readonly ?string $productName = null,
         private readonly ?\DateTimeInterface $productionStartDate = null,
-        private readonly ?\DateTimeInterface $productionCompletionDate = null
+        private readonly ?\DateTimeInterface $productionCompletionDate = null,
+        private readonly ?string $internalNumber = null
     ) {
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getInternalNumber(): ?string
+    {
+        return $this->internalNumber;
     }
 
     public function getProductName(): ?string

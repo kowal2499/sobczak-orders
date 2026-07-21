@@ -7,7 +7,7 @@ import Sidebar from '@/components/base/Sidebar'
 import CapacitySidebar from '@/modules/schedule/sidebars/CapacitySidebar'
 import {fetchCapatity, fetchHolidays, fetchAgreementLines} from '@/modules/schedule/repository/scheduleRepository'
 import {v4 as uuidv4} from 'uuid';
-import {getLocalDate, getDepartmentName, getUserDepartments} from "@/helpers";
+import {getLocalDate, getDepartmentName, getUserDepartments, orderDisplayNumber} from "@/helpers";
 import VueSelect from 'vue-select'
 
 export default {
@@ -50,7 +50,7 @@ export default {
                         start: prod.dateStart,
                         end: prod.dateEnd,
                         departmentSlug: prod.departmentSlug,
-                        title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${line.orderNumber}`,
+                        title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${orderDisplayNumber(line.orderNumber, line.internalNumber)}`,
                         resourceId: prod.departmentSlug,
                         overlap: true,
                         allDay: true,

@@ -9,11 +9,24 @@
         <div v-else-if="logs.length === 0" class="empty-message">
             {{ $t('agreement.activityLog.empty') }}
         </div>
-        <ul v-else class="timeline">
-            <li v-for="log in logs" :key="log.id" class="timeline-item">
-                <ActivityLogEntry :log="log" :compact="compact" />
-            </li>
-        </ul>
+        <template v-else>
+            <ul class="timeline">
+                <li v-for="log in logs" :key="log.id" class="timeline-item">
+                    <ActivityLogEntry :log="log" :compact="compact" />
+                </li>
+            </ul>
+
+            <b-pagination
+                v-if="totalPages > 1"
+                class="mt-3 mb-0"
+                align="right"
+                :value="page"
+                :total-rows="total"
+                :per-page="pageSize"
+                first-number last-number size="sm"
+                @input="goToPage"
+            />
+        </template>
     </div>
 </template>
 
@@ -38,6 +51,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        pageSize: {
+            type: Number,
+            default: 8,
+        },
     },
 
     data() {
@@ -46,7 +63,15 @@ export default {
             loading: false,
             error: false,
             hasLoaded: false,
+            page: 1,
+            total: 0,
         };
+    },
+
+    computed: {
+        totalPages() {
+            return Math.ceil(this.total / this.pageSize);
+        },
     },
 
     mounted() {
@@ -56,19 +81,25 @@ export default {
     },
 
     methods: {
-        async load() {
+        async load(page = 1) {
             this.loading = true;
             this.error = false;
             try {
-                const { data } = await this.fetcher();
+                const { data } = await this.fetcher({ page, pageSize: this.pageSize });
                 this.logs = data.items ?? [];
+                this.total = data.total ?? this.logs.length;
+                this.page = data.page ?? page;
                 this.hasLoaded = true;
             } catch (e) {
                 this.error = true;
                 this.logs = [];
+                this.total = 0;
             } finally {
                 this.loading = false;
             }
+        },
+        goToPage(page) {
+            this.load(page);
         },
         loadIfNeeded() {
             if (!this.hasLoaded) {

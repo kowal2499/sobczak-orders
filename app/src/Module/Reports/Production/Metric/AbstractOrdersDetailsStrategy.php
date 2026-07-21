@@ -86,6 +86,7 @@ abstract class AbstractOrdersDetailsStrategy extends AbstractMetricStrategy
                 $line->getProductName(),
                 $line->getProductionStartDate(),
                 $line->getProductionEndDate(),
+                $line->getInternalNumber(),
             ),
             new AgreementDTO(
                 $line->getOrderNumber(),

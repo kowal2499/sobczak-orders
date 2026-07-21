@@ -188,12 +188,26 @@ class UpdateAgreementCommandHandler
         $eventsUpdated = [];
         $eventsDeleted = [];
         $lineChanges = [];
+        $seenInternalNumbers = [];
+        $processedLines = [];
 
         foreach ($command->products as $productData) {
             $productId = (int) ($productData['productId'] ?? 0);
             $requiredDate = (string) ($productData['requiredDate'] ?? '');
             $description = (string) ($productData['description'] ?? '');
             $factor = (float) ($productData['factor'] ?? 1.0);
+            $internalNumber = $this->normalizeInternalNumber($productData['internalNumber'] ?? null);
+
+            // Produkty w żądaniu to finalny zbiór linii zamówienia (brakujące są usuwane),
+            // więc unikalność sufiksów w tej pętli = brak duplikatów w całym Agreement po zapisie.
+            if ($internalNumber !== null) {
+                if (in_array($internalNumber, $seenInternalNumbers, true)) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Duplicate internal number "%s" within the order', $internalNumber)
+                    );
+                }
+                $seenInternalNumbers[] = $internalNumber;
+            }
 
             $product = $this->productRepository->find($productId);
             if (!$product) {
@@ -231,18 +245,22 @@ class UpdateAgreementCommandHandler
             $oldProduct = null;
             $oldFactor = null;
             $oldDescription = '';
+            $oldInternalNumber = null;
             if (!$isNew) {
                 $oldProduct = $line->getProduct();
                 $oldFactor = $line->getFactor();
                 $oldDescription = (string) $line->getDescription();
+                $oldInternalNumber = $line->getInternalNumber();
             }
 
             $line->setConfirmedDate($newConfirmedDate);
             $line->setProduct($product);
             $line->setFactor($factor);
             $line->setDescription($description);
+            $line->setInternalNumber($internalNumber);
 
             $this->em->persist($line);
+            $processedLines[] = $line;
 
             if (!$isNew) {
                 $lineChanges = array_merge($lineChanges, $this->detectLineChanges(
@@ -256,6 +274,8 @@ class UpdateAgreementCommandHandler
                     $confirmedDateChanged,
                     $oldDescription,
                     $description,
+                    $oldInternalNumber,
+                    $internalNumber,
                 ));
             }
 
@@ -294,6 +314,11 @@ class UpdateAgreementCommandHandler
             }
         }
 
+        // Sufiks ma sens tylko przy wielu liniach — dla pojedynczej linii wyczyść.
+        if (count($processedLines) === 1) {
+            $processedLines[0]->setInternalNumber(null);
+        }
+
         // Przygotowanie eventów dla usuniętych linii
         foreach ($oldAgreementLineIds as $agreementLineId) {
             $eventsDeleted[] = new AgreementLineWasDeletedEvent($agreementLineId);
@@ -324,11 +349,23 @@ class UpdateAgreementCommandHandler
         \DateTimeInterface $newConfirmedDate,
         bool $confirmedDateChanged,
         string $oldDescription,
-        string $newDescription
+        string $newDescription,
+        ?string $oldInternalNumber = null,
+        ?string $newInternalNumber = null
     ): array {
         $lineId = $line->getId();
         $productName = $newProduct->getName() ?? '';
         $changes = [];
+
+        if (($oldInternalNumber ?? '') !== ($newInternalNumber ?? '')) {
+            $changes[] = $this->lineChange(
+                $lineId,
+                $productName,
+                'internalNumber',
+                $oldInternalNumber ?? '',
+                $newInternalNumber ?? '',
+            );
+        }
 
         if ($oldProduct?->getId() !== $newProduct->getId()) {
             $changes[] = $this->lineChange(
@@ -380,6 +417,19 @@ class UpdateAgreementCommandHandler
             'old' => $old,
             'new' => $new,
         ];
+    }
+
+    /**
+     * Puste wartości traktujemy jak brak sufiksu (null), żeby nie kolidowały przy walidacji unikalności.
+     */
+    private function normalizeInternalNumber(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
     }
 
     private function factorsEqual(?float $a, float $b): bool
