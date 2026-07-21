@@ -26,18 +26,33 @@ use App\Tests\End2End\Modules\Reports\Production\BaseProductionReportsTestCase;
 class ProductionSummaryTest extends BaseProductionReportsTestCase
 {
     private const URL = '/production/summary';
-    private const MONTH = 6;
-    private const YEAR = 2026;
+
+    /**
+     * Raport liczy produkcje z warunkiem `createdAt <= ostatni dzień miesiąca`, a fabryki
+     * tworzą encje "teraz" — dlatego testy muszą operować na bieżącym miesiącu, inaczej
+     * przestają przechodzić po zmianie miesiąca.
+     */
+    private int $month;
+    private int $year;
+    private \DateTimeImmutable $monthStart;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->monthStart = new \DateTimeImmutable('first day of this month 00:00:00');
+        $this->month = (int) $this->monthStart->format('n');
+        $this->year = (int) $this->monthStart->format('Y');
+    }
 
     public function testShouldReturnZeroProductionWhenNoData(): void
     {
         // Given
         $client = $this->login($this->createUser());
-        $this->createCapacity(new \DateTime('2026-06-01'), 2.0);
+        $this->createCapacity($this->monthStart, 2.0);
         $this->factory->flush();
 
         // When
-        $client->request('POST', self::URL, ['month' => self::MONTH, 'year' => self::YEAR]);
+        $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
         // Then
         $this->assertSame(200, $client->getResponse()->getStatusCode());
@@ -58,7 +73,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
     {
         // Given
         $client = $this->login($this->createUser());
-        $this->createCapacity(new \DateTime('2026-06-01'), 2.0);
+        $this->createCapacity($this->monthStart, 2.0);
 
         $line = $this->makeDpt05Line(
             factor: 4.0,
@@ -78,7 +93,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         );
 
         // When
-        $client->request('POST', self::URL, ['month' => self::MONTH, 'year' => self::YEAR]);
+        $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -94,7 +109,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
     {
         // Given
         $client = $this->login($this->createUser());
-        $this->createCapacity(new \DateTime('2026-06-01'), 2.0);
+        $this->createCapacity($this->monthStart, 2.0);
         $this->makeDpt05Line(
             factor: 4.0,
             productionStatus: TaskTypes::TYPE_DEFAULT_STATUS_STARTED,
@@ -103,7 +118,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         );
 
         // When
-        $client->request('POST', self::URL, ['month' => self::MONTH, 'year' => self::YEAR]);
+        $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -114,20 +129,20 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
     {
         // Given
         $client = $this->login($this->createUser());
-        $this->createCapacity(new \DateTime('2026-06-01'), 2.0);
+        $this->createCapacity($this->monthStart, 2.0);
 
         $line = $this->makeDpt05Finished(
             factor: 5.0,
-            logDate: new \DateTime('2026-06-15'),
+            logDate: $this->monthStart->modify('+14 days'),
         );
         // Nie liczy się: zakończenie poza miesiącem
         $this->makeDpt05Finished(
             factor: 7.0,
-            logDate: new \DateTime('2026-05-15'),
+            logDate: $this->monthStart->modify('-17 days'),
         );
 
         // When
-        $client->request('POST', self::URL, ['month' => self::MONTH, 'year' => self::YEAR]);
+        $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -152,13 +167,13 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         $this->factory->flush();
 
         $client = $this->login($user);
-        $this->createCapacity(new \DateTime('2026-06-01'), 2.0);
+        $this->createCapacity($this->monthStart, 2.0);
 
         $this->makeDpt05Line(factor: 4.0, productionStatus: TaskTypes::TYPE_DEFAULT_STATUS_STARTED, alStatus: AgreementLine::STATUS_MANUFACTURING, customer: $owned);
         $this->makeDpt05Line(factor: 6.0, productionStatus: TaskTypes::TYPE_DEFAULT_STATUS_STARTED, alStatus: AgreementLine::STATUS_MANUFACTURING, customer: $other);
 
         // When
-        $client->request('POST', self::URL, ['month' => self::MONTH, 'year' => self::YEAR]);
+        $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
         // Then — oba filtrowane po przypisanym kliencie (współdzielony QueryBuilder)
         $content = json_decode($client->getResponse()->getContent(), true);
