@@ -265,7 +265,7 @@
             },
             activityLogFetcher() {
                 const lineId = this.lineId;
-                return () => fetchActivityLogsForAgreementLine(lineId);
+                return (params) => fetchActivityLogsForAgreementLine(lineId, params);
             },
             prodToSave() {
                 let toSave = _.cloneDeep(this.orderData.productions.tasks);

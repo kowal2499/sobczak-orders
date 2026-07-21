@@ -213,7 +213,7 @@ export default {
         },
         activityLogFetcher() {
             const id = this.agreementId;
-            return () => fetchActivityLogsForAgreement(id);
+            return (params) => fetchActivityLogsForAgreement(id, params);
         },
     },
 
