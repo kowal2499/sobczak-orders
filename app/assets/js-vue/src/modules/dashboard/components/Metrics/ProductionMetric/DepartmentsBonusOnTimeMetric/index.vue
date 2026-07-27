@@ -4,7 +4,7 @@ import { defineComponent } from 'vue'
 import MetricLayout from "../../MetricLayout.vue"
 import Sidebar from '@/components/base/Sidebar.vue'
 import BaseMetric from '../../BaseMetric.js'
-import Details from '../components/Details.vue'
+import OnTimeDetails from '../components/OnTimeDetails.vue'
 import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
@@ -12,11 +12,11 @@ import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import fields from '../fields'
 
 export default defineComponent({
-    name: 'DepartmentsBonusMetric',
+    name: 'DepartmentsBonusOnTimeMetric',
     extends: BaseMetric,
     mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
-        MetricLayout, Sidebar, Details, SidebarNavbar, SidebarLayout,
+        MetricLayout, Sidebar, OnTimeDetails, SidebarNavbar, SidebarLayout,
     },
 
     watch: {
@@ -46,7 +46,7 @@ export default defineComponent({
             this.q = null
         },
         onExportExcel() {
-            return this.exportExcel(this.$t('dashboard.tasksCompleted'), fields, this.innerData)
+            return this.exportExcel(this.$t('dashboard.tasksCompletedOnTime'), fields, this.innerData)
         }
     }
 })
@@ -55,19 +55,17 @@ export default defineComponent({
 <template>
     <MetricLayout :is-busy="isBusy" class="border-left-success">
         <template #title>
-            {{ $t("dashboard.tasksCompleted") }}
+            {{ $t("dashboard.tasksCompletedOnTime") }}
         </template>
 
         <template #description>
-            <p v-html="$t('dashboard.descriptions.tasksCompleted.p1')"></p>
-            <p v-html="$t('dashboard.descriptions.tasksCompleted.p2')"></p>
-            <p v-html="$t('dashboard.descriptions.tasksCompleted.p3')"></p>
-            <p v-html="$t('dashboard.descriptions.tasksCompleted.p4')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompletedOnTime.p1')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompletedOnTime.p2')"></p>
         </template>
 
         <template #default>
             <Sidebar
-                :title="$t('dashboard.tasksCompleted')"
+                :title="$t('dashboard.tasksCompletedOnTime')"
                 sidebar-class="size-100 size-lg-75"
             >
                 <template #sidebar-action="{ open }">
@@ -94,7 +92,7 @@ export default defineComponent({
                             />
                         </template>
                         <template #content>
-                            <Details :data="filteredInnerData" :height="height" class="px-2 pb-2" />
+                            <OnTimeDetails :data="filteredInnerData" :height="height" class="px-2 pb-2" />
                         </template>
                     </SidebarLayout>
                 </template>

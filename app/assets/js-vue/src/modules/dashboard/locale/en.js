@@ -11,6 +11,22 @@ export default {
     'totalFactors': 'Factors summary for all orders',
     'firstFreeDay': 'Estimated date for the completion of all orders',
     'tasksCompleted': 'Completed production tasks',
+    'tasksCompletedOnTime': 'Completed production tasks (on time)',
+    'timeliness': {
+        'planned': 'Planned window',
+        'actual': 'Actual completion',
+        'status': 'Timeliness',
+        'onTime': 'On time',
+        'delayed': 'Delayed by {days} days',
+        'early': 'Ahead by {days} days',
+        'noWindow': 'No planned window',
+        'short': {
+            'onTime': 'on time',
+            'delayed': 'late',
+            'early': 'early',
+            'noWindow': 'no window',
+        },
+    },
     'capacityMetric': 'Production departments capacity',
     'weeklyCapacityMetric': 'Weekly capacity utilization',
     'showForecast': 'Show pending orders forecast',
@@ -46,6 +62,10 @@ export default {
             'p2': '<strong>Execution report.</strong> Shows the sum of production factors for tasks <strong>actually completed</strong> in the selected period, broken down by department. Each task is assigned to a month based on the <strong>actual completion date</strong> — the moment it was marked as completed.',
             'p3': 'Delayed tasks (planned for an earlier month but completed later) appear in the month of actual completion. Early completions work the same way — if a task was planned for April but completed in March, it appears in the March report. Bonuses and penalties assigned to tasks are included. Pending or in-progress tasks are not included.',
             'p4': 'Best used for <strong>monthly reconciliation</strong> of work actually performed.',
+        },
+        'tasksCompletedOnTime': {
+            'p1': '<strong>Bonus report (timeliness).</strong> Like "Completed production tasks", but the bonus (factor including bonuses and penalties) is credited <strong>only for completing a department within the planned time window</strong> — the completion date falls between the planned start and end of work in that department.',
+            'p2': 'Tasks completed outside the window (too early, late, or with no dates set) are shown but <strong>greyed out and counted as 0 points</strong>. Bonus and penalty details remain available in the tooltip. Each department is settled separately.',
         },
         'weeklyCapacity': {
             'p1': 'Shows a weekly breakdown of the company\'s <strong>production capacity</strong> against the <strong>workload from accepted orders</strong>. For each week, the progress bar shows how much of the available capacity is occupied by orders with a delivery date falling in that week.',

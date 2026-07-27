@@ -22,12 +22,19 @@ export default {
                 }
 
                 const lineData = acc.get(item.agreementLine.id)
+                // onTime !== false: brak flagi (starsze mierniki) traktujemy jak "w terminie".
+                // Poza oknem zerujemy współczynnik u źródła, żeby sumy w tabeli/agregacji się zgadzały;
+                // factorsStack zostaje (popover pokazuje, co przepadło).
+                const isOnTime = item.onTime !== false
                 lineData[`involved_${item.departmentSlug}`] = {
                     ...item.factors,
+                    ...(isOnTime ? {} : { factor: 0 }),
+                    onTime: isOnTime,
                     production: {
                         status: item.status,
                         dateStart: item.dateStart,
                         dateEnd: item.dateEnd,
+                        completedAt: item.completedAt,
                         departmentSlug: item.departmentSlug,
                     }
                 }

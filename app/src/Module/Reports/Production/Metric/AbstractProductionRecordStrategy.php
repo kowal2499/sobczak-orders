@@ -39,6 +39,15 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     abstract protected function factorsOf(ProductionRM $production): ?AssembledFactorDTO;
 
     /**
+     * Czy produkcja została ukończona w terminie (w zaplanowanym oknie). Domyślnie zawsze true —
+     * mierniki egzekwujące terminowość nadpisują tę metodę.
+     */
+    protected function isOnTime(ProductionRM $production, \DateTime $rangeStart, \DateTime $rangeEnd): bool
+    {
+        return true;
+    }
+
+    /**
      * @return ProductionReportRecordDTO[]
      */
     public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
@@ -60,15 +69,19 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
                 if (!$this->qualifies($production, $rangeStart, $rangeEnd)) {
                     continue;
                 }
-                $records[] = $this->toRecord($line, $production);
+                $onTime = $this->isOnTime($production, $rangeStart, $rangeEnd);
+                $records[] = $this->toRecord($line, $production, $onTime);
             }
         }
 
         return $records;
     }
 
-    private function toRecord(AgreementLineRM $line, ProductionRM $production): ProductionReportRecordDTO
-    {
+    private function toRecord(
+        AgreementLineRM $line,
+        ProductionRM $production,
+        bool $onTime = true
+    ): ProductionReportRecordDTO {
         return new ProductionReportRecordDTO(
             $production->getDepartmentSlug(),
             $production->getDateStart(),
@@ -92,6 +105,7 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
             ),
             $this->factorsOf($production),
             $production->isGhost(),
+            $onTime,
         );
     }
 }

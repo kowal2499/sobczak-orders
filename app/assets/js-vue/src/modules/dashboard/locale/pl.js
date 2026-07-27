@@ -11,6 +11,22 @@ export default {
     'totalFactors': 'Suma współczynników dla wszystkich zamówień',
     'firstFreeDay': 'Planowany dzień zrealizowania wszystkich zamówień',
     'tasksCompleted': 'Ukończone zadania produkcyjne',
+    'tasksCompletedOnTime': 'Ukończone zadania produkcyjne (w terminie)',
+    'timeliness': {
+        'planned': 'Planowany zakres',
+        'actual': 'Faktyczna realizacja',
+        'status': 'Terminowość',
+        'onTime': 'W terminie',
+        'delayed': 'Opóźnione o {days} dni',
+        'early': 'Przyspieszone o {days} dni',
+        'noWindow': 'Brak zaplanowanego okna',
+        'short': {
+            'onTime': 'w terminie',
+            'delayed': 'po terminie',
+            'early': 'przed terminem',
+            'noWindow': 'brak terminu',
+        },
+    },
     'capacityMetric': 'Obłożenie działów produkcji',
     'weeklyCapacityMetric': 'Obłożenie tygodniowe',
     'showForecast': 'Pokaż prognozę zadań oczekujących',
@@ -46,6 +62,10 @@ export default {
             'p2': '<strong>Raport realizacyjny.</strong> Pokazuje sumę współczynników produkcji <strong>faktycznie ukończonych</strong> w wybranym okresie, z podziałem na działy. Każde zadanie jest przypisywane do miesiąca według <strong>rzeczywistej daty zakończenia</strong> — momentu, w którym oznaczono je jako ukończone.',
             'p3': 'Oznacza to, że zadania opóźnione (zaplanowane na wcześniejszy miesiąc, ale ukończone później) pojawiają się w miesiącu faktycznego zakończenia. Tak samo zadania przyspieszone — jeśli coś zaplanowano na kwiecień, a ukończono w marcu, trafi do raportu marcowego. Raport uwzględnia bonusy i kary przypisane do zadań. Nie zawiera zadań oczekujących ani w trakcie realizacji.',
             'p4': 'Najlepiej sprawdza się do <strong>miesięcznego rozliczenia</strong> rzeczywiście wykonanej pracy.',
+        },
+        'tasksCompletedOnTime': {
+            'p1': '<strong>Raport premiowy (terminowość).</strong> Jak „Ukończone zadania produkcyjne", ale premia (współczynnik z bonusami i karami) jest naliczana <strong>wyłącznie za ukończenie działu w zaplanowanym oknie czasowym</strong> — data ukończenia mieści się między planowanym startem a końcem pracy w danym dziale.',
+            'p2': 'Zadania ukończone poza oknem (za wcześnie, po terminie lub bez ustawionych dat) są widoczne, ale <strong>wyszarzone i liczone jako 0 punktów</strong>. Szczegóły bonusów i kar pozostają dostępne w dymku. Każdy dział rozliczany jest osobno.',
         },
         'weeklyCapacity': {
             'p1': 'Pokazuje tygodniowe zestawienie <strong>zdolności produkcyjnej</strong> firmy na tle <strong>obłożenia wynikającego z przyjętych zamówień</strong>. Dla każdego tygodnia pasek postępu ilustruje, jaka część dostępnej zdolności jest zajęta przez zamówienia z terminem dostawy przypadającym w danym tygodniu.',

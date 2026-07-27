@@ -7,7 +7,8 @@ export default {
                 name: department.name,
                 slug: department.slug,
                 value: data?.reduce((acc, item) => {
-                    if (item.departmentSlug === department.slug) {
+                    // poza oknem (onTime === false) premia nie jest naliczana
+                    if (item.departmentSlug === department.slug && item.onTime !== false) {
                         return acc + item.factors.factor
                     }
                     return acc

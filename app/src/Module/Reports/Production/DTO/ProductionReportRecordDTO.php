@@ -17,12 +17,18 @@ class ProductionReportRecordDTO
         private readonly ?CustomerDTO $customer = null,
         private readonly ?AssembledFactorDTO $factors = null,
         private readonly bool $isGhost = false,
+        private readonly bool $onTime = true,
     ) {
     }
 
     public function getIsGhost(): bool
     {
         return $this->isGhost;
+    }
+
+    public function getOnTime(): bool
+    {
+        return $this->onTime;
     }
 
     public function getDepartmentSlug(): string
