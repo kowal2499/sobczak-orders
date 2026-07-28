@@ -39,6 +39,25 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     abstract protected function factorsOf(ProductionRM $production): ?AssembledFactorDTO;
 
     /**
+     * Czy produkcja została ukończona w terminie (w zaplanowanym oknie). Domyślnie zawsze true —
+     * mierniki egzekwujące terminowość nadpisują tę metodę.
+     */
+    protected function isOnTime(ProductionRM $production, \DateTime $rangeStart, \DateTime $rangeEnd): bool
+    {
+        return true;
+    }
+
+    /**
+     * Czy produkcje niekwalifikujące się do zakresu mają trafić do wyniku jako rekordy
+     * "poza zakresem" (bez współczynnika). Dotyczy wyłącznie linii, które i tak są w raporcie —
+     * front wykorzystuje je do pokazania okna produkcji obok zakresu raportu.
+     */
+    protected function emitsOutOfRange(): bool
+    {
+        return false;
+    }
+
+    /**
      * @return ProductionReportRecordDTO[]
      */
     public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
@@ -47,9 +66,13 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
         $rangeEnd = new \DateTime($end->format('Y-m-d') . ' 23:59:59');
 
         $defaultSlugs = array_flip(TaskTypes::getDefaultSlugs());
+        $emitsOutOfRange = $this->emitsOutOfRange();
         $records = [];
 
         foreach ($this->fetchLines($this->buildSearch($start, $end, $includeGhost)) as $line) {
+            $lineRecords = [];
+            $outOfRange = [];
+
             foreach ($line->getProductions() as $production) {
                 if (!isset($defaultSlugs[$production->getDepartmentSlug()])) {
                     continue;
@@ -58,17 +81,32 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
                     continue;
                 }
                 if (!$this->qualifies($production, $rangeStart, $rangeEnd)) {
+                    if ($emitsOutOfRange) {
+                        $outOfRange[] = $this->toRecord($line, $production, false, false);
+                    }
                     continue;
                 }
-                $records[] = $this->toRecord($line, $production);
+                $onTime = $this->isOnTime($production, $rangeStart, $rangeEnd);
+                $lineRecords[] = $this->toRecord($line, $production, $onTime);
             }
+
+            if (!$lineRecords) {
+                // linia bez ani jednej kwalifikującej produkcji nie trafia do raportu w ogóle
+                continue;
+            }
+
+            $records = array_merge($records, $lineRecords, $outOfRange);
         }
 
         return $records;
     }
 
-    private function toRecord(AgreementLineRM $line, ProductionRM $production): ProductionReportRecordDTO
-    {
+    private function toRecord(
+        AgreementLineRM $line,
+        ProductionRM $production,
+        bool $onTime = true,
+        bool $inRange = true
+    ): ProductionReportRecordDTO {
         return new ProductionReportRecordDTO(
             $production->getDepartmentSlug(),
             $production->getDateStart(),
@@ -90,8 +128,10 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
             new CustomerDTO(
                 $line->getCustomer()->getName(),
             ),
-            $this->factorsOf($production),
+            $inRange ? $this->factorsOf($production) : null,
             $production->isGhost(),
+            $onTime,
+            $inRange,
         );
     }
 }

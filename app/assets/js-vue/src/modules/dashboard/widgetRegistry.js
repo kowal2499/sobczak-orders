@@ -2,6 +2,7 @@ import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue";
 import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric/index.vue";
 import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
+import DepartmentsBonusOnTimeMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusOnTimeMetric/index.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue";
 import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue";
 import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue";
@@ -89,9 +90,22 @@ export const WIDGETS = [
         props: ctx => ({ isBusy: ctx.sourcesState.src03.isBusy, data: ctx.sourcesState.src03.data }),
     },
     {
+        key: "departments_bonus_on_time",
+        component: DepartmentsBonusOnTimeMetric,
+        order: 8,
+        defaultSize: { w: 4, h: 6 },
+        grant: "reports.dashboard:on-time-bonus",
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src06.isBusy,
+            data: ctx.sourcesState.src06.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+        }),
+    },
+    {
         key: "capacity",
         component: CapacityMetric,
-        order: 8,
+        order: 9,
         defaultSize: { w: 8, h: 9 },
         grant: "reports.dashboard:capacity-utilization",
         props: ctx => ({

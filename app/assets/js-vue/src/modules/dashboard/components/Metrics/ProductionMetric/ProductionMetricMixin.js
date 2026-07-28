@@ -22,12 +22,25 @@ export default {
                 }
 
                 const lineData = acc.get(item.agreementLine.id)
+                // onTime/inRange !== false: brak flagi (starsze mierniki) traktujemy jak "w terminie"/"w zakresie".
+                // Poza oknem zerujemy współczynnik u źródła, żeby sumy w tabeli/agregacji się zgadzały;
+                // factorsStack zostaje (popover pokazuje, co przepadło).
+                // Poza zakresem raportu backend nie przysyła współczynnika (factors === null) — komórka
+                // pokazuje "–", a w popoverze samo okno produkcji.
+                const isOnTime = item.onTime !== false
+                const isInRange = item.inRange !== false
                 lineData[`involved_${item.departmentSlug}`] = {
-                    ...item.factors,
+                    factor: null,
+                    factorsStack: [],
+                    ...(isInRange ? item.factors : {}),
+                    ...(isInRange && !isOnTime ? { factor: 0 } : {}),
+                    onTime: isOnTime,
+                    inRange: isInRange,
                     production: {
                         status: item.status,
                         dateStart: item.dateStart,
                         dateEnd: item.dateEnd,
+                        completedAt: item.completedAt,
                         departmentSlug: item.departmentSlug,
                     }
                 }

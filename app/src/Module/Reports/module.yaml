@@ -10,6 +10,8 @@ app_module:
       options:
           - label: Ukończone zadania produkcyjne
             optionSlug: completedTasks
+          - label: Ukończone zadania produkcyjne (w terminie)
+            optionSlug: on-time-bonus
           - label: Zapełnienie listy produkcyjnej
             optionSlug: capacity-utilization
           - label: Obłożenie tygodniowe
