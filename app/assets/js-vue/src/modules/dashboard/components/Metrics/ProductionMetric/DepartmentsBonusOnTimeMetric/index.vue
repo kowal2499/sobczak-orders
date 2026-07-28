@@ -19,6 +19,12 @@ export default defineComponent({
         MetricLayout, Sidebar, OnTimeDetails, SidebarNavbar, SidebarLayout,
     },
 
+    props: {
+        // zakres raportu (miesiąc wybrany na pulpicie) — potrzebny w popoverze "poza zakresem dat"
+        dateStart: { type: String, default: null },
+        dateEnd: { type: String, default: null },
+    },
+
     watch: {
         data: {
             deep: true,
@@ -92,7 +98,12 @@ export default defineComponent({
                             />
                         </template>
                         <template #content>
-                            <OnTimeDetails :data="filteredInnerData" :height="height" class="px-2 pb-2" />
+                            <OnTimeDetails
+                                :data="filteredInnerData"
+                                :height="height"
+                                :report-range="{ start: dateStart, end: dateEnd }"
+                                class="px-2 pb-2"
+                            />
                         </template>
                     </SidebarLayout>
                 </template>

@@ -20,11 +20,23 @@ export default {
         'delayed': 'Delayed by {days} days',
         'early': 'Ahead by {days} days',
         'noWindow': 'No planned window',
-        'short': {
-            'onTime': 'on time',
-            'delayed': 'late',
-            'early': 'early',
-            'noWindow': 'no window',
+    },
+    'onTimeCell': {
+        'factorBreakdown': 'Factor breakdown',
+        'finalValue': 'Final value',
+        'noBonusNote': 'bonus factor 0',
+        'addAdjustment': 'Add adjustment',
+        'adjustmentType': {
+            'bonus': 'Bonus',
+            'penalty': 'Penalty',
+        },
+        'adjustmentComment': 'Adjustment comment...',
+        'addAdjustmentButton': 'Add adjustment',
+        'outOfRange': {
+            'title': 'Outside the date range',
+            'reportRange': 'Report range',
+            'productionWindow': 'Production window',
+            'note': 'The production time window does not overlap the report range — this item is not counted in this period.',
         },
     },
     'capacityMetric': 'Production departments capacity',

@@ -20,11 +20,23 @@ export default {
         'delayed': 'Opóźnione o {days} dni',
         'early': 'Przyspieszone o {days} dni',
         'noWindow': 'Brak zaplanowanego okna',
-        'short': {
-            'onTime': 'w terminie',
-            'delayed': 'po terminie',
-            'early': 'przed terminem',
-            'noWindow': 'brak terminu',
+    },
+    'onTimeCell': {
+        'factorBreakdown': 'Składowe współczynnika',
+        'finalValue': 'Wartość finalna',
+        'noBonusNote': 'współczynnik premii 0',
+        'addAdjustment': 'Dodaj korektę',
+        'adjustmentType': {
+            'bonus': 'Bonus',
+            'penalty': 'Kara',
+        },
+        'adjustmentComment': 'Komentarz do korekty...',
+        'addAdjustmentButton': 'Dodaj korektę',
+        'outOfRange': {
+            'title': 'Poza zakresem dat',
+            'reportRange': 'Zakres raportu',
+            'productionWindow': 'Okno produkcji',
+            'note': 'Okno czasowe produkcji nie pokrywa się z zakresem raportu - pozycja nie jest liczona w tym okresie.',
         },
     },
     'capacityMetric': 'Obłożenie działów produkcji',

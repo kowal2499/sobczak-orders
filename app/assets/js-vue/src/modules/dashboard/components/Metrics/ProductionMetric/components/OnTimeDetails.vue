@@ -25,7 +25,12 @@ export default defineComponent({
             type: Array,
             default: () => []
         },
-        height: [String, Number]
+        height: [String, Number],
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu dla popovera "poza zakresem dat"
+        reportRange: {
+            type: Object,
+            default: () => ({ start: null, end: null })
+        },
     },
     methods: {
         panelUrl(id) {
@@ -71,12 +76,6 @@ export default defineComponent({
                 {
                     key: 'context',
                     label: this.$t('_agreement_line'),
-                    active: true,
-                },
-                {
-                    key: 'factor',
-                    label: this.$t('_factor'),
-                    class: 'data-cell',
                     active: true,
                 },
                 {
@@ -157,31 +156,27 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt01" />
+            <OnTimeDepartmentValue :factorData="item.dpt01" :report-range="reportRange" />
         </template>
         <template #cell(dpt02)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt02" />
+            <OnTimeDepartmentValue :factorData="item.dpt02" :report-range="reportRange" />
         </template>
         <template #cell(dpt03)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt03" />
+            <OnTimeDepartmentValue :factorData="item.dpt03" :report-range="reportRange" />
         </template>
         <template #cell(dpt04)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt04" />
+            <OnTimeDepartmentValue :factorData="item.dpt04" :report-range="reportRange" />
         </template>
         <template #cell(dpt05)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt05" />
+            <OnTimeDepartmentValue :factorData="item.dpt05" :report-range="reportRange" />
         </template>
         <template #cell(dpt06)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt06" />
+            <OnTimeDepartmentValue :factorData="item.dpt06" :report-range="reportRange" />
         </template>
 
         <template #head(context)="data">
             {{data.label}}
             <br><b-badge pill variant="light">{{ rows.length }}</b-badge>
-        </template>
-        <template #head(factor)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.factor | roundFloat }}</b-badge>
         </template>
         <template #head(dpt01)="data">
             {{data.label}}

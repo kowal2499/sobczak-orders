@@ -40,6 +40,11 @@ class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrat
         return $completedAt !== null && $completedAt >= $rangeStart && $completedAt <= $rangeEnd;
     }
 
+    protected function emitsOutOfRange(): bool
+    {
+        return true;
+    }
+
     protected function isOnTime(ProductionRM $production, \DateTime $rangeStart, \DateTime $rangeEnd): bool
     {
         $dateStart = $production->getDateStart();

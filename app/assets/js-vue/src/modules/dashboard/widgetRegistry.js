@@ -95,7 +95,12 @@ export const WIDGETS = [
         order: 8,
         defaultSize: { w: 4, h: 6 },
         grant: "reports.dashboard:on-time-bonus",
-        props: ctx => ({ isBusy: ctx.sourcesState.src06.isBusy, data: ctx.sourcesState.src06.data }),
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src06.isBusy,
+            data: ctx.sourcesState.src06.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+        }),
     },
     {
         key: "capacity",

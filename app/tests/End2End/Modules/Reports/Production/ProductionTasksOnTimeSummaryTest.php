@@ -111,6 +111,50 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         $this->assertSame([], json_decode($client->getResponse()->getContent(), true));
     }
 
+    public function testShouldIncludeOtherDepartmentsOfReportedLineAsOutOfRange(): void
+    {
+        // Given — dpt03 rozliczony w maju, dpt05 dopiero w czerwcu
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
+        $this->makeAgreementLine(productions: [
+            [
+                'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
+                'isCompleted' => true,
+                'dateStart' => new \DateTime('2026-05-10'),
+                'dateEnd' => new \DateTime('2026-05-20'),
+                'completedAt' => new \DateTime('2026-05-15 12:00:00'),
+            ],
+            [
+                'slug' => TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING,
+                'isCompleted' => true,
+                'dateStart' => new \DateTime('2026-06-04'),
+                'dateEnd' => new \DateTime('2026-06-11'),
+                'completedAt' => new \DateTime('2026-06-08 12:00:00'),
+            ],
+        ]);
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(2, $content);
+
+        $bySlug = array_column($content, null, 'departmentSlug');
+
+        $inRange = $bySlug[TaskTypes::TYPE_DEFAULT_SLUG_GRINDING];
+        $this->assertTrue($inRange['inRange']);
+        $this->assertTrue($inRange['onTime']);
+        $this->assertNotNull($inRange['factors']);
+
+        $outOfRange = $bySlug[TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING];
+        $this->assertFalse($outOfRange['inRange']);
+        $this->assertFalse($outOfRange['onTime']);
+        $this->assertNull($outOfRange['factors']);
+        // okno produkcji zachowane — front pokazuje je w popoverze "poza zakresem dat"
+        $this->assertStringStartsWith('2026-06-04', $outOfRange['dateStart']);
+        $this->assertStringStartsWith('2026-06-11', $outOfRange['dateEnd']);
+    }
+
     public function testShouldReturn400WhenDatesMissing(): void
     {
         // Given

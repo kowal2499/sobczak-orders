@@ -108,6 +108,62 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
         $this->assertTrue($result[0]->getOnTime());
     }
 
+    public function testEmitsOutOfRangeRecordForOtherDepartmentsOfReportedLine(): void
+    {
+        // dpt03 rozliczony w maju, dpt05 dopiero w czerwcu — dpt05 trafia do wyniku jako "poza zakresem"
+        $line = $this->makeLine(6, [
+            $this->prod(
+                'dpt03',
+                dateStart: new \DateTime('2026-05-01'),
+                dateEnd: new \DateTime('2026-05-10'),
+                completedAt: new \DateTime('2026-05-05 12:00:00'),
+                bonus: new AssembledFactorDTO(2.0),
+            ),
+            $this->prod(
+                'dpt05',
+                dateStart: new \DateTime('2026-06-04'),
+                dateEnd: new \DateTime('2026-06-11'),
+                completedAt: new \DateTime('2026-06-08 12:00:00'),
+                bonus: new AssembledFactorDTO(3.0),
+            ),
+        ]);
+
+        $result = $this->makeStrategy([$line])->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
+
+        $this->assertCount(2, $result);
+
+        $this->assertSame('dpt03', $result[0]->getDepartmentSlug());
+        $this->assertTrue($result[0]->getInRange());
+        $this->assertTrue($result[0]->getOnTime());
+
+        $outOfRange = $result[1];
+        $this->assertSame('dpt05', $outOfRange->getDepartmentSlug());
+        $this->assertFalse($outOfRange->getInRange());
+        $this->assertFalse($outOfRange->getOnTime());
+        $this->assertNull($outOfRange->getFactors());
+        // okno produkcji musi zostać — front pokazuje je w popoverze
+        $this->assertSame('2026-06-04', $outOfRange->getDateStart()->format('Y-m-d'));
+        $this->assertSame('2026-06-11', $outOfRange->getDateEnd()->format('Y-m-d'));
+    }
+
+    public function testSkipsLineWithoutAnyQualifyingProduction(): void
+    {
+        // żaden dział nie rozlicza się w maju — linia nie trafia do raportu wcale (brak "sierot")
+        $line = $this->makeLine(7, [
+            $this->prod(
+                'dpt03',
+                dateStart: new \DateTime('2026-06-01'),
+                dateEnd: new \DateTime('2026-06-10'),
+                completedAt: new \DateTime('2026-06-05 12:00:00'),
+                bonus: new AssembledFactorDTO(2.0),
+            ),
+        ]);
+
+        $result = $this->makeStrategy([$line])->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
+
+        $this->assertSame([], $result);
+    }
+
     private function makeStrategy(array $lines): DepartmentsBonusOnTimeMetricStrategy
     {
         $repo = $this->createMock(AgreementLineRMRepository::class);
