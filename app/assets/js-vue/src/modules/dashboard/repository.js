@@ -16,6 +16,11 @@ export function getProductionTasksCompletionSummary(start, end) {
 }
 
 
+export function getProductionTasksOnTimeSummary(start, end) {
+    return axios.get(`/reports/production/production-tasks-on-time-summary`, {params: {start, end}});
+}
+
+
 export function getOldSummary(start, end) {
     return axios.post(`production/summary`, {
         month: (new Date(start)).getMonth() + 1,

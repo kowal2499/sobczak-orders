@@ -17,12 +17,28 @@ class ProductionReportRecordDTO
         private readonly ?CustomerDTO $customer = null,
         private readonly ?AssembledFactorDTO $factors = null,
         private readonly bool $isGhost = false,
+        private readonly bool $onTime = true,
+        private readonly bool $inRange = true,
     ) {
+    }
+
+    /**
+     * Czy rekord jest rozliczany w bieżącym zakresie raportu. Rekordy "poza zakresem"
+     * (inRange=false) niosą tylko okno produkcji — bez współczynnika (factors=null).
+     */
+    public function getInRange(): bool
+    {
+        return $this->inRange;
     }
 
     public function getIsGhost(): bool
     {
         return $this->isGhost;
+    }
+
+    public function getOnTime(): bool
+    {
+        return $this->onTime;
     }
 
     public function getDepartmentSlug(): string

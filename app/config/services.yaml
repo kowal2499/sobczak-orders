@@ -96,6 +96,7 @@ services:
             $strategies:
                 - '@App\Module\Reports\Production\Metric\CapacityMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\DepartmentsBonusMetricStrategy'
+                - '@App\Module\Reports\Production\Metric\DepartmentsBonusOnTimeMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersPendingMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersFinishedMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersPendingDetailsStrategy'

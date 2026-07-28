@@ -5,6 +5,7 @@ namespace App\Module\Reports\Production\Controller;
 use App\Controller\BaseController;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 use App\Utilities\DateValidationTrait;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -84,6 +85,24 @@ class ProductionReportsController extends BaseController
         ['start' => $start, 'end' => $end] = $result;
 
         return $this->json($metrics->getMetric('departments_bonus', $start, $end));
+    }
+
+    #[Route(path: '/production-tasks-on-time-summary', methods: ['GET'])]
+    #[IsGranted('reports.dashboard:on-time-bonus')]
+    public function productionTasksOnTimeSummary(
+        Request $request,
+        DashboardMetricProvider $metrics
+    ): Response {
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
+
+        return $this->json($metrics->getMetric('departments_bonus_on_time', $start, $end));
     }
 
     #[Route(path: '/production-capacity', methods: ['GET'])]

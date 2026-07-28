@@ -65,6 +65,7 @@ import { getUserSetting, saveUserSetting } from "../userSettings/repository";
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
+    getProductionTasksOnTimeSummary,
     getOldSummary, getDepartmentsCapacity, getWeeklyCapacity
 } from "./repository";
 
@@ -77,6 +78,7 @@ const DATA_SOURCES = [
     { id: 'src03', fetcher: getProductionTasksCompletionSummary, grant: 'canDashboardMetricsView', active: true },
     { id: 'src04', fetcher: getDepartmentsCapacity, grant: 'reports.dashboard:capacity-utilization', active: true },
     { id: 'src05', fetcher: getWeeklyCapacity, grant: 'reports.dashboard:weekly-capacity', active: true },
+    { id: 'src06', fetcher: getProductionTasksOnTimeSummary, grant: 'reports.dashboard:on-time-bonus', active: true },
 ]
 
 export default {
