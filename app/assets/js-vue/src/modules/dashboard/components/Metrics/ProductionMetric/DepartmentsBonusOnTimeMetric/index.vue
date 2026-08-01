@@ -10,13 +10,14 @@ import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import fields from '../fields'
+import OnTimeToleranceInput from '../components/OnTimeToleranceInput.vue'
 
 export default defineComponent({
     name: 'DepartmentsBonusOnTimeMetric',
     extends: BaseMetric,
     mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
-        MetricLayout, Sidebar, OnTimeDetails, SidebarNavbar, SidebarLayout,
+        MetricLayout, Sidebar, OnTimeDetails, SidebarNavbar, SidebarLayout, OnTimeToleranceInput,
     },
 
     props: {
@@ -24,6 +25,9 @@ export default defineComponent({
         dateStart: { type: String, default: null },
         dateEnd: { type: String, default: null },
         onRefresh: { type: Function, default: () => {} },
+        // widełki terminowości w dniach roboczych; null = wartość obowiązująca z backendu
+        tolerance: { type: Number, default: null },
+        onToleranceChange: { type: Function, default: () => {} },
     },
 
     watch: {
@@ -68,6 +72,7 @@ export default defineComponent({
         <template #description>
             <p v-html="$t('dashboard.descriptions.tasksCompletedOnTime.p1')"></p>
             <p v-html="$t('dashboard.descriptions.tasksCompletedOnTime.p2')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompletedOnTime.p3')"></p>
         </template>
 
         <template #default>
@@ -88,6 +93,12 @@ export default defineComponent({
                             </tr>
                         </tbody>
                     </table>
+
+                    <OnTimeToleranceInput
+                        class="mt-1"
+                        :value="tolerance"
+                        @change="onToleranceChange"
+                    />
                 </template>
 
                 <template #sidebar-content="{ height }">
@@ -96,7 +107,14 @@ export default defineComponent({
                             <SidebarNavbar
                                 @search="q = $event"
                                 @exportExcel="onExportExcel"
-                            />
+                            >
+                                <template #controls>
+                                    <OnTimeToleranceInput
+                                        :value="tolerance"
+                                        @change="onToleranceChange"
+                                    />
+                                </template>
+                            </SidebarNavbar>
                         </template>
                         <template #content>
                             <OnTimeDetails

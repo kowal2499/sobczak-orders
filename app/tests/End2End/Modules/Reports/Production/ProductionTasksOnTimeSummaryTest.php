@@ -41,7 +41,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         ]]);
 
         // When
-        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=0');
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -63,7 +63,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         ]]);
 
         // When
-        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=0');
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -84,7 +84,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         ]]);
 
         // When
-        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=0');
 
         // Then
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -153,6 +153,48 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         // okno produkcji zachowane — front pokazuje je w popoverze "poza zakresem dat"
         $this->assertStringStartsWith('2026-06-04', $outOfRange['dateStart']);
         $this->assertStringStartsWith('2026-06-11', $outOfRange['dateEnd']);
+    }
+
+    public function testShouldAcceptDelayWithinToleranceWindow(): void
+    {
+        // Given — okno kończy się w piątek 2026-05-15, ukończenie we wtorek 2026-05-19
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
+        $this->makeAgreementLine(productions: [[
+            'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
+            'isCompleted' => true,
+            'dateStart' => new \DateTime('2026-05-11'),
+            'dateEnd' => new \DateTime('2026-05-15'),
+            'completedAt' => new \DateTime('2026-05-19 12:00:00'),
+        ]]);
+
+        // When / Then — widełki 5 dni roboczych obejmują opóźnienie, widełki 0 już nie
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=5');
+        $accepted = json_decode($client->getResponse()->getContent(), true)[0];
+        $this->assertTrue($accepted['onTime']);
+        // front pokazuje osobny komunikat, gdy premia wynika z widełek, a nie z samego okna
+        $this->assertTrue($accepted['withinTolerance']);
+
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=0');
+        $this->assertFalse(json_decode($client->getResponse()->getContent(), true)[0]['onTime']);
+    }
+
+    public function testShouldUseDefaultToleranceWhenParameterMissing(): void
+    {
+        // Given — opóźnienie 2 dni robocze, mieszczące się w domyślnych widełkach
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
+        $this->makeAgreementLine(productions: [[
+            'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
+            'isCompleted' => true,
+            'dateStart' => new \DateTime('2026-05-11'),
+            'dateEnd' => new \DateTime('2026-05-15'),
+            'completedAt' => new \DateTime('2026-05-19 12:00:00'),
+        ]]);
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $this->assertTrue(json_decode($client->getResponse()->getContent(), true)[0]['onTime']);
     }
 
     public function testShouldReturn400WhenDatesMissing(): void

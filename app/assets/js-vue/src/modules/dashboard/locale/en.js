@@ -17,14 +17,17 @@ export default {
         'actual': 'Actual completion',
         'status': 'Timeliness',
         'onTime': 'On time',
-        'delayed': 'Delayed by {days} days',
-        'early': 'Ahead by {days} days',
+        'delayedOne': 'Delayed by {days} working day',
+        'delayedMany': 'Delayed by {days} working days',
+        'earlyOne': 'Ahead by {days} working day',
+        'earlyMany': 'Ahead by {days} working days',
         'noWindow': 'No planned window',
     },
     'onTimeCell': {
         'factorBreakdown': 'Factor breakdown',
         'finalValue': 'Final value',
         'noBonusNote': 'bonus factor 0',
+        'withinToleranceNote': 'Bonus granted thanks to the tolerance — completion fell outside the planned window but within the allowed margin.',
         'addAdjustment': 'Add adjustment',
         'adjustmentType': {
             'bonus': 'Bonus',
@@ -46,6 +49,11 @@ export default {
             'productionWindow': 'Production window',
             'note': 'The production time window does not overlap the report range — this item is not counted in this period.',
         },
+    },
+    'tolerance': {
+        'label': 'Tolerance:',
+        'unit': 'working days',
+        'hint': 'Deadline tolerance in working days. Changing it only previews the result.',
     },
     'capacityMetric': 'Production departments capacity',
     'weeklyCapacityMetric': 'Weekly capacity utilization',
@@ -86,6 +94,7 @@ export default {
         'tasksCompletedOnTime': {
             'p1': '<strong>Bonus report (timeliness).</strong> Like "Completed production tasks", but the bonus (factor including bonuses and penalties) is credited <strong>only for completing a department within the planned time window</strong> — the completion date falls between the planned start and end of work in that department.',
             'p2': 'Tasks completed outside the window (too early, late, or with no dates set) are shown but <strong>greyed out and counted as 0 points</strong>. Bonus and penalty details remain available in the tooltip. Each department is settled separately.',
+            'p3': 'The acceptance window is widened by a <strong>tolerance counted in working days</strong> (weekends and holidays do not consume it), so minor slippage still earns the bonus. The "Tolerance" field on the tile previews the result for a different value but does not change the setting used for settlements.',
         },
         'weeklyCapacity': {
             'p1': 'Shows a weekly breakdown of the company\'s <strong>production capacity</strong> against the <strong>workload from accepted orders</strong>. For each week, the progress bar shows how much of the available capacity is occupied by orders with a delivery date falling in that week.',

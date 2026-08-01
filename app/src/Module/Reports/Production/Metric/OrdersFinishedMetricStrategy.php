@@ -15,8 +15,12 @@ class OrdersFinishedMetricStrategy extends AbstractMetricStrategy
         return 'orders_finished';
     }
 
-    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
-    {
+    public function compute(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        bool $includeGhost = false,
+        array $options = []
+    ): array {
         return $this->agreementLineRepo->getFinishedSummary($start, $end, $this->ownedCustomerIds());
     }
 }

@@ -17,14 +17,17 @@ export default {
         'actual': 'Faktyczna realizacja',
         'status': 'Terminowość',
         'onTime': 'W terminie',
-        'delayed': 'Opóźnione o {days} dni',
-        'early': 'Przyspieszone o {days} dni',
+        'delayedOne': 'Opóźnione o {days} dzień roboczy',
+        'delayedMany': 'Opóźnione o {days} dni robocze',
+        'earlyOne': 'Przyspieszone o {days} dzień roboczy',
+        'earlyMany': 'Przyspieszone o {days} dni robocze',
         'noWindow': 'Brak zaplanowanego okna',
     },
     'onTimeCell': {
         'factorBreakdown': 'Składowe współczynnika',
         'finalValue': 'Wartość finalna',
         'noBonusNote': 'współczynnik premii 0',
+        'withinToleranceNote': 'Premia uznana dzięki widełkom - ukończenie wypadło poza zaplanowanym oknem, ale w granicach tolerancji.',
         'addAdjustment': 'Dodaj korektę',
         'adjustmentType': {
             'bonus': 'Bonus',
@@ -46,6 +49,11 @@ export default {
             'productionWindow': 'Okno produkcji',
             'note': 'Okno czasowe produkcji nie pokrywa się z zakresem raportu - pozycja nie jest liczona w tym okresie.',
         },
+    },
+    'tolerance': {
+        'label': 'Widełki:',
+        'unit': 'dni rob.',
+        'hint': 'Tolerancja terminu w dniach roboczych. Tylko jako podgląd - nie zapisuje się.',
     },
     'capacityMetric': 'Obłożenie działów produkcji',
     'weeklyCapacityMetric': 'Obłożenie tygodniowe',
@@ -86,6 +94,7 @@ export default {
         'tasksCompletedOnTime': {
             'p1': '<strong>Raport premiowy (terminowość).</strong> Jak „Ukończone zadania produkcyjne", ale premia (współczynnik z bonusami i karami) jest naliczana <strong>wyłącznie za ukończenie działu w zaplanowanym oknie czasowym</strong> — data ukończenia mieści się między planowanym startem a końcem pracy w danym dziale.',
             'p2': 'Zadania ukończone poza oknem (za wcześnie, po terminie lub bez ustawionych dat) są widoczne, ale <strong>wyszarzone i liczone jako 0 punktów</strong>. Szczegóły bonusów i kar pozostają dostępne w dymku. Każdy dział rozliczany jest osobno.',
+            'p3': 'Okno akceptacji jest rozszerzone o <strong>widełki liczone w dniach roboczych</strong> (weekendy i święta ich nie konsumują) - drobne obsuwy nadal dają premię. Pole „Widełki" na kafelku pozwala podejrzeć wynik dla innej wartości, ale nie zmienia ustawienia obowiązującego dla rozliczeń.',
         },
         'weeklyCapacity': {
             'p1': 'Pokazuje tygodniowe zestawienie <strong>zdolności produkcyjnej</strong> firmy na tle <strong>obłożenia wynikającego z przyjętych zamówień</strong>. Dla każdego tygodnia pasek postępu ilustruje, jaka część dostępnej zdolności jest zajęta przez zamówienia z terminem dostawy przypadającym w danym tygodniu.',

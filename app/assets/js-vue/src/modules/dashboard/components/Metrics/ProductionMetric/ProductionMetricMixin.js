@@ -36,6 +36,10 @@ export default {
                     ...(isInRange && !isOnTime ? { factor: 0 } : {}),
                     onTime: isOnTime,
                     inRange: isInRange,
+                    // premia uznana dopiero dzięki widełkom terminowości
+                    withinTolerance: item.withinTolerance === true,
+                    // odchylenie od okna w dniach roboczych (+ po terminie, − przed terminem)
+                    timelinessWorkingDays: item.timelinessWorkingDays,
                     production: {
                         status: item.status,
                         dateStart: item.dateStart,

@@ -58,10 +58,32 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     }
 
     /**
+     * Czy rekord został uznany za terminowy dopiero dzięki tolerancji (widełkom), a nie
+     * mieszcząc się w samym zaplanowanym oknie. Front pokazuje to jako osobny stan.
+     */
+    protected function appliedTolerance(ProductionRM $production, \DateTime $rangeStart, \DateTime $rangeEnd): bool
+    {
+        return false;
+    }
+
+    /**
+     * Odchylenie od zaplanowanego okna w dniach roboczych (dodatnie = po terminie,
+     * ujemne = przed terminem). Mierniki bez pojęcia terminowości zwracają 0.
+     */
+    protected function timelinessWorkingDays(ProductionRM $production): int
+    {
+        return 0;
+    }
+
+    /**
      * @return ProductionReportRecordDTO[]
      */
-    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
-    {
+    public function compute(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        bool $includeGhost = false,
+        array $options = []
+    ): array {
         $rangeStart = new \DateTime($start->format('Y-m-d') . ' 00:00:00');
         $rangeEnd = new \DateTime($end->format('Y-m-d') . ' 23:59:59');
 
@@ -87,7 +109,15 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
                     continue;
                 }
                 $onTime = $this->isOnTime($production, $rangeStart, $rangeEnd);
-                $lineRecords[] = $this->toRecord($line, $production, $onTime);
+                $withinTolerance = $onTime && $this->appliedTolerance($production, $rangeStart, $rangeEnd);
+                $lineRecords[] = $this->toRecord(
+                    $line,
+                    $production,
+                    $onTime,
+                    true,
+                    $withinTolerance,
+                    $this->timelinessWorkingDays($production),
+                );
             }
 
             if (!$lineRecords) {
@@ -105,7 +135,9 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
         AgreementLineRM $line,
         ProductionRM $production,
         bool $onTime = true,
-        bool $inRange = true
+        bool $inRange = true,
+        bool $withinTolerance = false,
+        int $timelinessWorkingDays = 0
     ): ProductionReportRecordDTO {
         return new ProductionReportRecordDTO(
             $production->getDepartmentSlug(),
@@ -132,6 +164,8 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
             $production->isGhost(),
             $onTime,
             $inRange,
+            $withinTolerance,
+            $timelinessWorkingDays,
         );
     }
 }

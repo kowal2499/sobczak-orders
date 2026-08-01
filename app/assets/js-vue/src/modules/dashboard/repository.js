@@ -16,8 +16,12 @@ export function getProductionTasksCompletionSummary(start, end) {
 }
 
 
-export function getProductionTasksOnTimeSummary(start, end) {
-    return axios.get(`/reports/production/production-tasks-on-time-summary`, {params: {start, end}});
+/**
+ * @param tolerance widełki terminowości w dniach roboczych; null = wartość domyślna z backendu
+ */
+export function getProductionTasksOnTimeSummary(start, end, tolerance = null) {
+    const params = tolerance === null ? {start, end} : {start, end, tolerance};
+    return axios.get(`/reports/production/production-tasks-on-time-summary`, {params});
 }
 
 

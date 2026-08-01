@@ -40,8 +40,12 @@ abstract class AbstractOrdersDetailsStrategy extends AbstractMetricStrategy
     /**
      * @return ProductionReportRecordDTO[]
      */
-    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
-    {
+    public function compute(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        bool $includeGhost = false,
+        array $options = []
+    ): array {
         $defaultSlugs = array_flip(TaskTypes::getDefaultSlugs());
         $records = [];
 

@@ -63,6 +63,10 @@ export default defineComponent({
         onTime() {
             return this.factorData.onTime !== false
         },
+        // premia należy się dopiero dzięki widełkom — ukończenie wypadło poza zaplanowanym oknem
+        withinTolerance() {
+            return this.factorData.withinTolerance === true
+        },
         // 'bonus' | 'noBonus' | 'outOfRange'
         state() {
             if (!this.inRange) {
@@ -101,11 +105,14 @@ export default defineComponent({
             const end = this.toDay(this.production.dateEnd)
             const done = this.toDay(this.production.completedAt)
 
+            // liczba dni roboczych pochodzi z backendu — front nie zna kalendarza pracy
+            const workingDays = Math.abs(this.factorData.timelinessWorkingDays ?? 0)
+
             if (done > end) {
-                return { type: 'delayed', days: this.diffDays(done, end) }
+                return { type: 'delayed', days: workingDays }
             }
             if (done < start) {
-                return { type: 'early', days: this.diffDays(start, done) }
+                return { type: 'early', days: workingDays }
             }
             return { type: 'onTime', days: 0 }
         },
@@ -114,11 +121,16 @@ export default defineComponent({
                 return ''
             }
             if (this.timeliness.type === 'delayed' || this.timeliness.type === 'early') {
-                return this.$t(`dashboard.timeliness.${this.timeliness.type}`, { days: this.timeliness.days })
+                const days = this.timeliness.days
+                const form = days === 1 ? 'One' : 'Many'
+                return this.$t(`dashboard.timeliness.${this.timeliness.type}${form}`, { days })
             }
             return this.$t(`dashboard.timeliness.${this.timeliness.type}`)
         },
         timelinessColorClass() {
+            if (this.withinTolerance) {
+                return 'text-warning'
+            }
             const map = {
                 onTime: 'text-success',
                 delayed: 'text-danger',
@@ -265,9 +277,6 @@ export default defineComponent({
             // serializowane jako ISO ("2026-05-15T00:00:00+02:00") — bierzemy część dzienną
             return new Date(String(value).slice(0, 10))
         },
-        diffDays(a, b) {
-            return Math.round((a - b) / 86400000)
-        },
         fmtDate(value) {
             if (!value) {
                 return '—'
@@ -369,9 +378,13 @@ export default defineComponent({
                 <div class="pop-row">
                     <span class="pop-label">{{ $t('dashboard.timeliness.status') }}</span>
                     <span class="pop-val" :class="timelinessColorClass">
-                        <font-awesome-icon icon="check-circle" />
+                        <font-awesome-icon :icon="withinTolerance ? 'clock' : 'check-circle'" />
                         {{ statusText }}
                     </span>
+                </div>
+
+                <div v-if="withinTolerance" class="pop-note pop-note--tolerance">
+                    {{ $t('dashboard.onTimeCell.withinToleranceNote') }}
                 </div>
 
                 <div class="pop-divider"></div>
@@ -499,6 +512,10 @@ export default defineComponent({
         div {
             height: 100%;
         }
+    }
+    .pop-note--tolerance {
+        margin-top: 0.35rem;
+        color: #b8860b;
     }
     .pop-error {
         color: #dc3545;

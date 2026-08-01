@@ -101,6 +101,8 @@ export const WIDGETS = [
             dateStart: ctx.dateRangeStart,
             dateEnd: ctx.dateRangeEnd,
             onRefresh: () => ctx.loadSources(['src06']),
+            tolerance: ctx.onTimeTolerance,
+            onToleranceChange: days => ctx.setOnTimeTolerance(days),
         }),
     },
     {
