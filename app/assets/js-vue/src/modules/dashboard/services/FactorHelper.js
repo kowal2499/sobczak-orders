@@ -4,6 +4,7 @@ export function getFactorName(source, value) {
         case 'agreement_line':
             return i18n.t('dashboard.productionMetric.baseFactor')
         case 'factor_adjustment_bonus':
+        case 'factor_adjustment_bonus_completed_tasks':
             return value > 0 ? i18n.t('dashboard.productionMetric.bonus') : i18n.t('dashboard.productionMetric.penalty')
         case 'factor_adjustment_ratio':
             return i18n.t('dashboard.productionMetric.percentageModifier')

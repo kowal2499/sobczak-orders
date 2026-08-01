@@ -32,6 +32,14 @@ export default {
         },
         'adjustmentComment': 'Komentarz do korekty...',
         'addAdjustmentButton': 'Dodaj korektę',
+        'adjustmentSaved': 'Korekta premii została zapisana',
+        'adjustmentError': 'Nie udało się zapisać korekty premii',
+        'validation': {
+            'valueRequired': 'Podaj wartość korekty różną od zera',
+            'bonusMustBePositive': 'Bonus musi być liczbą dodatnią',
+            'penaltyMustBeNegative': 'Kara musi być liczbą ujemną',
+            'commentRequired': 'Komentarz do korekty jest wymagany',
+        },
         'outOfRange': {
             'title': 'Poza zakresem dat',
             'reportRange': 'Zakres raportu',

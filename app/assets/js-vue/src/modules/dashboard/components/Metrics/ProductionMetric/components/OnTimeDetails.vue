@@ -156,22 +156,52 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt01" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt01"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt02)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt02" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt02"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt03)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt03" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt03"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt04)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt04" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt04"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt05)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt05" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt05"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt06)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt06" :report-range="reportRange" />
+            <OnTimeDepartmentValue
+                :factorData="item.dpt06"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
 
         <template #head(context)="data">

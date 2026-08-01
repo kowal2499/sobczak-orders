@@ -158,32 +158,38 @@ export default {
         filters: {
             deep: true,
             handler() {
-                DATA_SOURCES.forEach(source => {
-                    if (source.grant && !this.$user.can(source.grant)) {
-                        return;
-                    }
-                    if (!source.active) {
-                        return;
-                    }
-                    this.sourcesState[source.id].isBusy = true;
-                    this.sourcesState[source.id].error = null;
-                    source.fetcher(this.dateRangeStart, this.dateRangeEnd)
-                        .then(({data}) => {
-                            this.sourcesState[source.id].data = data;
-                        })
-                        .catch((error) => {
-                            this.sourcesState[source.id].error = error;
-                        })
-                        .finally(() => {
-                            this.sourcesState[source.id].isBusy = false;
-                        });
-                })
+                this.loadSources();
             }
         }
     },
 
 
     methods: {
+        loadSources(ids = null) {
+            DATA_SOURCES.forEach(source => {
+                if (ids && !ids.includes(source.id)) {
+                    return;
+                }
+                if (source.grant && !this.$user.can(source.grant)) {
+                    return;
+                }
+                if (!source.active) {
+                    return;
+                }
+                this.sourcesState[source.id].isBusy = true;
+                this.sourcesState[source.id].error = null;
+                source.fetcher(this.dateRangeStart, this.dateRangeEnd)
+                    .then(({data}) => {
+                        this.sourcesState[source.id].data = data;
+                    })
+                    .catch((error) => {
+                        this.sourcesState[source.id].error = error;
+                    })
+                    .finally(() => {
+                        this.sourcesState[source.id].isBusy = false;
+                    });
+            })
+        },
         widgetComponent(key) {
             return this.availableWidgetsByKey[key]?.component;
         },

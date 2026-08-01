@@ -164,6 +164,40 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
         $this->assertSame([], $result);
     }
 
+    public function testUsesFullCascadeFactorWhenReadModelHasIt(): void
+    {
+        // pełna kaskada (z korektą z tego raportu) wygrywa z factorBonus
+        $production = $this->prod(
+            'dpt03',
+            dateStart: new \DateTime('2026-05-01'),
+            dateEnd: new \DateTime('2026-05-10'),
+            completedAt: new \DateTime('2026-05-05 12:00:00'),
+            bonus: new AssembledFactorDTO(2.0),
+        );
+        $production->setFactorBonusCompletedTasks(new AssembledFactorDTO(2.5));
+
+        $result = $this->makeStrategy([$this->makeLine(8, [$production])])
+            ->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
+
+        $this->assertSame(2.5, $result[0]->getFactors()->factor);
+    }
+
+    public function testFallsBackToBonusFactorForStaleReadModel(): void
+    {
+        // starszy wiersz RM nie ma jeszcze pola pełnej kaskady — używamy factorBonus
+        $result = $this->makeStrategy([$this->makeLine(9, [
+            $this->prod(
+                'dpt03',
+                dateStart: new \DateTime('2026-05-01'),
+                dateEnd: new \DateTime('2026-05-10'),
+                completedAt: new \DateTime('2026-05-05 12:00:00'),
+                bonus: new AssembledFactorDTO(2.0),
+            ),
+        ])])->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
+
+        $this->assertSame(2.0, $result[0]->getFactors()->factor);
+    }
+
     private function makeStrategy(array $lines): DepartmentsBonusOnTimeMetricStrategy
     {
         $repo = $this->createMock(AgreementLineRMRepository::class);

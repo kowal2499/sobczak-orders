@@ -2,6 +2,7 @@
 import { defineComponent } from 'vue'
 import { MONTHS } from '@/services/datesService'
 import { getFactorName, getFactorValue } from '../../../../services/FactorHelper'
+import { addCompletedTasksBonus } from '../../../../repository'
 
 /**
  * Prezentacja pojedynczej komórki (dział × zlecenie) w raporcie premii "w terminie".
@@ -36,11 +37,15 @@ export default defineComponent({
             type: Object,
             default: () => ({ start: null, end: null })
         },
+        agreementLineId: {
+            type: [Number, String],
+            default: null,
+        },
     },
     data: () => ({
         visible: false,
-        // formularz korekty — na razie tylko UI, bez wysyłki do API (etap 2)
-        adjustment: { type: 'bonus', value: 0, comment: '' },
+        isSaving: false,
+        adjustment: { type: 'bonus', value: null, comment: '' },
     }),
     beforeDestroy() {
         this.close()
@@ -149,6 +154,34 @@ export default defineComponent({
                 { value: 'penalty', text: this.$t('dashboard.onTimeCell.adjustmentType.penalty') },
             ]
         },
+        adjustmentValue() {
+            const raw = this.adjustment.value
+            return raw === null || raw === '' ? null : Number(raw)
+        },
+        // komunikat walidacji formularza korekty (null = poprawny)
+        adjustmentError() {
+            const value = this.adjustmentValue
+            if (value === null || Number.isNaN(value) || value === 0) {
+                return this.$t('dashboard.onTimeCell.validation.valueRequired')
+            }
+            if (this.adjustment.type === 'bonus' && value < 0) {
+                return this.$t('dashboard.onTimeCell.validation.bonusMustBePositive')
+            }
+            if (this.adjustment.type === 'penalty' && value > 0) {
+                return this.$t('dashboard.onTimeCell.validation.penaltyMustBeNegative')
+            }
+            if (!this.adjustment.comment.trim()) {
+                return this.$t('dashboard.onTimeCell.validation.commentRequired')
+            }
+            return null
+        },
+        // komunikat walidacji pokazujemy dopiero gdy użytkownik czegoś dotknął
+        adjustmentTouched() {
+            return this.adjustmentValue !== null || this.adjustment.comment !== ''
+        },
+        canSubmitAdjustment() {
+            return !this.isSaving && !this.adjustmentError && !!this.agreementLineId && !!this.production
+        },
         reportRangeLabel() {
             return this.rangeLabel(this.reportRange.start, this.reportRange.end)
         },
@@ -188,12 +221,42 @@ export default defineComponent({
             }
             this.close()
         },
+        submitAdjustment() {
+            if (!this.canSubmitAdjustment) {
+                return
+            }
+            this.isSaving = true
+
+            addCompletedTasksBonus(this.agreementLineId, {
+                departmentSlug: this.production.departmentSlug,
+                // wartość w konwencji ekranu współczynników: wpisane 30 => 0.30
+                value: this.adjustmentValue / 100,
+                comment: this.adjustment.comment.trim(),
+            })
+                .then(() => {
+                    this.$flash.success(this.$t('dashboard.onTimeCell.adjustmentSaved'))
+                    this.adjustment = { type: 'bonus', value: null, comment: '' }
+                    this.close()
+                    // wartości i sumy pobieramy od nowa z bazy
+                    this.$emit('saved')
+                })
+                .catch((error) => {
+                    // popover zostaje otwarty, żeby dało się poprawić dane
+                    this.$flash.danger(
+                        error?.response?.data?.message || this.$t('dashboard.onTimeCell.adjustmentError')
+                    )
+                })
+                .finally(() => {
+                    this.isSaving = false
+                })
+        },
         rowLabel(item) {
             const name = getFactorName(item.source, item.value)
             return item.description ? `${name} · ${item.description}` : name
         },
         barColor(item) {
-            if (item.source === 'factor_adjustment_bonus') {
+            if (item.source === 'factor_adjustment_bonus'
+                || item.source === 'factor_adjustment_bonus_completed_tasks') {
                 return item.value < 0 ? BAR_COLORS.penalty : BAR_COLORS.bonus
             }
             return BAR_COLORS[item.source] || BAR_COLORS.agreement_line
@@ -337,7 +400,6 @@ export default defineComponent({
                 <div class="pop-divider"></div>
                 <div class="pop-subtitle pop-subtitle--caps">{{ $t('dashboard.onTimeCell.addAdjustment') }}</div>
 
-                <!-- TODO etap 2: wysyłka korekty (POST /production/factor/{id}, FactorSource::FACTOR_ADJUSTMENT_BONUS) -->
                 <div class="d-flex gap-2 mb-2">
                     <b-form-select
                         v-model="adjustment.type"
@@ -360,7 +422,15 @@ export default defineComponent({
                     rows="1"
                     class="mb-2"
                 />
-                <button type="button" class="btn btn-primary btn-sm btn-block" disabled>
+                <div v-if="adjustmentError && adjustmentTouched" class="pop-error mb-2">
+                    {{ adjustmentError }}
+                </div>
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm btn-block"
+                    :disabled="!canSubmitAdjustment"
+                    @click="submitAdjustment"
+                >
                     {{ $t('dashboard.onTimeCell.addAdjustmentButton') }}
                 </button>
             </div>
@@ -429,6 +499,10 @@ export default defineComponent({
         div {
             height: 100%;
         }
+    }
+    .pop-error {
+        color: #dc3545;
+        font-size: 0.8rem;
     }
     .pop-adjustment-value {
         max-width: 90px;

@@ -1,6 +1,6 @@
 <template>
     <div class="card shadow">
-        <div class="card-body card-body--scroll" :class="isBusy && 'opacity-50'">
+        <div class="card-body card-body--scroll" :class="isBusy && 'card-body--busy'">
             <div class="d-flex justify-content-between">
                 <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                     <slot name="title" />
@@ -58,6 +58,13 @@ export default {
 
 .card-body--scroll {
     overflow-y: auto;
+}
+
+// Przygaszenie na czas ładowania obejmuje całe poddrzewo karty — razem z wysuniętym z niej
+// drawerem (slot #default), przez który prześwitywałby pulpit. Gdy jakikolwiek drawer jest
+// otwarty (klasa ustawiana przez components/base/Sidebar.vue), zostaje sam spinner w nagłówku.
+body:not(.sidebar-open) .card-body--busy {
+    opacity: 0.5;
 }
 
 .border-left-success {

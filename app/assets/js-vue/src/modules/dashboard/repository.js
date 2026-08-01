@@ -21,6 +21,11 @@ export function getProductionTasksOnTimeSummary(start, end) {
 }
 
 
+export function addCompletedTasksBonus(agreementLineId, payload) {
+    return axios.post(`/production/factor/${agreementLineId}/completed-tasks-bonus`, payload);
+}
+
+
 export function getOldSummary(start, end) {
     return axios.post(`production/summary`, {
         month: (new Date(start)).getMonth() + 1,

@@ -23,6 +23,7 @@ export default defineComponent({
         // zakres raportu (miesiąc wybrany na pulpicie) — potrzebny w popoverze "poza zakresem dat"
         dateStart: { type: String, default: null },
         dateEnd: { type: String, default: null },
+        onRefresh: { type: Function, default: () => {} },
     },
 
     watch: {
@@ -103,6 +104,7 @@ export default defineComponent({
                                 :height="height"
                                 :report-range="{ start: dateStart, end: dateEnd }"
                                 class="px-2 pb-2"
+                                @saved="onRefresh()"
                             />
                         </template>
                     </SidebarLayout>

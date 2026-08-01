@@ -32,6 +32,14 @@ export default {
         },
         'adjustmentComment': 'Adjustment comment...',
         'addAdjustmentButton': 'Add adjustment',
+        'adjustmentSaved': 'Bonus adjustment saved',
+        'adjustmentError': 'Could not save the bonus adjustment',
+        'validation': {
+            'valueRequired': 'Enter a non-zero adjustment value',
+            'bonusMustBePositive': 'A bonus must be a positive number',
+            'penaltyMustBeNegative': 'A penalty must be a negative number',
+            'commentRequired': 'An adjustment comment is required',
+        },
         'outOfRange': {
             'title': 'Outside the date range',
             'reportRange': 'Report range',

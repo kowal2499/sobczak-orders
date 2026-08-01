@@ -100,6 +100,7 @@ export const WIDGETS = [
             data: ctx.sourcesState.src06.data,
             dateStart: ctx.dateRangeStart,
             dateEnd: ctx.dateRangeEnd,
+            onRefresh: () => ctx.loadSources(['src06']),
         }),
     },
     {

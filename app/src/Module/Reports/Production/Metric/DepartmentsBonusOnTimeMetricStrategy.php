@@ -63,6 +63,6 @@ class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrat
 
     protected function factorsOf(ProductionRM $production): ?AssembledFactorDTO
     {
-        return $production->getFactorBonus();
+        return $production->getFactorBonusCompletedTasks() ?? $production->getFactorBonus();
     }
 }
