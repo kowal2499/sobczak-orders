@@ -23,6 +23,13 @@ export default {
         'earlyMany': 'Ahead by {days} working days',
         'noWindow': 'No planned window',
     },
+    // poglądowa informacja o dotrzymaniu okna produkcji w raportach, gdzie termin nie daje premii
+    'plannedWindow': {
+        'label': 'Planned window',
+        'met': 'met',
+        'missed': 'not met',
+        'note': 'For information only — does not affect the calculated factor.',
+    },
     // wspólne dla wszystkich raportów pokazujących rozbicie współczynnika w komórce
     'factorBreakdown': {
         'title': 'Factor breakdown',
@@ -93,6 +100,7 @@ export default {
             'p2': '<strong>Execution report.</strong> Shows the sum of production factors for tasks <strong>actually completed</strong> in the selected period, broken down by department. Each task is assigned to a month based on the <strong>actual completion date</strong> — the moment it was marked as completed.',
             'p3': 'Delayed tasks (planned for an earlier month but completed later) appear in the month of actual completion. Early completions work the same way — if a task was planned for April but completed in March, it appears in the March report. Bonuses and penalties assigned to tasks are included. Pending or in-progress tasks are not included.',
             'p4': 'Best used for <strong>monthly reconciliation</strong> of work actually performed.',
+            'p5': 'The cell tooltip shows whether the task fell within the planned production window for that department. This is <strong>for information only</strong> — in this report the deadline does not affect the calculated factor.',
         },
         'tasksCompletedOnTime': {
             'p1': '<strong>Bonus report (timeliness).</strong> Like "Completed production tasks", but the bonus (factor including bonuses and penalties) is credited <strong>only for completing a department within the planned time window</strong> — the completion date falls between the planned start and end of work in that department.',

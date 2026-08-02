@@ -23,6 +23,13 @@ export default {
         'earlyMany': 'Przyspieszone o {days} dni robocze',
         'noWindow': 'Brak zaplanowanego okna',
     },
+    // poglądowa informacja o dotrzymaniu okna produkcji w raportach, gdzie termin nie daje premii
+    'plannedWindow': {
+        'label': 'Zaplanowane okno',
+        'met': 'dotrzymane',
+        'missed': 'niedotrzymane',
+        'note': 'Informacja poglądowa - nie wpływa na naliczony współczynnik.',
+    },
     // wspólne dla wszystkich raportów pokazujących rozbicie współczynnika w komórce
     'factorBreakdown': {
         'title': 'Składowe współczynnika',
@@ -93,6 +100,7 @@ export default {
             'p2': '<strong>Raport realizacyjny.</strong> Pokazuje sumę współczynników produkcji <strong>faktycznie ukończonych</strong> w wybranym okresie, z podziałem na działy. Każde zadanie jest przypisywane do miesiąca według <strong>rzeczywistej daty zakończenia</strong> — momentu, w którym oznaczono je jako ukończone.',
             'p3': 'Oznacza to, że zadania opóźnione (zaplanowane na wcześniejszy miesiąc, ale ukończone później) pojawiają się w miesiącu faktycznego zakończenia. Tak samo zadania przyspieszone — jeśli coś zaplanowano na kwiecień, a ukończono w marcu, trafi do raportu marcowego. Raport uwzględnia bonusy i kary przypisane do zadań. Nie zawiera zadań oczekujących ani w trakcie realizacji.',
             'p4': 'Najlepiej sprawdza się do <strong>miesięcznego rozliczenia</strong> rzeczywiście wykonanej pracy.',
+            'p5': 'W dymku komórki widać, czy zadanie zmieściło się w zaplanowanym oknie produkcji danego działu. To <strong>informacja poglądowa</strong> - w tym raporcie termin nie wpływa na naliczony współczynnik.',
         },
         'tasksCompletedOnTime': {
             'p1': '<strong>Raport premiowy (terminowość).</strong> Jak „Ukończone zadania produkcyjne", ale premia (współczynnik z bonusami i karami) jest naliczana <strong>wyłącznie za ukończenie działu w zaplanowanym oknie czasowym</strong> — data ukończenia mieści się między planowanym startem a końcem pracy w danym dziale.',

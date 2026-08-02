@@ -63,6 +63,7 @@ export default defineComponent({
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p2')"></p>
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p3')"></p>
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p4')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p5')"></p>
         </template>
 
         <template #default>

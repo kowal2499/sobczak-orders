@@ -1,6 +1,7 @@
 <script>
 import { defineComponent } from 'vue'
-import { fmtDate, toDay } from './dates'
+import { toDay } from './dates'
+import ProductionDates from './ProductionDates.vue'
 
 /**
  * Sekcja terminowości popovera: zaplanowane okno działu, faktyczne ukończenie i ocena.
@@ -8,6 +9,7 @@ import { fmtDate, toDay } from './dates'
  */
 export default defineComponent({
     name: 'TimelinessSummary',
+    components: { ProductionDates },
     props: {
         factorData: {
             type: Object,
@@ -85,9 +87,6 @@ export default defineComponent({
             return this.timeliness ? map[this.timeliness.type] : 'text-muted'
         },
     },
-    methods: {
-        fmtDate,
-    }
 })
 </script>
 
@@ -95,19 +94,7 @@ export default defineComponent({
     <div>
         <div v-if="state === 'noBonus'" class="pop-title">{{ $t('dashboard.timeliness.status') }}</div>
 
-        <div class="pop-row">
-            <span class="pop-label">{{ $t('dashboard.timeliness.planned') }}</span>
-            <span class="pop-val">
-                <template v-if="hasWindow">
-                    {{ fmtDate(production.dateStart) }} – {{ fmtDate(production.dateEnd) }}
-                </template>
-                <template v-else>—</template>
-            </span>
-        </div>
-        <div class="pop-row">
-            <span class="pop-label">{{ $t('dashboard.timeliness.actual') }}</span>
-            <span class="pop-val">{{ fmtDate(production.completedAt) }}</span>
-        </div>
+        <ProductionDates :production="production" />
 
         <template v-if="state === 'noBonus'">
             <div class="pop-divider"></div>
