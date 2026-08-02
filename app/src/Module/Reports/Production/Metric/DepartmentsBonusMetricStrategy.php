@@ -43,4 +43,15 @@ class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
     {
         return $production->getFactorBonus();
     }
+
+    /**
+     * Produkcje spoza zakresu trafiają do wyniku bez współczynnika, żeby dymek komórki mógł
+     * odróżnić "dział pracował, ale w innym miesiącu" od "linia nie przechodzi przez ten dział"
+     * (ta druga sytuacja nie ma rekordu w ogóle). Na sumy nie wpływa — rekordy bez współczynnika
+     * są pomijane w agregacji.
+     */
+    protected function emitsOutOfRange(): bool
+    {
+        return true;
+    }
 }

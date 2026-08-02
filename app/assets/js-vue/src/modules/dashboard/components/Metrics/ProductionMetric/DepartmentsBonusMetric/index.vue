@@ -19,6 +19,12 @@ export default defineComponent({
         MetricLayout, Sidebar, Details, SidebarNavbar, SidebarLayout,
     },
 
+    props: {
+        // zakres raportu (miesiąc wybrany na pulpicie) — potrzebny w dymku "poza zakresem dat"
+        dateStart: { type: String, default: null },
+        dateEnd: { type: String, default: null },
+    },
+
     watch: {
         data: {
             deep: true,
@@ -95,7 +101,13 @@ export default defineComponent({
                             />
                         </template>
                         <template #content>
-                            <Details :data="filteredInnerData" :height="height" detailed-cells class="px-2 pb-2" />
+                            <Details
+                                :data="filteredInnerData"
+                                :height="height"
+                                :report-range="{ start: dateStart, end: dateEnd }"
+                                detailed-cells
+                                class="px-2 pb-2"
+                            />
                         </template>
                     </SidebarLayout>
                 </template>

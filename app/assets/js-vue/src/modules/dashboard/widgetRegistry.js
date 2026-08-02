@@ -87,7 +87,12 @@ export const WIDGETS = [
         order: 7,
         defaultSize: { w: 4, h: 6 },
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        props: ctx => ({ isBusy: ctx.sourcesState.src03.isBusy, data: ctx.sourcesState.src03.data }),
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src03.isBusy,
+            data: ctx.sourcesState.src03.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+        }),
     },
     {
         key: "departments_bonus_on_time",

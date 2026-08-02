@@ -29,6 +29,11 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu, dla dymka "poza zakresem dat"
+        reportRange: {
+            type: Object,
+            default: () => ({ start: null, end: null })
+        },
     },
     methods: {
         panelUrl(id) {
@@ -38,6 +43,10 @@ export default defineComponent({
     computed: {
         cellComponent() {
             return this.detailedCells ? 'PlainFactorCell' : 'DepartmentFactorValue'
+        },
+        cellProps() {
+            // stara komórka nie zna zakresu raportu i nie ma wariantu "poza zakresem"
+            return this.detailedCells ? { reportRange: this.reportRange } : {}
         },
         rows() {
             return this.data.map(record => {
@@ -163,22 +172,22 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt01" />
+            <component :is="cellComponent" :factorData="item.dpt01" v-bind="cellProps" />
         </template>
         <template #cell(dpt02)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt02" />
+            <component :is="cellComponent" :factorData="item.dpt02" v-bind="cellProps" />
         </template>
         <template #cell(dpt03)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt03" />
+            <component :is="cellComponent" :factorData="item.dpt03" v-bind="cellProps" />
         </template>
         <template #cell(dpt04)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt04" />
+            <component :is="cellComponent" :factorData="item.dpt04" v-bind="cellProps" />
         </template>
         <template #cell(dpt05)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt05" />
+            <component :is="cellComponent" :factorData="item.dpt05" v-bind="cellProps" />
         </template>
         <template #cell(dpt06)="{item}">
-            <component :is="cellComponent" :factorData="item.dpt06" />
+            <component :is="cellComponent" :factorData="item.dpt06" v-bind="cellProps" />
         </template>
 
         <template #head(context)="data">
