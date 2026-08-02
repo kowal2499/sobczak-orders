@@ -65,11 +65,11 @@ export default defineComponent({
         <div class="pop-title">{{ $t('dashboard.onTimeCell.outOfRange.title') }}</div>
         <div class="pop-row">
             <span class="pop-label">{{ $t('dashboard.onTimeCell.outOfRange.reportRange') }}</span>
-            <span class="pop-val">{{ reportRangeLabel || '—' }}</span>
+            <span class="pop-val">{{ reportRangeLabel || '-' }}</span>
         </div>
         <div class="pop-row">
             <span class="pop-label">{{ $t('dashboard.onTimeCell.outOfRange.productionWindow') }}</span>
-            <span class="pop-val">{{ productionWindowLabel || '—' }}</span>
+            <span class="pop-val">{{ productionWindowLabel || '-' }}</span>
         </div>
         <div class="pop-row">
             <span class="pop-label">{{ $t('dashboard.onTimeCell.outOfRange.completedAt') }}</span>

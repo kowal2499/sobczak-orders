@@ -40,7 +40,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
 
     public function testShouldRebuildLogsFromStatusLogHistory(): void
     {
-        // Given — a production with three real status changes recorded in StatusLog
+        // Given - a production with three real status changes recorded in StatusLog
         $user = $this->createUser();
         $line = $this->chainFactory->make();
         $agreementId = $line->getAgreement()->getId();
@@ -63,7 +63,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
         $sl3->setCreatedAt(new \DateTime('2026-05-03 10:00:00'));
         $this->getManager()->flush();
 
-        // And — a stale log of this type that must be overwritten (deleted) by the rebuild
+        // And - a stale log of this type that must be overwritten (deleted) by the rebuild
         $stale = new ActivityLog(self::TYPE, 'activity_log.' . self::TYPE, $user, LogLevel::INFO, LogPriority::normal, [
             'departmentName' => 'Klejenie',
             'oldStatusName' => self::staleMarker(),
@@ -81,12 +81,12 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
         // When
         $tester = $this->runMigration([]);
 
-        // Then — the command rebuilds the whole table, so scope assertions to our own line.
+        // Then - the command rebuilds the whole table, so scope assertions to our own line.
         $this->assertSame(0, $tester->getStatusCode());
 
         $allLogs = $this->activityLogRepository->findBy(['type' => self::TYPE], ['createdAt' => 'ASC']);
 
-        // Stale log (a non-existent line) is gone — it has no StatusLog to be rebuilt from
+        // Stale log (a non-existent line) is gone - it has no StatusLog to be rebuilt from
         $staleLeft = array_filter($allLogs, fn (ActivityLog $log) => $this->fieldValue($log, 'id') === '999999');
         $this->assertCount(0, $staleLeft, 'Stale log of this type was overwritten/removed');
 
@@ -100,7 +100,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
 
     public function testDryRunMakesNoChanges(): void
     {
-        // Given — one production with two status changes and a stale log
+        // Given - one production with two status changes and a stale log
         $user = $this->createUser();
         $line = $this->chainFactory->make();
         $production = $this->factory->make(Production::class, [
@@ -125,7 +125,7 @@ class MigrateStatusLogsCommandTest extends ApiTestCase
         // When
         $tester = $this->runMigration(['--dry-run' => true]);
 
-        // Then — the only log of this type is still the untouched stale one
+        // Then - the only log of this type is still the untouched stale one
         $this->assertSame(0, $tester->getStatusCode());
         $logs = $this->activityLogRepository->findBy(['type' => self::TYPE]);
         $this->assertCount(1, $logs);

@@ -16,7 +16,7 @@ use App\Tests\Utilities\Factory\EntityFactory;
  * Bazowa klasa dla charakteryzujących testów mierników dashboardu.
  *
  * Każdy test ustawia dane wprost w metodzie testowej. Helper tworzy realne encje
- * (AgreementLine + Production), a następnie emituje AgreementLineWasUpdatedEvent —
+ * (AgreementLine + Production), a następnie emituje AgreementLineWasUpdatedEvent -
  * zarejestrowany event handler synchronicznie przebudowuje AgreementLineRM. Dzięki temu
  * te same dane karmią obecną implementację (zapytania do encji) i przyszłą (read model).
  */

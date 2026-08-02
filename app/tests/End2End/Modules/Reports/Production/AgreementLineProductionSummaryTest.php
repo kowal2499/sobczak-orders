@@ -11,7 +11,7 @@ use App\Entity\Customer;
  *
  * Reguły utrwalone z DoctrineProductionPendingRepository / DoctrineProductionFinishedRepository:
  *  - Pending:  productionCompletionDate IS NULL AND deleted=0 AND productionStartDate <= end (23:59:59).
- *              UWAGA: supplier woła getSummary(null, $end) — dolna granica (start) jest ignorowana.
+ *              UWAGA: supplier woła getSummary(null, $end) - dolna granica (start) jest ignorowana.
  *  - Finished: productionStartDate IS NOT NULL AND deleted=0
  *              AND productionCompletionDate BETWEEN start(00:00) AND end(23:59:59);
  *              dla ROLE_CUSTOMER dodatkowo filtr po przypisanych klientach.
@@ -132,7 +132,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
 
     public function testFinishedRespectsRangeBoundaries(): void
     {
-        // Given — completion dokładnie na granicach okna (00:00 startu i 23:59:59 końca)
+        // Given - completion dokładnie na granicach okna (00:00 startu i 23:59:59 końca)
         $client = $this->login($this->createUser());
 
         $this->makeAgreementLine(
@@ -182,7 +182,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
         // When
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
 
-        // Then — Finished filtruje po właścicielu (tylko klient przypisany)
+        // Then - Finished filtruje po właścicielu (tylko klient przypisany)
         $content = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, (int) $content['orders_finished']['count']);
         $this->assertSame(4.0, (float) $content['orders_finished']['factors_summary']);

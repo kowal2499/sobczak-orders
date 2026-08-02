@@ -6,9 +6,9 @@ use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ReadModel\ProductionRM;
 
 /**
- * Szczegóły miernika "Orders Pending" — linie rozpoczęte do końca zakresu i niezakończone.
+ * Szczegóły miernika "Orders Pending" - linie rozpoczęte do końca zakresu i niezakończone.
  * Produkcja kwalifikuje się gdy ma status COMPLETED lub NOT_APPLICABLE. Liczony firmowo
- * (bez filtra ROLE_CUSTOMER), dolna granica zakresu pomijana — zgodnie z dotychczasowym zachowaniem.
+ * (bez filtra ROLE_CUSTOMER), dolna granica zakresu pomijana - zgodnie z dotychczasowym zachowaniem.
  */
 class OrdersPendingDetailsStrategy extends AbstractOrdersDetailsStrategy
 {

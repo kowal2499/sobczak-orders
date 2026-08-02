@@ -33,7 +33,7 @@ export default defineComponent({
                 <template v-if="hasWindow">
                     {{ fmtDate(production.dateStart) }} – {{ fmtDate(production.dateEnd) }}
                 </template>
-                <template v-else>—</template>
+                <template v-else>-</template>
             </span>
         </div>
         <div class="pop-row">

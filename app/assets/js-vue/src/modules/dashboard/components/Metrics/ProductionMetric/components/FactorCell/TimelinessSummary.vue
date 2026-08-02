@@ -100,7 +100,7 @@ export default defineComponent({
             <div class="pop-divider"></div>
             <div class="pop-note" :class="statusColorClass">
                 <font-awesome-icon icon="clock" />
-                {{ statusText }} — {{ $t('dashboard.onTimeCell.noBonusNote') }}
+                {{ statusText }} - {{ $t('dashboard.onTimeCell.noBonusNote') }}
             </div>
         </template>
 

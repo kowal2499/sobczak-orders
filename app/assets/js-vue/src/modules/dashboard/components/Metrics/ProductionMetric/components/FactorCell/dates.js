@@ -3,7 +3,7 @@
 
 export function fmtDate(value) {
     if (!value) {
-        return '—'
+        return '-'
     }
     const [y, m, d] = String(value).slice(0, 10).split('-')
 
@@ -12,7 +12,7 @@ export function fmtDate(value) {
 
 export function fmtDayMonth(value) {
     if (!value) {
-        return '—'
+        return '-'
     }
     const [, m, d] = String(value).slice(0, 10).split('-')
 

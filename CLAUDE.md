@@ -1,4 +1,4 @@
-# Project Guidelines — Sobczak Orders App
+# Project Guidelines - Sobczak Orders App
 
 ## Business Context
 
@@ -56,8 +56,9 @@ make pull-db   # pobierz bazę z produkcji
 
 ## Code Style
 
-- **Never use the em dash `—` in code or comments.** Use a plain hyphen `-` instead. Applies to PHP,
-  JS/Vue, YAML and Markdown alike.
+- **Never use the em dash (U+2014) anywhere in the project** - not in code, comments, templates,
+  translations or Markdown. Use a plain hyphen `-` instead. Applies to PHP, JS/Vue, Twig, YAML and
+  Markdown alike.
 
 ## Code Organisation
 
@@ -71,22 +72,22 @@ make pull-db   # pobierz bazę z produkcji
 
 Flow: **Request → Controller → Command/Query → Handler → Response**
 
-- **Commands** do not return values — they execute actions and change state
-- **Queries** return values — they fetch data without modifying state
+- **Commands** do not return values - they execute actions and change state
+- **Queries** return values - they fetch data without modifying state
 - Use `App\System\CommandBus`, `App\System\EventBus`, `App\System\QueryBus`
 
 ### Typical implementation steps for a new feature
 
-1. **Controller** — validate input, create command, handle errors
-2. **Command** — readonly properties with Symfony Validator attributes
-3. **Handler** — business logic delegated to helper methods
-4. **End2End test** — test happy path with database verification
+1. **Controller** - validate input, create command, handle errors
+2. **Command** - readonly properties with Symfony Validator attributes
+3. **Handler** - business logic delegated to helper methods
+4. **End2End test** - test happy path with database verification
 
 ### Controller rules
 
-- Controllers are thin — delegate logic to services via DI
+- Controllers are thin - delegate logic to services via DI
 - Validate input, dispatch commands/queries, format responses
-- **Never use `addFlash()` in API controllers** — return messages as JSON
+- **Never use `addFlash()` in API controllers** - return messages as JSON
 - Use `#[IsGranted('module.action')]` for authorisation
 
 ### Command example
@@ -138,13 +139,13 @@ public function __invoke(CreateAgreementCommand $command): void
 ## Doctrine / Entities
 
 - Use **PHP Attributes** (not annotations) for entity mapping
-- Entities are clean — no business logic (only simple helper methods)
+- Entities are clean - no business logic (only simple helper methods)
 - Entities live in `src/Module/[ModuleName]/Entity/`
 - **Each module with entities must be registered in `config/packages/doctrine.yaml` under `orm.mappings`** (despite `auto_mapping: true`, mappings are declared explicitly per module). After adding, run `bin/console cache:clear --env=test` before tests will pick it up.
 
 ### Entity inheritance
 
-- `BaseTask` (`App\Module\Task\Entity\BaseTask`) — Doctrine Mapped Superclass (no own table)
+- `BaseTask` (`App\Module\Task\Entity\BaseTask`) - Doctrine Mapped Superclass (no own table)
 - Contains shared fields: `dateStart`, `dateEnd`, `title`, `description`, `isStartDelayed`, `isCompleted`, `completedAt`, `createdAt`, `updatedAt`
 - Fields in `BaseTask` are `protected` so subclasses can access them
 - `Task` and `Production` both extend `BaseTask`
@@ -160,13 +161,13 @@ Customer (1)           Production (N) [departmentSlug dpt01-dpt06]
 
 ### AgreementLine Read Model
 
-- `App\Module\AgreementLine\Entity\AgreementLineRM` — aggregates data from related entities
+- `App\Module\AgreementLine\Entity\AgreementLineRM` - aggregates data from related entities
 - Updated via `App\Module\AgreementLine\Command\UpdateAgreementLineRM` after any change to AgreementLine or related entities
 - Always keep the read model up to date when modifying data it contains
 
 ## Validation
 
-- **Backend**: Symfony Validator in controllers (and on Command attributes — preferred pattern going forward)
+- **Backend**: Symfony Validator in controllers (and on Command attributes - preferred pattern going forward)
 - **Frontend**: VeeValidate for client-side form validation
 
 ## Authorisation
@@ -181,7 +182,7 @@ Examples: `orders.create`, `production.view`, `production.edit`, `work-configura
 
 ### Customer ownership filtering (ROLE_CUSTOMER)
 
-Users can have assigned customers (`User::getCustomers()`). If a user has `ROLE_CUSTOMER`, endpoints returning AgreementLine data must filter results to only show lines belonging to their customers. This applies to **display data only** — aggregate values (e.g. capacity totals) must still be calculated company-wide.
+Users can have assigned customers (`User::getCustomers()`). If a user has `ROLE_CUSTOMER`, endpoints returning AgreementLine data must filter results to only show lines belonging to their customers. This applies to **display data only** - aggregate values (e.g. capacity totals) must still be calculated company-wide.
 
 Established pattern used in `ProductionRepository`, `AgreementLineRepository`, `DoctrineProductionFinishedRepository`, `ScheduleCapacityService`:
 
@@ -202,7 +203,7 @@ if ($this->security->isGranted('ROLE_CUSTOMER')) {
 
 The application serves a single company with multiple internal users. There is no multi-tenancy. Visibility is controlled by two orthogonal mechanisms: Symfony roles and module-level grants.
 
-### ROLE_CUSTOMER — customer-scoped visibility
+### ROLE_CUSTOMER - customer-scoped visibility
 
 Users with `ROLE_CUSTOMER` may only see data belonging to their assigned customers (relation `user_customer`). This affects:
 
@@ -212,7 +213,7 @@ Users with `ROLE_CUSTOMER` may only see data belonging to their assigned custome
 
 `User::getCustomers()` returns the assigned customers. Filter by their IDs wherever these entities are queried. Aggregate/capacity values must still be calculated company-wide (not filtered).
 
-### ROLE_PRODUCTION — production visibility gate
+### ROLE_PRODUCTION - production visibility gate
 
 Users **without** `ROLE_PRODUCTION` must not see any production data:
 
@@ -225,12 +226,12 @@ Users **with** `ROLE_PRODUCTION` are further restricted by module grants control
 
 | Grant | Department |
 |---|---|
-| `production.show.gluing` | dpt01 — Klejenie |
-| `production.show.cnc` | dpt02 — CNC |
-| `production.show.grinding` | dpt03 — Szlifowanie |
-| `production.show.laquering` | dpt04 — Lakierowanie |
-| `production.show.packing` | dpt05 — Pakowanie |
-| `production.show.intorex` | dpt06 — INTOREX |
+| `production.show.gluing` | dpt01 - Klejenie |
+| `production.show.cnc` | dpt02 - CNC |
+| `production.show.grinding` | dpt03 - Szlifowanie |
+| `production.show.laquering` | dpt04 - Lakierowanie |
+| `production.show.packing` | dpt05 - Pakowanie |
+| `production.show.intorex` | dpt06 - INTOREX |
 
 When returning production data, filter rows to only departments for which the user holds the corresponding grant. Check grants with `#[IsGranted('production.show.gluing')]` in controllers or `this.$user.can('production.show.gluing')` in Vue.
 
@@ -244,16 +245,16 @@ When returning production data, filter rows to only departments for which the us
 - Production tasks for departments (dpt01–dpt06)
 - Extends `BaseTask`
 - Task taskStatuses: PENDING, IN_PROGRESS, COMPLETED
-- Contains only production tasks — non-standard tasks belong to the Task module
+- Contains only production tasks - non-standard tasks belong to the Task module
 
 ### 3. Task (Custom tasks)
 - Routes: `/tasks` (POST, PUT, DELETE)
 - Extends `BaseTask`
 - **TaskTypeEnum**: `task_custom`, `task_confirm_realization_date`
 - **TaskStatusEnum**: AWAITS=10, PENDING=11, COMPLETED=12
-- `dateStart`, `dateEnd` — nullable (optional)
-- `owner` — nullable; if set, only owner can edit/delete
-- `isDeleted` — soft delete flag; `TaskRepository.find()` filters deleted tasks automatically
+- `dateStart`, `dateEnd` - nullable (optional)
+- `owner` - nullable; if set, only owner can edit/delete
+- `isDeleted` - soft delete flag; `TaskRepository.find()` filters deleted tasks automatically
 - Included in `AgreementLineRM` as the `tasks` field (JSON)
 - Date validation: `dateEnd >= dateStart` only when both dates are provided
 
@@ -336,27 +337,27 @@ each report composes only the sections it needs. Do not reintroduce boolean "mod
 - Central, append-only journal of business events with structured key/value fields
 - Entities: `ActivityLog` (`activity_log`), `LogField` (`activity_log_field`)
 - **ValueObjects**: `LogLevel` (PSR-3: DEBUG…EMERGENCY, default `INFO`), `LogPriority` (`normal`, `high`)
-- Append-only — no setters for `type`, `content`, `user` after construction; `addLogField($name, $value)` is **idempotent by name** (first value wins); DB unique index `(activity_log_id, name)` enforces it
+- Append-only - no setters for `type`, `content`, `user` after construction; `addLogField($name, $value)` is **idempotent by name** (first value wins); DB unique index `(activity_log_id, name)` enforces it
 - Write side: `AddActivityLogCommand` + `AddActivityLogCommandHandler`; supports impersonation via `contextData['impersonateUserId']` (overrides author; key is stripped from persisted fields); dispatches `ActivityLogWasAddedEvent` after `$em->commit()`
 - Read side: `GetPaginatedLogsQuery` (filter by `type`, list of `FieldFilter`, optional `filterBy` to narrow returned fields), `CountLogsByFieldQuery` (grouped count); both use ORM QueryBuilder + Doctrine `Paginator`; helper `Query/Helper/LogFinder` keeps JOIN logic shared
 - REST: `POST /log/{type}` (grant `activity-log.create`), `GET /log[/{type}]` (grant `activity-log.read`), `GET /log/{type}/count-by/{groupBy}` (grant `activity-log.read`); GET endpoints accept filter payload via JSON body
 - Monolog integration: dedicated `activity_log` channel routed to `App\Module\ActivityLog\Logger\ActivityLogMonologHandler` (in `config/packages/monolog.yaml`); producers can call `$logger->info($message, ['type' => 'agreement.created', ...$fields])` instead of building the command manually
-- **Channel semantics — opt-in, not catch-all**: only logs sent on the `activity_log` channel reach the DB. The handler has a whitelist `channels: [activity_log]`, and `main`/`console` handlers have `!activity_log` so the same record is not also written to files/console. To log to the DB, inject the channel-scoped logger:
+- **Channel semantics - opt-in, not catch-all**: only logs sent on the `activity_log` channel reach the DB. The handler has a whitelist `channels: [activity_log]`, and `main`/`console` handlers have `!activity_log` so the same record is not also written to files/console. To log to the DB, inject the channel-scoped logger:
   ```php
   public function __construct(
       #[Autowire(service: 'monolog.logger.activity_log')]
       private LoggerInterface $activityLogger,
   ) {}
   ```
-  A plain `$this->logger->info(...)` (default `app` channel) does **not** persist anything to `activity_log` — it goes to the regular file log as before.
+  A plain `$this->logger->info(...)` (default `app` channel) does **not** persist anything to `activity_log` - it goes to the regular file log as before.
 - Author is an integer FK to `User` (`user_id`, nullable for system-triggered logs)
 
 ## Testing
 
 ### General rules
 
-- **Unit tests** — business logic and edge cases
-- **End2End tests** — controllers and database operations
+- **Unit tests** - business logic and edge cases
+- **End2End tests** - controllers and database operations
 - Use custom helpers for fixtures (auth, login, grants)
 - Wrap E2E tests in transactions, rolled back after each test
 - Run tests inside Docker container
@@ -373,12 +374,12 @@ $client = $this->login($user);
 
 ### Folder structure
 
-- `tests/Unit/` — unit tests (use for all new unit tests)
-- `tests/End2End/` — integration/end-to-end tests (use for all new E2E tests)
-- `tests/_toverify` — tests pending verification, do not run or reference
-- `tests/Service/` — legacy unit tests (to be moved to `tests/Unit/Service/`)
-- `tests/Reports/Production/Integration/` — legacy integration tests (to be moved to `tests/End2End/Modules/Reports/`)
-- `tests/Utilities/` — test helpers (not tests, stays here)
+- `tests/Unit/` - unit tests (use for all new unit tests)
+- `tests/End2End/` - integration/end-to-end tests (use for all new E2E tests)
+- `tests/_toverify` - tests pending verification, do not run or reference
+- `tests/Service/` - legacy unit tests (to be moved to `tests/Unit/Service/`)
+- `tests/Reports/Production/Integration/` - legacy integration tests (to be moved to `tests/End2End/Modules/Reports/`)
+- `tests/Utilities/` - test helpers (not tests, stays here)
 
 > Always use `tests/Unit/` or `tests/End2End/` for new tests.
 
@@ -429,7 +430,7 @@ public function testShouldCreateAgreement(): void
 
 ### Page layout (SectionBlock)
 
-Views are composed of **`SectionBlock`** panels (`assets/js-vue/src/components/base/SectionBlock.vue`) — a white rounded card with border and subtle shadow. **Do not use `CollapsibleCard` for view scaffolding** (it was removed from the dashboard for this reason). Prefer flat `SectionBlock` sections.
+Views are composed of **`SectionBlock`** panels (`assets/js-vue/src/components/base/SectionBlock.vue`) - a white rounded card with border and subtle shadow. **Do not use `CollapsibleCard` for view scaffolding** (it was removed from the dashboard for this reason). Prefer flat `SectionBlock` sections.
 
 Standard structure: a title section followed by one or more content sections, each wrapped in its own `SectionBlock`:
 
@@ -446,10 +447,10 @@ Standard structure: a title section followed by one or more content sections, ea
 </div>
 ```
 
-- Inner layout is the caller's responsibility — pass utility classes on the `SectionBlock` itself (e.g. `d-flex justify-content-between`); they merge onto the root.
+- Inner layout is the caller's responsibility - pass utility classes on the `SectionBlock` itself (e.g. `d-flex justify-content-between`); they merge onto the root.
 - Use `class="section-gap"` (`margin-top: 2rem`, defined locally per view) to separate stacked sections.
 
-**`SectionBlockTitle`** (`components/base/SectionBlockTitle.vue`) holds the view title and an optional breadcrumb beneath it, with shared muted breadcrumb styling. Breadcrumbs render **inside the title section**, not in the Twig topbar — when migrating a view, remove its `{% block breadcrumbs %}` from the Twig template. Pass breadcrumbs as a structured prop, last entry is the active (non-linked) crumb; an `icon` (FontAwesome name, must be registered in `app-vue.js`) replaces the label and keeps `label` as its aria-label:
+**`SectionBlockTitle`** (`components/base/SectionBlockTitle.vue`) holds the view title and an optional breadcrumb beneath it, with shared muted breadcrumb styling. Breadcrumbs render **inside the title section**, not in the Twig topbar - when migrating a view, remove its `{% block breadcrumbs %}` from the Twig template. Pass breadcrumbs as a structured prop, last entry is the active (non-linked) crumb; an `icon` (FontAwesome name, must be registered in `app-vue.js`) replaces the label and keeps `label` as its aria-label:
 
 ```js
 breadcrumbs() {
@@ -465,7 +466,7 @@ Reference implementations: `modules/dashboard/Dashboard.vue` (title only) and `m
 
 ### State & routing
 
-- No Vue Router — navigation via Twig views (full page reload)
+- No Vue Router - navigation via Twig views (full page reload)
 - Vuex used in limited scope (mainly global data)
 
 ### Translations (frontend)

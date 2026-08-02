@@ -69,7 +69,7 @@ export default {
                 const m = e.meta || {}
                 const label = [m.orderNumber, m.customerName, m.productName]
                     .filter(Boolean)
-                    .join(' — ')
+                    .join(' - ')
                 seen.set(e.agreementLineId, {
                     value: e.agreementLineId,
                     label: label || `#${e.agreementLineId}`,

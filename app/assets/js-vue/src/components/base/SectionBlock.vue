@@ -8,7 +8,7 @@
 /**
  * Generic white rounded panel used to group a view into sections
  * (e.g. a title/filters bar and a content area). Layout of the inner
- * content is left to the caller — pass utility classes on the element
+ * content is left to the caller - pass utility classes on the element
  * itself (e.g. `class="d-flex justify-content-between"`), they merge
  * onto the root.
  */

@@ -25,7 +25,7 @@ div#wrapper nav.sidebar {
     background-color: #f8f9fc;
     border-right: 1px solid #d6d6d6;
 
-    // the Twig markup still carries .bg-gradient-primary — neutralise it
+    // the Twig markup still carries .bg-gradient-primary - neutralise it
     &.bg-gradient-primary {
         background-color: #f8f9fc;
         background-image: none;
@@ -93,7 +93,7 @@ div#wrapper nav.sidebar {
                 padding: 0.75rem 0;
                 transition: color 0.2s, background-color 0.2s;
 
-                // icon column — fixed width = rail, so icons stay centered
+                // icon column - fixed width = rail, so icons stay centered
                 // in the rail and aligned with each other when expanded
                 i:not(.expander) {
                     flex: 0 0 $sidebar-rail-width;
@@ -121,7 +121,7 @@ div#wrapper nav.sidebar {
                 }
             }
 
-            // submenu (accordion) — hidden by default, shown only when the
+            // submenu (accordion) - hidden by default, shown only when the
             // sidebar is expanded (see expanded-state block below)
             .submenu {
                 display: none;
@@ -149,7 +149,7 @@ div#wrapper nav.sidebar {
                 }
             }
 
-            // active item — dark text, with the blue reserved for the icon,
+            // active item - dark text, with the blue reserved for the icon,
             // the left accent bar and the subtle tint
             &.active > a.nav-link {
                 color: #3a3b45;
@@ -254,7 +254,7 @@ div#wrapper nav.sidebar {
             }
 
             // the flag keeps its real size, centred within that same column
-            // width — a flex-basis here would stretch the image instead
+            // width - a flex-basis here would stretch the image instead
             > img {
                 flex: 0 0 auto;
                 width: 20px;
@@ -313,7 +313,7 @@ div#wrapper nav.sidebar {
 }
 
 // ============================================================
-// Expanded state — hover, keyboard focus, or mobile "open"
+// Expanded state - hover, keyboard focus, or mobile "open"
 // ============================================================
 div#wrapper nav.sidebar:hover,
 div#wrapper nav.sidebar:focus-within,

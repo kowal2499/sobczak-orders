@@ -25,7 +25,7 @@ class AgreementLineRmController extends BaseController
     /**
      * Orders list, served from the read model and reshaped to the legacy
      * AgreementLine payload. Unlike /rm/search this does NOT force
-     * hasProduction — the orders list shows every order, including those
+     * hasProduction - the orders list shows every order, including those
      * without (or with only ghost) production.
      *
      * @IsGranted("ROLE_PRODUCTION_VIEW")
