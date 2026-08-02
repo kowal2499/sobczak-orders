@@ -1,10 +1,10 @@
 <script>
 import { defineComponent } from 'vue'
-import OnTimeDepartmentValue from './OnTimeDepartmentValue.vue'
+import OnTimeCell from './FactorCell/OnTimeCell.vue'
 
 /**
  * Tabela szczegółów raportu premii "w terminie": działy w kolumnach, zlecenia w wierszach.
- * Wariant Details.vue używający dedykowanej komórki OnTimeDepartmentValue (wartość + terminowość).
+ * Wariant Details.vue używający komórki OnTimeCell (wartość + terminowość + korekta premii).
  */
 const DEFAULT_ROW = () => ({
     context: null,
@@ -19,7 +19,7 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'OnTimeDetails',
-    components: { OnTimeDepartmentValue },
+    components: { OnTimeCell },
     props: {
         data: {
             type: Array,
@@ -156,7 +156,7 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt01"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"
@@ -164,7 +164,7 @@ export default defineComponent({
             />
         </template>
         <template #cell(dpt02)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt02"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"
@@ -172,7 +172,7 @@ export default defineComponent({
             />
         </template>
         <template #cell(dpt03)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt03"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"
@@ -180,7 +180,7 @@ export default defineComponent({
             />
         </template>
         <template #cell(dpt04)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt04"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"
@@ -188,7 +188,7 @@ export default defineComponent({
             />
         </template>
         <template #cell(dpt05)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt05"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"
@@ -196,7 +196,7 @@ export default defineComponent({
             />
         </template>
         <template #cell(dpt06)="{item}">
-            <OnTimeDepartmentValue
+            <OnTimeCell
                 :factorData="item.dpt06"
                 :report-range="reportRange"
                 :agreement-line-id="item.context && item.context.id"

@@ -23,9 +23,12 @@ export default {
         'earlyMany': 'Przyspieszone o {days} dni robocze',
         'noWindow': 'Brak zaplanowanego okna',
     },
-    'onTimeCell': {
-        'factorBreakdown': 'Składowe współczynnika',
+    // wspólne dla wszystkich raportów pokazujących rozbicie współczynnika w komórce
+    'factorBreakdown': {
+        'title': 'Składowe współczynnika',
         'finalValue': 'Wartość finalna',
+    },
+    'onTimeCell': {
         'noBonusNote': 'współczynnik premii 0',
         'withinToleranceNote': 'Premia uznana dzięki widełkom - ukończenie wypadło poza zaplanowanym oknem, ale w granicach tolerancji.',
         'addAdjustment': 'Dodaj korektę',

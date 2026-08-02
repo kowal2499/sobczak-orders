@@ -2,6 +2,8 @@
 import { defineComponent } from 'vue'
 import StatusIcon from './StatusIcon.vue'
 import DepartmentFactorValue from './DepartmentFactorValue.vue';
+import PlainFactorCell from './FactorCell/PlainFactorCell.vue';
+
 const DEFAULT_ROW = () => ({
     context: null,
     factor: 0,
@@ -15,13 +17,18 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: {DepartmentFactorValue, StatusIcon },
+    components: {DepartmentFactorValue, PlainFactorCell, StatusIcon },
     props: {
         data: {
             type: Array,
             default: () => []
         },
-        height: [String, Number]
+        height: [String, Number],
+        // komórka z rozbiciem współczynnika na paski (jak w raporcie premii "w terminie")
+        detailedCells: {
+            type: Boolean,
+            default: false,
+        },
     },
     methods: {
         panelUrl(id) {
@@ -29,6 +36,9 @@ export default defineComponent({
         },
     },
     computed: {
+        cellComponent() {
+            return this.detailedCells ? 'PlainFactorCell' : 'DepartmentFactorValue'
+        },
         rows() {
             return this.data.map(record => {
                 return {
@@ -153,22 +163,22 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt01" />
+            <component :is="cellComponent" :factorData="item.dpt01" />
         </template>
         <template #cell(dpt02)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt02" />
+            <component :is="cellComponent" :factorData="item.dpt02" />
         </template>
         <template #cell(dpt03)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt03" />
+            <component :is="cellComponent" :factorData="item.dpt03" />
         </template>
         <template #cell(dpt04)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt04" />
+            <component :is="cellComponent" :factorData="item.dpt04" />
         </template>
         <template #cell(dpt05)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt05" />
+            <component :is="cellComponent" :factorData="item.dpt05" />
         </template>
         <template #cell(dpt06)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt06" />
+            <component :is="cellComponent" :factorData="item.dpt06" />
         </template>
 
         <template #head(context)="data">

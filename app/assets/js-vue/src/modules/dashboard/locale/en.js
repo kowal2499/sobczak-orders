@@ -23,9 +23,12 @@ export default {
         'earlyMany': 'Ahead by {days} working days',
         'noWindow': 'No planned window',
     },
-    'onTimeCell': {
-        'factorBreakdown': 'Factor breakdown',
+    // wspólne dla wszystkich raportów pokazujących rozbicie współczynnika w komórce
+    'factorBreakdown': {
+        'title': 'Factor breakdown',
         'finalValue': 'Final value',
+    },
+    'onTimeCell': {
         'noBonusNote': 'bonus factor 0',
         'withinToleranceNote': 'Bonus granted thanks to the tolerance — completion fell outside the planned window but within the allowed margin.',
         'addAdjustment': 'Add adjustment',

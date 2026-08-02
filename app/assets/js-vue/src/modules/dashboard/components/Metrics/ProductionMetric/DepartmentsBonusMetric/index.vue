@@ -94,7 +94,7 @@ export default defineComponent({
                             />
                         </template>
                         <template #content>
-                            <Details :data="filteredInnerData" :height="height" class="px-2 pb-2" />
+                            <Details :data="filteredInnerData" :height="height" detailed-cells class="px-2 pb-2" />
                         </template>
                     </SidebarLayout>
                 </template>
