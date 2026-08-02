@@ -1,11 +1,15 @@
 <script>
 import { defineComponent } from 'vue'
 import { MONTHS } from '@/services/datesService'
-import { fmtDayMonth } from './dates'
+import { fmtDate, fmtDayMonth } from './dates'
 
 /**
- * Sekcja popovera dla pozycji, której okno produkcji nie pokrywa się z zakresem raportu.
- * Pojęcie "poza zakresem" istnieje tylko w raporcie premii "w terminie".
+ * Sekcja popovera dla pozycji, która nie kwalifikuje się do bieżącego zakresu raportu.
+ *
+ * O kwalifikacji decyduje data ukończenia (patrz AbstractProductionRecordStrategy::qualifies),
+ * a nie zaplanowane okno — dlatego powód podajemy datą ukończenia albo jej brakiem. Okno zostaje
+ * w dymku wyłącznie jako kontekst: potrafi leżeć w całości w zakresie raportu, a pozycja i tak
+ * nie jest liczona, bo zadanie skończono w innym miesiącu.
  */
 export default defineComponent({
     name: 'OutOfRangeSummary',
@@ -21,6 +25,19 @@ export default defineComponent({
         },
     },
     computed: {
+        isCompleted() {
+            return !!this.production.completedAt
+        },
+        completedAtLabel() {
+            return this.isCompleted
+                ? fmtDate(this.production.completedAt)
+                : this.$t('dashboard.onTimeCell.outOfRange.notCompleted')
+        },
+        reasonNote() {
+            return this.isCompleted
+                ? this.$t('dashboard.onTimeCell.outOfRange.noteCompletedOutside')
+                : this.$t('dashboard.onTimeCell.outOfRange.noteNotCompleted')
+        },
         reportRangeLabel() {
             return this.rangeLabel(this.reportRange.start, this.reportRange.end)
         },
@@ -54,7 +71,11 @@ export default defineComponent({
             <span class="pop-label">{{ $t('dashboard.onTimeCell.outOfRange.productionWindow') }}</span>
             <span class="pop-val">{{ productionWindowLabel || '—' }}</span>
         </div>
+        <div class="pop-row">
+            <span class="pop-label">{{ $t('dashboard.onTimeCell.outOfRange.completedAt') }}</span>
+            <span class="pop-val">{{ completedAtLabel }}</span>
+        </div>
         <div class="pop-divider"></div>
-        <div class="pop-note">{{ $t('dashboard.onTimeCell.outOfRange.note') }}</div>
+        <div class="pop-note">{{ reasonNote }}</div>
     </div>
 </template>

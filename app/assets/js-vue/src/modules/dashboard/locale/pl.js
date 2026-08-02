@@ -57,7 +57,10 @@ export default {
             'title': 'Poza zakresem dat',
             'reportRange': 'Zakres raportu',
             'productionWindow': 'Okno produkcji',
-            'note': 'Okno czasowe produkcji nie pokrywa się z zakresem raportu - pozycja nie jest liczona w tym okresie.',
+            'completedAt': 'Ukończono',
+            'notCompleted': 'nieukończone',
+            'noteCompletedOutside': 'Zadanie ukończono poza zakresem raportu - pozycja jest liczona w miesiącu faktycznego ukończenia.',
+            'noteNotCompleted': 'Zadanie nie zostało jeszcze ukończone - pozycja nie jest liczona w żadnym okresie.',
         },
     },
     'tolerance': {

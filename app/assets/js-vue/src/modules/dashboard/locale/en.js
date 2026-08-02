@@ -57,7 +57,10 @@ export default {
             'title': 'Outside the date range',
             'reportRange': 'Report range',
             'productionWindow': 'Production window',
-            'note': 'The production time window does not overlap the report range — this item is not counted in this period.',
+            'completedAt': 'Completed',
+            'notCompleted': 'not completed',
+            'noteCompletedOutside': 'The task was completed outside the report range — it is counted in the month of its actual completion.',
+            'noteNotCompleted': 'The task has not been completed yet — it is not counted in any period.',
         },
     },
     'tolerance': {
