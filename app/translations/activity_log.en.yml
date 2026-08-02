@@ -14,7 +14,7 @@ activity_log:
         production_date_end_changed: 'Production end date changed (%departmentName%): %oldDate% → %newDate%'
 
 # Enum-derived values stored in content params. The key is the canonical Polish name (the value the log
-# holds); read-side translation localizes it. Polish needs no entries — the raw value is already correct.
+# holds); read-side translation localizes it. Polish needs no entries - the raw value is already correct.
 Oczekuje: 'Awaiting'
 Rozpoczęte: 'Started'
 'W trakcie': 'In progress'

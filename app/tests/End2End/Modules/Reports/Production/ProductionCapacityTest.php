@@ -77,7 +77,7 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, 'dateStart' => new \DateTime('2026-05-20'), 'dateEnd' => new \DateTime('2026-05-22'), 'isGhost' => true],
         ]);
 
-        // When (default — bez ghost)
+        // When (default - bez ghost)
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
 
         // Then

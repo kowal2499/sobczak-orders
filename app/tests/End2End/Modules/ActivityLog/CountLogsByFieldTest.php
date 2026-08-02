@@ -36,7 +36,7 @@ class CountLogsByFieldTest extends ApiTestCase
         $this->seedLog('agreement.created', 'l2', $user, ['customerId' => '10']);
         $this->seedLog('agreement.created', 'l3', $user, ['customerId' => '20']);
         $this->seedLog('agreement.created', 'l4', $user, ['customerId' => '30']);
-        // wrong type — should not be counted
+        // wrong type - should not be counted
         $this->seedLog('production.started', 'p1', $user, ['customerId' => '10']);
         $this->getManager()->flush();
         $this->getManager()->clear();

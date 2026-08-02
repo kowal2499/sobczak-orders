@@ -43,7 +43,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
 
     /**
      * Agregat miernika "Orders Pending": linie rozpoczęte do końca zakresu i jeszcze niezakończone.
-     * Dolna granica (start) jest celowo pomijana — zgodnie z dotychczasowym zachowaniem miernika.
+     * Dolna granica (start) jest celowo pomijana - zgodnie z dotychczasowym zachowaniem miernika.
      *
      * @return array{factors_summary: string|float|null, count: int|string}
      */
@@ -96,7 +96,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
 
     /**
      * Linie dla szczegółów miernika "Orders Pending": rozpoczęte do końca zakresu i niezakończone.
-     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null — bez filtra dat.
+     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null - bez filtra dat.
      *
      * @return AgreementLineRM[]
      */

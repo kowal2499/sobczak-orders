@@ -241,7 +241,7 @@ class AgreementLineController extends BaseController
         foreach ($agreementLine->getProductions() as $production) {
             $old = $oldDates[$production->getId()] ?? null;
             if ($old === null) {
-                continue; // newly added production — not a date change
+                continue; // newly added production - not a date change
             }
 
             $newStart = $production->getDateStart()?->format('Y-m-d');

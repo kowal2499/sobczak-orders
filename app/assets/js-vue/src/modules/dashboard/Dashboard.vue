@@ -78,7 +78,14 @@ const DATA_SOURCES = [
     { id: 'src03', fetcher: getProductionTasksCompletionSummary, grant: 'canDashboardMetricsView', active: true },
     { id: 'src04', fetcher: getDepartmentsCapacity, grant: 'reports.dashboard:capacity-utilization', active: true },
     { id: 'src05', fetcher: getWeeklyCapacity, grant: 'reports.dashboard:weekly-capacity', active: true },
-    { id: 'src06', fetcher: getProductionTasksOnTimeSummary, grant: 'reports.dashboard:on-time-bonus', active: true },
+    {
+        id: 'src06',
+        fetcher: getProductionTasksOnTimeSummary,
+        grant: 'reports.dashboard:on-time-bonus',
+        active: true,
+        // dodatkowe argumenty fetchera zależne od stanu pulpitu (widełki terminowości)
+        extraArgs: ctx => [ctx.onTimeTolerance],
+    },
 ]
 
 export default {
@@ -158,32 +165,43 @@ export default {
         filters: {
             deep: true,
             handler() {
-                DATA_SOURCES.forEach(source => {
-                    if (source.grant && !this.$user.can(source.grant)) {
-                        return;
-                    }
-                    if (!source.active) {
-                        return;
-                    }
-                    this.sourcesState[source.id].isBusy = true;
-                    this.sourcesState[source.id].error = null;
-                    source.fetcher(this.dateRangeStart, this.dateRangeEnd)
-                        .then(({data}) => {
-                            this.sourcesState[source.id].data = data;
-                        })
-                        .catch((error) => {
-                            this.sourcesState[source.id].error = error;
-                        })
-                        .finally(() => {
-                            this.sourcesState[source.id].isBusy = false;
-                        });
-                })
+                this.loadSources();
             }
         }
     },
 
 
     methods: {
+        loadSources(ids = null) {
+            DATA_SOURCES.forEach(source => {
+                if (ids && !ids.includes(source.id)) {
+                    return;
+                }
+                if (source.grant && !this.$user.can(source.grant)) {
+                    return;
+                }
+                if (!source.active) {
+                    return;
+                }
+                this.sourcesState[source.id].isBusy = true;
+                this.sourcesState[source.id].error = null;
+                const extraArgs = source.extraArgs ? source.extraArgs(this) : [];
+                source.fetcher(this.dateRangeStart, this.dateRangeEnd, ...extraArgs)
+                    .then(({data}) => {
+                        this.sourcesState[source.id].data = data;
+                    })
+                    .catch((error) => {
+                        this.sourcesState[source.id].error = error;
+                    })
+                    .finally(() => {
+                        this.sourcesState[source.id].isBusy = false;
+                    });
+            })
+        },
+        setOnTimeTolerance(days) {
+            this.onTimeTolerance = days;
+            this.loadSources(['src06']);
+        },
         widgetComponent(key) {
             return this.availableWidgetsByKey[key]?.component;
         },
@@ -272,6 +290,8 @@ export default {
 
     data: () => ({
         sourcesState: {},
+        // widełki terminowości (dni robocze) - podgląd, null = wartość obowiązująca z backendu
+        onTimeTolerance: null,
         layoutItems: [],
         editMode: false,
 

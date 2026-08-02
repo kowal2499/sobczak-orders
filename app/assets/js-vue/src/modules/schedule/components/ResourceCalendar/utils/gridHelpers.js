@@ -29,7 +29,7 @@ export const STATUS_COLORS = {
   in_progress:    { bg: '#cff4fc', border: '#0dcaf0', text: '#055160' },
   completed:      { bg: '#d1e7dd', border: '#198754', text: '#0a3622' },
   not_applicable: { bg: '#e2e3e5', border: '#6c757d', text: '#41464b' },
-  // Order envelope bar (orders calendar) — uses the app primary colour, distinct from task statuses above
+  // Order envelope bar (orders calendar) - uses the app primary colour, distinct from task statuses above
   order_range:    { bg: 'var(--colorPrimary)', border: 'var(--colorPrimary)', text: '#ffffff' }
 }
 

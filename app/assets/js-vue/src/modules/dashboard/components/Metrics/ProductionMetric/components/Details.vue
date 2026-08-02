@@ -2,6 +2,8 @@
 import { defineComponent } from 'vue'
 import StatusIcon from './StatusIcon.vue'
 import DepartmentFactorValue from './DepartmentFactorValue.vue';
+import PlainFactorCell from './FactorCell/PlainFactorCell.vue';
+
 const DEFAULT_ROW = () => ({
     context: null,
     factor: 0,
@@ -15,13 +17,23 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: {DepartmentFactorValue, StatusIcon },
+    components: {DepartmentFactorValue, PlainFactorCell, StatusIcon },
     props: {
         data: {
             type: Array,
             default: () => []
         },
-        height: [String, Number]
+        height: [String, Number],
+        // komórka z rozbiciem współczynnika na paski (jak w raporcie premii "w terminie")
+        detailedCells: {
+            type: Boolean,
+            default: false,
+        },
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu, dla dymka "poza zakresem dat"
+        reportRange: {
+            type: Object,
+            default: () => ({ start: null, end: null })
+        },
     },
     methods: {
         panelUrl(id) {
@@ -29,6 +41,13 @@ export default defineComponent({
         },
     },
     computed: {
+        cellComponent() {
+            return this.detailedCells ? 'PlainFactorCell' : 'DepartmentFactorValue'
+        },
+        cellProps() {
+            // stara komórka nie zna zakresu raportu i nie ma wariantu "poza zakresem"
+            return this.detailedCells ? { reportRange: this.reportRange } : {}
+        },
         rows() {
             return this.data.map(record => {
                 return {
@@ -153,22 +172,22 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt01" />
+            <component :is="cellComponent" :factorData="item.dpt01" v-bind="cellProps" />
         </template>
         <template #cell(dpt02)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt02" />
+            <component :is="cellComponent" :factorData="item.dpt02" v-bind="cellProps" />
         </template>
         <template #cell(dpt03)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt03" />
+            <component :is="cellComponent" :factorData="item.dpt03" v-bind="cellProps" />
         </template>
         <template #cell(dpt04)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt04" />
+            <component :is="cellComponent" :factorData="item.dpt04" v-bind="cellProps" />
         </template>
         <template #cell(dpt05)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt05" />
+            <component :is="cellComponent" :factorData="item.dpt05" v-bind="cellProps" />
         </template>
         <template #cell(dpt06)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt06" />
+            <component :is="cellComponent" :factorData="item.dpt06" v-bind="cellProps" />
         </template>
 
         <template #head(context)="data">

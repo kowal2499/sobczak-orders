@@ -86,7 +86,7 @@ class ProductionDatesLogTest extends ApiTestCase
 
     public function testShouldLogGhostDateChangeViaGhostEndpoint(): void
     {
-        // Given — a ghost (forecast) production
+        // Given - a ghost (forecast) production
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
@@ -105,7 +105,7 @@ class ProductionDatesLogTest extends ApiTestCase
         $agreementId = $line->getAgreement()->getId();
         $this->getManager()->clear();
 
-        // When — move only the forecast start date
+        // When - move only the forecast start date
         $client->jsonRequest('PUT', '/production/ghost/' . $productionId . '/dates', [
             'dateStart' => '2026-05-10 08:00:00',
             'dateEnd' => '2026-04-05 16:00:00',

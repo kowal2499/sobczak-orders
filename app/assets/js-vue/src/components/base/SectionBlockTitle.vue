@@ -73,7 +73,7 @@ export default {
     },
     computed: {
         // `#filters` is compiled as a scoped slot in Vue 2.6, so it may live in
-        // $scopedSlots rather than $slots — check both, otherwise the filters
+        // $scopedSlots rather than $slots - check both, otherwise the filters
         // block silently fails to render inside the title panel.
         hasFilters() {
             return !!(this.$slots.filters || this.$scopedSlots.filters);
@@ -88,7 +88,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Standalone panel — mirrors SectionBlock so the header can be its own block.
+// Standalone panel - mirrors SectionBlock so the header can be its own block.
 .section-block-title--block {
     background-color: #fff;
     padding: 1rem;

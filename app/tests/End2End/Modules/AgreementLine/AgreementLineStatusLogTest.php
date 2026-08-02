@@ -58,7 +58,7 @@ class AgreementLineStatusLogTest extends ApiTestCase
 
     public function testShouldIgnoreStatusChangeSentToUpdateEndpoint(): void
     {
-        // Given — existing line in WAITING; update payload tries to push it to WAREHOUSE
+        // Given - existing line in WAITING; update payload tries to push it to WAREHOUSE
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
@@ -83,7 +83,7 @@ class AgreementLineStatusLogTest extends ApiTestCase
             ]),
         );
 
-        // Then — request succeeds, but status is untouched and no status log is emitted
+        // Then - request succeeds, but status is untouched and no status log is emitted
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
         $this->getManager()->clear();
@@ -102,7 +102,7 @@ class AgreementLineStatusLogTest extends ApiTestCase
 
     public function testShouldNotLogStatusChangeWhenUpdateKeepsSameStatus(): void
     {
-        // Given — existing line in WAREHOUSE; update payload keeps the same status
+        // Given - existing line in WAREHOUSE; update payload keeps the same status
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 

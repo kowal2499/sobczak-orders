@@ -21,13 +21,13 @@ class DepartmentsBonusMetricStrategyTest extends TestCase
         $bonus = new AssembledFactorDTO(2.0);
 
         $line = $this->makeLine(1, [
-            // zakończone w zakresie → rekord
+            // zakończone w zakresie → rekord ze współczynnikiem
             $this->prod('dpt03', isCompleted: true, completedAt: new \DateTime('2026-05-15'), ratio: $ratio, bonus: $bonus),
-            // niezakończone → pominięte
+            // niezakończone → rekord "poza zakresem", bez współczynnika
             $this->prod('dpt04', isCompleted: false, completedAt: new \DateTime('2026-05-16'), ratio: $ratio, bonus: $bonus),
-            // zakończone poza zakresem → pominięte
+            // zakończone poza zakresem → rekord "poza zakresem", bez współczynnika
             $this->prod('dpt05', isCompleted: true, completedAt: new \DateTime('2026-06-15'), ratio: $ratio, bonus: $bonus),
-            // dział spoza domyślnych → pominięte
+            // dział spoza domyślnych → pominięty całkowicie
             $this->prod('custom', isCompleted: true, completedAt: new \DateTime('2026-05-10'), ratio: $ratio, bonus: $bonus),
         ]);
 
@@ -37,10 +37,35 @@ class DepartmentsBonusMetricStrategyTest extends TestCase
         $result = $strategy->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
 
         // Then
-        $this->assertCount(1, $result);
-        $this->assertSame('dpt03', $result[0]->getDepartmentSlug());
+        $bySlug = [];
+        foreach ($result as $record) {
+            $bySlug[$record->getDepartmentSlug()] = $record;
+        }
+
+        $this->assertSame(['dpt03', 'dpt04', 'dpt05'], array_keys($bySlug));
+
+        $this->assertTrue($bySlug['dpt03']->getInRange());
         // Bonus używa factorBonus (2.0), nie factorRatio (1.0)
-        $this->assertSame(2.0, $result[0]->getFactors()->factor);
+        $this->assertSame(2.0, $bySlug['dpt03']->getFactors()->factor);
+
+        // pozostałe działy tej samej linii wracają wyłącznie jako kontekst dla dymka komórki
+        $this->assertFalse($bySlug['dpt04']->getInRange());
+        $this->assertNull($bySlug['dpt04']->getFactors());
+        $this->assertFalse($bySlug['dpt05']->getInRange());
+        $this->assertNull($bySlug['dpt05']->getFactors());
+    }
+
+    public function testSkipsWholeLineWhenNoProductionQualifies(): void
+    {
+        // linia bez ani jednej produkcji w zakresie nie generuje nawet rekordów "poza zakresem"
+        $line = $this->makeLine(3, [
+            $this->prod('dpt03', isCompleted: true, completedAt: new \DateTime('2026-06-15')),
+            $this->prod('dpt04', isCompleted: false),
+        ]);
+
+        $result = $this->makeStrategy([$line])->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
+
+        $this->assertSame([], $result);
     }
 
     public function testSkipsGhostCompletedProduction(): void

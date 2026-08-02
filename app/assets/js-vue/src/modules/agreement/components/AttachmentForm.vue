@@ -87,7 +87,7 @@ export default {
 
         onDropzoneError(file, message, xhr) {
             if (!xhr) {
-                // Lokalny błąd walidacji (za duży plik, zły typ) — brak requestu do serwera
+                // Lokalny błąd walidacji (za duży plik, zły typ) - brak requestu do serwera
                 this.$emit('vdropzone-file-rejected', message);
             } else {
                 // Z odpowiedzi serwera wyciągamy komunikat per plik (uploadMultiple
@@ -128,7 +128,7 @@ export default {
                     const match = data.errors.find(e => e.filename === file.name);
                     return match ? match.message : null;
                 }
-            } catch (e) { /* responseText nie jest JSON-em — fallback do domyślnego message */ }
+            } catch (e) { /* responseText nie jest JSON-em - fallback do domyślnego message */ }
             return null;
         },
 

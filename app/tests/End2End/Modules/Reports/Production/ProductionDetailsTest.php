@@ -13,7 +13,7 @@ use App\Entity\Definitions\TaskTypes;
  * Reguły utrwalone z DoctrineProductionPendingRepository::getDetails() /
  * DoctrineProductionFinishedRepository::getDetails() (+ BaseSupplier::transformRows):
  *  - Pending:  productionCompletionDate IS NULL AND deleted=0 AND productionStartDate <= end.
- *              UWAGA: getRecords woła getDetails(null, $end) — dolna granica jest ignorowana.
+ *              UWAGA: getRecords woła getDetails(null, $end) - dolna granica jest ignorowana.
  *  - Finished: productionStartDate IS NOT NULL AND deleted=0
  *              AND productionCompletionDate BETWEEN start AND end; filtr ROLE_CUSTOMER.
  *  - Rekordy powstają per kwalifikująca się produkcja (leftJoin: departmentSlug w działach
@@ -72,7 +72,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
     {
         $client = $this->login($this->createUser());
 
-        // produkcja ghost — wykluczona z leftJoin, więc brak dopasowania => jeden rekord z pustym działem
+        // produkcja ghost - wykluczona z leftJoin, więc brak dopasowania => jeden rekord z pustym działem
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-05-10'),
             productionCompletionDate: null,
@@ -111,7 +111,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
             productionCompletionDate: null,
             deleted: true,
         );
-        // kwalifikuje się (start przed zakresem — dolna granica ignorowana)
+        // kwalifikuje się (start przed zakresem - dolna granica ignorowana)
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-04-01'),
             productionCompletionDate: null,
