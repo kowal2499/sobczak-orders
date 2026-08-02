@@ -88,7 +88,7 @@ class ScheduleOrderResourcesControllerTest extends BaseScheduleReportsTestCase
 
     public function testShouldReturnOrderWithoutProductionsWhenNoDepartmentVisible(): void
     {
-        // Given — user can see the calendar but has no production department grants
+        // Given - user can see the calendar but has no production department grants
         $em = $this->getManager();
         $user = $this->createUser([], [], ['reports.calendar_orders']);
         $client = $this->login($user);
@@ -110,7 +110,7 @@ class ScheduleOrderResourcesControllerTest extends BaseScheduleReportsTestCase
         // When
         $client->xmlHttpRequest('GET', '/reports/schedule/order-resources?startDate=2026-05-01&endDate=2026-05-31');
 
-        // Then — order is visible, but its productions are empty (not production-gated)
+        // Then - order is visible, but its productions are empty (not production-gated)
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $content = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(1, $content['orders']);
@@ -128,7 +128,7 @@ class ScheduleOrderResourcesControllerTest extends BaseScheduleReportsTestCase
         $customer = $this->factory->make(Customer::class);
         $em->flush();
 
-        // Out of window: confirmedDate 2026-03-10, createDate 2026-03-03 — both before May
+        // Out of window: confirmedDate 2026-03-10, createDate 2026-03-03 - both before May
         $this->makeLineWithProductions(
             id: 3001,
             orderNumber: 'AL-3001',

@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import { fmtDate } from './dates'
 
 /**
- * Zaplanowane okno pracy działu i faktyczna data ukończenia — same daty, bez oceny terminowości.
+ * Zaplanowane okno pracy działu i faktyczna data ukończenia - same daty, bez oceny terminowości.
  * Ocenę dokłada TimelinessSummary tam, gdzie termin wpływa na premię.
  */
 export default defineComponent({

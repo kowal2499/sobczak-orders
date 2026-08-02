@@ -98,7 +98,7 @@ class AgreementInternalNumberTest extends ApiTestCase
         $this->getManager()->flush();
         $this->getManager()->clear();
 
-        // When — two lines share the same internal number
+        // When - two lines share the same internal number
         $client->request('POST', '/orders/save', [
             'customerId' => $customer->getId(),
             'orderNumber' => 'DUP-1',
@@ -136,7 +136,7 @@ class AgreementInternalNumberTest extends ApiTestCase
         $this->getManager()->flush();
         $this->getManager()->clear();
 
-        // When — both lines have empty internal numbers
+        // When - both lines have empty internal numbers
         $client->request('POST', '/orders/save', [
             'customerId' => $customer->getId(),
             'orderNumber' => 'EMPTY-1',
@@ -169,7 +169,7 @@ class AgreementInternalNumberTest extends ApiTestCase
 
     public function testShouldRejectAddingLineWithDuplicateInternalNumberOnUpdate(): void
     {
-        // Given — existing agreement with one line carrying an internal number
+        // Given - existing agreement with one line carrying an internal number
         $user = $this->createUser();
         $client = $this->login($user);
 
@@ -204,7 +204,7 @@ class AgreementInternalNumberTest extends ApiTestCase
         $agreementId = $agreement->getId();
         $this->getManager()->clear();
 
-        // When — add a new line reusing the same internal number
+        // When - add a new line reusing the same internal number
         $client->request('POST', '/orders/patch/' . $agreementId, [
             'customerId' => $customer->getId(),
             'orderNumber' => 'UPD-DUP',
@@ -231,7 +231,7 @@ class AgreementInternalNumberTest extends ApiTestCase
 
     public function testShouldClearInternalNumberWhenSingleLineRemains(): void
     {
-        // Given — agreement with two lines, both carrying suffixes
+        // Given - agreement with two lines, both carrying suffixes
         $user = $this->createUser();
         $client = $this->login($user);
 
@@ -277,7 +277,7 @@ class AgreementInternalNumberTest extends ApiTestCase
         $agreementId = $agreement->getId();
         $this->getManager()->clear();
 
-        // When — remove line02, keeping only line01 (still carrying its suffix in payload)
+        // When - remove line02, keeping only line01 (still carrying its suffix in payload)
         $client->request('POST', '/orders/patch/' . $agreementId, [
             'customerId' => $customer->getId(),
             'orderNumber' => 'SHRINK-1',
@@ -292,7 +292,7 @@ class AgreementInternalNumberTest extends ApiTestCase
             ],
         ]);
 
-        // Then — the single remaining line has its suffix cleared
+        // Then - the single remaining line has its suffix cleared
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->getManager()->clear();
         $line = $this->getManager()->find(AgreementLine::class, $line01Id);

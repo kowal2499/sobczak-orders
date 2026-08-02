@@ -26,7 +26,7 @@ export default defineComponent({
             default: () => []
         },
         height: [String, Number],
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu dla popovera "poza zakresem dat"
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu dla popovera "poza zakresem dat"
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })

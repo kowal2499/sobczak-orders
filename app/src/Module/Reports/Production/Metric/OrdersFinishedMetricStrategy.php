@@ -3,7 +3,7 @@
 namespace App\Module\Reports\Production\Metric;
 
 /**
- * Miernik "Orders Finished" — agregat (suma factor + liczność) linii zakończonych w zakresie.
+ * Miernik "Orders Finished" - agregat (suma factor + liczność) linii zakończonych w zakresie.
  * Dla ROLE_CUSTOMER z przypisanymi klientami wynik jest ograniczony do tych klientów
  * (dane wyświetlane filtrowane wg własności). Brak przypisanych klientów = brak filtra,
  * zgodnie z dotychczasowym zachowaniem.

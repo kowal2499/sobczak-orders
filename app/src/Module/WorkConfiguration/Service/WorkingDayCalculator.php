@@ -10,12 +10,12 @@ use DateTimeInterface;
  * Przesuwanie dat o dni robocze (z pominięciem weekendów, świąt i wyjątków z WorkSchedule).
  *
  * WorkScheduleService::getFreeDays() odpytuje repozytorium przy każdym wywołaniu, więc wołanie go
- * per rekord raportu dałoby N zapytań. Dni wolne są tu cache'owane per rok i ładowane leniwie —
+ * per rekord raportu dałoby N zapytań. Dni wolne są tu cache'owane per rok i ładowane leniwie -
  * w praktyce 1–2 zapytania na cały raport.
  */
 class WorkingDayCalculator
 {
-    /** Bezpiecznik pętli — przesunięcie o X dni roboczych nigdy nie wymaga więcej niż tyle kroków. */
+    /** Bezpiecznik pętli - przesunięcie o X dni roboczych nigdy nie wymaga więcej niż tyle kroków. */
     private const MAX_STEPS_PER_DAY = 10;
 
     /** @var array<int, array<string, true>> dni wolne (Y-m-d) pogrupowane po roku */
@@ -52,7 +52,7 @@ class WorkingDayCalculator
     }
 
     /**
-     * Liczba dni roboczych w przedziale (from, to] — dzień początkowy nie jest liczony, końcowy tak.
+     * Liczba dni roboczych w przedziale (from, to] - dzień początkowy nie jest liczony, końcowy tak.
      * Zwraca 0, gdy $to nie jest późniejsze niż $from.
      */
     public function countWorkingDays(DateTimeInterface $from, DateTimeInterface $to): int

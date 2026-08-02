@@ -5,7 +5,7 @@ import { addCompletedTasksBonus } from '../../../../../repository'
 /**
  * Formularz korekty premii w popoverze komórki raportu "Ukończone zadania produkcyjne (w terminie)".
  * Zapisuje współczynnik ze źródłem FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS, widoczny wyłącznie
- * w tym raporcie. Po udanym zapisie emituje `saved` — rodzic pobiera wartości od nowa z bazy.
+ * w tym raporcie. Po udanym zapisie emituje `saved` - rodzic pobiera wartości od nowa z bazy.
  */
 export default defineComponent({
     name: 'BonusAdjustmentForm',

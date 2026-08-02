@@ -290,7 +290,7 @@ export default {
 
     data: () => ({
         sourcesState: {},
-        // widełki terminowości (dni robocze) — podgląd, null = wartość obowiązująca z backendu
+        // widełki terminowości (dni robocze) - podgląd, null = wartość obowiązująca z backendu
         onTimeTolerance: null,
         layoutItems: [],
         editMode: false,

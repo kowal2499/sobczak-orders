@@ -26,7 +26,7 @@ class ProductionReportRecordDTO
 
     /**
      * Czy rekord jest rozliczany w bieżącym zakresie raportu. Rekordy "poza zakresem"
-     * (inRange=false) niosą tylko okno produkcji — bez współczynnika (factors=null).
+     * (inRange=false) niosą tylko okno produkcji - bez współczynnika (factors=null).
      */
     public function getInRange(): bool
     {
@@ -34,7 +34,7 @@ class ProductionReportRecordDTO
     }
 
     /**
-     * Czy premia należy się dopiero dzięki widełkom terminowości — ukończenie wypadło poza
+     * Czy premia należy się dopiero dzięki widełkom terminowości - ukończenie wypadło poza
      * zaplanowanym oknem, ale w granicach tolerancji.
      */
     public function getWithinTolerance(): bool

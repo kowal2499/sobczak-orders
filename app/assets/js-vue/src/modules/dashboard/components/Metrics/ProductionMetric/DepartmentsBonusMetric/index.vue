@@ -20,7 +20,7 @@ export default defineComponent({
     },
 
     props: {
-        // zakres raportu (miesiąc wybrany na pulpicie) — potrzebny w dymku "poza zakresem dat"
+        // zakres raportu (miesiąc wybrany na pulpicie) - potrzebny w dymku "poza zakresem dat"
         dateStart: { type: String, default: null },
         dateEnd: { type: String, default: null },
     },

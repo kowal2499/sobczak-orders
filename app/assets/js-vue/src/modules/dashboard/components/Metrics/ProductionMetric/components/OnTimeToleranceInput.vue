@@ -1,14 +1,14 @@
 <script>
 import { defineComponent } from 'vue'
 
-// Odpowiednik DepartmentsBonusOnTimeMetricStrategy::DEFAULT_TOLERANCE_DAYS — wartość obowiązująca
+// Odpowiednik DepartmentsBonusOnTimeMetricStrategy::DEFAULT_TOLERANCE_DAYS - wartość obowiązująca
 // dla rozliczeń trzyma backend, tu jest tylko po to, żeby pole pokazało ją przed pierwszą zmianą.
 const DEFAULT_TOLERANCE_DAYS = 5
 const MAX_TOLERANCE_DAYS = 30
 
 /**
  * Pole widełek terminowości (dni robocze) dla miernika premii "w terminie".
- * Zmiana jest wyłącznie podglądem — nie zapisuje się w konfiguracji firmowej.
+ * Zmiana jest wyłącznie podglądem - nie zapisuje się w konfiguracji firmowej.
  */
 export default defineComponent({
     name: 'OnTimeToleranceInput',

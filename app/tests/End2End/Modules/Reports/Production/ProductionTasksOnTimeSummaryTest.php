@@ -5,11 +5,11 @@ namespace App\Tests\End2End\Modules\Reports\Production;
 use App\Entity\Definitions\TaskTypes;
 
 /**
- * GET /reports/production/production-tasks-on-time-summary (miernik "Departments Bonus — w terminie").
+ * GET /reports/production/production-tasks-on-time-summary (miernik "Departments Bonus - w terminie").
  *
  * Jak "departments_bonus" (ukończone działy domyślne, completedAt w zakresie miesiąca), ale każdy
  * rekord niesie flagę `onTime`: true tylko gdy completedAt mieści się w oknie [dateStart, dateEnd].
- * Rekordy poza oknem NIE są odfiltrowywane — są zwracane z onTime=false (front pokazuje 0/wyszarzone).
+ * Rekordy poza oknem NIE są odfiltrowywane - są zwracane z onTime=false (front pokazuje 0/wyszarzone).
  */
 class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
 {
@@ -18,7 +18,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldReturn403WithoutGrant(): void
     {
-        // Given — użytkownik bez dedykowanego grantu
+        // Given - użytkownik bez dedykowanego grantu
         $client = $this->login($this->createUser());
 
         // When
@@ -113,7 +113,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldIncludeOtherDepartmentsOfReportedLineAsOutOfRange(): void
     {
-        // Given — dpt03 rozliczony w maju, dpt05 dopiero w czerwcu
+        // Given - dpt03 rozliczony w maju, dpt05 dopiero w czerwcu
         $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [
             [
@@ -150,14 +150,14 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
         $this->assertFalse($outOfRange['inRange']);
         $this->assertFalse($outOfRange['onTime']);
         $this->assertNull($outOfRange['factors']);
-        // okno produkcji zachowane — front pokazuje je w popoverze "poza zakresem dat"
+        // okno produkcji zachowane - front pokazuje je w popoverze "poza zakresem dat"
         $this->assertStringStartsWith('2026-06-04', $outOfRange['dateStart']);
         $this->assertStringStartsWith('2026-06-11', $outOfRange['dateEnd']);
     }
 
     public function testShouldAcceptDelayWithinToleranceWindow(): void
     {
-        // Given — okno kończy się w piątek 2026-05-15, ukończenie we wtorek 2026-05-19
+        // Given - okno kończy się w piątek 2026-05-15, ukończenie we wtorek 2026-05-19
         $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [[
             'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
@@ -167,7 +167,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
             'completedAt' => new \DateTime('2026-05-19 12:00:00'),
         ]]);
 
-        // When / Then — widełki 5 dni roboczych obejmują opóźnienie, widełki 0 już nie
+        // When / Then - widełki 5 dni roboczych obejmują opóźnienie, widełki 0 już nie
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31&tolerance=5');
         $accepted = json_decode($client->getResponse()->getContent(), true)[0];
         $this->assertTrue($accepted['onTime']);
@@ -180,7 +180,7 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldUseDefaultToleranceWhenParameterMissing(): void
     {
-        // Given — opóźnienie 2 dni robocze, mieszczące się w domyślnych widełkach
+        // Given - opóźnienie 2 dni robocze, mieszczące się w domyślnych widełkach
         $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [[
             'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,

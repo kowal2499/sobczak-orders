@@ -54,6 +54,11 @@ make pull-db   # pobierz bazę z produkcji
 - **API**: camelCase in requests and responses (JSON)
 - **Database**: snake_case for table and column names (Doctrine converts automatically)
 
+## Code Style
+
+- **Never use the em dash `—` in code or comments.** Use a plain hyphen `-` instead. Applies to PHP,
+  JS/Vue, YAML and Markdown alike.
+
 ## Code Organisation
 
 - Code is grouped in modules: `src/Module/[ModuleName]/`
@@ -261,6 +266,71 @@ When returning production data, filter rows to only departments for which the us
 
 ### 6. Reports
 - Production reports, calendar reports, order statistics, dashboards
+
+#### Dashboard metrics (strategy pattern)
+
+Each dashboard tile is a `MetricStrategyInterface` implementation resolved by `DashboardMetricProvider`.
+Metrics returning one record per production extend `AbstractProductionRecordStrategy`, which owns the
+whole loop (fetch lines from the read model, skip non-default departments and ghosts, map to
+`ProductionReportRecordDTO`) and exposes template-method hooks:
+
+| hook | meaning | default |
+|---|---|---|
+| `buildSearch()` | criteria for `AgreementLineRMRepository::search()` | abstract |
+| `qualifies()` | does the production count in this range | abstract |
+| `factorsOf()` | which factor of `ProductionRM` to report | abstract |
+| `isOnTime()` | was it finished within its planned window | `true` |
+| `emitsOutOfRange()` | also return non-qualifying productions, without a factor | `false` |
+| `appliedTolerance()` | bonus granted only thanks to the tolerance window | `false` |
+| `timelinessWorkingDays()` | deviation from the window in working days (+ late, - early) | `0` |
+
+`compute()` takes `array $options = []` - the documented extension point for per-metric parameters
+(currently only `toleranceDays`). PHP requires matching signatures, so every implementation declares it.
+
+**Records "out of range"** are emitted only for lines that already have at least one qualifying
+production (`if (!$lineRecords) continue;`), so the payload grows by at most five extra records per
+line. They carry `inRange: false` and `factors: null`; the front skips them in every sum
+(`mapDetails`, `aggregateByDepartment`), and uses them only to explain an empty cell in the popover.
+
+#### The two completed-tasks reports
+
+Both settle work by the **actual completion date** (`completedAt` inside the report range), not by the
+planned window, and both use the same strategy base and the same cell components. Their `buildSearch()`
+and `qualifies()` are identical - the difference is what earns the factor.
+
+| | `departments_bonus` | `departments_bonus_on_time` |
+|---|---|---|
+| tile | "Ukończone zadania produkcyjne" | "Ukończone zadania produkcyjne (w terminie)" |
+| endpoint | `/reports/production/production-tasks-completion-summary` | `/reports/production/production-tasks-on-time-summary` |
+| grant | `PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW` | `reports.dashboard:on-time-bonus` |
+| factor source | `ProductionRM::getFactorBonus()` | `getFactorBonusCompletedTasks() ?? getFactorBonus()` |
+| deadline | ignored, shown only for information | zeroes the factor when missed |
+| adjustments | none | `FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS` |
+
+**On-time metric specifics:**
+- Acceptance window is `[dateStart, dateEnd]` widened by a **tolerance in working days** on both sides
+  (`WorkingDayCalculator::shift()`). The binding value is `DEFAULT_TOLERANCE_DAYS` in the strategy,
+  mirrored by a constant in `OnTimeToleranceInput.vue`; the dashboard input only previews another
+  value (`?tolerance=`) and is deliberately not persisted, so two people always settle the same way.
+- The lower bound is intentional (anti-gaming), not an oversight - finishing early does not speed up
+  the order, because the customer pays once every department is done.
+- Bonus adjustments saved from its popover use the full cascade (`AGREEMENT_LINE` ->
+  `FACTOR_ADJUSTMENT_RATIO` -> `FACTOR_ADJUSTMENT_BONUS` -> `FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS`)
+  and are visible **only in this report**, because they land in a dedicated `AgreementLineRM` field.
+- A record outside the window has its factor zeroed on the front, so "grant the bonus despite the
+  delay" cannot be built as a value adjustment - it needs a separate flag.
+
+#### Factor cell components (`ProductionMetric/components/FactorCell/`)
+
+`FactorCell.vue` renders the value and owns the popover state; its **content is a scoped slot**, so
+each report composes only the sections it needs. Do not reintroduce boolean "mode" props here.
+
+- `OnTimeCell.vue` - composition for the bonus report (timeliness + breakdown + adjustment form)
+- `PlainFactorCell.vue` - composition for the plain report (dates + window adherence + breakdown)
+- `FactorBreakdown.vue`, `TimelinessSummary.vue`, `WindowAdherence.vue`, `OutOfRangeSummary.vue`,
+  `BonusAdjustmentForm.vue`, `ProductionDates.vue` - individual sections
+- Two presentational props remain: `trigger` (`click`/`hover`) and `tone` (`timeliness`/`value`).
+  Red means "the bonus was lost", so it must never appear in a report where the deadline pays nothing.
 
 ### 7. ActivityLog
 - Central, append-only journal of business events with structured key/value fields

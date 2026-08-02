@@ -40,7 +40,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testIncludesButMarksOffTimeWhenCompletedAfterWindow(): void
     {
-        // ukończenie po oknie — rekord obecny, ale onTime=false
+        // ukończenie po oknie - rekord obecny, ale onTime=false
         $line = $this->makeLine(2, [
             $this->prod(
                 'dpt03',
@@ -95,7 +95,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testTreatsWindowBoundariesAsOnTime(): void
     {
-        // ukończenie ostatniego dnia okna wieczorem — nadal w terminie (koniec = 23:59:59)
+        // ukończenie ostatniego dnia okna wieczorem - nadal w terminie (koniec = 23:59:59)
         $line = $this->makeLine(5, [
             $this->prod(
                 'dpt03',
@@ -114,7 +114,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testEmitsOutOfRangeRecordForOtherDepartmentsOfReportedLine(): void
     {
-        // dpt03 rozliczony w maju, dpt05 dopiero w czerwcu — dpt05 trafia do wyniku jako "poza zakresem"
+        // dpt03 rozliczony w maju, dpt05 dopiero w czerwcu - dpt05 trafia do wyniku jako "poza zakresem"
         $line = $this->makeLine(6, [
             $this->prod(
                 'dpt03',
@@ -145,14 +145,14 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
         $this->assertFalse($outOfRange->getInRange());
         $this->assertFalse($outOfRange->getOnTime());
         $this->assertNull($outOfRange->getFactors());
-        // okno produkcji musi zostać — front pokazuje je w popoverze
+        // okno produkcji musi zostać - front pokazuje je w popoverze
         $this->assertSame('2026-06-04', $outOfRange->getDateStart()->format('Y-m-d'));
         $this->assertSame('2026-06-11', $outOfRange->getDateEnd()->format('Y-m-d'));
     }
 
     public function testSkipsLineWithoutAnyQualifyingProduction(): void
     {
-        // żaden dział nie rozlicza się w maju — linia nie trafia do raportu wcale (brak "sierot")
+        // żaden dział nie rozlicza się w maju - linia nie trafia do raportu wcale (brak "sierot")
         $line = $this->makeLine(7, [
             $this->prod(
                 'dpt03',
@@ -187,7 +187,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testFallsBackToBonusFactorForStaleReadModel(): void
     {
-        // starszy wiersz RM nie ma jeszcze pola pełnej kaskady — używamy factorBonus
+        // starszy wiersz RM nie ma jeszcze pola pełnej kaskady - używamy factorBonus
         $result = $this->computeMay([$this->makeLine(9, [
             $this->prod(
                 'dpt03',
@@ -203,7 +203,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testToleranceExtendsWindowByWorkingDays(): void
     {
-        // okno kończy się w piątek 2026-05-15, ukończenie we wtorek 2026-05-19 — 2 dni robocze po terminie
+        // okno kończy się w piątek 2026-05-15, ukończenie we wtorek 2026-05-19 - 2 dni robocze po terminie
         $line = $this->makeLine(10, [
             $this->prod(
                 'dpt03',
@@ -220,7 +220,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
 
     public function testMarksRecordsAcceptedOnlyThanksToTolerance(): void
     {
-        // ukończenie 2 dni robocze po oknie — premia wyłącznie dzięki widełkom
+        // ukończenie 2 dni robocze po oknie - premia wyłącznie dzięki widełkom
         $delayed = $this->makeLine(14, [
             $this->prod(
                 'dpt03',
@@ -230,7 +230,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
                 bonus: new AssembledFactorDTO(2.0),
             ),
         ]);
-        // ukończenie w samym oknie — widełki nic nie zmieniają
+        // ukończenie w samym oknie - widełki nic nie zmieniają
         $inWindow = $this->makeLine(15, [
             $this->prod(
                 'dpt03',
@@ -289,7 +289,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
     public function testToleranceDoesNotCountWeekends(): void
     {
         // okno kończy się w piątek 2026-05-15; 1 dzień roboczy widełek sięga poniedziałku 2026-05-18,
-        // ale nie wtorku — weekend nie konsumuje widełek
+        // ale nie wtorku - weekend nie konsumuje widełek
         $line = $this->makeLine(11, [
             $this->prod(
                 'dpt03',
@@ -331,7 +331,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
     }
 
     /**
-     * Liczy miernik za maj 2026. Domyślnie z widełkami 0, czyli regułą ścisłą — testy widełek
+     * Liczy miernik za maj 2026. Domyślnie z widełkami 0, czyli regułą ścisłą - testy widełek
      * podają wartość jawnie.
      *
      * @return \App\Module\Reports\Production\DTO\ProductionReportRecordDTO[]
@@ -367,7 +367,7 @@ class DepartmentsBonusOnTimeMetricStrategyTest extends TestCase
     }
 
     /**
-     * Kalendarz bez firmowych wyjątków — zostają weekendy i święta ustawowe.
+     * Kalendarz bez firmowych wyjątków - zostają weekendy i święta ustawowe.
      */
     private function makeWorkingDayCalculator(): WorkingDayCalculator
     {

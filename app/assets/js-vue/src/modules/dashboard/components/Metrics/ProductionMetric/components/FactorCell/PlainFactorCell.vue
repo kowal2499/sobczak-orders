@@ -7,7 +7,7 @@ import WindowAdherence from './WindowAdherence.vue'
 import OutOfRangeSummary from './OutOfRangeSummary.vue'
 
 /**
- * Komórka raportu "Ukończone zadania produkcyjne" — popover pokazuje daty produkcji i składowe
+ * Komórka raportu "Ukończone zadania produkcyjne" - popover pokazuje daty produkcji i składowe
  * współczynnika, a dotrzymanie zaplanowanego okna wyłącznie poglądowo: ten raport przypisuje
  * zadanie do miesiąca faktycznego ukończenia i nalicza współczynnik niezależnie od terminu.
  */
@@ -19,7 +19,7 @@ export default defineComponent({
             type: Object,
             required: true,
         },
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu (miesiąc z pulpitu)
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu (miesiąc z pulpitu)
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })
@@ -30,7 +30,7 @@ export default defineComponent({
 
 <template>
     <FactorCell :factor-data="factorData" trigger="hover" tone="value" v-slot="{ state, production }">
-        <!-- dział pracował nad linią, ale poza zakresem raportu — sam współczynnik nie przyszedł -->
+        <!-- dział pracował nad linią, ale poza zakresem raportu - sam współczynnik nie przyszedł -->
         <OutOfRangeSummary
             v-if="state === 'outOfRange'"
             :production="production"

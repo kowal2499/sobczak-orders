@@ -247,7 +247,7 @@ class FactorCalculatorTest extends TestCase
 
     public function testShouldCalculateFullCascadeForCompletedTasksBonus(): void
     {
-        // Given — komplet modyfikatorów: bazowy 2.0, ratio 0.75, bonus +0.30, korekta z raportu +0.50
+        // Given - komplet modyfikatorów: bazowy 2.0, ratio 0.75, bonus +0.30, korekta z raportu +0.50
         $agreement = $this->makeAgreementLineWithFactor(2.0);
         $pool = [
             $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.75, 'dpt01', 'ratio'),
@@ -270,7 +270,7 @@ class FactorCalculatorTest extends TestCase
             FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS
         );
 
-        // Then — korekta widoczna wyłącznie w pełnej kaskadzie
+        // Then - korekta widoczna wyłącznie w pełnej kaskadzie
         $this->assertEquals(1.5, $ratio->factor);
         $this->assertEquals(1.8, $bonus->factor);
         $this->assertEquals(2.3, $full->factor);

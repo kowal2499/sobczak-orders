@@ -59,7 +59,7 @@ class WorkingDayCalculatorTest extends TestCase
 
     public function testZeroShiftReturnsSameDayEvenIfFree(): void
     {
-        // niedziela pozostaje niedzielą — zero oznacza brak przesunięcia, nie "najbliższy roboczy"
+        // niedziela pozostaje niedzielą - zero oznacza brak przesunięcia, nie "najbliższy roboczy"
         $this->assertSame(
             '2026-05-17',
             $this->makeCalculator()->shift(new \DateTime('2026-05-17 15:30:00'), 0)->format('Y-m-d')

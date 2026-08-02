@@ -48,7 +48,7 @@ export default {
 }
 
 // Inside the dashboard grid the card must fill its cell, not impose its own
-// intrinsic height/margins (leftovers from the old bootstrap-row layout) —
+// intrinsic height/margins (leftovers from the old bootstrap-row layout) -
 // otherwise it overflows the grid item and overlaps neighbouring widgets.
 .card {
     width: 100%;
@@ -60,7 +60,7 @@ export default {
     overflow-y: auto;
 }
 
-// Przygaszenie na czas ładowania obejmuje całe poddrzewo karty — razem z wysuniętym z niej
+// Przygaszenie na czas ładowania obejmuje całe poddrzewo karty - razem z wysuniętym z niej
 // drawerem (slot #default), przez który prześwitywałby pulpit. Gdy jakikolwiek drawer jest
 // otwarty (klasa ustawiana przez components/base/Sidebar.vue), zostaje sam spinner w nagłówku.
 body:not(.sidebar-open) .card-body--busy {

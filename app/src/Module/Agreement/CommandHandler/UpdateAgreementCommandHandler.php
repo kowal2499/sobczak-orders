@@ -314,7 +314,7 @@ class UpdateAgreementCommandHandler
             }
         }
 
-        // Sufiks ma sens tylko przy wielu liniach — dla pojedynczej linii wyczyść.
+        // Sufiks ma sens tylko przy wielu liniach - dla pojedynczej linii wyczyść.
         if (count($processedLines) === 1) {
             $processedLines[0]->setInternalNumber(null);
         }

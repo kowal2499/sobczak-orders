@@ -134,7 +134,7 @@ export function getAvailableWidgets(canFn) {
 /**
  * Flows widgets shelf-style (CSS flex-wrap-like) into a fixed-column grid,
  * in the order given. Must only ever be called with an already
- * grant-filtered widget list — that way a missing grant simply shifts the
+ * grant-filtered widget list - that way a missing grant simply shifts the
  * rest up/left instead of leaving a reserved empty cell.
  */
 export function packDefaultLayout(widgets, { startY = 0 } = {}) {

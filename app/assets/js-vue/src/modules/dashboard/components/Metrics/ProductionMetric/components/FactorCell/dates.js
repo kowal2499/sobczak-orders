@@ -1,4 +1,4 @@
-// Daty w rekordach raportu przychodzą jako ISO ("2026-05-15T00:00:00+02:00") — wszędzie interesuje
+// Daty w rekordach raportu przychodzą jako ISO ("2026-05-15T00:00:00+02:00") - wszędzie interesuje
 // nas wyłącznie część dzienna, więc formatujemy tekstowo, bez tworzenia obiektów Date.
 
 export function fmtDate(value) {

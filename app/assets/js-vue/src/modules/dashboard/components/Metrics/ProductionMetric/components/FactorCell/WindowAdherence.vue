@@ -5,7 +5,7 @@ import { toDay } from './dates'
 /**
  * Poglądowa informacja, czy ukończenie zmieściło się w zaplanowanym oknie pracy działu.
  *
- * Używa jej raport "Ukończone zadania produkcyjne", w którym termin NIE wpływa na współczynnik —
+ * Używa jej raport "Ukończone zadania produkcyjne", w którym termin NIE wpływa na współczynnik -
  * stąd neutralna prezentacja (bez czerwieni) i jawny dopisek o braku wpływu na premię. Ocena
  * premiowa mieszka w TimelinessSummary.
  *

@@ -39,7 +39,7 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     abstract protected function factorsOf(ProductionRM $production): ?AssembledFactorDTO;
 
     /**
-     * Czy produkcja została ukończona w terminie (w zaplanowanym oknie). Domyślnie zawsze true —
+     * Czy produkcja została ukończona w terminie (w zaplanowanym oknie). Domyślnie zawsze true -
      * mierniki egzekwujące terminowość nadpisują tę metodę.
      */
     protected function isOnTime(ProductionRM $production, \DateTime $rangeStart, \DateTime $rangeEnd): bool
@@ -49,7 +49,7 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
 
     /**
      * Czy produkcje niekwalifikujące się do zakresu mają trafić do wyniku jako rekordy
-     * "poza zakresem" (bez współczynnika). Dotyczy wyłącznie linii, które i tak są w raporcie —
+     * "poza zakresem" (bez współczynnika). Dotyczy wyłącznie linii, które i tak są w raporcie -
      * front wykorzystuje je do pokazania okna produkcji obok zakresu raportu.
      */
     protected function emitsOutOfRange(): bool

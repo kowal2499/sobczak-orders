@@ -36,7 +36,7 @@ class FactorController extends BaseController
         AgreementLineRepository $agreementLineRepository,
         AgreementLineRMRepository $agreementLineRMRepository,
     ): JsonResponse {
-        // front wysyła JSON — $request->request jest wtedy puste
+        // front wysyła JSON - $request->request jest wtedy puste
         $payload = $request->request->count() > 0
             ? $request->request->all()
             : (array) json_decode((string) $request->getContent(), true);
@@ -66,7 +66,7 @@ class FactorController extends BaseController
             ),
         ));
 
-        // kolekcja współczynników linii jest już załadowana — bez odświeżenia read model nie zobaczy nowego wpisu
+        // kolekcja współczynników linii jest już załadowana - bez odświeżenia read model nie zobaczy nowego wpisu
         $agreementLineRepository->refresh($agreementLine);
         $eventBus->dispatch(new AgreementLineWasUpdatedEvent($agreementLine->getId()));
 

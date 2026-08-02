@@ -10,18 +10,18 @@ use App\Module\WorkConfiguration\Service\WorkingDayCalculator;
 use Symfony\Component\Security\Core\Security;
 
 /**
- * Miernik "Departments Bonus — w terminie". Jak DepartmentsBonusMetricStrategy (produkcje działów
+ * Miernik "Departments Bonus - w terminie". Jak DepartmentsBonusMetricStrategy (produkcje działów
  * domyślnych ukończone w zakresie miesiąca, współczynnik factorBonus), ale dodatkowo oznacza
  * terminowość: onTime=true tylko gdy completedAt mieści się w zaplanowanym oknie [dateStart, dateEnd].
  *
- * Rekordy poza oknem NIE są odfiltrowywane (kwalifikacja bez zmian) — trafiają do wyniku z onTime=false,
+ * Rekordy poza oknem NIE są odfiltrowywane (kwalifikacja bez zmian) - trafiają do wyniku z onTime=false,
  * aby front mógł je pokazać wyszarzone (0 pkt). Brak zaplanowanego okna (null start/end) => onTime=false.
  * Agregat firmowy (bez filtra ROLE_CUSTOMER).
  */
 class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrategy
 {
     /**
-     * Domyślne widełki terminowości w dniach roboczych. Wartość obowiązująca dla rozliczeń —
+     * Domyślne widełki terminowości w dniach roboczych. Wartość obowiązująca dla rozliczeń -
      * suwak na pulpicie nadpisuje ją wyłącznie na czas podglądu (patrz $options['toleranceDays']).
      */
     public const DEFAULT_TOLERANCE_DAYS = 5;

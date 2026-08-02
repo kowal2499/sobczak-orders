@@ -30,7 +30,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
 
     public function testShouldPersistAdjustmentAndReturnRecalculatedFactor(): void
     {
-        // Given — linia ze współczynnikiem bazowym 2.0
+        // Given - linia ze współczynnikiem bazowym 2.0
         $line = $this->makeCompletedLine(factor: 2.0);
         $client = $this->login($this->createUser([], [], [self::GRANT]));
 
@@ -69,7 +69,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
         ]));
         $this->assertSame(201, $client->getResponse()->getStatusCode());
 
-        // When — raport "w terminie" vs stary raport ukończonych zadań
+        // When - raport "w terminie" vs stary raport ukończonych zadań
         $client->xmlHttpRequest(
             'GET',
             '/reports/production/production-tasks-on-time-summary?start=2026-05-01&end=2026-05-31'
@@ -140,7 +140,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
 
     public function testShouldSurviveFullFactorsReplacement(): void
     {
-        // Given — korekta z raportu + pełna podmiana współczynników z ekranu linii
+        // Given - korekta z raportu + pełna podmiana współczynników z ekranu linii
         $line = $this->makeCompletedLine(factor: 2.0);
         $client = $this->login($this->createUser([], [], [self::GRANT]));
         $client->xmlHttpRequest('POST', $this->url($line->getId()), [], [], [], json_encode([
@@ -150,7 +150,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
         ]));
         $this->assertSame(201, $client->getResponse()->getStatusCode());
 
-        // When — stary endpoint podmienia zestaw ratio/bonus (bez korekt z raportu w payloadzie)
+        // When - stary endpoint podmienia zestaw ratio/bonus (bez korekt z raportu w payloadzie)
         $client->request('POST', '/production/factor/' . $line->getId(), [
             'factors' => [
                 ['source' => 'agreement_line', 'value' => 2.0],
@@ -158,7 +158,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
         ]);
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
-        // Then — korekta nadal w bazie
+        // Then - korekta nadal w bazie
         $this->getManager()->clear();
         $factors = $this->getManager()->getRepository(Factor::class)->findBy([
             'source' => FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS,

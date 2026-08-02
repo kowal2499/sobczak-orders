@@ -15,10 +15,10 @@ interface MetricStrategyInterface
 
     /**
      * Mierniki agregatowe (capacity/bonus/orders_*) wymagają obu dat. Mierniki szczegółów
-     * (orders_*_details) mogą działać z pominiętą dolną granicą — stąd daty są nullowalne.
+     * (orders_*_details) mogą działać z pominiętą dolną granicą - stąd daty są nullowalne.
      *
      * $options to punkt rozszerzeń dla parametrów specyficznych dla pojedynczego miernika
-     * (np. widełki terminowości) — strategie, których nie dotyczą, po prostu je ignorują.
+     * (np. widełki terminowości) - strategie, których nie dotyczą, po prostu je ignorują.
      *
      * @param array<string, mixed> $options
      * @return array<int|string, mixed> wynik miernika gotowy do serializacji JSON

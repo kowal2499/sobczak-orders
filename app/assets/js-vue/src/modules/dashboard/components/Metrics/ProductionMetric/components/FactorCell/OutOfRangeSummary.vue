@@ -7,7 +7,7 @@ import { fmtDate, fmtDayMonth } from './dates'
  * Sekcja popovera dla pozycji, która nie kwalifikuje się do bieżącego zakresu raportu.
  *
  * O kwalifikacji decyduje data ukończenia (patrz AbstractProductionRecordStrategy::qualifies),
- * a nie zaplanowane okno — dlatego powód podajemy datą ukończenia albo jej brakiem. Okno zostaje
+ * a nie zaplanowane okno - dlatego powód podajemy datą ukończenia albo jej brakiem. Okno zostaje
  * w dymku wyłącznie jako kontekst: potrafi leżeć w całości w zakresie raportu, a pozycja i tak
  * nie jest liczona, bo zadanie skończono w innym miesiącu.
  */
@@ -18,7 +18,7 @@ export default defineComponent({
             type: Object,
             required: true,
         },
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu (miesiąc z pulpitu)
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu (miesiąc z pulpitu)
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })

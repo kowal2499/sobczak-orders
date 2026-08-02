@@ -29,7 +29,7 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu, dla dymka "poza zakresem dat"
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu, dla dymka "poza zakresem dat"
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })

@@ -7,7 +7,7 @@ import OutOfRangeSummary from './OutOfRangeSummary.vue'
 import BonusAdjustmentForm from './BonusAdjustmentForm.vue'
 
 /**
- * Komórka raportu "Ukończone zadania produkcyjne (w terminie)" — pełny wariant popovera:
+ * Komórka raportu "Ukończone zadania produkcyjne (w terminie)" - pełny wariant popovera:
  * terminowość, składowe współczynnika i formularz korekty premii.
  */
 export default defineComponent({
@@ -18,7 +18,7 @@ export default defineComponent({
             type: Object,
             required: true,
         },
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu (miesiąc z pulpitu)
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu (miesiąc z pulpitu)
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })
@@ -45,7 +45,7 @@ export default defineComponent({
                 :state="state"
             />
 
-            <!-- poza terminem współczynnik jest wyzerowany — nie ma czego rozbijać ani korygować -->
+            <!-- poza terminem współczynnik jest wyzerowany - nie ma czego rozbijać ani korygować -->
             <template v-if="state === 'bonus'">
                 <div class="pop-divider"></div>
                 <FactorBreakdown :factor-data="factorData" />

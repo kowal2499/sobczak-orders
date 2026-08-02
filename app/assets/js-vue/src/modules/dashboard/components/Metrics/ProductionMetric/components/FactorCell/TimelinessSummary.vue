@@ -5,7 +5,7 @@ import ProductionDates from './ProductionDates.vue'
 
 /**
  * Sekcja terminowości popovera: zaplanowane okno działu, faktyczne ukończenie i ocena.
- * Używa jej wyłącznie raport premii "w terminie" — pozostałe raporty nie oceniają terminu.
+ * Używa jej wyłącznie raport premii "w terminie" - pozostałe raporty nie oceniają terminu.
  */
 export default defineComponent({
     name: 'TimelinessSummary',
@@ -19,7 +19,7 @@ export default defineComponent({
             type: Object,
             required: true,
         },
-        // 'bonus' — premia przyznana; 'noBonus' — produkcja poza terminem
+        // 'bonus' - premia przyznana; 'noBonus' - produkcja poza terminem
         state: {
             type: String,
             required: true,
@@ -32,7 +32,7 @@ export default defineComponent({
         hasCompleted() {
             return !!this.production.completedAt
         },
-        // premia należy się dopiero dzięki widełkom — ukończenie wypadło poza zaplanowanym oknem
+        // premia należy się dopiero dzięki widełkom - ukończenie wypadło poza zaplanowanym oknem
         withinTolerance() {
             return this.factorData.withinTolerance === true
         },
@@ -48,7 +48,7 @@ export default defineComponent({
             const end = toDay(this.production.dateEnd)
             const done = toDay(this.production.completedAt)
 
-            // liczba dni roboczych pochodzi z backendu — front nie zna kalendarza pracy
+            // liczba dni roboczych pochodzi z backendu - front nie zna kalendarza pracy
             const days = Math.abs(this.factorData.timelinessWorkingDays ?? 0)
 
             if (done > end) {

@@ -5,7 +5,7 @@ import { defineComponent } from 'vue'
  * Wartość współczynnika w komórce tabeli (dział × zlecenie) wraz z popoverem szczegółów.
  *
  * Komponent odpowiada wyłącznie za prezentację wartości, stan otwarcia popovera i wyliczenie
- * stanu pozycji z danych backendu. Treść popovera składa rodzic przez slot — dzięki temu raport
+ * stanu pozycji z danych backendu. Treść popovera składa rodzic przez slot - dzięki temu raport
  * premii "w terminie" i raport ukończonych zadań używają tej samej komórki, wstawiając do niej
  * różne sekcje (patrz OnTimeCell.vue i PlainFactorCell.vue).
  *
@@ -14,7 +14,7 @@ import { defineComponent } from 'vue'
  *   0    premia nie należy się      (produkcja poza terminem, hover: czerwone tło)
  *   –    brak rozliczanej produkcji (poza zakresem raportu, hover: szare tło)
  */
-// Aktualnie otwarta komórka — otwarcie popovera zamyka poprzedni (jeden popover naraz).
+// Aktualnie otwarta komórka - otwarcie popovera zamyka poprzedni (jeden popover naraz).
 let openCell = null
 
 export default defineComponent({
@@ -24,13 +24,13 @@ export default defineComponent({
             type: Object,
             validator: (val) => Object.hasOwn(val, 'factor') && Object.hasOwn(val, 'factorsStack'),
         },
-        // 'click' — popover z formularzem korekty; 'hover' — sam podgląd
+        // 'click' - popover z formularzem korekty; 'hover' - sam podgląd
         trigger: {
             type: String,
             default: 'click',
             validator: (val) => ['click', 'hover'].includes(val),
         },
-        // 'timeliness' — kolor wg przyznania premii; 'value' — kolor wg samej wartości
+        // 'timeliness' - kolor wg przyznania premii; 'value' - kolor wg samej wartości
         // (raport bez terminowości nie ma czego oceniać na czerwono)
         tone: {
             type: String,
@@ -153,7 +153,7 @@ export default defineComponent({
 </template>
 
 <style lang="scss">
-// Klasy pop-* są wspólne dla sekcji wstawianych do popovera przez rodzica — stąd styl globalny
+// Klasy pop-* są wspólne dla sekcji wstawianych do popovera przez rodzica - stąd styl globalny
 // przypięty do samego popovera, a nie scoped w komponentach sekcji.
 .factor-cell-popover {
     min-width: 320px;

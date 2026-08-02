@@ -127,7 +127,7 @@ class ProductionTasksCompletionSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldIncludeOtherDepartmentsOfReportedLineAsOutOfRange(): void
     {
-        // Given — dpt03 ukończony w maju, dpt05 dopiero w czerwcu
+        // Given - dpt03 ukończony w maju, dpt05 dopiero w czerwcu
         $client = $this->login($this->createUser());
         $this->makeAgreementLine(productions: [
             [
@@ -157,7 +157,7 @@ class ProductionTasksCompletionSummaryTest extends BaseProductionReportsTestCase
         $this->assertTrue($inRange['inRange']);
         $this->assertNotNull($inRange['factors']);
 
-        // rekord bez współczynnika — dymek komórki odróżnia dzięki niemu "dział pracował
+        // rekord bez współczynnika - dymek komórki odróżnia dzięki niemu "dział pracował
         // w innym miesiącu" od "linia nie przechodzi przez ten dział"
         $outOfRange = $bySlug[TaskTypes::TYPE_DEFAULT_SLUG_PACKAGING];
         $this->assertFalse($outOfRange['inRange']);
@@ -169,7 +169,7 @@ class ProductionTasksCompletionSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldNotEmitOutOfRangeRecordsForLineWithoutAnyQualifyingProduction(): void
     {
-        // Given — cała linia poza zakresem raportu
+        // Given - cała linia poza zakresem raportu
         $client = $this->login($this->createUser());
         $this->makeAgreementLine(productions: [
             [
@@ -192,7 +192,7 @@ class ProductionTasksCompletionSummaryTest extends BaseProductionReportsTestCase
 
     public function testShouldNotCountOutOfRangeRecordsInDepartmentTotals(): void
     {
-        // Given — ta sama linia rozliczona w maju i (poza zakresem) w czerwcu
+        // Given - ta sama linia rozliczona w maju i (poza zakresem) w czerwcu
         $client = $this->login($this->createUser());
         $this->makeAgreementLine(factor: 3.0, productions: [
             [
@@ -210,7 +210,7 @@ class ProductionTasksCompletionSummaryTest extends BaseProductionReportsTestCase
         // When
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
 
-        // Then — suma liczona jak na froncie: rekordy bez zakresu nie wnoszą współczynnika
+        // Then - suma liczona jak na froncie: rekordy bez zakresu nie wnoszą współczynnika
         $content = json_decode($client->getResponse()->getContent(), true);
         $total = array_sum(array_map(
             fn (array $record) => false === $record['inRange'] ? 0.0 : $record['factors']['factor'],

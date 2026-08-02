@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import { getFactorName, getFactorValue } from '../../../../../services/FactorHelper'
 
 /**
- * Składowe współczynnika w popoverze komórki — po jednym pasku na wpis stosu plus wiersz finalny.
+ * Składowe współczynnika w popoverze komórki - po jednym pasku na wpis stosu plus wiersz finalny.
  * Szerokości pasków są skalowane do największej wartości bezwzględnej w stosie.
  */
 const BAR_COLORS = {

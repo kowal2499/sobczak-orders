@@ -7,11 +7,11 @@ use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
 /**
- * Miernik "Departments Bonus" — produkcje działów domyślnych zakończone w zakresie
+ * Miernik "Departments Bonus" - produkcje działów domyślnych zakończone w zakresie
  * (isCompleted=1, completedAt w zakresie, nie-ghost). Współczynnik: factorBonus.
  * Agregat firmowy (bez filtra ROLE_CUSTOMER).
  *
- * Brak prefiltra dat w search() — kwalifikacja po completedAt (a nie po datach dpt),
+ * Brak prefiltra dat w search() - kwalifikacja po completedAt (a nie po datach dpt),
  * dlatego pobieramy linie z produkcjami nie-ghost i filtrujemy completedAt w PHP.
  */
 class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
@@ -47,7 +47,7 @@ class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
     /**
      * Produkcje spoza zakresu trafiają do wyniku bez współczynnika, żeby dymek komórki mógł
      * odróżnić "dział pracował, ale w innym miesiącu" od "linia nie przechodzi przez ten dział"
-     * (ta druga sytuacja nie ma rekordu w ogóle). Na sumy nie wpływa — rekordy bez współczynnika
+     * (ta druga sytuacja nie ma rekordu w ogóle). Na sumy nie wpływa - rekordy bez współczynnika
      * są pomijane w agregacji.
      */
     protected function emitsOutOfRange(): bool
