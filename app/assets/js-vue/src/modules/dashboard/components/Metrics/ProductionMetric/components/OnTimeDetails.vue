@@ -1,10 +1,10 @@
 <script>
 import { defineComponent } from 'vue'
-import OnTimeDepartmentValue from './OnTimeDepartmentValue.vue'
+import OnTimeCell from './FactorCell/OnTimeCell.vue'
 
 /**
  * Tabela szczegółów raportu premii "w terminie": działy w kolumnach, zlecenia w wierszach.
- * Wariant Details.vue używający dedykowanej komórki OnTimeDepartmentValue (wartość + terminowość).
+ * Wariant Details.vue używający komórki OnTimeCell (wartość + terminowość + korekta premii).
  */
 const DEFAULT_ROW = () => ({
     context: null,
@@ -19,14 +19,14 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'OnTimeDetails',
-    components: { OnTimeDepartmentValue },
+    components: { OnTimeCell },
     props: {
         data: {
             type: Array,
             default: () => []
         },
         height: [String, Number],
-        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } — zakres raportu dla popovera "poza zakresem dat"
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu dla popovera "poza zakresem dat"
         reportRange: {
             type: Object,
             default: () => ({ start: null, end: null })
@@ -156,22 +156,52 @@ export default defineComponent({
         </template>
 
         <template #cell(dpt01)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt01" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt01"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt02)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt02" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt02"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt03)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt03" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt03"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt04)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt04" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt04"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt05)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt05" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt05"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
         <template #cell(dpt06)="{item}">
-            <OnTimeDepartmentValue :factorData="item.dpt06" :report-range="reportRange" />
+            <OnTimeCell
+                :factorData="item.dpt06"
+                :report-range="reportRange"
+                :agreement-line-id="item.context && item.context.id"
+                @saved="$emit('saved')"
+            />
         </template>
 
         <template #head(context)="data">

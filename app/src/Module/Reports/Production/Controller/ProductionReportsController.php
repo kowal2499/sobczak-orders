@@ -102,7 +102,10 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
-        return $this->json($metrics->getMetric('departments_bonus_on_time', $start, $end));
+        // opcjonalne widełki terminowości (podgląd z pulpitu); brak = wartość domyślna strategii
+        return $this->json($metrics->getMetric('departments_bonus_on_time', $start, $end, false, [
+            'toleranceDays' => $request->query->get('tolerance'),
+        ]));
     }
 
     #[Route(path: '/production-capacity', methods: ['GET'])]

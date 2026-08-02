@@ -12,7 +12,7 @@ use App\Tests\Utilities\Factory\EntityFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * Covers PUT /production/{id}/dates — lightweight calendar move/resize endpoint.
+ * Covers PUT /production/{id}/dates - lightweight calendar move/resize endpoint.
  */
 class ProductionDatesEndpointTest extends ApiTestCase
 {

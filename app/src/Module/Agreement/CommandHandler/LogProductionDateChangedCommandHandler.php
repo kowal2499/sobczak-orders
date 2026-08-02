@@ -10,7 +10,7 @@ use App\System\CommandBus;
 
 class LogProductionDateChangedCommandHandler
 {
-    private const NO_DATE = '—';
+    private const NO_DATE = '-';
 
     public function __construct(
         private readonly CommandBus $commandBus,

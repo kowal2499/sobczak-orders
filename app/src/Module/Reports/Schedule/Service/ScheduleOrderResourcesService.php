@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\Security;
  * zakres = agreementCreateDate -> confirmedDate, oraz zadania produkcyjne per dział
  * (ujawniane po stronie frontu po kliknięciu "pokaż szczegóły").
  *
- * W odróżnieniu od kalendarza produkcji zamówienia NIE są bramkowane przez ROLE_PRODUCTION —
+ * W odróżnieniu od kalendarza produkcji zamówienia NIE są bramkowane przez ROLE_PRODUCTION -
  * gdy użytkownik nie widzi żadnego działu, zwracamy zamówienia bez listy zadań produkcyjnych.
  */
 class ScheduleOrderResourcesService

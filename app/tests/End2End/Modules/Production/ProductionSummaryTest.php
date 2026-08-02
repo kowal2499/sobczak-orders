@@ -21,7 +21,7 @@ use App\Tests\End2End\Modules\Reports\Production\BaseProductionReportsTestCase;
  *             AgreementLine.deleted=0, status NOT IN (DELETED),
  *  - factorLimit = floor(capacity * workingDays),
  *  - dla ROLE_CUSTOMER zarówno ordersInProduction jak i factorsInProduction są filtrowane po
- *    przypisanych klientach (współdzielony, mutowany QueryBuilder — patrz test poniżej).
+ *    przypisanych klientach (współdzielony, mutowany QueryBuilder - patrz test poniżej).
  */
 class ProductionSummaryTest extends BaseProductionReportsTestCase
 {
@@ -29,7 +29,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
 
     /**
      * Raport liczy produkcje z warunkiem `createdAt <= ostatni dzień miesiąca`, a fabryki
-     * tworzą encje "teraz" — dlatego testy muszą operować na bieżącym miesiącu, inaczej
+     * tworzą encje "teraz" - dlatego testy muszą operować na bieżącym miesiącu, inaczej
      * przestają przechodzić po zmianie miesiąca.
      */
     private int $month;
@@ -152,7 +152,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
     }
 
     /**
-     * UWAGA — utrwala faktyczne zachowanie: withConnectedCustomers() mutuje współdzielony
+     * UWAGA - utrwala faktyczne zachowanie: withConnectedCustomers() mutuje współdzielony
      * QueryBuilder, więc dla ROLE_CUSTOMER zarówno ordersInProduction, jak i factorsInProduction
      * są filtrowane po przypisanych klientach (mimo komentarza "bez połączonych klientów" w kodzie).
      */
@@ -175,7 +175,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         // When
         $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
-        // Then — oba filtrowane po przypisanym kliencie (współdzielony QueryBuilder)
+        // Then - oba filtrowane po przypisanym kliencie (współdzielony QueryBuilder)
         $content = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $content['production']['ordersInProduction']);
         $this->assertSame(4.0, (float) $content['production']['factorsInProduction']);

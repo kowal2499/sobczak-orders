@@ -8,7 +8,7 @@ use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
 /**
- * Miernik "Capacity" — produkcje działów domyślnych, których dateEnd mieści się w zakresie.
+ * Miernik "Capacity" - produkcje działów domyślnych, których dateEnd mieści się w zakresie.
  * Współczynnik: factorRatio. Agregat firmowy (bez filtra ROLE_CUSTOMER).
  */
 class CapacityMetricStrategy extends AbstractProductionRecordStrategy

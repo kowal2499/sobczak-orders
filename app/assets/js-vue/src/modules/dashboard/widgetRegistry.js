@@ -87,7 +87,12 @@ export const WIDGETS = [
         order: 7,
         defaultSize: { w: 4, h: 6 },
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        props: ctx => ({ isBusy: ctx.sourcesState.src03.isBusy, data: ctx.sourcesState.src03.data }),
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src03.isBusy,
+            data: ctx.sourcesState.src03.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+        }),
     },
     {
         key: "departments_bonus_on_time",
@@ -100,6 +105,9 @@ export const WIDGETS = [
             data: ctx.sourcesState.src06.data,
             dateStart: ctx.dateRangeStart,
             dateEnd: ctx.dateRangeEnd,
+            onRefresh: () => ctx.loadSources(['src06']),
+            tolerance: ctx.onTimeTolerance,
+            onToleranceChange: days => ctx.setOnTimeTolerance(days),
         }),
     },
     {
@@ -126,7 +134,7 @@ export function getAvailableWidgets(canFn) {
 /**
  * Flows widgets shelf-style (CSS flex-wrap-like) into a fixed-column grid,
  * in the order given. Must only ever be called with an already
- * grant-filtered widget list — that way a missing grant simply shifts the
+ * grant-filtered widget list - that way a missing grant simply shifts the
  * rest up/left instead of leaving a reserved empty cell.
  */
 export function packDefaultLayout(widgets, { startY = 0 } = {}) {

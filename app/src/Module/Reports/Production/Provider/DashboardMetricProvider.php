@@ -29,18 +29,20 @@ class DashboardMetricProvider
     }
 
     /**
+     * @param array<string, mixed> $options parametry specyficzne dla miernika (patrz MetricStrategyInterface)
      * @return array<int|string, mixed>
      */
     public function getMetric(
         string $metric,
         ?\DateTimeInterface $start,
         ?\DateTimeInterface $end,
-        bool $includeGhost = false
+        bool $includeGhost = false,
+        array $options = []
     ): array {
         if (!isset($this->strategies[$metric])) {
             throw new \InvalidArgumentException(sprintf('Unknown dashboard metric "%s".', $metric));
         }
 
-        return $this->strategies[$metric]->compute($start, $end, $includeGhost);
+        return $this->strategies[$metric]->compute($start, $end, $includeGhost, $options);
     }
 }

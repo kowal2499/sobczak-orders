@@ -12,7 +12,8 @@ class DepartmentBonusAssembler implements FactorAssemblerInterface
 {
     public function supports(FactorSource $source): bool
     {
-        return $source === FactorSource::FACTOR_ADJUSTMENT_BONUS;
+        return $source === FactorSource::FACTOR_ADJUSTMENT_BONUS
+            || $source === FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS;
     }
 
     /**
@@ -36,7 +37,7 @@ class DepartmentBonusAssembler implements FactorAssemblerInterface
 
         foreach ($factorsPool as $factor) {
             $result->factorsStack[] = new FactorDTO(
-                FactorSource::FACTOR_ADJUSTMENT_BONUS,
+                $factor->getSource(),
                 $factor->getFactorValue() ?? 0,
                 $factor->getId(),
                 $departmentSlug,

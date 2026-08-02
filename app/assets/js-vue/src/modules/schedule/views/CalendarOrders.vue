@@ -62,7 +62,7 @@ export default {
                     value: o.id,
                     label: [o.orderNumber, o.customerName, o.productName]
                         .filter(Boolean)
-                        .join(' — ') || `#${o.id}`,
+                        .join(' - ') || `#${o.id}`,
                     orderNumber: o.orderNumber || '',
                 }))
                 .sort((a, b) => String(a.orderNumber).localeCompare(String(b.orderNumber)))

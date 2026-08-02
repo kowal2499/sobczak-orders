@@ -49,7 +49,7 @@ import { GridLayout, GridItem } from "vue-grid-layout";
 
 /**
  * Generic grid of draggable/resizable slots. Owns only positioning state
- * (layout array of {i, x, y, w, h}) — visibility, persistence and what's
+ * (layout array of {i, x, y, w, h}) - visibility, persistence and what's
  * rendered inside each slot are left entirely to the caller via the
  * default scoped slot.
  *

@@ -34,7 +34,7 @@ class ProductionStatusLogTest extends ApiTestCase
 
     public function testShouldLogStatusChangeViaUpdateStatusEndpoint(): void
     {
-        // Given — a non-ghost production (Klejenie, AWAITS) on a line
+        // Given - a non-ghost production (Klejenie, AWAITS) on a line
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
@@ -52,7 +52,7 @@ class ProductionStatusLogTest extends ApiTestCase
         $agreementId = $line->getAgreement()->getId();
         $this->getManager()->clear();
 
-        // When — move to IN_PROGRESS (2)
+        // When - move to IN_PROGRESS (2)
         $client->request('POST', '/production/update_status', [
             'productionId' => $productionId,
             'newStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING,
@@ -86,7 +86,7 @@ class ProductionStatusLogTest extends ApiTestCase
 
     public function testShouldNotLogWhenStatusUnchanged(): void
     {
-        // Given — production already AWAITS, update_status to the same value
+        // Given - production already AWAITS, update_status to the same value
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
 
@@ -101,7 +101,7 @@ class ProductionStatusLogTest extends ApiTestCase
         $productionId = $production->getId();
         $this->getManager()->clear();
 
-        // When — same status
+        // When - same status
         $client->request('POST', '/production/update_status', [
             'productionId' => $productionId,
             'newStatus' => TaskTypes::TYPE_DEFAULT_STATUS_PENDING,

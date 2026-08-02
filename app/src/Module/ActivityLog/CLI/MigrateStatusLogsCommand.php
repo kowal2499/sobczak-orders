@@ -23,7 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Rebuilds production status-change activity logs from the legacy StatusLog history.
  *
  * StatusLog holds the full per-production status history, so for every change we can derive both the
- * previous (old) and the current (new) status — fixing logs that lacked the old value. The command is
+ * previous (old) and the current (new) status - fixing logs that lacked the old value. The command is
  * idempotent: it deletes all existing `agreement_line.production_status_changed` logs and regenerates
  * them from StatusLog (the single source of truth for those logs).
  *
@@ -70,7 +70,7 @@ class MigrateStatusLogsCommand extends Command
         );
 
         if ($isDryRun) {
-            $io->success('DRY RUN — baza danych nie została zmieniona.');
+            $io->success('DRY RUN - baza danych nie została zmieniona.');
 
             return Command::SUCCESS;
         }

@@ -245,6 +245,45 @@ class FactorCalculatorTest extends TestCase
         $this->assertEquals('some desc two', $result->factorsStack[2]->description);
     }
 
+    public function testShouldCalculateFullCascadeForCompletedTasksBonus(): void
+    {
+        // Given - komplet modyfikatorów: bazowy 2.0, ratio 0.75, bonus +0.30, korekta z raportu +0.50
+        $agreement = $this->makeAgreementLineWithFactor(2.0);
+        $pool = [
+            $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_RATIO, 0.75, 'dpt01', 'ratio'),
+            $this->makeFactor(FactorSource::FACTOR_ADJUSTMENT_BONUS, 0.3, 'dpt01', 'bonus'),
+            $this->makeFactor(
+                FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS,
+                0.5,
+                'dpt01',
+                'korekta z raportu'
+            ),
+        ];
+
+        // When
+        $ratio = $this->calcUnderTest->calculate($agreement, 'dpt01', $pool, FactorSource::FACTOR_ADJUSTMENT_RATIO);
+        $bonus = $this->calcUnderTest->calculate($agreement, 'dpt01', $pool, FactorSource::FACTOR_ADJUSTMENT_BONUS);
+        $full = $this->calcUnderTest->calculate(
+            $agreement,
+            'dpt01',
+            $pool,
+            FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS
+        );
+
+        // Then - korekta widoczna wyłącznie w pełnej kaskadzie
+        $this->assertEquals(1.5, $ratio->factor);
+        $this->assertEquals(1.8, $bonus->factor);
+        $this->assertEquals(2.3, $full->factor);
+
+        $this->assertCount(4, $full->factorsStack);
+        $this->assertEquals(
+            FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS,
+            $full->factorsStack[3]->source
+        );
+        $this->assertEquals(0.5, $full->factorsStack[3]->value);
+        $this->assertEquals('korekta z raportu', $full->factorsStack[3]->description);
+    }
+
     private function makeAgreementLineWithFactor(float $factor): AgreementLine
     {
         $agreementLine = new AgreementLine();

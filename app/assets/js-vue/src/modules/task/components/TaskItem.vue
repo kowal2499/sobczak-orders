@@ -56,7 +56,7 @@ export default {
         },
         statusName(value) {
             const opt = this.statusOptions.find(o => o.value === value);
-            return opt ? opt.name : "—";
+            return opt ? opt.name : "-";
         },
         validate() {
             return this.$refs.observer.validate();

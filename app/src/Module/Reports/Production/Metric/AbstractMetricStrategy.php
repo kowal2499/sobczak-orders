@@ -8,7 +8,7 @@ use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use Symfony\Component\Security\Core\Security;
 
 /**
- * Wspólna baza strategii mierników — dostęp do read modelu i danych użytkownika
+ * Wspólna baza strategii mierników - dostęp do read modelu i danych użytkownika
  * oraz pomocnicze metody budowania kryteriów wyszukiwania.
  */
 abstract class AbstractMetricStrategy implements MetricStrategyInterface
@@ -30,7 +30,7 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
 
     /**
      * Dodaje do kryteriów filtr własności klienta, gdy bieżący użytkownik ma ROLE_CUSTOMER.
-     * Mierniki o charakterze agregatów firmowych (capacity, bonus) tego nie używają —
+     * Mierniki o charakterze agregatów firmowych (capacity, bonus) tego nie używają -
      * zgodnie z zasadą "agregaty liczone firmowo".
      *
      * @param array<string, mixed> $search
@@ -46,7 +46,7 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
 
     /**
      * Lista id przypisanych klientów dla ROLE_CUSTOMER, albo null gdy filtr nie obowiązuje
-     * (brak roli / brak przypisanych klientów — zgodnie z dotychczasowym zachowaniem).
+     * (brak roli / brak przypisanych klientów - zgodnie z dotychczasowym zachowaniem).
      *
      * @return int[]|null
      */

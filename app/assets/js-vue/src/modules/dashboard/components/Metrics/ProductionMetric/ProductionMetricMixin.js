@@ -25,7 +25,7 @@ export default {
                 // onTime/inRange !== false: brak flagi (starsze mierniki) traktujemy jak "w terminie"/"w zakresie".
                 // Poza oknem zerujemy współczynnik u źródła, żeby sumy w tabeli/agregacji się zgadzały;
                 // factorsStack zostaje (popover pokazuje, co przepadło).
-                // Poza zakresem raportu backend nie przysyła współczynnika (factors === null) — komórka
+                // Poza zakresem raportu backend nie przysyła współczynnika (factors === null) - komórka
                 // pokazuje "–", a w popoverze samo okno produkcji.
                 const isOnTime = item.onTime !== false
                 const isInRange = item.inRange !== false
@@ -36,6 +36,10 @@ export default {
                     ...(isInRange && !isOnTime ? { factor: 0 } : {}),
                     onTime: isOnTime,
                     inRange: isInRange,
+                    // premia uznana dopiero dzięki widełkom terminowości
+                    withinTolerance: item.withinTolerance === true,
+                    // odchylenie od okna w dniach roboczych (+ po terminie, − przed terminem)
+                    timelinessWorkingDays: item.timelinessWorkingDays,
                     production: {
                         status: item.status,
                         dateStart: item.dateStart,

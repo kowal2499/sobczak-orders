@@ -162,7 +162,7 @@ export default defineComponent({
         },
         openSidebar(records, deptName, groupLabel) {
             this.sidebarRecords = records
-            this.sidebarTitle = `${deptName} — ${groupLabel}`
+            this.sidebarTitle = `${deptName} - ${groupLabel}`
             this.sidebarVisible = true
         },
         fmt(val) {
@@ -280,7 +280,7 @@ export default defineComponent({
                                     :class="deltaClass(row.correction)"
                                     @click="openSidebar(row._correctionRecs, row.name, $t('differences_report.col.correction'))"
                                 >{{ fmtDelta(row.correction) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-right text-monospace">
                                 <span
@@ -288,7 +288,7 @@ export default defineComponent({
                                     class="group-link text-danger"
                                     @click="openSidebar(row._incompleteRecs, row.name, $t('differences_report.col.incomplete'))"
                                 >−{{ fmt(row.incomplete) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-right text-monospace">
                                 <span
@@ -296,7 +296,7 @@ export default defineComponent({
                                     class="group-link text-danger"
                                     @click="openSidebar(row._completedOutsideRecs, row.name, $t('differences_report.col.completed_outside'))"
                                 >−{{ fmt(row.completedOutside) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-right text-monospace">
                                 <span
@@ -304,7 +304,7 @@ export default defineComponent({
                                     class="group-link text-success"
                                     @click="openSidebar(row._delayedRecs, row.name, $t('differences_report.col.delayed'))"
                                 >+{{ fmt(row.delayed) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-right text-monospace">
                                 <span
@@ -312,7 +312,7 @@ export default defineComponent({
                                     class="group-link text-success"
                                     @click="openSidebar(row._acceleratedRecs, row.name, $t('differences_report.col.accelerated'))"
                                 >+{{ fmt(row.accelerated) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-center">
                                 <font-awesome-icon v-if="row.balanced" icon="check" class="text-success" />
@@ -330,9 +330,9 @@ export default defineComponent({
 
         <div v-if="!busy && rows.length" class="legend section-gap">
             <div class="legend__row">
-                <strong>{{ $t('differences_report.col.odp') }}</strong> — {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.uzp') }}</strong> — {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.delta') }}</strong> — {{ $t('differences_report.legend.delta') }}
+                <strong>{{ $t('differences_report.col.odp') }}</strong> - {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
+                <strong>{{ $t('differences_report.col.uzp') }}</strong> - {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
+                <strong>{{ $t('differences_report.col.delta') }}</strong> - {{ $t('differences_report.legend.delta') }}
             </div>
             <div class="legend__row mt-1">
                 <strong>{{ $t('differences_report.legend.formula') }}</strong>

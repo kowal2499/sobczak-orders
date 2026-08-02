@@ -270,7 +270,7 @@ class GetPaginatedLogsTest extends ApiTestCase
      */
     public function testShouldLocalizeContentParamValuesOnRead(): void
     {
-        // Given — a status-change log whose content params hold canonical Polish enum names
+        // Given - a status-change log whose content params hold canonical Polish enum names
         $user = $this->createUser([], [], ['activity-log.read']);
 
         $log = new ActivityLog(
@@ -292,13 +292,13 @@ class GetPaginatedLogsTest extends ApiTestCase
         /** @var GetPaginatedLogsQueryHandler $handler */
         $handler = $this->get(GetPaginatedLogsQueryHandler::class);
 
-        // When — read in the English locale
+        // When - read in the English locale
         $result = $handler(new GetPaginatedLogsQuery(
             'agreement_line.production_status_changed',
             new PaginatedLogFilter(1, 50),
         ));
 
-        // Then — enum-derived values are localized on the backend
+        // Then - enum-derived values are localized on the backend
         $this->assertCount(1, $result->items);
         $params = $result->items[0]->contentParams;
         $this->assertSame('Gluing', $params['departmentName']);

@@ -19,16 +19,36 @@ class ProductionReportRecordDTO
         private readonly bool $isGhost = false,
         private readonly bool $onTime = true,
         private readonly bool $inRange = true,
+        private readonly bool $withinTolerance = false,
+        private readonly int $timelinessWorkingDays = 0,
     ) {
     }
 
     /**
      * Czy rekord jest rozliczany w bieżącym zakresie raportu. Rekordy "poza zakresem"
-     * (inRange=false) niosą tylko okno produkcji — bez współczynnika (factors=null).
+     * (inRange=false) niosą tylko okno produkcji - bez współczynnika (factors=null).
      */
     public function getInRange(): bool
     {
         return $this->inRange;
+    }
+
+    /**
+     * Czy premia należy się dopiero dzięki widełkom terminowości - ukończenie wypadło poza
+     * zaplanowanym oknem, ale w granicach tolerancji.
+     */
+    public function getWithinTolerance(): bool
+    {
+        return $this->withinTolerance;
+    }
+
+    /**
+     * Odchylenie od zaplanowanego okna w dniach roboczych: dodatnie = po terminie,
+     * ujemne = przed terminem, 0 = ukończenie w oknie (albo brak dat).
+     */
+    public function getTimelinessWorkingDays(): int
+    {
+        return $this->timelinessWorkingDays;
     }
 
     public function getIsGhost(): bool

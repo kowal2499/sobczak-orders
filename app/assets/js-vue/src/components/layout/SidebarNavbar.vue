@@ -29,7 +29,8 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="d-flex flex-row justify-content-end gap-2 mx-2 my-1">
+    <div class="d-flex flex-row justify-content-end align-items-center gap-2 mx-2 my-1">
+        <slot name="controls" />
         <div>
             <input type="text" class="form-control form-control-sm" placeholder="Szukaj..." v-model="q" />
         </div>

@@ -28,11 +28,11 @@ export default {
             const dropdown = this.$refs.dropdown;
             if (!dropdown) return;
             // rootCloseListener jest rejestrowany dynamicznie przy każdym otwarciu dropdowna.
-            // Podmieniamy go na instancji zanim zostanie zarejestrowany — dzięki temu
+            // Podmieniamy go na instancji zanim zostanie zarejestrowany - dzięki temu
             // BV2 zarejestruje naszą wersję i wewnętrzne dropdowny nie zamkną rodzica.
             dropdown.rootCloseListener = (vm) => {
                 if (vm !== dropdown && dropdown.$el && dropdown.$el.contains(vm.$el)) {
-                    return; // otwiera się child dropdown — zostajemy otwarci
+                    return; // otwiera się child dropdown - zostajemy otwarci
                 }
                 if (vm !== dropdown) {
                     dropdown.visible = false;

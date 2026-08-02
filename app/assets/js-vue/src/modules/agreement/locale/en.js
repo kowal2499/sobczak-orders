@@ -56,7 +56,7 @@ export default {
         'changes': {
             'lineLabel': 'Item "{product}"',
             'lineLabelUnknown': 'Item',
-            'emptyValue': '—',
+            'emptyValue': '-',
             'productionStatus': 'Status change: {department}',
             'productionDateStart': 'Start date change: {department}',
             'productionDateEnd': 'End date change: {department}',

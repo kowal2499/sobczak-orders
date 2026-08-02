@@ -150,7 +150,7 @@ class CreateAgreementCommandHandler
             }
         }
 
-        // Sufiks ma sens tylko przy wielu liniach — dla pojedynczej linii wyczyść.
+        // Sufiks ma sens tylko przy wielu liniach - dla pojedynczej linii wyczyść.
         if ($agreement->getAgreementLines()->count() === 1) {
             $agreement->getAgreementLines()->first()->setInternalNumber(null);
         }

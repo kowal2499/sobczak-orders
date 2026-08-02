@@ -228,7 +228,7 @@ $header-height: 48px;
   overflow-x: auto;
   // Own vertical scroll so the sticky header sticks within it. `200px` is the
   // assumed space above the calendar (title + filters); tweak if needed. On a
-  // taller filter bar the page may add a second scrollbar — acceptable.
+  // taller filter bar the page may add a second scrollbar - acceptable.
   overflow-y: auto;
   max-height: calc(100vh - 200px);
   border: 1px solid #dee2e6;

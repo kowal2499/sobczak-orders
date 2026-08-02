@@ -243,8 +243,16 @@ class UpdateAgreementLineRMHandler
                     FactorSource::FACTOR_ADJUSTMENT_BONUS
                 );
 
+                $factorBonusCompletedTasks = $this->factorCalculator->calculate(
+                    $agreementLine,
+                    $production->getDepartmentSlug(),
+                    $agreementLine->getFactors()->toArray(),
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS
+                );
+
                 $productionModel->setFactorRatio($factorRatio);
                 $productionModel->setFactorBonus($factorBonus);
+                $productionModel->setFactorBonusCompletedTasks($factorBonusCompletedTasks);
             }
             $data[$production->getDepartmentSlug()] = $productionModel;
         }

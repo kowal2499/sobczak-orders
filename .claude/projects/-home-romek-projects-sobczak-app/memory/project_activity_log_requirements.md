@@ -14,29 +14,29 @@ Moduł ActivityLog ma zastąpić wąsko sprofilowane logi (`StatusLog`, `TaskSta
 
 ## Identyfikacja encji (bez FK)
 
-- `entityType` — string, np. `"task"`, `"production"`, `"agreement_line"`
-- `entityId` — int
-- Brak FK — moduł toleruje sieroty (wpisy dla usuniętych encji)
+- `entityType` - string, np. `"task"`, `"production"`, `"agreement_line"`
+- `entityId` - int
+- Brak FK - moduł toleruje sieroty (wpisy dla usuniętych encji)
 
 ## Typy zdarzeń (`eventType`)
 
-- `field_changed` — zmiana pola (status, data, tytuł)
-- `event` — zdarzenie domenowe (np. `task.created`, `agreement.archived`)
-- `action` — akcja użytkownika (np. `comment.added`)
+- `field_changed` - zmiana pola (status, data, tytuł)
+- `event` - zdarzenie domenowe (np. `task.created`, `agreement.archived`)
+- `action` - akcja użytkownika (np. `comment.added`)
 
 ## Payload
 
-- `previousValue` — nullable, JSON lub scalar
-- `currentValue` — nullable
-- `metadata` — JSON, dowolny kontekst (np. nazwa pola, powód)
+- `previousValue` - nullable, JSON lub scalar
+- `currentValue` - nullable
+- `metadata` - JSON, dowolny kontekst (np. nazwa pola, powód)
 
 ## Aktor i czas
 
-- `userId` — int nullable (brak FK, zmiany systemowe = null)
-- `source` — `"user"` / `"system"` / `"import"`
-- `createdAt` — timestamp automatyczny
+- `userId` - int nullable (brak FK, zmiany systemowe = null)
+- `source` - `"user"` / `"system"` / `"import"`
+- `createdAt` - timestamp automatyczny
 
-## Integracja — przez EventBus (jednostronny coupling)
+## Integracja - przez EventBus (jednostronny coupling)
 
 - Handlery domenowe emitują zdarzenia domenowe (nie wiedzą o ActivityLog)
 - ActivityLog nasłuchuje na zdarzenia przez własne listenery
@@ -69,4 +69,4 @@ Indeksy: `(entity_type, entity_id)`, `created_at`.
 - Brak API do odczytu (na start wystarczy widok w bazie)
 - Brak indeksowania pełnotekstowego
 - Brak retencji / TTL
-- Nie jest event sourcing — log audytowy, nie źródło prawdy
+- Nie jest event sourcing - log audytowy, nie źródło prawdy

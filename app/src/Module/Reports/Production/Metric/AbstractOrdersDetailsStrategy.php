@@ -23,7 +23,7 @@ use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
  *  - pola dateStart/dateEnd/status oraz isGhost rekordu są puste (kolumny nieselekcjonowane
  *    w starym zapytaniu), completedAt pochodzi z produkcji;
  *  - współczynnik to factorRatio produkcji (już policzony w ProductionRM), a dla rekordu bez
- *    produkcji — bazowy współczynnik linii (odpowiednik RATIO bez korekt działowych).
+ *    produkcji - bazowy współczynnik linii (odpowiednik RATIO bez korekt działowych).
  */
 abstract class AbstractOrdersDetailsStrategy extends AbstractMetricStrategy
 {
@@ -40,8 +40,12 @@ abstract class AbstractOrdersDetailsStrategy extends AbstractMetricStrategy
     /**
      * @return ProductionReportRecordDTO[]
      */
-    public function compute(?\DateTimeInterface $start, ?\DateTimeInterface $end, bool $includeGhost = false): array
-    {
+    public function compute(
+        ?\DateTimeInterface $start,
+        ?\DateTimeInterface $end,
+        bool $includeGhost = false,
+        array $options = []
+    ): array {
         $defaultSlugs = array_flip(TaskTypes::getDefaultSlugs());
         $records = [];
 
@@ -101,7 +105,7 @@ abstract class AbstractOrdersDetailsStrategy extends AbstractMetricStrategy
     }
 
     /**
-     * Bazowy współczynnik linii (bez korekt działowych) — odpowiednik FACTOR_ADJUSTMENT_RATIO
+     * Bazowy współczynnik linii (bez korekt działowych) - odpowiednik FACTOR_ADJUSTMENT_RATIO
      * liczonego dla rekordu bez przypisanej produkcji.
      */
     private function lineFactor(AgreementLineRM $line): AssembledFactorDTO

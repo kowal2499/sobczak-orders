@@ -141,7 +141,7 @@ export default {
     min-width: 0; // allow long text to wrap rather than overflow
 }
 
-// Arrow pointing left towards the dot — two triangles to mimic a 1px border.
+// Arrow pointing left towards the dot - two triangles to mimic a 1px border.
 .bubble::before,
 .bubble::after {
     content: '';

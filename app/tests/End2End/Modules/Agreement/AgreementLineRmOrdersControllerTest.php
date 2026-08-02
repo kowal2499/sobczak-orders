@@ -33,7 +33,7 @@ class AgreementLineRmOrdersControllerTest extends ApiTestCase
 
     public function testOrdersListShowsLineWithOnlyGhostProductions(): void
     {
-        // Given — a waiting line whose productions are all ghosts. The production
+        // Given - a waiting line whose productions are all ghosts. The production
         // list (/rm/search, hasProduction=true) hides such a line; the orders
         // list must still show it.
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
@@ -57,7 +57,7 @@ class AgreementLineRmOrdersControllerTest extends ApiTestCase
         $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($lineId));
         $this->getManager()->clear();
 
-        // Then — hidden from the production list...
+        // Then - hidden from the production list...
         $this->assertSame(0, $this->totalCount($client, '/agreement-line/rm/search', $orderNumber));
 
         // ...but present on the orders list.

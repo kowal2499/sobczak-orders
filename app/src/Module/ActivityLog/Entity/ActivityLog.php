@@ -65,7 +65,7 @@ class ActivityLog
 
     /**
      * @param array<string, mixed>|null $contentParams Presentation-only parameters for interpolation of the
-     *                                                 translation key held in $content. Not queryable — use LogField
+     *                                                 translation key held in $content. Not queryable - use LogField
      *                                                 for filterable/groupable data.
      */
     public function __construct(
@@ -148,7 +148,7 @@ class ActivityLog
     }
 
     /**
-     * Idempotent by name — first value wins, subsequent calls with the same name are no-ops.
+     * Idempotent by name - first value wins, subsequent calls with the same name are no-ops.
      */
     public function addLogField(string $name, string $value): self
     {
