@@ -20,11 +20,18 @@ class SecurityControllerTest extends ApiTestCase
 
     protected function setUp(): void
     {
+        $this->getManager()->beginTransaction();
         $factory = new EntityFactory($this->getManager());
         $this->faker = $factory->getFaker();
         $this->customer = $factory->make(Customer::class);
         $this->user = $factory->make(User::class, ['roles' => ['ROLE_ADMIN']]);
         $this->getManager()->flush();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->getManager()->rollback();
+        parent::tearDown();
     }
 
     public function testShouldCreateUserWithCustomerRoleAndAssignedCustomers(): void
@@ -63,5 +70,31 @@ class SecurityControllerTest extends ApiTestCase
         $this->assertCount(1, $c2u);
         $this->assertEquals($connection->getCustomer()->getId(), $this->customer->getId());
         $this->assertEquals($connection->getUser()->getId(), $newUserId);
+    }
+
+    public function testShouldReturnAuthRolesWithFetchedUsers(): void
+    {
+        // Given
+        $withRoles = $this->createUser([], ['Kierownik produkcji', 'Handlowiec']);
+        $withoutRoles = $this->createUser();
+        $this->getManager()->flush();
+
+        $client = $this->login($this->user);
+
+        // When
+        $client->xmlHttpRequest('GET', '/users/fetch?all=true');
+
+        // Then
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $users = json_decode($client->getResponse()->getContent(), true);
+        $byId = array_column($users, null, 'id');
+
+        $this->assertEquals(
+            ['Handlowiec', 'Kierownik produkcji'],
+            $byId[$withRoles->getId()]['authRoles']
+        );
+        $this->assertEquals([], $byId[$withoutRoles->getId()]['authRoles']);
+        $this->assertArrayHasKey('email', $byId[$withoutRoles->getId()]);
+        $this->assertArrayHasKey('active', $byId[$withoutRoles->getId()]);
     }
 }

@@ -27,7 +27,8 @@
                                 <th>Imię</th>
                                 <th>Nazwisko</th>
                                 <th>Email</th>
-                                <th>Rola w systemie</th>
+                                <th>Role</th>
+                                <th>Role (nowy system)</th>
                                 <th>Aktywny</th>
                                 <th>Akcje</th>
                             </tr>
@@ -42,6 +43,11 @@
                                 <td>
                                     <span v-for="role in user.roles" :key="role">
                                         <span class="badge badge-info mr-1">{{ getRoleName(role) }}</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span v-for="name in (user.authRoles || [])" :key="name">
+                                        <span class="badge badge-secondary mr-1">{{ name }}</span>
                                     </span>
                                 </td>
                                 <td>
