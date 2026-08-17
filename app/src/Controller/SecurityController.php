@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserSecurityFormType;
+use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Module\Authorization\Service\GrantsResolver;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -90,13 +92,25 @@ class SecurityController extends BaseController
      * Zwraca wszystkich użytkowników
      */
     #[Route(path: '/users/fetch', name: 'users_fetch', options: ['expose' => true], methods: ['GET'])]
-    public function fetchUsers(Request $request, UserRepository $repository): JsonResponse
-    {
+    public function fetchUsers(
+        Request $request,
+        UserRepository $repository,
+        NormalizerInterface $normalizer,
+        AuthUserRoleRepository $userRoleRepository
+    ): JsonResponse {
         $all = $request->query->getBoolean('all');
         $users = $all ? $repository->findAll() : $repository->findBy(['active' => true]);
-        return $this->json($users, Response::HTTP_OK, [], [
+
+        $rolesByUserId = $userRoleRepository->findRoleNamesGroupedByUserId();
+        $data = $normalizer->normalize($users, null, [
             ObjectNormalizer::GROUPS => ['user_main']
         ]);
+
+        foreach ($data as &$user) {
+            $user['authRoles'] = $rolesByUserId[$user['id']] ?? [];
+        }
+
+        return $this->json($data);
     }
 
     /**
