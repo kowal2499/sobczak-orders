@@ -3,6 +3,7 @@
 namespace App\Module\BonusSettlement\Controller;
 
 use App\Controller\BaseController;
+use App\Module\BonusSettlement\Command\AdjustBonusEntryCommand;
 use App\Module\BonusSettlement\Command\CreateBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\RecalculateBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\ResetBonusPeriodAdjustmentsCommand;
@@ -82,7 +83,7 @@ class BonusSettlementController extends BaseController
         $body = json_decode($request->getContent(), true);
         $tolerance = $body['toleranceDays'] ?? null;
 
-        return $this->dispatchPeriodAction(new RecalculateBonusPeriodCommand(
+        return $this->dispatchCommand(new RecalculateBonusPeriodCommand(
             periodId: $id,
             toleranceDays: is_numeric($tolerance) ? (int) $tolerance : null,
         ));
@@ -92,10 +93,36 @@ class BonusSettlementController extends BaseController
     #[IsGranted('bonus-settlement.manage')]
     public function resetAdjustments(int $id): JsonResponse
     {
-        return $this->dispatchPeriodAction(new ResetBonusPeriodAdjustmentsCommand($id));
+        return $this->dispatchCommand(new ResetBonusPeriodAdjustmentsCommand($id));
     }
 
-    private function dispatchPeriodAction(object $command): JsonResponse
+    #[Route('/entries/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.manage')]
+    public function adjustEntry(int $id, Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true);
+        if (!is_array($body)) {
+            return $this->json(['error' => 'Oczekiwano obiektu JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $value = $body['factorsAdjusted'] ?? null;
+        if (null !== $value && !is_numeric($value)) {
+            return $this->json(
+                ['error' => 'factorsAdjusted musi być liczbą albo null'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $note = $body['note'] ?? null;
+
+        return $this->dispatchCommand(new AdjustBonusEntryCommand(
+            entryId: $id,
+            factorsAdjusted: null === $value ? null : (float) $value,
+            note: '' === $note ? null : $note,
+        ));
+    }
+
+    private function dispatchCommand(object $command): JsonResponse
     {
         try {
             $this->commandBus->dispatch($command);
