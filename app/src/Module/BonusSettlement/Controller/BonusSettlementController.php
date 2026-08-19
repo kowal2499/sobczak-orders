@@ -4,8 +4,10 @@ namespace App\Module\BonusSettlement\Controller;
 
 use App\Controller\BaseController;
 use App\Module\BonusSettlement\Command\AdjustBonusEntryCommand;
+use App\Module\BonusSettlement\Command\CloseBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\CreateBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\RecalculateBonusPeriodCommand;
+use App\Module\BonusSettlement\Command\ReopenBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\ResetBonusPeriodAdjustmentsCommand;
 use App\Module\BonusSettlement\Query\GetBonusPeriodQuery;
 use App\Module\BonusSettlement\Query\GetBonusPeriodsQuery;
@@ -18,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\ValidationFailedException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 #[Route('/bonus-settlement')]
 class BonusSettlementController extends BaseController
@@ -25,6 +28,7 @@ class BonusSettlementController extends BaseController
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly QueryBus $queryBus,
+        private readonly Security $security,
     ) {
     }
 
@@ -94,6 +98,23 @@ class BonusSettlementController extends BaseController
     public function resetAdjustments(int $id): JsonResponse
     {
         return $this->dispatchCommand(new ResetBonusPeriodAdjustmentsCommand($id));
+    }
+
+    #[Route('/periods/{id}/close', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.manage')]
+    public function close(int $id): JsonResponse
+    {
+        return $this->dispatchCommand(new CloseBonusPeriodCommand(
+            periodId: $id,
+            closedByUserId: $this->security->getUser()?->getId(),
+        ));
+    }
+
+    #[Route('/periods/{id}/reopen', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.manage')]
+    public function reopen(int $id): JsonResponse
+    {
+        return $this->dispatchCommand(new ReopenBonusPeriodCommand($id));
     }
 
     #[Route('/entries/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]

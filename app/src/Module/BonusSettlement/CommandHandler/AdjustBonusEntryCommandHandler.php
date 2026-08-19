@@ -24,6 +24,9 @@ class AdjustBonusEntryCommandHandler
         if (null === $entry) {
             throw new \InvalidArgumentException('Wiersz rozliczenia nie istnieje.');
         }
+        if ($entry->getPeriod()->isClosed()) {
+            throw new \InvalidArgumentException('Okres jest zamknięty - najpierw otwórz go ponownie.');
+        }
 
         $before = $entry->getEffectiveFactors();
 

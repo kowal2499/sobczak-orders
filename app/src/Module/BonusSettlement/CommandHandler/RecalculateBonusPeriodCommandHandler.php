@@ -39,6 +39,9 @@ class RecalculateBonusPeriodCommandHandler
         if (null === $period) {
             throw new \InvalidArgumentException('Okres nie istnieje.');
         }
+        if ($period->isClosed()) {
+            throw new \InvalidArgumentException('Okres jest zamknięty - najpierw otwórz go ponownie.');
+        }
 
         $tolerance = $command->toleranceDays ?? $period->getToleranceDays();
         $sums = $this->factorsCalculator->forRange(
