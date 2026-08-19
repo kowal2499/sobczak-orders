@@ -86,6 +86,12 @@ doctrine:
                 prefix: 'App\Module\UserSetting\Entity'
                 alias: UserSetting
                 type: attribute
+            BonusSettlement:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/BonusSettlement/Entity'
+                prefix: 'App\Module\BonusSettlement\Entity'
+                alias: BonusSettlement
+                type: attribute
 
 when@test:
     doctrine:

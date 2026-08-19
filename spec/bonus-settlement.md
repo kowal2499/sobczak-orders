@@ -56,16 +56,25 @@ konfiguracji, zmianie nazwy albo usunięciu użytkownika.
 |---|---|---|
 | `id` | int | |
 | `period` | FK | `BonusPeriod`, `onDelete: CASCADE` |
-| `user` | int nullable | FK do `user`, `SET NULL` |
+| `user` | int | FK do `user`, bez `onDelete` (RESTRICT) |
 | `userLabel` | string | imię i nazwisko w chwili liczenia |
 | `departmentSlug` | string(10) | `dpt01`-`dpt06` |
 | `departmentLabel` | string | nazwa działu w chwili liczenia |
-| `factorsCalculated` | decimal(10,2) | wsad z raportu, tylko do odczytu |
-| `factorsAdjusted` | decimal(10,2) nullable | korekta ręczna |
+| `factorsCalculated` | float | wsad z raportu, tylko do odczytu |
+| `factorsAdjusted` | float nullable | korekta ręczna |
 | `note` | text nullable | uzasadnienie korekty |
 | `adjustedAt` | datetime nullable | kiedy zapisano korektę; porównywane z `BonusPeriod::calculatedAt`, żeby oznaczyć korektę sprzed ostatniego przeliczenia (patrz punkt 8.4) |
 
 Unikat na `(period_id, user_id, department_slug)`.
+
+`user_id` jest wymagane. Aplikacja nie kasuje użytkowników (dezaktywacja to `User::$active`), a
+`NULL` rozbroiłby ten unikat (MySQL traktuje `NULL` jako wartości różne) i dopasowanie korekt przy
+przeliczeniu, które idzie po kluczu użytkownik + dział. Ręczne usunięcie użytkownika z rozliczonymi
+premiami ma się nie udać. `userLabel` zostaje - chroni przed zmianą nazwiska, nie przed usunięciem.
+
+Współczynniki są typu `float`, jak wszystkie współczynniki w projekcie (`Factor::$factorValue`).
+Gdy dojdzie mnożnik przeliczający współczynnik na pieniądze, kwota jest osobną wielkością i to
+ona - a nie współczynnik - zasługuje na typ dokładny.
 
 Wartość obowiązująca to `factorsAdjusted ?? factorsCalculated` - metoda pomocnicza
 `getEffectiveFactors()` na encji. Odebranie premii to `factorsAdjusted = 0` z notatką, a nie
