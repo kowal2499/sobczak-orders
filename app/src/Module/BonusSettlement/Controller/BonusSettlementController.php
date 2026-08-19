@@ -4,6 +4,8 @@ namespace App\Module\BonusSettlement\Controller;
 
 use App\Controller\BaseController;
 use App\Module\BonusSettlement\Command\CreateBonusPeriodCommand;
+use App\Module\BonusSettlement\Command\RecalculateBonusPeriodCommand;
+use App\Module\BonusSettlement\Command\ResetBonusPeriodAdjustmentsCommand;
 use App\Module\BonusSettlement\Query\GetBonusPeriodQuery;
 use App\Module\BonusSettlement\Query\GetBonusPeriodsQuery;
 use App\System\CommandBus;
@@ -71,6 +73,39 @@ class BonusSettlementController extends BaseController
         }
 
         return $this->json(['data' => $period]);
+    }
+
+    #[Route('/periods/{id}/recalculate', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.manage')]
+    public function recalculate(int $id, Request $request): JsonResponse
+    {
+        $body = json_decode($request->getContent(), true);
+        $tolerance = $body['toleranceDays'] ?? null;
+
+        return $this->dispatchPeriodAction(new RecalculateBonusPeriodCommand(
+            periodId: $id,
+            toleranceDays: is_numeric($tolerance) ? (int) $tolerance : null,
+        ));
+    }
+
+    #[Route('/periods/{id}/reset-adjustments', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.manage')]
+    public function resetAdjustments(int $id): JsonResponse
+    {
+        return $this->dispatchPeriodAction(new ResetBonusPeriodAdjustmentsCommand($id));
+    }
+
+    private function dispatchPeriodAction(object $command): JsonResponse
+    {
+        try {
+            $this->commandBus->dispatch($command);
+        } catch (ValidationFailedException $e) {
+            return $this->violationResponse($e);
+        } catch (HandlerFailedException $e) {
+            return $this->errorFromHandler($e);
+        }
+
+        return $this->json(['success' => true]);
     }
 
     /**
