@@ -61,6 +61,74 @@ class BonusPeriodEntryTest extends TestCase
         $this->assertEquals($at, $entry->getAdjustedAt());
     }
 
+    public function testShouldRememberInputTheAdjustmentWasMadeAgainst(): void
+    {
+        // Given
+        $entry = $this->makeEntry(50.0);
+
+        // When
+        $entry->adjust(40.0, 'obcięte');
+
+        // Then
+        $this->assertSame(50.0, $entry->getAdjustedAgainst());
+        $this->assertFalse($entry->isAdjustmentStale());
+    }
+
+    public function testShouldFlagAdjustmentAfterInputChanged(): void
+    {
+        // Given
+        $entry = $this->makeEntry(50.0);
+        $entry->adjust(40.0, 'obcięte');
+
+        // When
+        $entry->setFactorsCalculated(62.0);
+
+        // Then
+        $this->assertTrue($entry->isAdjustmentStale());
+    }
+
+    /**
+     * Przeliczenie dotyka wszystkich wierszy, ale ostrzeżenie ma zapalać się tylko tam,
+     * gdzie wsad faktycznie się zmienił - inaczej świeci zawsze i przestaje cokolwiek znaczyć.
+     */
+    public function testShouldNotFlagAdjustmentWhenInputStayedTheSame(): void
+    {
+        // Given
+        $entry = $this->makeEntry(50.0);
+        $entry->adjust(40.0, 'obcięte');
+
+        // When
+        $entry->setFactorsCalculated(50.0);
+
+        // Then
+        $this->assertFalse($entry->isAdjustmentStale());
+    }
+
+    public function testShouldIgnoreFloatingPointNoiseInInput(): void
+    {
+        // Given
+        $entry = $this->makeEntry(115.5);
+        $entry->adjust(40.0, null);
+
+        // When
+        $entry->setFactorsCalculated(115.5 + 1.0e-12);
+
+        // Then
+        $this->assertFalse($entry->isAdjustmentStale());
+    }
+
+    public function testShouldNotFlagUntouchedEntry(): void
+    {
+        // Given
+        $entry = $this->makeEntry(50.0);
+
+        // When
+        $entry->setFactorsCalculated(62.0);
+
+        // Then
+        $this->assertFalse($entry->isAdjustmentStale());
+    }
+
     public function testShouldClearWholeAdjustment(): void
     {
         // Given
@@ -74,6 +142,8 @@ class BonusPeriodEntryTest extends TestCase
         $this->assertNull($entry->getFactorsAdjusted());
         $this->assertNull($entry->getNote());
         $this->assertNull($entry->getAdjustedAt());
+        $this->assertNull($entry->getAdjustedAgainst());
+        $this->assertFalse($entry->isAdjustmentStale());
         $this->assertSame(62.0, $entry->getEffectiveFactors());
     }
 

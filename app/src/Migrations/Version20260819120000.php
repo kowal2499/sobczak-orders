@@ -47,6 +47,7 @@ final class Version20260819120000 extends AbstractMigration
             . 'factors_adjusted DOUBLE PRECISION DEFAULT NULL, '
             . 'note LONGTEXT DEFAULT NULL, '
             . "adjusted_at DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)', "
+            . 'adjusted_against DOUBLE PRECISION DEFAULT NULL, '
             . 'INDEX IDX_C5D3B0EEEC8B7ADE (period_id), '
             . 'INDEX IDX_C5D3B0EEA76ED395 (user_id), '
             . 'UNIQUE INDEX unique_bonus_entry_period_user_department (period_id, user_id, department_slug), '

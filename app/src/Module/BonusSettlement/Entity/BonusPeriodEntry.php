@@ -58,11 +58,19 @@ class BonusPeriodEntry
     private ?string $note = null;
 
     /**
-     * Czas zapisu korekty. Przeliczenie okresu celowo go nie odświeża - porównanie
-     * z BonusPeriod::calculatedAt ujawnia korektę oderwaną od aktualnego wyliczenia.
+     * Czas zapisu korekty, informacyjnie. Przeliczenie okresu celowo go nie odświeża.
      */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $adjustedAt = null;
+
+    /**
+     * Wsad, przy którym zapadła decyzja o korekcie. Rozjazd z aktualnym factorsCalculated
+     * znaczy, że korekta wisi przy liczbie, której już nie ma. Porównanie wartości zamiast
+     * dat, bo po przeliczeniu daty rozjeżdżają się we wszystkich wierszach naraz, także tych,
+     * których wsad się nie ruszył.
+     */
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $adjustedAgainst = null;
 
     public function __construct(
         BonusPeriod $period,
@@ -146,14 +154,21 @@ class BonusPeriodEntry
         return $this->adjustedAt;
     }
 
+    public function getAdjustedAgainst(): ?float
+    {
+        return $this->adjustedAgainst;
+    }
+
     /**
-     * Korekta i jej czas zawsze idą razem, dlatego jedna metoda zamiast trzech setterów.
+     * Korekta, jej czas i wsad, przy którym zapadła, zawsze idą razem - stąd jedna metoda
+     * zamiast czterech setterów.
      */
     public function adjust(float $factorsAdjusted, ?string $note, ?\DateTimeImmutable $adjustedAt = null): void
     {
         $this->factorsAdjusted = $factorsAdjusted;
         $this->note = $note;
         $this->adjustedAt = $adjustedAt ?? new \DateTimeImmutable();
+        $this->adjustedAgainst = $this->factorsCalculated;
     }
 
     public function clearAdjustment(): void
@@ -161,6 +176,21 @@ class BonusPeriodEntry
         $this->factorsAdjusted = null;
         $this->note = null;
         $this->adjustedAt = null;
+        $this->adjustedAgainst = null;
+    }
+
+    /**
+     * Czy korekta odnosi się do wsadu, którego już nie ma. Porównanie z tolerancją, bo wsad
+     * jest sumą floatów i po przeliczeniu może się różnić o końcówkę bez znaczenia dla premii
+     * (wartości pokazujemy z dokładnością do dwóch miejsc).
+     */
+    public function isAdjustmentStale(): bool
+    {
+        if (null === $this->adjustedAgainst) {
+            return false;
+        }
+
+        return abs($this->adjustedAgainst - $this->factorsCalculated) > 0.005;
     }
 
     /**

@@ -63,7 +63,8 @@ konfiguracji, zmianie nazwy albo usunięciu użytkownika.
 | `factorsCalculated` | float | wsad z raportu, tylko do odczytu |
 | `factorsAdjusted` | float nullable | korekta ręczna |
 | `note` | text nullable | uzasadnienie korekty |
-| `adjustedAt` | datetime nullable | kiedy zapisano korektę; porównywane z `BonusPeriod::calculatedAt`, żeby oznaczyć korektę sprzed ostatniego przeliczenia (patrz punkt 8.4) |
+| `adjustedAt` | datetime nullable | kiedy zapisano korektę, informacyjnie |
+| `adjustedAgainst` | float nullable | wsad, przy którym zapadła decyzja o korekcie; rozjazd z `factorsCalculated` oznacza korektę oderwaną od aktualnego wyliczenia (patrz punkt 8.4) |
 
 Unikat na `(period_id, user_id, department_slug)`.
 
@@ -152,9 +153,9 @@ wierszy. Przy edytowalnych wierszach to kwestia sprzątania, nie modelu danych -
    - dozwolone tylko przy `OPEN`,
    - liczy sumy działów, pobiera przynależności, odświeża `factorsCalculated`,
    - **korekty są zachowywane** - dopasowanie po kluczu `użytkownik + dział`, pola
-     `factorsAdjusted`, `note` i `adjustedAt` przechodzą na nowy wiersz nietknięte;
-     `adjustedAt` celowo nie jest odświeżane, bo to na nim opiera się ostrzeżenie o korekcie
-     sprzed przeliczenia (punkt 8.4),
+     `factorsAdjusted`, `note`, `adjustedAt` i `adjustedAgainst` przechodzą na nowy wiersz
+     nietknięte; `adjustedAgainst` celowo nie jest odświeżane, bo to na nim opiera się
+     ostrzeżenie o korekcie do nieaktualnego wyliczenia (punkt 8.4),
    - wiersz, którego użytkownik stracił grant działowy, znika razem z korektą,
    - akcja za potwierdzeniem w UI.
 
@@ -163,10 +164,11 @@ wierszy. Przy edytowalnych wierszach to kwestia sprzątania, nie modelu danych -
    wartości obok siebie, żeby dało się wychwycić korektę oderwaną od aktualnego wyliczenia
    (patrz punkt 8).
 3. **Zerowanie korekt** - `ResetBonusPeriodAdjustments(periodId)`: czyści `factorsAdjusted`,
-   `note` i `adjustedAt` we wszystkich wierszach okresu, przywracając czysty wsad. Osobny
-   przycisk, dozwolone tylko przy `OPEN`, za potwierdzeniem w UI.
-4. **Korekta** - `AdjustBonusEntry(entryId, factorsAdjusted, note)`, tylko przy `OPEN`;
-   ustawia `adjustedAt` na czas zapisu. Wyczyszczenie korekty zeruje wszystkie trzy pola.
+   `note`, `adjustedAt` i `adjustedAgainst` we wszystkich wierszach okresu, przywracając czysty
+   wsad. Osobny przycisk, dozwolone tylko przy `OPEN`, za potwierdzeniem w UI.
+4. **Korekta** - `AdjustBonusEntry(entryId, factorsAdjusted, note)`, tylko przy `OPEN`; ustawia
+   `adjustedAt` na czas zapisu i `adjustedAgainst` na bieżący wsad. Wyczyszczenie korekty zeruje
+   wszystkie cztery pola.
 5. **Zamknięcie** - `CloseBonusPeriod(periodId)`: ustawia `CLOSED`, `closedAt`, `closedBy`.
    **Zamknięty okres jest niezmienny** - przeliczenie, zerowanie i korekty są zablokowane.
    Żeby cokolwiek poprawić, trzeba go najpierw otworzyć ponownie.
@@ -267,15 +269,22 @@ Korekty przeżywają przeliczenie (punkt 6.2), więc prędzej czy później kto�
 40 przy wsadzie 50, wsad urośnie potem do 62, a korekta 40 zostanie i nikt tego nie zauważy.
 Sama obecność obu liczb obok siebie nie wystarczy, bo nikt nie pamięta, która jest starsza.
 
-Dlatego `BonusPeriodEntry` ma pole `adjustedAt` (patrz punkt 3), ustawiane przy każdym zapisie
-korekty i przenoszone razem z nią przy przeliczeniu. Warunek ostrzeżenia:
+Dlatego `BonusPeriodEntry` ma pole `adjustedAgainst` (patrz punkt 3): wsad zapamiętany w chwili
+zapisu korekty, przenoszony razem z nią przy przeliczeniu. Warunek ostrzeżenia liczy backend
+(`BonusPeriodEntry::isAdjustmentStale()`), a odpowiedź API niesie gotowy `adjustmentStale`:
 
 ```
-entry.adjustedAt !== null && entry.adjustedAt < period.calculatedAt
+adjustedAgainst !== null && abs(adjustedAgainst - factorsCalculated) > 0.005
 ```
 
-Wtedy przy wartości pojawia się ikona ostrzeżenia z tooltipem "korekta sprzed ostatniego
-przeliczenia". Czyszczenie korekty zeruje `adjustedAt` razem z `factorsAdjusted` i `note`.
+Porównujemy wartości, nie daty. Warunek na datach (`adjustedAt < calculatedAt`) zapalałby się po
+każdym przeliczeniu we **wszystkich** skorygowanych wierszach, również tych, których wsad się nie
+ruszył - a ostrzeżenie, które zawsze świeci, przestaje być ostrzeżeniem. Tolerancja 0,005 zjada
+końcówki sumowania floatów, niewidoczne przy dwóch miejscach po przecinku.
+
+Przy wartości pojawia się wtedy ikona ostrzeżenia z tooltipem "korekta do nieaktualnego
+wyliczenia". Czyszczenie korekty zeruje `adjustedAgainst` razem z `factorsAdjusted`, `note`
+i `adjustedAt`.
 
 ### 8.5. Akcje nagłówka
 
@@ -337,9 +346,10 @@ End2End (`tests/End2End/Modules/BonusSettlement/`):
 - **ponowne przeliczenie zachowuje `factorsAdjusted` i `note`** po kluczu użytkownik + dział,
   odświeżając samo `factorsCalculated`,
 - wiersz użytkownika, który stracił grant działowy, znika przy ponownym przeliczeniu,
-- ponowne przeliczenie nie odświeża `adjustedAt`, więc korekta wpisana przed przeliczeniem
-  spełnia warunek ostrzeżenia `adjustedAt < calculatedAt`,
-- zerowanie korekt czyści `factorsAdjusted`, `note` i `adjustedAt` w całym okresie,
+- ponowne przeliczenie nie odświeża `adjustedAgainst`, więc korekta do wsadu, który się zmienił,
+  spełnia warunek ostrzeżenia, a korekta do wsadu bez zmian - nie,
+- zerowanie korekt czyści `factorsAdjusted`, `note`, `adjustedAt` i `adjustedAgainst` w całym
+  okresie,
 - zamknięcie blokuje przeliczenie, zerowanie i korektę (oczekiwane błędy),
 - ponowne otwarcie odblokowuje te akcje i zapisuje wpis `bonus.period.reopened`
   w `ActivityLog`,
