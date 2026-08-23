@@ -8,9 +8,8 @@ use App\Module\ActivityLog\DTO\FieldsFilter;
 use App\Module\ActivityLog\DTO\PaginatedLogFilter;
 use App\Module\ActivityLog\Query\CountLogsByFieldQuery;
 use App\Module\ActivityLog\Query\GetPaginatedLogsQuery;
+use App\Module\ActivityLog\Query\Helper\LogResponseMapper;
 use App\Module\ActivityLog\ReadModel\LogCountByField;
-use App\Module\ActivityLog\ReadModel\LogFieldReadModel;
-use App\Module\ActivityLog\ReadModel\LogModel;
 use App\Module\ActivityLog\ReadModel\PaginatedLogs;
 use App\System\QueryBus;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -27,6 +26,7 @@ class ActivityLogController extends BaseController
     public function __construct(
         private readonly QueryBus $queryBus,
         private readonly ValidatorInterface $validator,
+        private readonly LogResponseMapper $logMapper,
     ) {
     }
 
@@ -50,12 +50,9 @@ class ActivityLogController extends BaseController
         /** @var PaginatedLogs $result */
         $result = $this->queryBus->query(new GetPaginatedLogsQuery($type, $filter));
 
-        return $this->json([
-            'page' => $result->page,
-            'pageSize' => $result->pageSize,
-            'total' => $result->total,
-            'items' => array_map(fn (LogModel $log) => $this->serializeLog($log), $result->items),
-        ]);
+        return $this->json(
+            $this->logMapper->toPage($result->items, $result->total, $result->page, $result->pageSize)
+        );
     }
 
     #[Route('/{type}/count-by/{groupBy}', methods: ['GET'], requirements: [
@@ -146,27 +143,6 @@ class ActivityLogController extends BaseController
             );
         }
         return $result;
-    }
-
-    private function serializeLog(LogModel $log): array
-    {
-        return [
-            'id' => $log->id,
-            'type' => $log->type,
-            'content' => $log->content,
-            'contentParams' => $log->contentParams,
-            'date' => $log->date->format(\DateTimeInterface::ATOM),
-            'level' => $log->level->value,
-            'priority' => $log->priority->value,
-            'user' => $log->user === null ? null : [
-                'id' => $log->user->id,
-                'name' => $log->user->name,
-            ],
-            'fields' => array_map(
-                static fn (LogFieldReadModel $f) => ['name' => $f->name, 'value' => $f->value],
-                $log->fields,
-            ),
-        ];
     }
 
     private function formatViolations(ConstraintViolationListInterface $violations): array
