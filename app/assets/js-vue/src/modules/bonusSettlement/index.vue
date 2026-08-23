@@ -173,12 +173,12 @@ export default defineComponent({
                             {{ group.userLabel }}
                         </td>
                         <td>{{ row.departmentLabel }}</td>
-                        <td class="text-right text-monospace">{{ fmt(row.factorsCalculated) }}</td>
-                        <td class="text-right text-monospace">{{ fmt(row.factorsEffective) }}</td>
+                        <td class="text-right numeric">{{ fmt(row.factorsCalculated) }}</td>
+                        <td class="text-right numeric">{{ fmt(row.factorsEffective) }}</td>
                         <td
                             v-if="index === 0"
                             :rowspan="group.rows.length"
-                            class="align-middle text-right text-monospace font-weight-bold"
+                            class="align-middle text-right numeric font-weight-bold"
                         >
                             {{ fmt(group.total) }}
                         </td>
@@ -227,6 +227,12 @@ export default defineComponent({
 // Kreska tylko na styku grup - wewnątrz pracownika wiersze mają się czytać jako jeden blok.
 .group-start td {
     border-top: 2px solid #dee2e6;
+}
+
+// Cyfry o równej szerokości bez zmiany kroju - kolumny mają się układać w słupek,
+// ale liczby zostają w foncie interfejsu.
+.numeric {
+    font-variant-numeric: tabular-nums;
 }
 
 .logs-title {
