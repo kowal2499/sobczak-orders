@@ -23,7 +23,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class ApiTokenAuthenticator extends AbstractAuthenticator
 {
     private const HEADER = 'Authorization';
-    private const SCHEME = 'Bearer ';
+
+    // RFC 7235 dopuszcza dowolną liczbę spacji po nazwie schematu i czyni ją nierozróżnialną
+    // wielkością liter.
+    private const SCHEME_PATTERN = '/^Bearer\b\s*(.*)$/i';
 
     public function __construct(
         private readonly ApiTokenRepository $repository,
@@ -32,14 +35,14 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return str_starts_with((string) $request->headers->get(self::HEADER), self::SCHEME);
+        return null !== $this->extractToken($request);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $plainToken = substr((string) $request->headers->get(self::HEADER), strlen(self::SCHEME));
+        $plainToken = $this->extractToken($request);
 
-        if ('' === $plainToken) {
+        if (null === $plainToken || '' === $plainToken) {
             throw new CustomUserMessageAuthenticationException('Brak tokenu w nagłówku Authorization.');
         }
 
@@ -78,6 +81,17 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
             ['message' => $exception->getMessageKey()],
             Response::HTTP_UNAUTHORIZED
         );
+    }
+
+    private function extractToken(Request $request): ?string
+    {
+        $header = (string) $request->headers->get(self::HEADER);
+
+        if (1 !== preg_match(self::SCHEME_PATTERN, $header, $matches)) {
+            return null;
+        }
+
+        return trim($matches[1]);
     }
 
     private function refreshLastUsedAt(ApiToken $apiToken): void

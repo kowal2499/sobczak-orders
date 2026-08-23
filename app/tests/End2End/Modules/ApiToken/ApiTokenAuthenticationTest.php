@@ -54,6 +54,54 @@ class ApiTokenAuthenticationTest extends ApiTestCase
         $this->assertContains('work-configuration.capacity', $grants);
     }
 
+    /**
+     * @dataProvider headerVariants
+     */
+    public function testShouldAcceptAnyRfc7235SchemeSpelling(string $headerTemplate): void
+    {
+        // Given
+        $user = $this->createUser();
+        $this->getManager()->flush();
+        $issued = $this->issuer->issue($user, 'Postman');
+
+        // When
+        $this->client->request('GET', self::PROBE_ENDPOINT, [], [], [
+            'HTTP_AUTHORIZATION' => sprintf($headerTemplate, $issued->plainToken),
+        ]);
+
+        // Then
+        $this->assertSame(200, $this->client->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function headerVariants(): array
+    {
+        return [
+            'single space' => ['Bearer %s'],
+            'double space' => ['Bearer  %s'],
+            'tab' => ["Bearer\t%s"],
+            'lowercase scheme' => ['bearer %s'],
+            'trailing whitespace' => ['Bearer %s  '],
+        ];
+    }
+
+    public function testShouldRejectBearerWithoutToken(): void
+    {
+        // Given
+        $this->createUser();
+        $this->getManager()->flush();
+
+        // When
+        $this->client->request('GET', self::PROBE_ENDPOINT, [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer',
+        ]);
+
+        // Then
+        $this->assertUnauthorized('Brak tokenu w nagłówku Authorization.');
+    }
+
     public function testShouldRecordLastUsedAt(): void
     {
         // Given
