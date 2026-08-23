@@ -45,6 +45,10 @@ make test      # phpunit w kontenerze; make test F=tests/End2End/...
 make cc        # cache:clear (dev + test)
 make bash      # shell w kontenerze php-apache
 make pull-db   # pobierz bazę z produkcji
+
+make api-token E=<email> NAME="<nazwa>" [TTL=90]  # wydaj token API (TTL=0 -> bezterminowy)
+make api-tokens [E=<email>]                       # lista wydanych tokenów
+make api-token-revoke ID=<id>                     # unieważnij token
 ```
 
 ## Naming Conventions
@@ -59,6 +63,17 @@ make pull-db   # pobierz bazę z produkcji
 - **Never use the em dash (U+2014) anywhere in the project** - not in code, comments, templates,
   translations or Markdown. Use a plain hyphen `-` instead. Applies to PHP, JS/Vue, Twig, YAML and
   Markdown alike.
+- **Minimise comments.** Write one only where it is genuinely needed: a non-obvious reason behind a
+  decision, a workaround for someone else's bug, an environment trap. Do not restate in a comment
+  what the method name already says, and never add a docblock just for the sake of having one.
+- Type annotations PHPStan and the IDE rely on (`@return Foo[]`, `@extends ServiceEntityRepository<Foo>`,
+  `@param array<string, string>`) are not comments in this sense - keep them.
+
+## Git
+
+- **Never commit or push without explicit consent** - not even when the task is finished and the
+  tests pass. Leave the changes in the working tree and report what was done; commit only when
+  asked to. Do not run `git add` pre-emptively either.
 
 ## Code Organisation
 

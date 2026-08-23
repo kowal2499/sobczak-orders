@@ -71,6 +71,11 @@ export default defineComponent({
                         <td>{{ user.firstName }}</td>
                         <td>{{ user.lastName }}</td>
                         <td>
+                            <span v-for="name in (user.authRoles || [])" :key="name">
+                                <span class="badge badge-secondary mr-1">{{ name }}</span>
+                            </span>
+                        </td>
+                        <td>
                             <button class="btn btn-primary btn-sm" @click="onImpersonate(user.email)">Przeloguj</button>
                         </td>
                     </tr>

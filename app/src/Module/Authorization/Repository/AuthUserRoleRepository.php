@@ -47,6 +47,27 @@ class AuthUserRoleRepository extends ServiceEntityRepository implements AuthUser
         ;
     }
 
+    /**
+     * @return array<int, string[]> mapa userId -> nazwy ról
+     */
+    public function findRoleNamesGroupedByUserId(): array
+    {
+        $rows = $this->createQueryBuilder('ur')
+            ->select('IDENTITY(ur.user) AS userId', 'r.name AS name')
+            ->innerJoin('ur.role', 'r')
+            ->orderBy('r.name', 'ASC')
+            ->getQuery()
+            ->getArrayResult()
+        ;
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int) $row['userId']][] = $row['name'];
+        }
+
+        return $map;
+    }
+
     public function remove(AuthUserRole $userRole, bool $flush = true): void
     {
         $this->_em->remove($userRole);
