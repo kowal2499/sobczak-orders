@@ -366,6 +366,40 @@ each report composes only the sections it needs. Do not reintroduce boolean "mod
   ```
   A plain `$this->logger->info(...)` (default `app` channel) does **not** persist anything to `activity_log` - it goes to the regular file log as before.
 - Author is an integer FK to `User` (`user_id`, nullable for system-triggered logs)
+- **Response shape** is owned by `Query/Helper/LogResponseMapper` - every endpoint returning logs
+  goes through it. Ordering is `createdAt DESC, id DESC`; the id tiebreaker is load-bearing,
+  entries written in the same second would otherwise shuffle and paging could repeat or drop rows
+- Any producer whose `content` key has no entry in `translations/activity_log.*.yml` leaks the raw
+  key to the UI. Params are substituted as `%name%`, and a `null` param renders as the word "null"
+  (`translateContent()` json-encodes non-scalars) - give optional params a default, or use two
+  message keys
+
+### 8. BonusSettlement
+- Monthly settlement of production bonuses. `BonusPeriod` (one per year+month) with
+  `BonusPeriodEntry` rows, one per employee+department. Spec: `spec/bonus-settlement.md`
+- Input comes from the `departments_bonus_on_time` metric via `Service\DepartmentFactorsCalculator`,
+  a **server-side twin of the front rule** in `DepartmentMetricMixin.aggregateByDepartment()`. A unit
+  test reads the mixin file and fails if that rule changes - it is a guard, not a proof
+- Department membership comes from grants via `GrantsResolver::getGrants($user)`, never
+  `isGranted()` - the latter returns true for everything under `authorization.admin`, which would
+  hand every administrator all six departments
+- Values are **frozen on the row** (`userLabel`, `departmentLabel`, `factorsCalculated`), so a later
+  rename or grant change does not rewrite a settled month
+- Recalculation keeps adjustments, matching on user+department; a row whose user lost the department
+  grant disappears together with its adjustment
+- A `CLOSED` period is immutable. The guard sits in the handlers, not the controller, so the rule
+  holds whatever calls them; reopening is the only way back in and is always journalled
+- Staleness of an adjustment is `adjustedAgainst` (the input snapshotted when the adjustment was
+  saved) compared with the current `factorsCalculated`, **not** a date comparison - a date rule lit
+  up every adjusted row after any recalculation
+- Grants: `bonus-settlement.view` (read + export), `bonus-settlement.manage` (everything that writes)
+- Front: `assets/js-vue/src/modules/bonusSettlement/`. The directory is camelCase because `i18n.js`
+  derives the translation namespace from the folder name; a hyphen would break `bonus_settlement.*`
+- The adjustment cell is deliberately **not** the dashboard's `FactorCell` - that component describes
+  a single production and hides its popover when `production` is null, which on the dashboard means
+  an empty department cell
+- Deployment needs `doctrine:migrations:migrate` **and** `app:module:register`, otherwise the grants
+  never appear in the permission panel
 
 ## Testing
 

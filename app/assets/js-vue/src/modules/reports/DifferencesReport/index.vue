@@ -268,12 +268,12 @@ export default defineComponent({
                     <tbody>
                         <tr v-for="row in rows" :key="row.slug">
                             <td class="font-weight-bold">{{ row.name }}</td>
-                            <td class="text-right text-monospace">{{ fmt(row.odpTotal) }}</td>
-                            <td class="text-right text-monospace">{{ fmt(row.uzpTotal) }}</td>
-                            <td class="text-right text-monospace font-weight-bold" :class="deltaClass(row.delta)">
+                            <td class="text-right numeric">{{ fmt(row.odpTotal) }}</td>
+                            <td class="text-right numeric">{{ fmt(row.uzpTotal) }}</td>
+                            <td class="text-right numeric font-weight-bold" :class="deltaClass(row.delta)">
                                 {{ fmtDelta(row.delta) }}
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.correction !== 0"
                                     class="group-link"
@@ -282,7 +282,7 @@ export default defineComponent({
                                 >{{ fmtDelta(row.correction) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.incomplete"
                                     class="group-link text-danger"
@@ -290,7 +290,7 @@ export default defineComponent({
                                 >−{{ fmt(row.incomplete) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.completedOutside"
                                     class="group-link text-danger"
@@ -298,7 +298,7 @@ export default defineComponent({
                                 >−{{ fmt(row.completedOutside) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.delayed"
                                     class="group-link text-success"
@@ -306,7 +306,7 @@ export default defineComponent({
                                 >+{{ fmt(row.delayed) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.accelerated"
                                     class="group-link text-success"
@@ -380,6 +380,12 @@ export default defineComponent({
 
 .diff-table {
     font-size: 0.875rem;
+
+    // Cyfry o równej szerokości bez zmiany kroju - kolumny mają się układać w słupek,
+    // ale liczby zostają w foncie interfejsu.
+    .numeric {
+        font-variant-numeric: tabular-nums;
+    }
 
     th, td {
         white-space: nowrap;

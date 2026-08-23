@@ -12,3 +12,13 @@ activity_log:
         production_status_changed: "Zmiana statusu produkcji (%departmentName%): %oldStatusName% → %newStatusName%"
         production_date_start_changed: 'Zmiana daty rozpoczęcia produkcji (%departmentName%): %oldDate% → %newDate%'
         production_date_end_changed: 'Zmiana daty zakończenia produkcji (%departmentName%): %oldDate% → %newDate%'
+    bonus:
+        period:
+            created: 'Otwarcie okresu rozliczeniowego %period% (tolerancja %toleranceDays% dni)'
+            recalculated: 'Przeliczenie okresu %period% (tolerancja %toleranceDays% dni, usunięto wierszy: %removedEntries%)'
+            adjustments_reset: 'Wyzerowanie korekt w okresie %period% (wyczyszczono wierszy: %clearedEntries%)'
+            closed: 'Zamknięcie okresu %period%'
+            reopened: 'Ponowne otwarcie okresu %period% (zamknięty %closedAt% przez %closedByLabel%)'
+        entry:
+            adjusted: 'Korekta premii %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter%'
+            adjusted_with_note: 'Korekta premii %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter% (%note%)'
