@@ -4,6 +4,7 @@ import { MONTHS } from '@/services/datesService'
 import TablePlus from '@/components/base/TablePlus.vue'
 import ConfirmationModal from '@/components/base/ConfirmationModal.vue'
 import ActivityLogList from '@/modules/agreement/components/ActivityLogList.vue'
+import ExcelExport from '@/services/ExcelExport/ExcelExport'
 import AdjustmentCell from './components/AdjustmentCell.vue'
 import {
     closePeriod,
@@ -196,6 +197,35 @@ export default defineComponent({
         refreshLogs() {
             this.logsRefresh += 1
         },
+        /**
+         * Eksport po stronie klienta, wzorem mierników pulpitu. Arkusz jest płaski - jeden wiersz
+         * na parę pracownik-dział - bo scalone komórki z ekranu psują sortowanie i filtry w Excelu.
+         */
+        exportExcel() {
+            const label = this.periodLabel(this.period)
+            const fields = [
+                { title: this.$t('bonus_settlement.col.employee'), getValue: row => row.userLabel },
+                { title: this.$t('bonus_settlement.col.department'), getValue: row => row.departmentLabel },
+                { title: this.$t('bonus_settlement.col.calculated'), getValue: row => row.factorsCalculated },
+                { title: this.$t('bonus_settlement.col.granted'), getValue: row => row.factorsEffective },
+                { title: this.$t('bonus_settlement.adjustment.note'), getValue: row => row.note || '' },
+            ]
+
+            const excel = new ExcelExport()
+            const sheet = excel.addWorksheet(this.$t('bonus_settlement.title'), fields)
+
+            sheet.worksheet.spliceRows(1, 0,
+                [label],
+                [this.$t('bonus_settlement.header.tolerance', { days: this.period.toleranceDays })],
+                []
+            )
+
+            this.period.entries.forEach(entry => sheet.addData(entry))
+
+            return excel.save(`${this.$t('bonus_settlement.title')} ${label}.xlsx`)
+                .catch(() => this.$flash.danger(this.$t('bonus_settlement.error.export')))
+                .finally(() => excel.clear())
+        },
     },
     watch: {
         selectedId(id) {
@@ -275,7 +305,7 @@ export default defineComponent({
                 }) }}
             </div>
 
-            <div v-if="canManage" class="period-header__actions mt-3">
+            <div class="period-header__actions mt-3">
                 <template v-if="canEdit">
                     <button type="button" class="btn btn-primary btn-sm" @click="ask('recalculate')">
                         {{ $t('bonus_settlement.action.recalculate') }}
@@ -283,12 +313,28 @@ export default defineComponent({
                     <button type="button" class="btn btn-outline-secondary btn-sm" @click="ask('reset')">
                         {{ $t('bonus_settlement.action.reset') }}
                     </button>
-                    <button type="button" class="btn btn-outline-danger btn-sm ml-auto" @click="ask('close')">
-                        {{ $t('bonus_settlement.action.close') }}
-                    </button>
                 </template>
+
+                <!-- Eksport niczego nie zmienia, więc jest bez potwierdzenia i w każdym statusie. -->
                 <button
-                    v-if="isClosed"
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    :disabled="!period.entries.length"
+                    @click="exportExcel"
+                >
+                    {{ $t('bonus_settlement.action.export') }}
+                </button>
+
+                <button
+                    v-if="canEdit"
+                    type="button"
+                    class="btn btn-outline-danger btn-sm ml-auto"
+                    @click="ask('close')"
+                >
+                    {{ $t('bonus_settlement.action.close') }}
+                </button>
+                <button
+                    v-if="canManage && isClosed"
                     type="button"
                     class="btn btn-outline-secondary btn-sm ml-auto"
                     @click="ask('reopen')"

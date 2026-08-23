@@ -37,6 +37,7 @@ export default {
         reset: 'Clear adjustments',
         close: 'Close period',
         reopen: 'Reopen',
+        export: 'Excel',
     },
     confirm: {
         create: 'Pick the month to open a settlement period for.',
@@ -47,6 +48,7 @@ export default {
     },
     adjustment: {
         title: 'Adjustment',
+        note: 'Note',
         edit: 'Change adjustment',
         none: 'No adjustment - the value comes straight from the calculation.',
         savedAt: 'Saved',
@@ -65,5 +67,6 @@ export default {
         load_periods: 'Could not load the list of periods.',
         load_period: 'Could not load the period.',
         action: 'The action failed.',
+        export: 'Could not build the file.',
     },
 }

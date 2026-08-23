@@ -37,6 +37,7 @@ export default {
         reset: 'Wyzeruj korekty',
         close: 'Zamknij okres',
         reopen: 'Otwórz ponownie',
+        export: 'Excel',
     },
     confirm: {
         create: 'Wybierz miesiąc, dla którego założyć okres rozliczeniowy.',
@@ -47,6 +48,7 @@ export default {
     },
     adjustment: {
         title: 'Korekta',
+        note: 'Notatka',
         edit: 'Zmień korektę',
         none: 'Bez korekty - wartość prosto z wyliczenia.',
         savedAt: 'Zapisano',
@@ -65,5 +67,6 @@ export default {
         load_periods: 'Nie udało się pobrać listy okresów.',
         load_period: 'Nie udało się pobrać okresu.',
         action: 'Nie udało się wykonać akcji.',
+        export: 'Nie udało się przygotować pliku.',
     },
 }
