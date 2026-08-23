@@ -136,18 +136,27 @@
             </menu-item>
         {% endif %}
 
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_ADMIN') or is_granted('bonus-settlement.view') %}
             <menu-item
-                :active="{% if active in ['reports_view_differences'] %}true{% else %}false{% endif %}"
+                :active="{% if active in ['reports_view_differences', 'bonus_settlement_view'] %}true{% else %}false{% endif %}"
                 :title-icon="'fa fa-line-chart'"
                 :title="'{{ 'Raporty'|trans }}'"
             >
                 <div class="submenu collapse-inner">
-                    <a href="{{ path('reports_view_differences') }}"
-                       class="{% if active in ['reports_view_differences'] %}active{% endif %}"
-                    >
-                        {{ 'Raport rozbieżności'|trans }}
-                    </a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('reports_view_differences') }}"
+                           class="{% if active in ['reports_view_differences'] %}active{% endif %}"
+                        >
+                            {{ 'Raport rozbieżności'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if is_granted('bonus-settlement.view') %}
+                        <a href="{{ path('bonus_settlement_view') }}"
+                           class="{% if active in ['bonus_settlement_view'] %}active{% endif %}"
+                        >
+                            {{ 'Rozliczenie premii'|trans }}
+                        </a>
+                    {% endif %}
                 </div>
             </menu-item>
         {% endif %}

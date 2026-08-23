@@ -7,6 +7,7 @@ use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Production\ValueObject\DepartmentEnum;
+use App\Module\Production\ValueObject\DepartmentGrantMap;
 use App\Module\Production\ValueObject\ProductionTaskStatus;
 use App\Module\Reports\Schedule\DTO\ScheduleEventDTO;
 use App\Module\Reports\Schedule\DTO\ScheduleResourceDTO;
@@ -14,15 +15,6 @@ use Symfony\Component\Security\Core\Security;
 
 class ScheduleProductionResourcesService
 {
-    private const GRANT_BY_DPT = [
-        'dpt01' => 'production.show.gluing',
-        'dpt02' => 'production.show.cnc',
-        'dpt03' => 'production.show.grinding',
-        'dpt04' => 'production.show.laquering',
-        'dpt05' => 'production.show.packing',
-        'dpt06' => 'production.show.intorex',
-    ];
-
     private const GHOST_COLOR = 'rgba(108, 117, 125, 0.25)';
 
     public function __construct(
@@ -113,12 +105,7 @@ class ScheduleProductionResourcesService
     private function getVisibleDepartments(): array
     {
         $result = [];
-        foreach (DepartmentEnum::getProductionDepartments() as $dept) {
-            $slug = $dept->value;
-            $grant = self::GRANT_BY_DPT[$slug] ?? null;
-            if ($grant === null) {
-                continue;
-            }
+        foreach (DepartmentGrantMap::all() as $slug => $grant) {
             if ($this->security->isGranted($grant)) {
                 $result[] = $slug;
             }
