@@ -29,8 +29,41 @@ export default {
     logs: {
         title: 'Dziennik okresu',
     },
+    source_report: 'Pulpit z kaflem "Ukończone zadania produkcyjne (w terminie)" za ten miesiąc',
+    action_done: 'Gotowe.',
+    action: {
+        create: 'Utwórz okres',
+        recalculate: 'Przelicz',
+        reset: 'Wyzeruj korekty',
+        close: 'Zamknij okres',
+        reopen: 'Otwórz ponownie',
+    },
+    confirm: {
+        create: 'Wybierz miesiąc, dla którego założyć okres rozliczeniowy.',
+        recalculate: 'Wsad zostanie odświeżony z raportu. Korekty i notatki zostaną zachowane.',
+        reset: 'Wszystkie korekty i notatki w tym okresie zostaną usunięte. Nie da się tego cofnąć.',
+        close: 'Po zamknięciu nic w tym okresie nie da się zmienić bez ponownego otwarcia.',
+        reopen: 'Otwarcie rozliczonego miesiąca zostanie zapisane w dzienniku.',
+    },
+    adjustment: {
+        title: 'Korekta',
+        edit: 'Zmień korektę',
+        none: 'Bez korekty - wartość prosto z wyliczenia.',
+        savedAt: 'Zapisano',
+        notePlaceholder: 'Uzasadnienie (opcjonalne)',
+        save: 'Zapisz korektę',
+        clear: 'Zdejmij korektę',
+        saved: 'Korekta zapisana.',
+        error: 'Nie udało się zapisać korekty.',
+        stale: 'Korekta do nieaktualnego wyliczenia - wsad zmienił się po jej zapisaniu.',
+        validation: {
+            valueRequired: 'Podaj wartość korekty.',
+            notNegative: 'Wartość nie może być ujemna.',
+        },
+    },
     error: {
         load_periods: 'Nie udało się pobrać listy okresów.',
         load_period: 'Nie udało się pobrać okresu.',
+        action: 'Nie udało się wykonać akcji.',
     },
 }

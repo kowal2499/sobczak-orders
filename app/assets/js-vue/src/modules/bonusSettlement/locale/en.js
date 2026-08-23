@@ -29,8 +29,41 @@ export default {
     logs: {
         title: 'Period journal',
     },
+    source_report: 'Dashboard with the "Completed production tasks (on time)" tile for this month',
+    action_done: 'Done.',
+    action: {
+        create: 'Create period',
+        recalculate: 'Recalculate',
+        reset: 'Clear adjustments',
+        close: 'Close period',
+        reopen: 'Reopen',
+    },
+    confirm: {
+        create: 'Pick the month to open a settlement period for.',
+        recalculate: 'The input will be refreshed from the report. Adjustments and notes are kept.',
+        reset: 'Every adjustment and note in this period will be removed. This cannot be undone.',
+        close: 'Once closed, nothing in this period can change without reopening it.',
+        reopen: 'Reopening a settled month will be recorded in the journal.',
+    },
+    adjustment: {
+        title: 'Adjustment',
+        edit: 'Change adjustment',
+        none: 'No adjustment - the value comes straight from the calculation.',
+        savedAt: 'Saved',
+        notePlaceholder: 'Reason (optional)',
+        save: 'Save adjustment',
+        clear: 'Remove adjustment',
+        saved: 'Adjustment saved.',
+        error: 'Could not save the adjustment.',
+        stale: 'Adjustment made against an outdated calculation - the input changed afterwards.',
+        validation: {
+            valueRequired: 'Enter the adjusted value.',
+            notNegative: 'The value cannot be negative.',
+        },
+    },
     error: {
         load_periods: 'Could not load the list of periods.',
         load_period: 'Could not load the period.',
+        action: 'The action failed.',
     },
 }
