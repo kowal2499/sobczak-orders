@@ -29,7 +29,9 @@ export default {
     logs: {
         title: 'Period journal',
     },
-    source_report: 'Dashboard with the "Completed production tasks (on time)" tile for this month',
+    details: {
+        tooltip: 'Show details from report',
+    },
     action_done: 'Done.',
     action: {
         create: 'Create period',
@@ -68,5 +70,6 @@ export default {
         load_period: 'Could not load the period.',
         action: 'The action failed.',
         export: 'Could not build the file.',
+        load_details: 'Could not load the department details.',
     },
 }
