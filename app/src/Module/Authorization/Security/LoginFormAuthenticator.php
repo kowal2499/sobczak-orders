@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security;
+namespace App\Module\Authorization\Security;
 
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -25,7 +25,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function __construct(
         private readonly UserRepository $userRepository,
-        private readonly  RouterInterface $router
+        private readonly RouterInterface $router
     ) {
     }
 
@@ -54,7 +54,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-           return new RedirectResponse($targetPath);
+            return new RedirectResponse($targetPath);
         }
         return new RedirectResponse($this->router->generate('dashboard_show'));
     }
