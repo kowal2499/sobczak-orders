@@ -86,6 +86,12 @@ doctrine:
                 prefix: 'App\Module\UserSetting\Entity'
                 alias: UserSetting
                 type: attribute
+            ApiToken:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/ApiToken/Entity'
+                prefix: 'App\Module\ApiToken\Entity'
+                alias: ApiToken
+                type: attribute
 
 when@test:
     doctrine:
