@@ -7,6 +7,7 @@ use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Production\ValueObject\DepartmentEnum;
+use App\Module\Production\ValueObject\DepartmentGrantMap;
 use App\Module\Production\ValueObject\ProductionTaskStatus;
 use Symfony\Component\Security\Core\Security;
 
@@ -20,15 +21,6 @@ use Symfony\Component\Security\Core\Security;
  */
 class ScheduleOrderResourcesService
 {
-    private const GRANT_BY_DPT = [
-        'dpt01' => 'production.show.gluing',
-        'dpt02' => 'production.show.cnc',
-        'dpt03' => 'production.show.grinding',
-        'dpt04' => 'production.show.laquering',
-        'dpt05' => 'production.show.packing',
-        'dpt06' => 'production.show.intorex',
-    ];
-
     public function __construct(
         private readonly AgreementLineRMRepository $agreementLineRepo,
         private readonly Security $security,
@@ -128,13 +120,9 @@ class ScheduleOrderResourcesService
     private function getVisibleDepartments(): array
     {
         $result = [];
-        foreach (DepartmentEnum::getProductionDepartments() as $dept) {
-            $grant = self::GRANT_BY_DPT[$dept->value] ?? null;
-            if ($grant === null) {
-                continue;
-            }
+        foreach (DepartmentGrantMap::all() as $slug => $grant) {
             if ($this->security->isGranted($grant)) {
-                $result[] = $dept->value;
+                $result[] = $slug;
             }
         }
 
