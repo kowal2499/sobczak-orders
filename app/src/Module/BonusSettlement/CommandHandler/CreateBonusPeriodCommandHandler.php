@@ -2,15 +2,18 @@
 
 namespace App\Module\BonusSettlement\CommandHandler;
 
+use App\Module\ActivityLog\Command\AddActivityLogCommand;
 use App\Module\BonusSettlement\Command\CreateBonusPeriodCommand;
 use App\Module\BonusSettlement\Entity\BonusPeriod;
 use App\Module\BonusSettlement\Repository\BonusPeriodRepository;
 use App\Module\Reports\Production\Metric\DepartmentsBonusOnTimeMetricStrategy;
+use App\System\CommandBus;
 
 class CreateBonusPeriodCommandHandler
 {
     public function __construct(
         private readonly BonusPeriodRepository $periodRepository,
+        private readonly CommandBus $commandBus,
     ) {
     }
 
@@ -31,5 +34,15 @@ class CreateBonusPeriodCommandHandler
         );
 
         $this->periodRepository->save($period);
+
+        $this->commandBus->dispatch(new AddActivityLogCommand(
+            message: 'activity_log.bonus.period.created',
+            type: 'bonus.period.created',
+            contextData: ['periodId' => (string) $period->getId()],
+            contentParams: [
+                'period' => sprintf('%04d-%02d', $period->getYear(), $period->getMonth()),
+                'toleranceDays' => $period->getToleranceDays(),
+            ],
+        ));
     }
 }

@@ -40,5 +40,7 @@ export default {
     ContextMenu,
     DevContainer,
 
-    DifferencesReport: () => import('../modules/reports/DifferencesReport/index.vue')
+    DifferencesReport: () => import('../modules/reports/DifferencesReport/index.vue'),
+
+    BonusSettlement: () => import('../modules/bonusSettlement/index.vue')
 }

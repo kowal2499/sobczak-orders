@@ -3,6 +3,11 @@
 namespace App\Module\BonusSettlement\Controller;
 
 use App\Controller\BaseController;
+use App\Module\ActivityLog\DTO\FieldFilter;
+use App\Module\ActivityLog\DTO\PaginatedLogFilter;
+use App\Module\ActivityLog\Query\GetPaginatedLogsQuery;
+use App\Module\ActivityLog\Query\Helper\LogResponseMapper;
+use App\Module\ActivityLog\ReadModel\PaginatedLogs;
 use App\Module\BonusSettlement\Command\AdjustBonusEntryCommand;
 use App\Module\BonusSettlement\Command\CloseBonusPeriodCommand;
 use App\Module\BonusSettlement\Command\CreateBonusPeriodCommand;
@@ -25,10 +30,13 @@ use Symfony\Component\Security\Core\Security;
 #[Route('/bonus-settlement')]
 class BonusSettlementController extends BaseController
 {
+    private const MAX_LOGS_PER_PAGE = 100;
+
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly QueryBus $queryBus,
         private readonly Security $security,
+        private readonly LogResponseMapper $logMapper,
     ) {
     }
 
@@ -78,6 +86,34 @@ class BonusSettlementController extends BaseController
         }
 
         return $this->json(['data' => $period]);
+    }
+
+    /**
+     * Dziennik okresu. Bramkowany grantem modułu, nie `activity-log.read` - pokazuje wyłącznie
+     * wpisy `bonus.*` tego okresu, czyli to samo, co i tak widać w tabeli powyżej.
+     */
+    #[Route('/periods/{id}/logs', methods: ['GET'], requirements: ['id' => '\d+'])]
+    #[IsGranted('bonus-settlement.view')]
+    public function logs(int $id, Request $request): JsonResponse
+    {
+        $page = max(1, (int) $request->query->get('page', 1));
+        $pageSize = min(self::MAX_LOGS_PER_PAGE, max(1, (int) $request->query->get('pageSize', 20)));
+
+        /** @var PaginatedLogs $result */
+        $result = $this->queryBus->query(new GetPaginatedLogsQuery(
+            null,
+            new PaginatedLogFilter(
+                page: $page,
+                pageSize: $pageSize,
+                fields: [new FieldFilter(name: 'periodId', value: (string) $id)],
+                filterBy: null,
+                typePrefix: 'bonus.',
+            ),
+        ));
+
+        return $this->json(
+            $this->logMapper->toPage($result->items, $result->total, $result->page, $result->pageSize)
+        );
     }
 
     #[Route('/periods/{id}/recalculate', methods: ['POST'], requirements: ['id' => '\d+'])]

@@ -12,6 +12,16 @@ activity_log:
         production_status_changed: "Production status changed (%departmentName%): %oldStatusName% → %newStatusName%"
         production_date_start_changed: 'Production start date changed (%departmentName%): %oldDate% → %newDate%'
         production_date_end_changed: 'Production end date changed (%departmentName%): %oldDate% → %newDate%'
+    bonus:
+        period:
+            created: 'Settlement period %period% opened (tolerance %toleranceDays% days)'
+            recalculated: 'Period %period% recalculated (tolerance %toleranceDays% days, rows removed: %removedEntries%)'
+            adjustments_reset: 'Adjustments cleared in period %period% (rows cleared: %clearedEntries%)'
+            closed: 'Period %period% closed'
+            reopened: 'Period %period% reopened (closed %closedAt% by %closedByLabel%)'
+        entry:
+            adjusted: 'Bonus adjusted %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter%'
+            adjusted_with_note: 'Bonus adjusted %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter% (%note%)'
 
 # Enum-derived values stored in content params. The key is the canonical Polish name (the value the log
 # holds); read-side translation localizes it. Polish needs no entries - the raw value is already correct.

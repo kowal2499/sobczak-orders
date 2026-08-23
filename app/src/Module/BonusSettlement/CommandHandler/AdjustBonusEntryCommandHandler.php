@@ -49,8 +49,13 @@ class AdjustBonusEntryCommandHandler
     {
         $period = $entry->getPeriod();
 
+        // Dwa warianty komunikatu zamiast pustego nawiasu, gdy notatki nie ma.
+        $note = $entry->getNote();
+
         $this->commandBus->dispatch(new AddActivityLogCommand(
-            message: 'activity_log.bonus.entry.adjusted',
+            message: null === $note
+                ? 'activity_log.bonus.entry.adjusted'
+                : 'activity_log.bonus.entry.adjusted_with_note',
             type: 'bonus.entry.adjusted',
             contextData: [
                 'periodId' => (string) $period->getId(),
@@ -63,7 +68,7 @@ class AdjustBonusEntryCommandHandler
                 'departmentLabel' => $entry->getDepartmentLabel(),
                 'valueBefore' => $before,
                 'valueAfter' => $entry->getEffectiveFactors(),
-                'note' => $entry->getNote(),
+                'note' => $note,
             ],
         ));
     }

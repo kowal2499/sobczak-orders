@@ -43,8 +43,9 @@ class ReopenBonusPeriodCommandHandler
             contextData: ['periodId' => (string) $period->getId()],
             contentParams: [
                 'period' => sprintf('%04d-%02d', $period->getYear(), $period->getMonth()),
-                'closedAt' => $closedAt?->format('Y-m-d H:i:s'),
-                'closedByLabel' => $closedBy?->getUserFullName(),
+                // null trafiłby do komunikatu jako słowo "null" - dziennik ma się czytać, nie debugować
+                'closedAt' => $closedAt?->format('Y-m-d H:i:s') ?? '-',
+                'closedByLabel' => $closedBy?->getUserFullName() ?? '-',
             ],
         ));
     }
