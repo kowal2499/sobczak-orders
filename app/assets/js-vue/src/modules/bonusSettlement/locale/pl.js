@@ -29,7 +29,9 @@ export default {
     logs: {
         title: 'Dziennik okresu',
     },
-    source_report: 'Pulpit z kaflem "Ukończone zadania produkcyjne (w terminie)" za ten miesiąc',
+    details: {
+        tooltip: 'Pokaż szczegóły z raportu',
+    },
     action_done: 'Gotowe.',
     action: {
         create: 'Utwórz okres',
@@ -68,5 +70,6 @@ export default {
         load_period: 'Nie udało się pobrać okresu.',
         action: 'Nie udało się wykonać akcji.',
         export: 'Nie udało się przygotować pliku.',
+        load_details: 'Nie udało się pobrać szczegółów działu.',
     },
 }

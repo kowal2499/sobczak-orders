@@ -4,8 +4,10 @@ import { MONTHS } from '@/services/datesService'
 import TablePlus from '@/components/base/TablePlus.vue'
 import ConfirmationModal from '@/components/base/ConfirmationModal.vue'
 import ActivityLogList from '@/modules/agreement/components/ActivityLogList.vue'
+import Sidebar from '@/components/base/Sidebar.vue'
 import ExcelExport from '@/services/ExcelExport/ExcelExport'
 import AdjustmentCell from './components/AdjustmentCell.vue'
+import OnTimeReportDetails from './components/OnTimeReportDetails.vue'
 import {
     closePeriod,
     createPeriod,
@@ -21,7 +23,14 @@ const FIRST_YEAR = 2024
 
 export default defineComponent({
     name: 'BonusSettlement',
-    components: { ActivityLogList, AdjustmentCell, ConfirmationModal, TablePlus },
+    components: {
+        ActivityLogList,
+        AdjustmentCell,
+        ConfirmationModal,
+        OnTimeReportDetails,
+        Sidebar,
+        TablePlus,
+    },
     computed: {
         breadcrumbs() {
             return [
@@ -138,13 +147,9 @@ export default defineComponent({
                 this.loading = false
             }
         },
-        /**
-         * Odsyłacz do źródła wartości: pulpit z kaflem "Ukończone zadania produkcyjne (w terminie)"
-         * ustawiony na miesiąc okresu. Kafel pokazuje wszystkie działy naraz, więc działu nie da
-         * się podać w adresie.
-         */
-        sourceReportHref() {
-            return `/?year=${this.period.year}&month=${this.period.month - 1}`
+        // Skąd wzięły się te liczby - raport źródłowy za miesiąc rozliczenia.
+        openDetails() {
+            this.detailsVisible = true
         },
         ask(action) {
             this.pendingAction = action
@@ -246,6 +251,7 @@ export default defineComponent({
             pendingAction: null,
             busy: false,
             logsRefresh: 0,
+            detailsVisible: false,
             createForm: { year: today.getFullYear(), month: today.getMonth() + 1 },
         }
     },
@@ -357,9 +363,10 @@ export default defineComponent({
                         </td>
                         <td>
                             <a
-                                :href="sourceReportHref()"
+                                href="#"
                                 v-b-tooltip.hover
-                                :title="$t('bonus_settlement.source_report')"
+                                :title="$t('bonus_settlement.details.tooltip')"
+                                @click.prevent="openDetails(row)"
                             >{{ row.departmentLabel }}</a>
                         </td>
                         <td class="text-right numeric">{{ fmt(row.factorsCalculated) }}</td>
@@ -400,6 +407,17 @@ export default defineComponent({
                 load-on-mount
             />
         </SectionBlock>
+
+        <Sidebar
+            v-if="period"
+            v-model="detailsVisible"
+            :title="$t('dashboard.tasksCompletedOnTime')"
+            sidebar-class="size-100 size-lg-75"
+        >
+            <template #sidebar-content="{ height }">
+                <OnTimeReportDetails :key="period.id" :period="period" :height="height" />
+            </template>
+        </Sidebar>
 
         <ConfirmationModal
             :show="pendingAction !== null"

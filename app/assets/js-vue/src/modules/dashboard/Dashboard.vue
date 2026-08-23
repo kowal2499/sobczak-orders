@@ -154,17 +154,9 @@ export default {
     },
 
     mounted() {
-        // ?year=&month= pozwala odesłać na pulpit ustawiony na konkretny miesiąc
-        // (miesiąc w konwencji JS: 0-11). Bez parametrów pulpit startuje na dziś.
-        const params = new URLSearchParams(window.location.search);
-        const year = parseInt(params.get('year'), 10);
-        const month = parseInt(params.get('month'), 10);
         const today = new Date();
-
-        this.filters.year = Number.isInteger(year) ? year : today.getFullYear();
-        this.filters.month = Number.isInteger(month) && month >= 0 && month <= 11
-            ? month
-            : today.getMonth();
+        this.filters.year = today.getFullYear();
+        this.filters.month = today.getMonth();
 
         this.loadLayout();
     },
