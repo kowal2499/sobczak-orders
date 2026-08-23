@@ -37,7 +37,7 @@ security:
       custom_authenticator:
         # Bez nagłówka Authorization ten authenticator się nie zgłasza, więc przeglądarka dalej chodzi po sesji.
         - App\Module\ApiToken\Security\ApiTokenAuthenticator
-        - App\Security\LoginFormAuthenticator
+        - App\Module\Authorization\Security\LoginFormAuthenticator
 
       logout:
         path: security_logout

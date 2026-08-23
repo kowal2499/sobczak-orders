@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security\Voter;
+namespace App\Module\Authorization\Voter;
 
 use App\Entity\Customer;
 use App\Entity\User;
