@@ -105,6 +105,15 @@ td.prod {
     background-color: #fbfbfb;
 }
 
+// bootstrap podświetla wiersz tłem na <tr>, a nieprzezroczyste tło komórki działu je zasłania.
+// Nakładamy tę samą warstwę na własnym tle komórki, zamiast dobierać przyciemniony kolor
+tr:hover > td.prod {
+    background-image: linear-gradient(
+        var(--listing-hover-overlay, rgba(0, 0, 0, 0.075)),
+        var(--listing-hover-overlay, rgba(0, 0, 0, 0.075))
+    );
+}
+
 .b-dropdown, .b-dropdown.show {
 
     &.dropdown-white button,

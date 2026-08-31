@@ -333,6 +333,11 @@ export default {
     position: relative;
     font-size: 0.8rem;
 
+    // Podświetlenie wiersza. Nakładka zamiast gotowego koloru, bo komórki mają różne tła
+    // (biel, #fbfbfb w działach) i każde ma zostać przyciemnione tak samo. Alfa dobrana
+    // tak, by biała komórka wypadła na #f8f8f8.
+    --listing-hover-overlay: rgba(0, 0, 0, 0.0275);
+
     .table-clone {
         // biblioteka nadaje kontenerowi tylko `position: fixed`, bez z-indeksu, więc
         // sticky komórki tabeli (kolumna akcji: 2, nagłówek: 5) malowałyby się nad klonem
@@ -353,6 +358,22 @@ export default {
         // tabela stoi tuż pod zakładkami, bootstrapowe `.table th { border-top }`
         // dokładało drugą kreskę zaraz pod aktywnym tabem
         border-top: 0;
+    }
+
+    // `.table-hover` przy najechaniu podmienia też kolor tekstu na #212529 - zostawiamy
+    // tylko zmianę tła, żeby wiersz nie zmieniał kontrastu pod kursorem
+    ::v-deep table.table.b-table.table-hover > tbody > tr:hover {
+        color: inherit;
+        background-color: var(--listing-hover-overlay);
+    }
+
+    // komórki sticky (akcje i przypięte kolumny) mają własne, nieprzezroczyste tło, więc
+    // podświetlenie z <tr> ich nie obejmuje, a bootstrap-vue dodatkowo ciemni w nich tekst.
+    // Zamiast dobierać kolor ręcznie nakładamy tę samą warstwę, której bootstrap używa na
+    // wierszu - dzięki temu wynik jest identyczny niezależnie od tła komórki
+    ::v-deep table.table.b-table.table-hover > tbody > tr:hover > .table-b-table-default {
+        color: inherit;
+        background-image: linear-gradient(var(--listing-hover-overlay), var(--listing-hover-overlay));
     }
 
     // sticky kolumna dostaje od bootstrap-vue stały z-index, więc menu rozwinięte
