@@ -5,7 +5,7 @@ ASSETS_DIR      = app/assets
 NVM_INIT        = source ~/.nvm/nvm.sh && cd $(ASSETS_DIR) && nvm use
 
 .PHONY: up down logs dev watch lint check test bash cc pull-db \
-        api-token api-tokens api-token-revoke
+        api-token api-tokens api-token-revoke migrations
 
 ## Docker
 up:
@@ -41,6 +41,10 @@ bash:
 cc:
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/console cache:clear
 	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/console cache:clear --env=test
+
+migrations:
+	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/console d:m:m
+	$(DOCKER_COMPOSE) exec $(PHP_CONTAINER) php bin/console d:m:m --env=test
 
 ## Tokeny API (dostęp do API z Postmana/Bruno bez sesji)
 # make api-token E=roman@erla.pl NAME="Postman - laptop" [TTL=90]  (TTL=0 -> bezterminowy)

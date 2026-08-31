@@ -8,392 +8,366 @@
 
         <SectionBlock class="section-gap">
             <b-pagination
-            v-if="args.meta.pages > 1"
-            align="right"
-            v-model="args.meta.page"
-            :total-rows="args.meta.totalCount"
-            :per-page="args.meta.pageSize"
-            first-number last-number size="sm"
-        />
-
-        <table-plus :headers="tableHeaders" :loading="loading" :initialSort="args.meta.sort" @sortChanged="updateSort" sticky-header>
-            <template v-for="order in orders">
-                <production-row
-                    v-if="order.productions.length > 0"
-                    :order="order"
-                    :taskStatuses="taskStatuses"
-                    :key="order.agreementLineId"
-                    :disabled="busyOrders.includes(order.agreementLineId)"
-                    @statusUpdated="updateStatus($event, order.agreementLineId)"
-                    @taskStatusUpdated="updateTaskStatus($event, order.agreementLineId)"
-                    @lineChanged="fetchData"
-                    @expandToggle="prodExpanded = prodExpanded === $event ? null : $event"
-                />
-            </template>
-        </table-plus>
-
-        <b-pagination
                 v-if="args.meta.pages > 1"
                 align="right"
                 v-model="args.meta.page"
                 :total-rows="args.meta.totalCount"
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
-        />
+            />
+
+            <BaseListing :listing-configuration="listing">
+                <ListingTable
+                    :listing="listing"
+                    :items="rows"
+                    :loading="loading"
+                    :sort="args.meta.sort"
+                    :cell-props="{ taskStatuses }"
+                    :row-disabled="isRowDisabled"
+                    :actions-label="$t('actions')"
+                    row-key="agreementLineId"
+                    sticky-header
+                    @sortChanged="updateSort"
+                    @statusUpdated="updateStatus"
+                    @taskStatusUpdated="updateTaskStatus"
+                    @lineChanged="fetchData"
+                >
+                    <template #actions="{ item, disabled }">
+                        <line-actions :line="item" :disabled="disabled" @lineChanged="fetchData" />
+                    </template>
+                </ListingTable>
+            </BaseListing>
+
+            <b-pagination
+                v-if="args.meta.pages > 1"
+                align="right"
+                v-model="args.meta.page"
+                :total-rows="args.meta.totalCount"
+                :per-page="args.meta.pageSize"
+                first-number last-number size="sm"
+            />
         </SectionBlock>
     </div>
 </template>
 
 <script>
-    import qs from 'qs';
-    import moment from 'moment';
-    import routing from '../../../api/routing';
-    import productionApi from '../../../api/production';
-    import Helpers, {DEPARTMENTS} from '../../../helpers';
-    import Filters from '../../../components/production/Filters';
-    import TablePlus from '../../../components/base/TablePlus';
-    import ProductionRow from "../components/ProductionRow2";
-    import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
-    import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
-    import { updateTaskStatus } from '../../task/repository/taskRepository'
+import qs from 'qs';
+import moment from 'moment';
+import routing from '../../../api/routing';
+import productionApi from '../../../api/production';
+import Helpers from '../../../helpers';
+import Filters from '../../../components/production/Filters';
+import LineActions from "../components/LineActions2";
+import { resolveDefaultOrder } from "../../agreementLineList/services/DefaultSortDateResolver"
+import { rmSearch, rmFetchSingle } from '../repository/readModelRepository'
+import { updateTaskStatus } from '../../task/repository/taskRepository'
 
-    export default {
-        name: "AgreementLineListRM",
+import BaseListing from "@/components/base/BaseListing/index.vue";
+import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
+import Listing from "@/components/base/BaseListing/model/Listing.js";
+import { LISTING_PRODUCTION_ID, columnsFactory as productionListingColumnsFactory } from "../configuration/productionListing";
 
-        components: {Filters, TablePlus, ProductionRow},
+export default {
+    name: "AgreementLineListRM",
 
-        props: {
-            taskStatuses: {
-                type: Object,
-                default: () => {}
-            },
-            departments: {
-                type: Array,
-                default: () => []
-            }
-        },
+    components: { Filters, LineActions, BaseListing, ListingTable },
 
-        data() {
-            return {
-                syncQueryString: false,
-                args: {
-                    filters: {
-                        dateStart: {
-                            start: null,
-                            end: null
-                        },
-                        dateDelivery: {
-                            start: null,
-                            end: null
-                        },
-                        hideArchive: true,
-                        hasProduction: true,
-                        q: '',
-                    },
-                    meta: {
-                        page: 0,
-                        pages: 0,
-                        totalCount: 0,
-                        pageSize: 0,
-                        sort: ''
-                    },
-                },
-                helpers: Helpers,
-                orders: [],
-                prodExpanded: null,
-                loading: false,
-                busyOrders: [],
-            }
-        },
-
-        created() {
-            this.syncQueryString = true;
-
-            // parse initial query string
-            let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-
-            for (let i of [
-                {
-                    moment0: moment(query.dateReceive0 || null),
-                    moment1: moment(query.dateReceive1 || null),
-                    store0: 'args.filters.dateStart.start',
-                    store1: 'args.filters.dateStart.end',
-                },
-                {
-                    moment0: moment(query.dateDelivery0 || null),
-                    moment1: moment(query.dateDelivery1 || null),
-                    store0: 'args.filters.dateDelivery.start',
-                    store1: 'args.filters.dateDelivery.end',
-                },
-            ]) {
-
-                // both dates need to be set and valid
-                if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
-                    _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
-                    _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
-                }
-            }
-
-            // q
-            this.args.filters.q = query.q ? String(query.q) : '';
-
-            // hide active
-            if (query.hideArchive === 'true' || query.hideArchive === undefined) {
-                this.args.filters.hideArchive = true;
-            } else {
-                this.args.filters.hideArchive = false;
-            }
-            // this.args.filters.hideArchive = query.hideArchive === 'true' ? false : '';
-
-            // page
-            this.args.meta.page = parseInt(query.page) || 1;
-
-            // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
-        },
-
-        watch: {
-            'args.filters': {
-                handler() {
-                    // zmiana filtrów przywraca paginację na stronę 1
-                    this.args.meta.page = 1
-                },
-                deep: true,
-            },
-
-            queryString: {
-                handler() {
-                    this.fetchData();
-                }
-            }
-        },
-
-        methods: {
-            fetchData() {
-                this.loading = true;
-
-                let payload = this.args.filters;
-                payload.page = this.args.meta.page;
-                payload.sort = this.args.meta.sort;
-
-                rmSearch(payload)
-                    .then(({data}) => {
-                        if (data && data.data) {
-                            data.data.forEach(order => {
-                                order.meta = {
-                                    buttonExpanded: false,
-                                    confirmRemove: false,
-                                    showCustomTasks: false,
-                                }
-                            });
-                            this.orders = data.data;
-                        } else {
-                            this.orders = [];
-                        }
-                        this.args.meta.pages = data.meta.pages || 0;
-												this.args.meta.totalCount = data.meta.totalCount || 0;
-												this.args.meta.pageSize = data.meta.pageSize || 0;
-                    })
-                    .finally(() => this.loading = false)
-            },
-
-            updateTaskStatus({ id, status }, agreementLineId) {
-                this.busyOrders.push(agreementLineId);
-                return updateTaskStatus(id, status)
-                    .then(() => this.fetchSingleLine(agreementLineId))
-                    .then(() => this.$flash.success(this.$t('statusChangeSaved')))
-                    .catch((error) => {
-                        let msg = '';
-                        if (error.response && error.response.status) {
-                            switch (error.response.status) {
-                                case 403:
-                                    msg = this.$t('forbidden');
-                                    break;
-                                default:
-                                    msg = this.$t('error');
-                            }
-                        }
-                        this.$flash.danger(msg)
-                    })
-                    .finally(() => {
-                        this.busyOrders = this.busyOrders.filter(order => order !== agreementLineId)
-                    });
-            },
-
-            updateStatus(data, agreementLineId) {
-                const taskId = data.id;
-                const newStatus = data.status;
-                const lineId = agreementLineId
-                this.busyOrders.push(agreementLineId);
-
-                productionApi.updateStatus(taskId, newStatus)
-                    .then(() => this.fetchSingleLine(lineId))
-                    .then(() => this.$flash.success(this.$t('statusChangeSaved')))
-                    .catch((error) => {
-                        let msg = '';
-                        if (error.response && error.response.status) {
-                            switch (error.response.status) {
-                                case 403:
-                                    msg = this.$t('forbidden');
-                                    break;
-                                default:
-                                    msg = this.$t('error');
-                            }
-                        }
-                        this.$flash.danger(msg)
-                    })
-                    .finally(() => {
-                        this.busyOrders = this.busyOrders.filter(order => order !== lineId)
-                    });
-            },
-
-            fetchSingleLine(agreementLineId) {
-                return rmFetchSingle(agreementLineId)
-                .then(({data}) => {
-                    this.orders = this.orders.map(order => {
-                        return order.agreementLineId === data.agreementLineId ? data : order
-                    })
-                })
-            },
-
-            getStatusStyle(production) {
-                let status = this.helpers.taskStatuses.find(item => item.value === production.status);
-                if (status) {
-                    return 'background-color: '.concat(status.color);
-                }
-
-                return '';
-            },
-
-            updateSort(event) {
-                this.args.meta.sort = event
-            },
-
-            getRouting() {
-                return routing;
-            },
-
-            onFiltersClear() {
-                this.args.filters.dateStart.start = null
-                this.args.filters.dateStart.end = null
-                this.args.filters.dateDelivery.start = null
-                this.args.filters.dateDelivery.end = null
-                this.args.filters.q = ''
-                this.args.filters.hideArchive = true
-                this.args.meta.sort = ''
-                this.args.meta.page = 1
-            }
-        },
-
-        computed: {
-            breadcrumbs() {
-                return [
-                    { icon: 'home', href: '/', label: this.$t('dashboard.title') },
-                    { label: this.$t('orders.productionSchedule') },
-                ]
-            },
-
-            productionDepartmentHeaders() {
-                return this.departments.map((department, index) => {
-                    const dep = DEPARTMENTS.find(d => d.slug === department.slug);
-                    if (!dep) {
-                        return null
-                    }
-                    const backgroundColorClass = (index % 2) ? 'background-color-primary-light-90' : 'background-color-primary-light-80';
-                    const thClass = 'text-center'.concat(' ', backgroundColorClass)
-                    return (this.$user.can(dep.grant) && {
-                        thClass,
-                        items: [
-                            {
-                                name: this.$t(`_${department.slug}`),
-                            },
-                            {
-                                name: this.$t('agreement_line_list.startProductionForm.startDate'),
-                                sortKey: `${department.slug}DateStart`,
-                                wrapperClass: 'text-nowrap',
-                            },
-                            {
-                                name: this.$t('agreement_line_list.startProductionForm.endDate'),
-                                sortKey: `${department.slug}DateEnd`,
-                                wrapperClass: 'text-nowrap',
-                            }
-                        ]}) || null
-                }).filter(Boolean)
-            },
-
-            tableHeaders() {
-                const headers = [
-                    { name: this.$t('actions')},
-                    { name: this.$t('ID'), sortKey: 'id' },
-                    { name: this.$t('attachments') },
-                    this.userCanReadTasks && { name: this.$t('tasks') },
-                    this.$user.can('production.show.production_date') && { name: this.$t('orders.date'), sortKey: 'dateConfirmed' },
-                    { name: this.$t('orders.issuedBy'), sortKey: 'user' },
-                    { name: this.$t('customer'), sortKey: 'customer' },
-                    { name: this.$t('product'), sortKey: 'product' },
-                    this.userCanProduction && { name: this.$t('orders.fctr'), sortKey: 'factor'},
-                ].filter(Boolean).map(i => ({ items: [i], thClass: null }))
-
-                headers.push(...this.productionDepartmentHeaders)
-                return headers
-            },
-
-            productionSlugs() {
-                return this.departments.map(d => { return d.slug; })
-            },
-
-            userCanProduction() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION);
-            },
-
-            userCanReadTasks() {
-                return this.$user.can('task.orphans:read');
-            },
-
-            userCanSeeProductionDate() {
-                return this.$user.can('production.show.production_date');
-            },
-
-            /**
-             * Tworzenie queryString na podstawie zmiennych z data
-             *
-             * @returns {string}
-             */
-            queryString() {
-                if (!this.syncQueryString) {
-                    return;
-                }
-                let query = {};
-                if (this.args.filters.dateStart.start) {
-                    query.dateReceive0 = this.args.filters.dateStart.start;
-                }
-                if (this.args.filters.dateStart.end) {
-                    query.dateReceive1 = this.args.filters.dateStart.end;
-                }
-                if (this.args.filters.dateDelivery.start) {
-                    query.dateDelivery0 = this.args.filters.dateDelivery.start;
-                }
-                if (this.args.filters.dateDelivery.end) {
-                    query.dateDelivery1 = this.args.filters.dateDelivery.end;
-                }
-                if (this.args.filters.q && this.args.filters.q.length > 0) {
-                    query.q = this.args.filters.q;
-                }
-                query.hideArchive = this.args.filters.hideArchive ? 'true' : 'false';
-
-                query.page = this.args.meta.page;
-                if (this.args.meta.sort) {
-                    query.sort = this.args.meta.sort;
-                }
-
-                let qString = window.location.pathname.concat('?', qs.stringify(query));
-                history.pushState(null, '', qString);
-
-                return qString;
-            },
-
+    props: {
+        taskStatuses: {
+            type: Object,
+            default: () => {}
         }
-    }
+    },
+
+    created() {
+        // listing initialization
+        this.listing = new Listing(
+            LISTING_PRODUCTION_ID,
+            this.$t('orders.productionSchedule'),
+            productionListingColumnsFactory(this.$user)
+        )
+        this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+        this.listing.fetchViews()
+
+        //
+        this.syncQueryString = true;
+
+        // parse initial query string
+        let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+
+        for (let i of [
+            {
+                moment0: moment(query.dateReceive0 || null),
+                moment1: moment(query.dateReceive1 || null),
+                store0: 'args.filters.dateStart.start',
+                store1: 'args.filters.dateStart.end',
+            },
+            {
+                moment0: moment(query.dateDelivery0 || null),
+                moment1: moment(query.dateDelivery1 || null),
+                store0: 'args.filters.dateDelivery.start',
+                store1: 'args.filters.dateDelivery.end',
+            },
+        ]) {
+
+            // both dates need to be set and valid
+            if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
+                _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
+                _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
+            }
+        }
+
+        // q
+        this.args.filters.q = query.q ? String(query.q) : '';
+
+        // hide active
+        if (query.hideArchive === 'true' || query.hideArchive === undefined) {
+            this.args.filters.hideArchive = true;
+        } else {
+            this.args.filters.hideArchive = false;
+        }
+        // this.args.filters.hideArchive = query.hideArchive === 'true' ? false : '';
+
+        // page
+        this.args.meta.page = parseInt(query.page) || 1;
+
+        // sort
+        this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
+    },
+
+    computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('dashboard.title') },
+                { label: this.$t('orders.productionSchedule') },
+            ]
+        },
+
+        rows() {
+            return this.orders.filter(order => (order.productions || []).length > 0)
+        },
+
+        userCanProduction() {
+            return this.$user.can(this.$privilages.CAN_PRODUCTION);
+        },
+
+        userCanReadTasks() {
+            return this.$user.can('task.orphans:read');
+        },
+
+        userCanSeeProductionDate() {
+            return this.$user.can('production.show.production_date');
+        },
+
+        /**
+         * Tworzenie queryString na podstawie zmiennych z data
+         *
+         * @returns {string}
+         */
+        queryString() {
+            if (!this.syncQueryString) {
+                return;
+            }
+            let query = {};
+            if (this.args.filters.dateStart.start) {
+                query.dateReceive0 = this.args.filters.dateStart.start;
+            }
+            if (this.args.filters.dateStart.end) {
+                query.dateReceive1 = this.args.filters.dateStart.end;
+            }
+            if (this.args.filters.dateDelivery.start) {
+                query.dateDelivery0 = this.args.filters.dateDelivery.start;
+            }
+            if (this.args.filters.dateDelivery.end) {
+                query.dateDelivery1 = this.args.filters.dateDelivery.end;
+            }
+            if (this.args.filters.q && this.args.filters.q.length > 0) {
+                query.q = this.args.filters.q;
+            }
+            query.hideArchive = this.args.filters.hideArchive ? 'true' : 'false';
+
+            query.page = this.args.meta.page;
+            if (this.args.meta.sort) {
+                query.sort = this.args.meta.sort;
+            }
+
+            let qString = window.location.pathname.concat('?', qs.stringify(query));
+            history.pushState(null, '', qString);
+
+            return qString;
+        },
+    },
+
+    watch: {
+        'args.filters': {
+            handler() {
+                // zmiana filtrów przywraca paginację na stronę 1
+                this.args.meta.page = 1
+            },
+            deep: true,
+        },
+
+        queryString: {
+            handler() {
+                this.fetchData();
+            }
+        }
+    },
+
+    methods: {
+        fetchData() {
+            this.loading = true;
+
+            let payload = this.args.filters;
+            payload.page = this.args.meta.page;
+            payload.sort = this.args.meta.sort;
+
+            rmSearch(payload)
+                .then(({data}) => {
+                    if (data && data.data) {
+                        data.data.forEach(order => {
+                            order.meta = {
+                                buttonExpanded: false,
+                                confirmRemove: false,
+                                showCustomTasks: false,
+                            }
+                        });
+                        this.orders = data.data;
+                    } else {
+                        this.orders = [];
+                    }
+                    this.args.meta.pages = data.meta.pages || 0;
+                    this.args.meta.totalCount = data.meta.totalCount || 0;
+                    this.args.meta.pageSize = data.meta.pageSize || 0;
+                })
+                .finally(() => this.loading = false)
+        },
+
+        updateTaskStatus({ id, status }, agreementLineId) {
+            this.busyOrders.push(agreementLineId);
+            return updateTaskStatus(id, status)
+                .then(() => this.fetchSingleLine(agreementLineId))
+                .then(() => this.$flash.success(this.$t('statusChangeSaved')))
+                .catch((error) => {
+                    let msg = '';
+                    if (error.response && error.response.status) {
+                        switch (error.response.status) {
+                            case 403:
+                                msg = this.$t('forbidden');
+                                break;
+                            default:
+                                msg = this.$t('error');
+                        }
+                    }
+                    this.$flash.danger(msg)
+                })
+                .finally(() => {
+                    this.busyOrders = this.busyOrders.filter(order => order !== agreementLineId)
+                });
+        },
+
+        updateStatus(data, agreementLineId) {
+            const taskId = data.id;
+            const newStatus = data.status;
+            const lineId = agreementLineId
+            this.busyOrders.push(agreementLineId);
+
+            productionApi.updateStatus(taskId, newStatus)
+                .then(() => this.fetchSingleLine(lineId))
+                .then(() => this.$flash.success(this.$t('statusChangeSaved')))
+                .catch((error) => {
+                    let msg = '';
+                    if (error.response && error.response.status) {
+                        switch (error.response.status) {
+                            case 403:
+                                msg = this.$t('forbidden');
+                                break;
+                            default:
+                                msg = this.$t('error');
+                        }
+                    }
+                    this.$flash.danger(msg)
+                })
+                .finally(() => {
+                    this.busyOrders = this.busyOrders.filter(order => order !== lineId)
+                });
+        },
+
+        fetchSingleLine(agreementLineId) {
+            return rmFetchSingle(agreementLineId)
+            .then(({data}) => {
+                this.orders = this.orders.map(order => {
+                    return order.agreementLineId === data.agreementLineId ? data : order
+                })
+            })
+        },
+
+        getStatusStyle(production) {
+            let status = this.helpers.taskStatuses.find(item => item.value === production.status);
+            if (status) {
+                return 'background-color: '.concat(status.color);
+            }
+
+            return '';
+        },
+
+        updateSort(event) {
+            this.args.meta.sort = event
+        },
+
+        isRowDisabled(order) {
+            return this.busyOrders.includes(order.agreementLineId)
+        },
+
+        getRouting() {
+            return routing;
+        },
+
+        onFiltersClear() {
+            this.args.filters.dateStart.start = null
+            this.args.filters.dateStart.end = null
+            this.args.filters.dateDelivery.start = null
+            this.args.filters.dateDelivery.end = null
+            this.args.filters.q = ''
+            this.args.filters.hideArchive = true
+            this.args.meta.sort = ''
+            this.args.meta.page = 1
+        }
+    },
+
+    data() {
+        return {
+            syncQueryString: false,
+            args: {
+                filters: {
+                    dateStart: {
+                        start: null,
+                        end: null
+                    },
+                    dateDelivery: {
+                        start: null,
+                        end: null
+                    },
+                    hideArchive: true,
+                    hasProduction: true,
+                    q: '',
+                },
+                meta: {
+                    page: 0,
+                    pages: 0,
+                    totalCount: 0,
+                    pageSize: 0,
+                    sort: ''
+                },
+            },
+            helpers: Helpers,
+            orders: [],
+            loading: false,
+            busyOrders: [],
+            listing: null
+        }
+    },
+}
 
 </script>
 

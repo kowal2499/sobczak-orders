@@ -76,6 +76,25 @@ export default {
         'description': 'Impersonation allows you to temporarily act as the selected user. Permissions and the interface view will be exactly the same as that user’s. All actions will be recorded under that user’s account.'
     },
 
+    'listing': {
+        'loading': 'Loading...',
+        'columns': 'Columns',
+        'newView': 'New view',
+        'newViewTitle': 'New view',
+        'defaultViewTitle': 'Default',
+        'copyOfViewTitle': '{title} - copy',
+        'pinColumn': 'Pin to the left',
+        'unpinColumn': 'Unpin',
+        'moveColumnUp': 'Move left',
+        'moveColumnDown': 'Move right',
+        'renameView': 'Rename',
+        'removeView': 'Remove view',
+        'removeViewConfirm': 'Remove the view "{title}"?',
+        'moveViewLeft': 'Move left',
+        'moveViewRight': 'Move right',
+        'saveError': 'Could not save the view settings',
+    },
+
     '_validation': {
         'required': 'This field is required',
         'dateFrom': 'The start date must be earlier than the end date',

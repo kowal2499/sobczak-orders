@@ -75,6 +75,25 @@ export default {
         'description': 'Przelogowanie pozwala tymczasowo działać jako wybrany użytkownik. Uprawnienia i widok interjesu będą dokładnie takie jak posiada dany użytkownik. Wszystkie operacje zostaną zapisane na jego konto.'
     },
 
+    'listing': {
+        'loading': 'Wczytywanie...',
+        'columns': 'Kolumny',
+        'newView': 'Nowy widok',
+        'newViewTitle': 'Nowy widok',
+        'defaultViewTitle': 'Domyślny',
+        'copyOfViewTitle': '{title} - kopia',
+        'pinColumn': 'Przypnij do lewej',
+        'unpinColumn': 'Odepnij',
+        'moveColumnUp': 'Przesuń w lewo',
+        'moveColumnDown': 'Przesuń w prawo',
+        'renameView': 'Zmień nazwę',
+        'removeView': 'Usuń widok',
+        'removeViewConfirm': 'Czy na pewno usunąć widok "{title}"?',
+        'moveViewLeft': 'Przesuń w lewo',
+        'moveViewRight': 'Przesuń w prawo',
+        'saveError': 'Nie udało się zapisać ustawień widoku',
+    },
+
     '_validation': {
         'required': 'To pole jest wymagane',
         'dateFrom': 'Data początkowa musi być wcześniejsza niż data końcowa',
