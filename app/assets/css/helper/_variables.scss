@@ -5,6 +5,7 @@ $mainBlue: #4e73df;
 $gray: #808080;
 $green: #28a745;
 $yellow: #ffc107;
+$red: #dc3545;
 
 $lightgray: #efefef;
 $lightgray2: color.scale(#efefef, $lightness: -10%);
@@ -71,4 +72,7 @@ $text: #333;
 
     --colorYellow: #{$yellow};
     --colorYellowRgb: #{color.red($yellow)}, #{color.green($yellow)}, #{color.blue($yellow)};
+
+    --colorRed: #{$red};
+    --colorRedRgb: #{color.red($red)}, #{color.green($red)}, #{color.blue($red)};
 }

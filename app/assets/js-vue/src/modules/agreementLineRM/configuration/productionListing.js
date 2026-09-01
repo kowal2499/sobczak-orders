@@ -1,5 +1,6 @@
 import moment from "moment";
 import Column from "@/components/base/BaseListing/model/Column";
+import Criterion, { TYPE_BOOLEAN, TYPE_DATE_RANGE, TYPE_TEXT } from "@/components/base/BaseListing/model/Criterion";
 import i18n from "@/../i18n";
 import { DEPARTMENTS } from "@/helpers";
 import Roles from "@/definitions/userRoles";
@@ -23,6 +24,38 @@ export const COLUMN_PRODUCTION_DEPARTMENTS_MAP = DEPARTMENTS.reduce((acc, dpt) =
   acc[dpt.slug] = `production_${dpt.slug}`
   return acc
 }, {})
+
+export const CRITERION_SEARCH = 'q'
+export const CRITERION_DATE_START = 'dateStart'
+export const CRITERION_DATE_DELIVERY = 'dateDelivery'
+export const CRITERION_HIDE_ARCHIVE = 'hideArchive'
+
+export const criteriaFactory = (user) => ([
+  new Criterion({
+    id: CRITERION_SEARCH,
+    label: i18n.t('search'),
+    type: TYPE_TEXT,
+    defaultValue: '',
+  }),
+  new Criterion({
+    id: CRITERION_DATE_START,
+    label: i18n.t('receiveDate'),
+    type: TYPE_DATE_RANGE,
+    defaultValue: { start: null, end: null },
+  }),
+  user.can('production.show.production_date') && new Criterion({
+    id: CRITERION_DATE_DELIVERY,
+    label: i18n.t('deliveryDate'),
+    type: TYPE_DATE_RANGE,
+    defaultValue: { start: null, end: null },
+  }),
+  new Criterion({
+    id: CRITERION_HIDE_ARCHIVE,
+    label: i18n.t('orders.hideArchivedOrder'),
+    type: TYPE_BOOLEAN,
+    defaultValue: true,
+  }),
+]).filter(Boolean)
 
 export const columnsFactory = (user) => ([
   new Column({

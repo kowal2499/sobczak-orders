@@ -1,10 +1,6 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <filters :filters-collection="args.filters" />
-            </template>
-        </SectionBlockTitle>
+        <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs" />
 
         <SectionBlock class="section-gap">
             <b-pagination
@@ -17,6 +13,10 @@
             />
 
             <BaseListing :listing-configuration="listing">
+                <template #filters>
+                    <filters :filters-collection="listing.criteriaValues" stacked />
+                </template>
+
                 <ListingTable
                     :listing="listing"
                     :items="rows"
@@ -65,7 +65,15 @@ import { updateTaskStatus } from '../../task/repository/taskRepository'
 import BaseListing from "@/components/base/BaseListing/index.vue";
 import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
 import Listing from "@/components/base/BaseListing/model/Listing.js";
-import { LISTING_PRODUCTION_ID, columnsFactory as productionListingColumnsFactory } from "../configuration/productionListing";
+import {
+    LISTING_PRODUCTION_ID,
+    CRITERION_SEARCH,
+    CRITERION_DATE_START,
+    CRITERION_DATE_DELIVERY,
+    CRITERION_HIDE_ARCHIVE,
+    columnsFactory as productionListingColumnsFactory,
+    criteriaFactory as productionListingCriteriaFactory,
+} from "../configuration/productionListing";
 
 export default {
     name: "AgreementLineListRM",
@@ -80,59 +88,30 @@ export default {
     },
 
     created() {
-        // listing initialization
         this.listing = new Listing(
             LISTING_PRODUCTION_ID,
             this.$t('orders.productionSchedule'),
-            productionListingColumnsFactory(this.$user)
+            productionListingColumnsFactory(this.$user),
+            productionListingCriteriaFactory(this.$user)
         )
         this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
-        this.listing.fetchViews()
 
-        //
-        this.syncQueryString = true;
+        const query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+        const queryCriteria = this.parseQueryCriteria(query);
 
-        // parse initial query string
-        let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-
-        for (let i of [
-            {
-                moment0: moment(query.dateReceive0 || null),
-                moment1: moment(query.dateReceive1 || null),
-                store0: 'args.filters.dateStart.start',
-                store1: 'args.filters.dateStart.end',
-            },
-            {
-                moment0: moment(query.dateDelivery0 || null),
-                moment1: moment(query.dateDelivery1 || null),
-                store0: 'args.filters.dateDelivery.start',
-                store1: 'args.filters.dateDelivery.end',
-            },
-        ]) {
-
-            // both dates need to be set and valid
-            if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
-                _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
-                _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
+        this.listing.fetchViews().then(() => {
+            // Filtry z adresu mają pierwszeństwo przed zapisanymi w widoku, żeby wysłany
+            // link otwierał to, co widział nadawca. Rozjazd pokaże się jako niezapisane zmiany.
+            if (Object.keys(queryCriteria).length) {
+                this.listing.setCriteriaValues({ ...this.listing.criteriaValues, ...queryCriteria });
             }
-        }
 
-        // q
-        this.args.filters.q = query.q ? String(query.q) : '';
+            this.args.meta.page = parseInt(query.page) || 1;
+            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
 
-        // hide active
-        if (query.hideArchive === 'true' || query.hideArchive === undefined) {
-            this.args.filters.hideArchive = true;
-        } else {
-            this.args.filters.hideArchive = false;
-        }
-        // this.args.filters.hideArchive = query.hideArchive === 'true' ? false : '';
-
-        // page
-        this.args.meta.page = parseInt(query.page) || 1;
-
-        // sort
-        this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
+            // dopiero teraz przepisujemy stan do adresu - to uruchamia pierwsze pobranie
+            this.syncQueryString = true;
+        })
     },
 
     computed: {
@@ -164,27 +143,36 @@ export default {
          *
          * @returns {string}
          */
+        criteria() {
+            return this.listing ? this.listing.criteriaValues : {};
+        },
+
         queryString() {
             if (!this.syncQueryString) {
                 return;
             }
+
+            const criteria = this.criteria;
+            const dateStart = criteria[CRITERION_DATE_START] || {};
+            const dateDelivery = criteria[CRITERION_DATE_DELIVERY] || {};
             let query = {};
-            if (this.args.filters.dateStart.start) {
-                query.dateReceive0 = this.args.filters.dateStart.start;
+
+            if (dateStart.start) {
+                query.dateReceive0 = dateStart.start;
             }
-            if (this.args.filters.dateStart.end) {
-                query.dateReceive1 = this.args.filters.dateStart.end;
+            if (dateStart.end) {
+                query.dateReceive1 = dateStart.end;
             }
-            if (this.args.filters.dateDelivery.start) {
-                query.dateDelivery0 = this.args.filters.dateDelivery.start;
+            if (dateDelivery.start) {
+                query.dateDelivery0 = dateDelivery.start;
             }
-            if (this.args.filters.dateDelivery.end) {
-                query.dateDelivery1 = this.args.filters.dateDelivery.end;
+            if (dateDelivery.end) {
+                query.dateDelivery1 = dateDelivery.end;
             }
-            if (this.args.filters.q && this.args.filters.q.length > 0) {
-                query.q = this.args.filters.q;
+            if (criteria[CRITERION_SEARCH]) {
+                query.q = criteria[CRITERION_SEARCH];
             }
-            query.hideArchive = this.args.filters.hideArchive ? 'true' : 'false';
+            query.hideArchive = criteria[CRITERION_HIDE_ARCHIVE] ? 'true' : 'false';
 
             query.page = this.args.meta.page;
             if (this.args.meta.sort) {
@@ -199,10 +187,12 @@ export default {
     },
 
     watch: {
-        'args.filters': {
+        criteria: {
             handler() {
                 // zmiana filtrów przywraca paginację na stronę 1
-                this.args.meta.page = 1
+                if (this.syncQueryString) {
+                    this.args.meta.page = 1
+                }
             },
             deep: true,
         },
@@ -215,10 +205,47 @@ export default {
     },
 
     methods: {
+        /**
+         * Filtry z adresu. Zwraca tylko te, które faktycznie w nim były.
+         *
+         * @param {Object} query
+         * @returns {Object}
+         */
+        parseQueryCriteria(query) {
+            const criteria = {};
+
+            for (const range of [
+                { id: CRITERION_DATE_START, from: query.dateReceive0, to: query.dateReceive1 },
+                { id: CRITERION_DATE_DELIVERY, from: query.dateDelivery0, to: query.dateDelivery1 },
+            ]) {
+                const from = moment(range.from || null);
+                const to = moment(range.to || null);
+
+                // obie daty muszą być poprawne i w kolejności
+                if (from.isValid() && to.isValid() && from <= to) {
+                    criteria[range.id] = { start: from.format('YYYY-MM-DD'), end: to.format('YYYY-MM-DD') };
+                }
+            }
+
+            if (query.q !== undefined) {
+                criteria[CRITERION_SEARCH] = String(query.q);
+            }
+
+            if (query.hideArchive !== undefined) {
+                criteria[CRITERION_HIDE_ARCHIVE] = query.hideArchive === 'true';
+            }
+
+            return criteria;
+        },
+
         fetchData() {
             this.loading = true;
 
-            let payload = this.args.filters;
+            const payload = this.listing.supportedCriteria.reduce((acc, criterion) => {
+                acc[criterion.apiKey] = this.criteria[criterion.id];
+                return acc;
+            }, { hasProduction: true });
+
             payload.page = this.args.meta.page;
             payload.sort = this.args.meta.sort;
 
@@ -321,17 +348,6 @@ export default {
 
         getRouting() {
             return routing;
-        },
-
-        onFiltersClear() {
-            this.args.filters.dateStart.start = null
-            this.args.filters.dateStart.end = null
-            this.args.filters.dateDelivery.start = null
-            this.args.filters.dateDelivery.end = null
-            this.args.filters.q = ''
-            this.args.filters.hideArchive = true
-            this.args.meta.sort = ''
-            this.args.meta.page = 1
         }
     },
 
@@ -339,19 +355,6 @@ export default {
         return {
             syncQueryString: false,
             args: {
-                filters: {
-                    dateStart: {
-                        start: null,
-                        end: null
-                    },
-                    dateDelivery: {
-                        start: null,
-                        end: null
-                    },
-                    hideArchive: true,
-                    hasProduction: true,
-                    q: '',
-                },
                 meta: {
                     page: 0,
                     pages: 0,
