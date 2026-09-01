@@ -18,6 +18,12 @@ export default class Listing {
     /** @type {Column[]} */
     supportedColumns;
 
+    /** @type {Criterion[]} */
+    supportedCriteria;
+
+    /** @type {Object} bieżące wartości filtrów, klucz = id kryterium */
+    criteriaValues;
+
     /** @type {string|null} */
     activeViewId;
 
@@ -37,14 +43,17 @@ export default class Listing {
      * @param {string} id
      * @param {string} title
      * @param {Column[]} supportedColumns
+     * @param {Criterion[]} supportedCriteria
      */
-    constructor(id, title, supportedColumns) {
+    constructor(id, title, supportedColumns, supportedCriteria) {
         this.#id = id || null;
         this.#title = title || null;
         this.supportedColumns = supportedColumns || [];
+        this.supportedCriteria = supportedCriteria || [];
 
         this.activeViewId = null;
         this.viewCollection = [];
+        this.criteriaValues = this.defaultCriteriaValues();
 
         this.fetchingData = false;
     }
@@ -121,6 +130,93 @@ export default class Listing {
         this.persist();
     }
 
+    /** @returns {Object} */
+    defaultCriteriaValues() {
+        return this.supportedCriteria.reduce((acc, criterion) => {
+            acc[criterion.id] = criterion.defaultValue;
+            return acc;
+        }, {});
+    }
+
+    /**
+     * Wartości zapisane w widoku, uzupełnione domyślnymi. Widok trzyma tylko to,
+     * co odbiega od domyślnych, więc dołożenie nowego kryterium nie psuje starych zapisów.
+     *
+     * @returns {Object}
+     */
+    viewCriteriaValues() {
+        const view = this.activeView;
+        const stored = (view && view.criteria && !Array.isArray(view.criteria)) ? view.criteria : {};
+
+        return { ...this.defaultCriteriaValues(), ...JSON.parse(JSON.stringify(stored)) };
+    }
+
+    /** @param {Object} values */
+    setCriteriaValues(values) {
+        this.criteriaValues = { ...this.defaultCriteriaValues(), ...JSON.parse(JSON.stringify(values || {})) };
+    }
+
+    /**
+     * @param {string} id
+     * @param {*} value
+     */
+    setCriterionValue(id, value) {
+        this.criteriaValues = { ...this.criteriaValues, [id]: value };
+    }
+
+    /** @param {string} id */
+    clearCriterion(id) {
+        const criterion = this.supportedCriteria.find(item => item.id === id);
+        if (!criterion) {
+            return;
+        }
+
+        this.setCriterionValue(id, criterion.defaultValue);
+    }
+
+    /** Kryteria z ustawioną wartością - do chipów i licznika. */
+    get activeCriteria() {
+        return this.supportedCriteria
+            .filter(criterion => !criterion.isEmpty(this.criteriaValues[criterion.id]))
+            .map(criterion => ({ criterion, value: this.criteriaValues[criterion.id] }));
+    }
+
+    /** Czy bieżące filtry różnią się od zapisanych w widoku. */
+    get isCriteriaDirty() {
+        return JSON.stringify(this.criteriaValues) !== JSON.stringify(this.viewCriteriaValues());
+    }
+
+    /** Wraca do filtrów zapisanych w widoku. */
+    restoreCriteria() {
+        this.setCriteriaValues(this.viewCriteriaValues());
+    }
+
+    /** Czyści filtry do wartości domyślnych, bez zapisu. */
+    clearCriteria() {
+        this.criteriaValues = this.defaultCriteriaValues();
+    }
+
+    /** Utrwala bieżące filtry w aktywnym widoku. */
+    saveCriteria() {
+        const view = this.activeView;
+        if (!view) {
+            return;
+        }
+
+        const defaults = this.defaultCriteriaValues();
+        view.criteria = this.supportedCriteria.reduce((acc, criterion) => {
+            const value = this.criteriaValues[criterion.id];
+
+            if (JSON.stringify(value) !== JSON.stringify(defaults[criterion.id])) {
+                acc[criterion.id] = JSON.parse(JSON.stringify(value));
+            }
+
+            return acc;
+        }, {});
+
+        this.persist();
+    }
+
     /** @param {function(Error): void} handler */
     onPersistError(handler) {
         this.#errorHandler = handler;
@@ -149,7 +245,10 @@ export default class Listing {
                 this.activeViewId = this.viewCollection[0].id;
                 this.reportError(error);
             })
-            .finally(() => this.fetchingData = false)
+            .finally(() => {
+                this.restoreCriteria();
+                this.fetchingData = false;
+            })
             ;
     }
 
@@ -171,6 +270,7 @@ export default class Listing {
         const view = this.buildView(title, columnIds);
         this.viewCollection = [...this.viewCollection, view];
         this.activeViewId = view.id;
+        this.restoreCriteria();
         this.persist();
 
         return view;
@@ -202,6 +302,7 @@ export default class Listing {
         const copy = source.clone(uuid(), i18n.t('listing.copyOfViewTitle', { title: source.title }));
         this.viewCollection = [...this.viewCollection, copy];
         this.activeViewId = copy.id;
+        this.restoreCriteria();
         this.persist();
 
         return copy;
@@ -227,6 +328,7 @@ export default class Listing {
 
         if (this.activeViewId === id) {
             this.activeViewId = this.viewCollection[Math.max(0, index - 1)].id;
+            this.restoreCriteria();
         }
         this.persist();
 
@@ -297,6 +399,7 @@ export default class Listing {
         }
 
         this.activeViewId = id;
+        this.restoreCriteria();
         this.persist();
     }
 

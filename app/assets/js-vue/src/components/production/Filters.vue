@@ -1,5 +1,5 @@
 <template>
-    <div class="filter-toolbar d-flex flex-wrap align-items-center">
+    <div class="filter-toolbar d-flex align-items-center" :class="stacked ? 'flex-column align-items-stretch' : 'flex-wrap'">
         <div class="filter-toolbar__search input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search" aria-hidden="true"/></span>
@@ -44,6 +44,12 @@
             filtersCollection: {
                 type: Object,
                 default: () => {}
+            },
+
+            /** Układ pionowy - do panelu filtrów w dropdownie. */
+            stacked: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -65,6 +71,12 @@
         .input-group-text,
         :deep(.mx-input) {
             height: 36px;
+        }
+
+        &.flex-column &__search,
+        &.flex-column :deep(.mx-datepicker) {
+            width: 100%;
+            flex: 0 0 auto;
         }
 
         &__search {

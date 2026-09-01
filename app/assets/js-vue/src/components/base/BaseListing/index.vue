@@ -1,11 +1,13 @@
 <script>
 import Listing from "./model/Listing"
 import RenameViewModal from "./components/RenameViewModal"
+import FiltersPanel from "./components/FiltersPanel"
+import CriteriaChips from "./components/CriteriaChips"
 
 export default {
     name: "AgreementLineList",
 
-    components: { RenameViewModal },
+    components: { RenameViewModal, FiltersPanel, CriteriaChips },
 
     props: {
         listingConfiguration: {
@@ -157,9 +159,14 @@ export default {
                     </b-nav-item>
                 </template>
 
-                <b-nav-item-dropdown class="ml-auto" right>
+                <FiltersPanel v-if="$scopedSlots.filters" :listing="listingConfiguration" class="ml-auto">
+                    <slot name="filters" />
+                </FiltersPanel>
+
+                <b-nav-item-dropdown :class="$scopedSlots.filters ? '' : 'ml-auto'" right>
                     <template #button-content>
                         <font-awesome-icon icon="cog" />
+                        <span class="ml-1">{{ $t('listing.columns') }}</span>
                     </template>
 
                     <b-dropdown-text>{{ $t('listing.columns') }}</b-dropdown-text>
@@ -212,6 +219,8 @@ export default {
                     <b-dropdown-item-btn @click="createView">{{ $t('listing.newView') }}</b-dropdown-item-btn>
                 </b-nav-item-dropdown>
             </b-nav>
+
+            <CriteriaChips :listing="listingConfiguration" />
 
             <slot :view="activeView" />
 
