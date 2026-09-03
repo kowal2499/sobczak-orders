@@ -98,6 +98,17 @@ export default {
         'moveViewLeft': 'Przesuń w lewo',
         'moveViewRight': 'Przesuń w prawo',
         'saveError': 'Nie udało się zapisać ustawień widoku',
+        'datePresets': {
+            'today': 'Dzisiaj',
+            'tomorrow': 'Jutro',
+            'currentWeek': 'Bieżący tydzień',
+            'lastWeek': 'Miniony tydzień',
+            'nextWeek': 'Przyszły tydzień',
+            'currentMonth': 'Bieżący miesiąc',
+            'lastMonth': 'Miniony miesiąc',
+            'nextMonth': 'Przyszły miesiąc',
+            'currentYear': 'Bieżący rok',
+        },
     },
 
     '_validation': {

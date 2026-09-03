@@ -99,7 +99,9 @@ export default {
             list: 'Orders list',
             productionSchedule: 'Production schedule',
             'notStarted': 'Not started',
-            'startedDelay': 'Started with delay'
+            'onlyNotStarted': 'Only overdue, not started',
+            'startedDelay': 'Started with delay',
+            'onlyStartedDelay': 'Only started with delay'
         }
 
 
@@ -202,7 +204,9 @@ export default {
             list: 'Lista zamówień',
             productionSchedule: 'Harmonogram produkcji',
             'notStarted': 'Nie rozpoczęto',
-            'startedDelay': 'Rozpoczęto z opóźnieniem'
+            'onlyNotStarted': 'Tylko nierozpoczęte po terminie',
+            'startedDelay': 'Rozpoczęto z opóźnieniem',
+            'onlyStartedDelay': 'Tylko rozpoczęte z opóźnieniem'
         }
 
     }

@@ -15,6 +15,7 @@ export const LISTING_PRODUCTION_ID = 'listing.production'
 export const COLUMN_PRODUCTION_ID = 'production_id'
 export const COLUMN_PRODUCTION_ATTACHMENTS = 'production_attachments'
 export const COLUMN_PRODUCTION_TASKS = 'production_tasks'
+export const COLUMN_PRODUCTION_RECEIVE_DATE = 'production_receive_date'
 export const COLUMN_PRODUCTION_CONFIRMED_DATE = 'production_confirmed_date'
 export const COLUMN_PRODUCTION_ISSUED_BY = 'production_issued_by'
 export const COLUMN_PRODUCTION_CUSTOMER = 'production_customer'
@@ -29,6 +30,10 @@ export const CRITERION_SEARCH = 'q'
 export const CRITERION_DATE_START = 'dateStart'
 export const CRITERION_DATE_DELIVERY = 'dateDelivery'
 export const CRITERION_HIDE_ARCHIVE = 'hideArchive'
+export const CRITERION_NOT_STARTED = 'notStarted'
+export const CRITERION_START_DELAYED = 'startDelayed'
+
+const canSeeAnyDepartment = (user) => DEPARTMENTS.some(dpt => user.can(dpt.grant))
 
 export const criteriaFactory = (user) => ([
   new Criterion({
@@ -48,6 +53,19 @@ export const criteriaFactory = (user) => ([
     label: i18n.t('deliveryDate'),
     type: TYPE_DATE_RANGE,
     defaultValue: { start: null, end: null },
+  }),
+  // plakietki działowe - bez żadnego widocznego działu te filtry nie mają sensu
+  canSeeAnyDepartment(user) && new Criterion({
+    id: CRITERION_NOT_STARTED,
+    label: i18n.t('orders.onlyNotStarted'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
+  }),
+  canSeeAnyDepartment(user) && new Criterion({
+    id: CRITERION_START_DELAYED,
+    label: i18n.t('orders.onlyStartedDelay'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
   }),
   new Criterion({
     id: CRITERION_HIDE_ARCHIVE,
@@ -76,6 +94,14 @@ export const columnsFactory = (user) => ([
     label: i18n.t('tasks'),
     apiPath: 'tasks',
     displayComponent: TasksCell,
+  }),
+  new Column({
+    id: COLUMN_PRODUCTION_RECEIVE_DATE,
+    label: i18n.t('receiveDate'),
+    apiPath: 'agreementCreateDate',
+    apiSortKey: 'dateReceive',
+    formatter: value => value ? moment(value).format('YYYY-MM-DD') : '',
+    tdClass: 'text-nowrap',
   }),
   user.can('production.show.production_date') && new Column({
     id: COLUMN_PRODUCTION_CONFIRMED_DATE,

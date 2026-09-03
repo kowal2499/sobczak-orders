@@ -99,6 +99,17 @@ export default {
         'moveViewLeft': 'Move left',
         'moveViewRight': 'Move right',
         'saveError': 'Could not save the view settings',
+        'datePresets': {
+            'today': 'Today',
+            'tomorrow': 'Tomorrow',
+            'currentWeek': 'This week',
+            'lastWeek': 'Last week',
+            'nextWeek': 'Next week',
+            'currentMonth': 'This month',
+            'lastMonth': 'Last month',
+            'nextMonth': 'Next month',
+            'currentYear': 'This year',
+        },
     },
 
     '_validation': {

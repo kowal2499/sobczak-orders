@@ -1,3 +1,5 @@
+import { isPreset, presetLabel, resolveDateRange } from "@/services/dateRangePresets";
+
 export const TYPE_TEXT = 'text'
 export const TYPE_BOOLEAN = 'boolean'
 export const TYPE_DATE_RANGE = 'dateRange'
@@ -70,6 +72,10 @@ export default class Criterion {
         }
 
         if (this.#type === TYPE_DATE_RANGE) {
+            if (value.preset) {
+                return !isPreset(value);
+            }
+
             return !value.start && !value.end;
         }
 
@@ -78,6 +84,21 @@ export default class Criterion {
         }
 
         return false;
+    }
+
+    /**
+     * Wartość gotowa do wysłania na API - zakres relatywny rozwijany jest tutaj,
+     * w widoku pozostaje sam token.
+     *
+     * @param {*} value
+     * @returns {*}
+     */
+    resolveValue(value) {
+        if (this.#type === TYPE_DATE_RANGE) {
+            return resolveDateRange(value);
+        }
+
+        return value;
     }
 
     /**
@@ -92,6 +113,10 @@ export default class Criterion {
         }
 
         if (this.#type === TYPE_DATE_RANGE) {
+            if (isPreset(value)) {
+                return `${this.#label}: ${presetLabel(value.preset)}`;
+            }
+
             return `${this.#label}: ${value.start || '...'} - ${value.end || '...'}`;
         }
 

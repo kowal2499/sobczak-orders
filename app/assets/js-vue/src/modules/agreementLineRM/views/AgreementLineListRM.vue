@@ -71,9 +71,17 @@ import {
     CRITERION_DATE_START,
     CRITERION_DATE_DELIVERY,
     CRITERION_HIDE_ARCHIVE,
+    CRITERION_NOT_STARTED,
+    CRITERION_START_DELAYED,
     columnsFactory as productionListingColumnsFactory,
     criteriaFactory as productionListingCriteriaFactory,
 } from "../configuration/productionListing";
+import { isPreset } from "@/services/dateRangePresets";
+
+const DATE_QUERY_KEYS = {
+    [CRITERION_DATE_START]: { from: 'dateReceive0', to: 'dateReceive1', preset: 'dateReceivePreset' },
+    [CRITERION_DATE_DELIVERY]: { from: 'dateDelivery0', to: 'dateDelivery1', preset: 'dateDeliveryPreset' },
+};
 
 export default {
     name: "AgreementLineListRM",
@@ -153,26 +161,38 @@ export default {
             }
 
             const criteria = this.criteria;
-            const dateStart = criteria[CRITERION_DATE_START] || {};
-            const dateDelivery = criteria[CRITERION_DATE_DELIVERY] || {};
             let query = {};
 
-            if (dateStart.start) {
-                query.dateReceive0 = dateStart.start;
+            for (const range of [
+                { value: criteria[CRITERION_DATE_START], keys: DATE_QUERY_KEYS[CRITERION_DATE_START] },
+                { value: criteria[CRITERION_DATE_DELIVERY], keys: DATE_QUERY_KEYS[CRITERION_DATE_DELIVERY] },
+            ]) {
+                const value = range.value || {};
+
+                // zakres relatywny wędruje do adresu jako token, żeby link nie zamroził dat
+                if (isPreset(value)) {
+                    query[range.keys.preset] = value.preset;
+                    continue;
+                }
+
+                if (value.start) {
+                    query[range.keys.from] = value.start;
+                }
+                if (value.end) {
+                    query[range.keys.to] = value.end;
+                }
             }
-            if (dateStart.end) {
-                query.dateReceive1 = dateStart.end;
-            }
-            if (dateDelivery.start) {
-                query.dateDelivery0 = dateDelivery.start;
-            }
-            if (dateDelivery.end) {
-                query.dateDelivery1 = dateDelivery.end;
-            }
+
             if (criteria[CRITERION_SEARCH]) {
                 query.q = criteria[CRITERION_SEARCH];
             }
             query.hideArchive = criteria[CRITERION_HIDE_ARCHIVE] ? 'true' : 'false';
+            if (criteria[CRITERION_NOT_STARTED]) {
+                query.notStarted = 'true';
+            }
+            if (criteria[CRITERION_START_DELAYED]) {
+                query.startDelayed = 'true';
+            }
 
             query.page = this.args.meta.page;
             if (this.args.meta.sort) {
@@ -214,16 +234,20 @@ export default {
         parseQueryCriteria(query) {
             const criteria = {};
 
-            for (const range of [
-                { id: CRITERION_DATE_START, from: query.dateReceive0, to: query.dateReceive1 },
-                { id: CRITERION_DATE_DELIVERY, from: query.dateDelivery0, to: query.dateDelivery1 },
-            ]) {
-                const from = moment(range.from || null);
-                const to = moment(range.to || null);
+            for (const id of [CRITERION_DATE_START, CRITERION_DATE_DELIVERY]) {
+                const keys = DATE_QUERY_KEYS[id];
+
+                if (isPreset({ preset: query[keys.preset] })) {
+                    criteria[id] = { preset: query[keys.preset] };
+                    continue;
+                }
+
+                const from = moment(query[keys.from] || null);
+                const to = moment(query[keys.to] || null);
 
                 // obie daty muszą być poprawne i w kolejności
                 if (from.isValid() && to.isValid() && from <= to) {
-                    criteria[range.id] = { start: from.format('YYYY-MM-DD'), end: to.format('YYYY-MM-DD') };
+                    criteria[id] = { start: from.format('YYYY-MM-DD'), end: to.format('YYYY-MM-DD') };
                 }
             }
 
@@ -235,6 +259,14 @@ export default {
                 criteria[CRITERION_HIDE_ARCHIVE] = query.hideArchive === 'true';
             }
 
+            if (query.notStarted !== undefined) {
+                criteria[CRITERION_NOT_STARTED] = query.notStarted === 'true';
+            }
+
+            if (query.startDelayed !== undefined) {
+                criteria[CRITERION_START_DELAYED] = query.startDelayed === 'true';
+            }
+
             return criteria;
         },
 
@@ -242,7 +274,7 @@ export default {
             this.loading = true;
 
             const payload = this.listing.supportedCriteria.reduce((acc, criterion) => {
-                acc[criterion.apiKey] = this.criteria[criterion.id];
+                acc[criterion.apiKey] = criterion.resolveValue(this.criteria[criterion.id]);
                 return acc;
             }, { hasProduction: true });
 

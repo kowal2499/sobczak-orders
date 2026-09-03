@@ -1,5 +1,6 @@
 <template>
     <vueDP
+        ref="picker"
         v-model="innerDate"
         type="date"
         :lang="getTranslations"
@@ -10,7 +11,21 @@
         :formatter="formatter"
         :disabled="isDisabled"
         :placeholder="placeholder"
-    />
+        :popup-class="showPresets ? 'has-presets' : ''"
+    >
+        <template v-if="showPresets" #sidebar>
+            <div class="date-presets">
+                <button
+                    v-for="preset in presetOptions"
+                    :key="preset.key"
+                    type="button"
+                    class="date-presets__item"
+                    :class="{ 'date-presets__item--active': activePreset === preset.key }"
+                    @click="applyPreset(preset.key)"
+                >{{ preset.label }}</button>
+            </div>
+        </template>
+    </vueDP>
 </template>
 
 <script>
@@ -19,6 +34,7 @@
     import vueDP from 'vue2-datepicker';
     import 'vue2-datepicker/index.css';
     import moment from 'moment';
+    import { isPreset, presetList, resolveDateRange } from '@/services/dateRangePresets';
 
     export default {
         name: "DatePicker",
@@ -44,6 +60,11 @@
             placeholder: {
                 type: String,
                 default: ''
+            },
+            /** Lista skrótów („bieżący miesiąc"...) emitujących zakres relatywny. */
+            presets: {
+                type: Boolean,
+                default: false
             }
         },
 
@@ -84,6 +105,18 @@
                 getWeek: date => moment(date).isoWeek()
             }),
 
+            showPresets() {
+                return this.presets && this.isRange;
+            },
+
+            presetOptions() {
+                return presetList();
+            },
+
+            activePreset() {
+                return isPreset(this.value) ? this.value.preset : null;
+            },
+
             innerDate: {
                 get() {
                     if (!this.value) {
@@ -91,9 +124,15 @@
                     }
 
                     if (this.isRange) {
+                        const range = resolveDateRange(this.value);
+
+                        if (!range.start && !range.end) {
+                            return null;
+                        }
+
                         return [
-                            new Date(String(this.value.start)),
-                            new Date(String(this.value.end))
+                            range.start ? new Date(range.start) : null,
+                            range.end ? new Date(range.end) : null
                         ]
                     } else {
                         if (this.dateOnly) {
@@ -122,9 +161,59 @@
             }
         },
 
+        methods: {
+            applyPreset(key) {
+                this.$emit('input', { preset: key });
+
+                if (this.$refs.picker) {
+                    this.$refs.picker.closePopup();
+                }
+            }
+        },
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+
+    .date-presets {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+
+        &__item {
+            padding: 0.2rem 0.4rem;
+            border: 0;
+            border-radius: 3px;
+            background: none;
+            color: #73879c;
+            font-size: 0.8rem;
+            text-align: left;
+            white-space: nowrap;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #f3f6f9;
+            }
+
+            &--active {
+                color: var(--colorPrimary, #4e73df);
+                font-weight: 600;
+            }
+        }
+    }
+
+</style>
+
+<style lang="scss">
+
+    // Popup ląduje w body, poza zasięgiem stylów scoped.
+    .mx-datepicker-main.has-presets .mx-datepicker-sidebar {
+        width: 130px;
+        padding: 6px;
+    }
+
+    .mx-datepicker-main.has-presets .mx-datepicker-content {
+        margin-left: 130px;
+    }
 
 </style>
