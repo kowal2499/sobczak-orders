@@ -1,5 +1,5 @@
 <script>
-import cellMixin from "./cellMixin"
+import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
 import Tag from "@/modules/tags/widget/Tag"
 import { orderDisplayNumber } from "@/helpers"
 

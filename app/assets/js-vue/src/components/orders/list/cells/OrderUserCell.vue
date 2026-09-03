@@ -3,7 +3,7 @@ import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
 import NoData from "@/components/base/BaseListing/components/cells/NoData"
 
 export default {
-    name: "UserCell",
+    name: "OrderUserCell",
 
     mixins: [cellMixin],
 
@@ -11,7 +11,7 @@ export default {
 
     computed: {
         userName() {
-            return (this.record.user || {}).name;
+            return ((this.record.Agreement || {}).user || {}).userFullName;
         }
     }
 }

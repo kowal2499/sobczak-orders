@@ -61,9 +61,12 @@
                 type: String,
                 default: ''
             },
-            /** Lista skrótów („bieżący miesiąc"...) emitujących zakres relatywny. */
+            /**
+             * Lista skrótów („bieżący miesiąc"...) emitujących zakres relatywny.
+             * `true` daje komplet, tablica kluczy zawęża go do wskazanych.
+             */
             presets: {
-                type: Boolean,
+                type: [Boolean, Array],
                 default: false
             }
         },
@@ -106,11 +109,15 @@
             }),
 
             showPresets() {
-                return this.presets && this.isRange;
+                return this.isRange && this.presetOptions.length > 0;
             },
 
             presetOptions() {
-                return presetList();
+                if (!this.presets) {
+                    return [];
+                }
+
+                return Array.isArray(this.presets) ? presetList(this.presets) : presetList();
             },
 
             activePreset() {

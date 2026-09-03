@@ -1,7 +1,7 @@
 <script>
-import cellMixin from "./cellMixin"
+import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
 import Attachments from "../Attachments"
-import NoData from "./NoData"
+import NoData from "@/components/base/BaseListing/components/cells/NoData"
 
 export default {
     name: "AttachmentsCell",

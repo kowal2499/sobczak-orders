@@ -17,7 +17,7 @@
             width="210px"
             v-model="filtersCollection.dateStart"
             :placeholder="$t('receiveDate')"
-            presets
+            :presets="pastPresets"
         />
         <date-picker
             v-if="canShowDeliveryDateFilter"
@@ -52,6 +52,8 @@
 <script>
 
     import DatePicker from '../base/DatePicker';
+    import { PAST_PRESET_KEYS } from '@/services/dateRangePresets';
+
     export default {
         name: "Filters",
         components: { DatePicker },
@@ -70,6 +72,11 @@
         },
 
         computed: {
+            // data otrzymania zawsze jest już za nami - skróty w przyszłość nic by nie zwróciły
+            pastPresets() {
+                return PAST_PRESET_KEYS;
+            },
+
             canShowDeliveryDateFilter() {
                 return this.$user && this.$user.can('production.show.production_date');
             },

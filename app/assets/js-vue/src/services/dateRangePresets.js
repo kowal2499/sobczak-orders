@@ -35,7 +35,12 @@ const definitions = {
     currentYear: () => range(moment().startOf('year'), moment().endOf('year')),
 };
 
+/** Zakresy leżące w całości w przyszłości - bez sensu dla dat, które już się wydarzyły. */
+const FUTURE_ONLY = ['tomorrow', 'nextWeek', 'nextMonth'];
+
 export const PRESET_KEYS = Object.keys(definitions);
+
+export const PAST_PRESET_KEYS = PRESET_KEYS.filter(key => !FUTURE_ONLY.includes(key));
 
 const EMPTY_RANGE = { start: null, end: null };
 
@@ -77,8 +82,11 @@ export function presetLabel(key) {
 }
 
 /**
+ * @param {string[]} keys
  * @returns {Array<{key: string, label: string}>}
  */
-export function presetList() {
-    return PRESET_KEYS.map(key => ({ key, label: presetLabel(key) }));
+export function presetList(keys = PRESET_KEYS) {
+    return keys
+        .filter(key => definitions[key])
+        .map(key => ({ key, label: presetLabel(key) }));
 }

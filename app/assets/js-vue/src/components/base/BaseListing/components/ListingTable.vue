@@ -346,7 +346,10 @@ export default {
         box-shadow: 0 4px 6px -2px rgba(var(--colorGrayRgb), 0.3);
     }
 
+    // `small` na b-table ścina padding do .3rem, co spłaszcza nagłówek względem
+    // pierwotnej tabeli; komórki danych zostają wąskie, wraca tylko wysokość nagłówka
     ::v-deep th {
+        padding: 0.75rem;
         border-bottom: 1px solid #e3e6f0;
         vertical-align: middle;
     }
