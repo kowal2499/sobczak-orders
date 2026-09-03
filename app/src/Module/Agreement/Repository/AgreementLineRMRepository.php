@@ -4,6 +4,8 @@ namespace App\Module\Agreement\Repository;
 
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
+use App\Entity\Definitions\TaskTypes;
+use App\Entity\Production;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
 use App\Module\Production\ValueObject\DepartmentEnum;
@@ -264,6 +266,40 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     $qb->andWhere('l.confirmedDate >= :ordRangeStart');
                     $qb->setParameter('ordRangeStart', new \DateTime($value['start'] . ' 00:00:00'));
                     $qb->setParameter('ordRangeEnd', new \DateTime($value['end'] . ' 23:59:59'));
+                    break;
+                case 'notStarted':
+                    // Odpowiednik plakietki "Nie rozpoczęto" z listingu: zadanie wciąż czeka,
+                    // a jego data rozpoczęcia jest już przeszła. Wystarczy jeden taki dział.
+                    if (!$value) {
+                        break;
+                    }
+                    $notStarted = $this->getEntityManager()->createQueryBuilder()
+                        ->select('1')
+                        ->from(Production::class, 'pNotStarted')
+                        ->where('IDENTITY(pNotStarted.agreementLine) = l.agreementLineId')
+                        ->andWhere('pNotStarted.status IN (:notStartedStatuses)')
+                        ->andWhere('pNotStarted.dateStart IS NOT NULL')
+                        ->andWhere('pNotStarted.dateStart < :notStartedToday');
+                    $qb->andWhere($qb->expr()->exists($notStarted->getDQL()));
+                    // kolumna jest tekstowa - wiążemy stringami, żeby nie wymuszać konwersji po stronie bazy
+                    $qb->setParameter('notStartedStatuses', [
+                        (string) TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
+                        (string) TaskTypes::TYPE_CUSTOM_STATUS_AWAITS,
+                    ]);
+                    $qb->setParameter('notStartedToday', new \DateTime('today'));
+                    break;
+                case 'startDelayed':
+                    // Odpowiednik plakietki "Rozpoczęto z opóźnieniem" - flaga ustawiana
+                    // przy zmianie statusu na rozpoczęty po zaplanowanej dacie.
+                    if (!$value) {
+                        break;
+                    }
+                    $startDelayed = $this->getEntityManager()->createQueryBuilder()
+                        ->select('1')
+                        ->from(Production::class, 'pStartDelayed')
+                        ->where('IDENTITY(pStartDelayed.agreementLine) = l.agreementLineId')
+                        ->andWhere('pStartDelayed.isStartDelayed = true');
+                    $qb->andWhere($qb->expr()->exists($startDelayed->getDQL()));
                     break;
                 case 'dptDateRange':
                     if (

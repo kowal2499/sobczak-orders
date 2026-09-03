@@ -17,13 +17,29 @@
             width="210px"
             v-model="filtersCollection.dateStart"
             :placeholder="$t('receiveDate')"
+            presets
         />
         <date-picker
             v-if="canShowDeliveryDateFilter"
             width="210px"
             v-model="filtersCollection.dateDelivery"
             :placeholder="$t('deliveryDate')"
+            presets
         />
+
+        <b-form-checkbox
+            v-if="canFilterNotStarted"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.notStarted"
+            switch
+        >{{ $t('orders.onlyNotStarted') }}</b-form-checkbox>
+
+        <b-form-checkbox
+            v-if="canFilterStartDelayed"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.startDelayed"
+            switch
+        >{{ $t('orders.onlyStartedDelay') }}</b-form-checkbox>
 
         <b-form-checkbox
             class="filter-toolbar__toggle"
@@ -56,6 +72,14 @@
         computed: {
             canShowDeliveryDateFilter() {
                 return this.$user && this.$user.can('production.show.production_date');
+            },
+
+            canFilterNotStarted() {
+                return this.filtersCollection && this.filtersCollection.notStarted !== undefined;
+            },
+
+            canFilterStartDelayed() {
+                return this.filtersCollection && this.filtersCollection.startDelayed !== undefined;
             }
         }
     }
