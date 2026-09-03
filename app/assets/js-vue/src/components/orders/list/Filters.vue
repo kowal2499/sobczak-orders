@@ -1,5 +1,5 @@
 <template>
-    <div class="filter-toolbar d-flex flex-wrap align-items-center">
+    <div class="filter-toolbar d-flex align-items-center" :class="stacked ? 'flex-column align-items-stretch' : 'flex-wrap'">
         <div class="filter-toolbar__search input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-search" aria-hidden="true"/></span>
@@ -17,11 +17,13 @@
             width="210px"
             v-model="filtersCollection.dateStart"
             :placeholder="$t('receiveDate')"
+            :presets="pastPresets"
         />
         <date-picker
             width="210px"
             v-model="filtersCollection.dateDelivery"
             :placeholder="$t('deliveryDate')"
+            presets
         />
     </div>
 </template>
@@ -29,6 +31,7 @@
 <script>
 
     import DatePicker from '../../base/DatePicker';
+    import { PAST_PRESET_KEYS } from '@/services/dateRangePresets';
 
     export default {
         name: "filters",
@@ -36,13 +39,22 @@
             filtersCollection: {
                 type: Object,
                 default: () => {}
+            },
+
+            /** Układ pionowy - do panelu filtrów w dropdownie. */
+            stacked: {
+                type: Boolean,
+                default: false
             }
         },
 
         components: { DatePicker },
 
-        data() {
-            return {}
+        computed: {
+            // data otrzymania zawsze jest już za nami - skróty w przyszłość nic by nie zwróciły
+            pastPresets() {
+                return PAST_PRESET_KEYS;
+            }
         },
     }
 </script>
@@ -56,6 +68,12 @@
         .input-group-text,
         :deep(.mx-input) {
             height: 36px;
+        }
+
+        &.flex-column &__search,
+        &.flex-column :deep(.mx-datepicker) {
+            width: 100%;
+            flex: 0 0 auto;
         }
 
         &__search {

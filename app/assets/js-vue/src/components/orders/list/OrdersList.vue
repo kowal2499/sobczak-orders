@@ -1,80 +1,56 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 orders-filters">
-                        <filters :filters-collection="args.filters"/>
-                    </div>
-                    <a
-                        v-if="userCanAddOrder()"
-                        :href="newOrderLink"
-                        class="btn btn-success btn-sm d-inline-flex align-items-center ml-3 orders-new-btn"
-                    >
-                        <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
-                    </a>
-                </div>
-            </template>
-        </SectionBlockTitle>
+        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs" />
 
         <SectionBlock class="section-gap">
+            <div class="orders-toolbar">
+                <a
+                    v-if="userCanAddOrder()"
+                    :href="newOrderLink"
+                    class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn"
+                >
+                    <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
+                </a>
+
+                <b-pagination
+                    v-if="args.meta.pages > 1"
+                    class="mb-0"
+                    align="right"
+                    v-model="args.meta.page"
+                    :total-rows="args.meta.totalCount"
+                    :per-page="args.meta.pageSize"
+                    first-number last-number size="sm"
+                />
+            </div>
+
+            <BaseListing :listing-configuration="listing">
+                <template #filters>
+                    <filters :filters-collection="listing.criteriaValues" stacked />
+                </template>
+
+                <ListingTable
+                    :listing="listing"
+                    :items="agreementLines"
+                    :loading="loading"
+                    :sort="args.meta.sort"
+                    :actions-label="$t('actions')"
+                    sticky-header
+                    @sortChanged="updateSort"
+                >
+                    <template #actions="{ item }">
+                        <line-actions :line="item" @lineChanged="fetchData" />
+                    </template>
+                </ListingTable>
+            </BaseListing>
+
             <b-pagination
-						v-if="args.meta.pages > 1"
-						align="right"
-						v-model="args.meta.page"
-						:total-rows="args.meta.totalCount"
-						:per-page="args.meta.pageSize"
-						first-number last-number size="sm"
-        />
-
-        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort" sticky-header>
-            <tr v-for="(line, key) in agreementLines" :key="key">
-                <td>
-                    <line-actions :line="line" @lineChanged="fetchData()"/>
-                </td>
-                <td>
-                    <div class="d-flex flex-column">
-                        <span class="text-nowrap">{{ orderDisplayNumber(line.Agreement.orderNumber, line.internalNumber) || line.Agreement.id }}</span>
-                        <tags-indicator :logs="line.tags"/>
-                    </div>
-                </td>
-                <td class="text-nowrap">{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
-                <td class="text-nowrap">{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
-                <td>
-                    <span v-if="line.Agreement.user && line.Agreement.user.userFullName">
-                        {{ line.Agreement.user.userFullName }}
-                    </span>
-                    <span v-else class="text-muted text-sm text-nowrap opacity-75">
-                        <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
-                    </span>
-                </td>
-                <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
-                <td>{{ line.Product.name }}
-                    <tooltip v-if="line.description">
-                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
-                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(line.description)"></div>
-                    </tooltip>
-                    <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
-                </td>
-                <td>
-                    <span class="badge" :class="getAgreementStatusClass(line.status)">{{ getAgreementStatusName(line.status) }}</span>
-                </td>
-                <td>
-                    <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
-                        {{ $t(getProductionStatusData(line.productions)['title']) }}
-                    </span>
-                </td>
-            </tr>
-        </table-plus>
-
-        <b-pagination
                 v-if="args.meta.pages > 1"
                 align="right"
                 v-model="args.meta.page"
                 :total-rows="args.meta.totalCount"
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
-        />
+            />
         </SectionBlock>
     </div>
 </template>
@@ -85,17 +61,30 @@
     import Filters from './Filters';
     import api from '../../../api/neworder';
     import routing from  '../../../api/routing';
-    import TablePlus from '../../base/TablePlus';
-    import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
-    import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
-    import { agreementStatusesMap, orderDisplayNumber } from '@/helpers';
+
+    import BaseListing from "@/components/base/BaseListing/index.vue";
+    import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
+    import Listing from "@/components/base/BaseListing/model/Listing.js";
+    import { isPreset } from "@/services/dateRangePresets";
+    import {
+        LISTING_ORDERS_ID,
+        CRITERION_SEARCH,
+        CRITERION_DATE_START,
+        CRITERION_DATE_DELIVERY,
+        columnsFactory as ordersListingColumnsFactory,
+        criteriaFactory as ordersListingCriteriaFactory,
+    } from "./configuration/ordersListing";
+
+    const DATE_QUERY_KEYS = {
+        [CRITERION_DATE_START]: { from: 'dateReceive0', to: 'dateReceive1', preset: 'dateReceivePreset' },
+        [CRITERION_DATE_DELIVERY]: { from: 'dateDelivery0', to: 'dateDelivery1', preset: 'dateDeliveryPreset' },
+    };
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, TablePlus,
-            Tooltip, LineActions, TagsIndicator },
+        components: { Filters, LineActions, BaseListing, ListingTable },
 
         props: {
             taskStatuses: {
@@ -109,28 +98,15 @@
 
         data() {
             return {
-
                 syncQueryString: false,
 
                 args: {
-                    filters: {
-                        dateStart: {
-                            start: null,
-                            end: null
-                        },
-                        dateDelivery: {
-                            start: null,
-                            end: null
-                        },
-                        q: '',
-                    },
-
                     meta: {
                         page: 0,
                         pages: 0,
                         sort: '',
-												totalCount: 0,
-												pageSize: 0
+                        totalCount: 0,
+                        pageSize: 0
                     },
                 },
 
@@ -139,54 +115,45 @@
                 newOrderLink: routing.get('orders_view_new'),
 
                 loading: false,
+
+                listing: null,
             }
         },
 
         created() {
+            this.listing = new Listing(
+                LISTING_ORDERS_ID,
+                this.$t('orders.list'),
+                ordersListingColumnsFactory(),
+                ordersListingCriteriaFactory()
+            )
+            this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
 
-            this.syncQueryString = true;
+            const query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+            const queryCriteria = this.parseQueryCriteria(query);
 
-            // parse initial query string
-            let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-
-            for (let i of [
-                    {
-                        moment0: moment(query.dateReceive0 || null),
-                        moment1: moment(query.dateReceive1 || null),
-                        store0: 'args.filters.dateStart.start',
-                        store1: 'args.filters.dateStart.end',
-                    },
-                    {
-                        moment0: moment(query.dateDelivery0 || null),
-                        moment1: moment(query.dateDelivery1 || null),
-                        store0: 'args.filters.dateDelivery.start',
-                        store1: 'args.filters.dateDelivery.end',
-                    },
-            ]) {
-
-                // both dates need to be set and valid
-                if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
-                    _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
-                    _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
+            this.listing.fetchViews().then(() => {
+                // Filtry z adresu mają pierwszeństwo przed zapisanymi w widoku, żeby wysłany
+                // link otwierał to, co widział nadawca. Rozjazd pokaże się jako niezapisane zmiany.
+                if (Object.keys(queryCriteria).length) {
+                    this.listing.setCriteriaValues({ ...this.listing.criteriaValues, ...queryCriteria });
                 }
-            }
 
-            // q
-            this.args.filters.q = query.q ? String(query.q) : '';
+                this.args.meta.page = parseInt(query.page) || 1;
+                this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
 
-            // page
-            this.args.meta.page = parseInt(query.page) || 1;
-
-            // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
-
+                // dopiero teraz przepisujemy stan do adresu - to uruchamia pierwsze pobranie
+                this.syncQueryString = true;
+            })
         },
 
         watch: {
-            'args.filters': {
+            criteria: {
                 handler() {
                     // zmiana filtrów przywraca paginację na stronę 1
-                    this.args.meta.page = 1
+                    if (this.syncQueryString) {
+                        this.args.meta.page = 1
+                    }
                 },
                 deep: true,
             },
@@ -207,6 +174,10 @@
                 ]
             },
 
+            criteria() {
+                return this.listing ? this.listing.criteriaValues : {};
+            },
+
             /**
              * Tworzenie queryString na podstawie zmiennych z data
              *
@@ -216,22 +187,32 @@
                 if (!this.syncQueryString) {
                     return;
                 }
+
+                const criteria = this.criteria;
                 let query = {};
-                if (this.args.filters.dateStart.start) {
-                    query.dateReceive0 = this.args.filters.dateStart.start;
+
+                for (const id of [CRITERION_DATE_START, CRITERION_DATE_DELIVERY]) {
+                    const keys = DATE_QUERY_KEYS[id];
+                    const value = criteria[id] || {};
+
+                    // zakres relatywny wędruje do adresu jako token, żeby link nie zamroził dat
+                    if (isPreset(value)) {
+                        query[keys.preset] = value.preset;
+                        continue;
+                    }
+
+                    if (value.start) {
+                        query[keys.from] = value.start;
+                    }
+                    if (value.end) {
+                        query[keys.to] = value.end;
+                    }
                 }
-                if (this.args.filters.dateStart.end) {
-                    query.dateReceive1 = this.args.filters.dateStart.end;
+
+                if (criteria[CRITERION_SEARCH]) {
+                    query.q = criteria[CRITERION_SEARCH];
                 }
-                if (this.args.filters.dateDelivery.start) {
-                    query.dateDelivery0 = this.args.filters.dateDelivery.start;
-                }
-                if (this.args.filters.dateDelivery.end) {
-                    query.dateDelivery1 = this.args.filters.dateDelivery.end;
-                }
-                if (this.args.filters.q && this.args.filters.q.length > 0) {
-                    query.q = this.args.filters.q;
-                }
+
                 query.page = this.args.meta.page;
                 if (this.args.meta.sort) {
                     query.sort = this.args.meta.sort;
@@ -242,41 +223,66 @@
 
                 return qString;
             },
-
-            tableHeaders() {
-                return [
-                    { name: this.$t('actions') },
-                    { name: this.$t('id'), sortKey: 'id' },
-                    { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
-                    { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
-                    { name: this.$t('orders.issuedBy'), sortKey: 'user' },
-                    { name: this.$t('customer'), sortKey: 'customer'},
-                    { name: this.$t('product'), sortKey: 'product' },
-                    { name: this.$t('orderStatus') },
-                    { name: this.$t('productionStatus') },
-                ].filter(Boolean).map(i => ({ items: [i], thClass: null }))
-            },
         },
 
         methods: {
+            /**
+             * Filtry z adresu. Zwraca tylko te, które faktycznie w nim były.
+             *
+             * @param {Object} query
+             * @returns {Object}
+             */
+            parseQueryCriteria(query) {
+                const criteria = {};
+
+                for (const id of [CRITERION_DATE_START, CRITERION_DATE_DELIVERY]) {
+                    const keys = DATE_QUERY_KEYS[id];
+
+                    if (isPreset({ preset: query[keys.preset] })) {
+                        criteria[id] = { preset: query[keys.preset] };
+                        continue;
+                    }
+
+                    const from = moment(query[keys.from] || null);
+                    const to = moment(query[keys.to] || null);
+
+                    // obie daty muszą być poprawne i w kolejności
+                    if (from.isValid() && to.isValid() && from <= to) {
+                        criteria[id] = { start: from.format('YYYY-MM-DD'), end: to.format('YYYY-MM-DD') };
+                    }
+                }
+
+                if (query.q !== undefined) {
+                    criteria[CRITERION_SEARCH] = String(query.q);
+                }
+
+                return criteria;
+            },
+
             fetchData() {
                 this.loading = true;
 
-                let bag = this.args.filters;
-                bag.page = this.args.meta.page;
-                bag.sort = this.args.meta.sort;
+                const payload = this.listing.supportedCriteria.reduce((acc, criterion) => {
+                    acc[criterion.apiKey] = criterion.resolveValue(this.criteria[criterion.id]);
+                    return acc;
+                }, {});
+
+                payload.page = this.args.meta.page;
+                payload.sort = this.args.meta.sort;
+
+                // status jest zakresem strony (/orders/{status}), nie filtrem - nie należy do widoku
                 if (parseInt(this.status) > 0) {
-                    bag.status = this.status;
+                    payload.status = this.status;
                 }
 
-                api.fetchAgreementsFromReadModel(bag)
+                api.fetchAgreementsFromReadModel(payload)
                     .then(({data}) => {
                         this.agreementLines = data.data || [];
                         this.args.meta.pages = data.meta.pages || 0;
                         this.args.meta.totalCount = data.meta.totalCount || 0;
-												this.args.meta.pageSize = data.meta.pageSize || 0;
+                        this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
-                    .catch(data => {})
+                    .catch(() => {})
                     .finally(() => {
                         this.loading = false;
                     });
@@ -286,45 +292,9 @@
                 this.args.meta.sort = event
             },
 
-            getAgreementStatusName(statusId) {
-                const s = agreementStatusesMap[parseInt(statusId)];
-                return s ? s.name : statusId;
-            },
-
-            getAgreementStatusClass(statusId) {
-                const s = agreementStatusesMap[parseInt(statusId)];
-                return s ? s.className : 'badge-secondary';
-            },
-
-            getProductionStatusData(production) {
-
-                const realProductions = Array.isArray(production)
-                    ? production.filter(p => !p.isGhost)
-                    : [];
-
-                if (realProductions.length === 0) {
-                    return {
-                        className: 'badge-danger',
-                        title: 'Nie zlecone'
-                    };
-                }
-                if (realProductions[4] && parseInt(realProductions[4].status) === 3) {
-                    return {
-                        className: 'badge-success',
-                        title: 'Zakończona'
-                    }
-                }
-                return {
-                    className: 'badge-primary',
-                    title: 'W trakcie'
-                }
-            },
-
             userCanAddOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
             },
-
-            orderDisplayNumber,
         },
     }
 </script>
@@ -335,9 +305,14 @@
     margin-top: 2rem;
 }
 
-/* Let the filters take the row so the button collapses instead of wrapping. */
-.orders-filters {
-    min-width: 0;
+/* Przycisk i paginacja w jednym rzędzie, dosunięte do prawej. */
+.orders-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
 }
 
 .orders-new-btn {

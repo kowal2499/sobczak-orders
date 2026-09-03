@@ -1,6 +1,6 @@
 <script>
-import cellMixin from "./cellMixin"
-import NoData from "./NoData"
+import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
+import NoData from "@/components/base/BaseListing/components/cells/NoData"
 import ProductionTaskNotification from "@/components/production/ProductionTaskNotification"
 import FactorDisplay from "../FactorDisplay"
 import helpers from "@/helpers"

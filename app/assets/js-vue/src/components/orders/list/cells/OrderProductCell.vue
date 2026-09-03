@@ -3,7 +3,7 @@ import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
 import Tooltip from "@/components/base/Tooltip"
 
 export default {
-    name: "ProductCell",
+    name: "OrderProductCell",
 
     mixins: [cellMixin],
 
@@ -11,7 +11,11 @@ export default {
 
     computed: {
         productName() {
-            return (this.record.product || {}).name || this.record.productName;
+            return (this.record.Product || {}).name;
+        },
+
+        hasAttachments() {
+            return ((this.record.Agreement || {}).attachments || []).length > 0;
         }
     }
 }
@@ -24,5 +28,6 @@ export default {
             <i slot="visible-content" class="fa fa-info-circle hasTooltip" />
             <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(record.description)" />
         </tooltip>
+        <span v-if="hasAttachments"><i class="fa fa-paperclip sb-color" /></span>
     </div>
 </template>
