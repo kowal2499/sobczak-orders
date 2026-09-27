@@ -20,6 +20,12 @@ use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
 abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
 {
     /**
+     * Opcja compute() wyłączająca filtr klienta - dla konsumentów serwerowych liczących agregat
+     * firmowy (rozliczenie premii), niezależnie od tego, kto wywołał przeliczenie.
+     */
+    public const OPTION_COMPANY_WIDE = 'companyWide';
+
+    /**
      * @return array<string, mixed> kryteria dla AgreementLineRMRepository::search()
      */
     abstract protected function buildSearch(
@@ -76,6 +82,23 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
     }
 
     /**
+     * Czy rekordy mają być zawężone do klientów przypisanych użytkownikowi z ROLE_CUSTOMER.
+     */
+    protected function filtersByOwnership(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Alternatywa dla filtersByOwnership() dla mierników, których sumy muszą zostać firmowe:
+     * linie cudzych klientów zostają w wyniku, ale bez danych identyfikujących zamówienie.
+     */
+    protected function masksForeignLines(): bool
+    {
+        return false;
+    }
+
+    /**
      * @return ProductionReportRecordDTO[]
      */
     public function compute(
@@ -91,7 +114,13 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
         $emitsOutOfRange = $this->emitsOutOfRange();
         $records = [];
 
-        foreach ($this->fetchLines($this->buildSearch($start, $end, $includeGhost)) as $line) {
+        $search = $this->buildSearch($start, $end, $includeGhost);
+        if ($this->filtersByOwnership() && empty($options[self::OPTION_COMPANY_WIDE])) {
+            $search = $this->withOwnership($search);
+        }
+        $visibleCustomerIds = $this->masksForeignLines() ? $this->ownedCustomerIds() : null;
+
+        foreach ($this->fetchLines($search) as $line) {
             $lineRecords = [];
             $outOfRange = [];
 
@@ -125,10 +154,33 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
                 continue;
             }
 
+            if ($visibleCustomerIds !== null && !in_array($line->getCustomerId(), $visibleCustomerIds, true)) {
+                $records = array_merge($records, array_map($this->masked(...), $lineRecords));
+                continue;
+            }
+
             $records = array_merge($records, $lineRecords, $outOfRange);
         }
 
         return $records;
+    }
+
+    private function masked(ProductionReportRecordDTO $record): ProductionReportRecordDTO
+    {
+        // factorsStack niesie opisy korekt, więc zostaje tylko sama wartość
+        $factors = $record->getFactors();
+
+        return new ProductionReportRecordDTO(
+            departmentSlug: $record->getDepartmentSlug(),
+            dateStart: $record->getDateStart(),
+            dateEnd: $record->getDateEnd(),
+            status: $record->getStatus(),
+            completedAt: $record->getCompletedAt(),
+            factors: $factors !== null ? new AssembledFactorDTO($factors->factor) : null,
+            isGhost: $record->getIsGhost(),
+            onTime: $record->getOnTime(),
+            inRange: $record->getInRange(),
+        );
     }
 
     private function toRecord(

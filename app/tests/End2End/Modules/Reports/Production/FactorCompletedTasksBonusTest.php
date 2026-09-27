@@ -61,7 +61,7 @@ class FactorCompletedTasksBonusTest extends BaseProductionReportsTestCase
     {
         // Given
         $line = $this->makeCompletedLine(factor: 2.0);
-        $client = $this->login($this->createUser([], [], [self::GRANT, self::REPORT_GRANT]));
+        $client = $this->login($this->createUser([], [], [self::GRANT, self::REPORT_GRANT], ['ROLE_PRODUCTION']));
         $client->xmlHttpRequest('POST', $this->url($line->getId()), [], [], [], json_encode([
             'departmentSlug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
             'value' => 0.3,

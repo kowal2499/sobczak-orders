@@ -77,7 +77,9 @@ export default defineComponent({
                 }))
         },
         mappedSidebarRecords() {
-            return this.sidebarRecords.map(r => this.toDetailRecord(r))
+            return this.sidebarRecords
+                .filter(r => r.agreementLine)
+                .map(r => this.toDetailRecord(r))
         },
     },
     methods: {

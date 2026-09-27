@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\Reports\Production;
 
+use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
 
 /**
@@ -195,6 +196,31 @@ class ProductionTasksOnTimeSummaryTest extends BaseProductionReportsTestCase
 
         // Then
         $this->assertTrue(json_decode($client->getResponse()->getContent(), true)[0]['onTime']);
+    }
+
+    public function testShouldLimitRecordsToAssignedCustomersForRoleCustomer(): void
+    {
+        // Given
+        $ownCustomer = $this->factory->make(Customer::class);
+        $foreignCustomer = $this->factory->make(Customer::class);
+        $user = $this->createUser([], [], [self::GRANT], ['ROLE_CUSTOMER']);
+        $user->addCustomer($ownCustomer);
+        $completed = [[
+            'slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING,
+            'isCompleted' => true,
+            'completedAt' => new \DateTime('2026-05-15'),
+        ]];
+        $ownLine = $this->makeAgreementLine(customer: $ownCustomer, productions: $completed);
+        $this->makeAgreementLine(customer: $foreignCustomer, productions: $completed);
+        $client = $this->login($user);
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $content);
+        $this->assertSame($ownLine->getId(), $content[0]['agreementLine']['id']);
     }
 
     public function testShouldReturn400WhenDatesMissing(): void

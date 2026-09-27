@@ -4,6 +4,7 @@ namespace App\Module\BonusSettlement\Service;
 
 use App\Module\Production\ValueObject\DepartmentEnum;
 use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
+use App\Module\Reports\Production\Metric\AbstractProductionRecordStrategy;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 
 /**
@@ -38,6 +39,7 @@ class DepartmentFactorsCalculator
 
         $records = $this->metrics->getMetric(self::METRIC, $from, $to, false, [
             'toleranceDays' => $toleranceDays,
+            AbstractProductionRecordStrategy::OPTION_COMPANY_WIDE => true,
         ]);
 
         foreach ($records as $record) {
