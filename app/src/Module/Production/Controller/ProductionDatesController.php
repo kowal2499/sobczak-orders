@@ -33,6 +33,7 @@ class ProductionDatesController extends AbstractController
         if ($production === null) {
             return $this->json(['error' => 'Production task not found'], Response::HTTP_NOT_FOUND);
         }
+        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $production);
 
         if (!$production->isGhost() && !$this->isEditableStatus($production->getStatus())) {
             return $this->json(

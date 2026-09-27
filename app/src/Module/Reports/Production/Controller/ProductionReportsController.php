@@ -15,6 +15,7 @@ class ProductionReportsController extends BaseController
     use DateValidationTrait;
 
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function agreementLinesProductionSummary(
         Request $request,
         DashboardMetricProvider $metrics,
@@ -36,6 +37,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-finished-details', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionFinishedDetails(
         Request $request,
         DashboardMetricProvider $metrics
@@ -53,6 +55,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-pending-details', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionPendingDetails(
         Request $request,
         DashboardMetricProvider $metrics
@@ -71,6 +74,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionTasksCompletionSummary(
         Request $request,
         DashboardMetricProvider $metrics
@@ -113,6 +117,11 @@ class ProductionReportsController extends BaseController
         Request $request,
         DashboardMetricProvider $metrics
     ): Response {
+        // raport rozbieżności (ROLE_ADMIN) korzysta z tego endpointu bez grantu kafla
+        if (!$this->isGranted('reports.dashboard:capacity-utilization') && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $result = $this->validateDateRange(
             $request->query->get('start'),
             $request->query->get('end')

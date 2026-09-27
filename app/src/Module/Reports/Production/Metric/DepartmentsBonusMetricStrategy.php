@@ -9,7 +9,7 @@ use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 /**
  * Miernik "Departments Bonus" - produkcje działów domyślnych zakończone w zakresie
  * (isCompleted=1, completedAt w zakresie, nie-ghost). Współczynnik: factorBonus.
- * Agregat firmowy (bez filtra ROLE_CUSTOMER).
+ * Dla ROLE_CUSTOMER rekordy zawężone do przypisanych klientów.
  *
  * Brak prefiltra dat w search() - kwalifikacja po completedAt (a nie po datach dpt),
  * dlatego pobieramy linie z produkcjami nie-ghost i filtrujemy completedAt w PHP.
@@ -51,6 +51,11 @@ class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
      * są pomijane w agregacji.
      */
     protected function emitsOutOfRange(): bool
+    {
+        return true;
+    }
+
+    protected function filtersByOwnership(): bool
     {
         return true;
     }

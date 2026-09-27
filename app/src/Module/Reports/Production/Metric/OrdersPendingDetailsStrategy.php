@@ -7,8 +7,8 @@ use App\Module\Agreement\ReadModel\ProductionRM;
 
 /**
  * Szczegóły miernika "Orders Pending" - linie rozpoczęte do końca zakresu i niezakończone.
- * Produkcja kwalifikuje się gdy ma status COMPLETED lub NOT_APPLICABLE. Liczony firmowo
- * (bez filtra ROLE_CUSTOMER), dolna granica zakresu pomijana - zgodnie z dotychczasowym zachowaniem.
+ * Produkcja kwalifikuje się gdy ma status COMPLETED lub NOT_APPLICABLE. Dla ROLE_CUSTOMER wynik
+ * ograniczony do przypisanych klientów. Dolna granica zakresu pomijana - zgodnie z dotychczasowym zachowaniem.
  */
 class OrdersPendingDetailsStrategy extends AbstractOrdersDetailsStrategy
 {
@@ -19,7 +19,7 @@ class OrdersPendingDetailsStrategy extends AbstractOrdersDetailsStrategy
 
     protected function fetchDetailLines(?\DateTimeInterface $start, ?\DateTimeInterface $end): array
     {
-        return $this->agreementLineRepo->findPendingDetailLines($end);
+        return $this->agreementLineRepo->findPendingDetailLines($end, $this->ownedCustomerIds());
     }
 
     protected function productionQualifies(ProductionRM $production): bool

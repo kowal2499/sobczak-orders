@@ -28,6 +28,7 @@ class FactorController extends BaseController
 {
     #[Route(path: '/{agreementLine}/completed-tasks-bonus', methods: ['POST'])]
     #[IsGranted('production.factor_adjustment')]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function storeCompletedTasksBonus(
         Request $request,
         AgreementLine $agreementLine,
@@ -84,6 +85,7 @@ class FactorController extends BaseController
 
     #[Route(path: '/{agreementLine}', methods: ['POST'])]
     #[IsGranted('production.factor_adjustment')]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function storeFromForm(
         Request $request,
         AgreementLine $agreementLine,
@@ -103,6 +105,7 @@ class FactorController extends BaseController
     }
 
     #[Route(path: '/{agreementLine}', methods: ['GET'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function readAsForm(AgreementLine $agreementLine, FactorRepository $factorRepository): JsonResponse
     {
         return $this->json(array_map(fn (Factor $factor) => [

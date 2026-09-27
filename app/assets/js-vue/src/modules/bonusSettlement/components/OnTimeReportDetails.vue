@@ -33,6 +33,7 @@ export default defineComponent({
     },
     data: () => ({
         loading: false,
+        innerData: [],
     }),
     computed: {
         range() {

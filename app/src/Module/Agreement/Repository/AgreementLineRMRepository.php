@@ -10,6 +10,7 @@ use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
 use App\Module\Production\ValueObject\DepartmentEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -46,20 +47,24 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
     /**
      * Agregat miernika "Orders Pending": linie rozpoczęte do końca zakresu i jeszcze niezakończone.
      * Dolna granica (start) jest celowo pomijana - zgodnie z dotychczasowym zachowaniem miernika.
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
      *
+     * @param int[]|null $customerIds
      * @return array{factors_summary: string|float|null, count: int|string}
      */
-    public function getPendingSummary(\DateTimeInterface $end): array
+    public function getPendingSummary(\DateTimeInterface $end, ?array $customerIds = null): array
     {
-        return $this->createQueryBuilder('l')
+        $qb = $this->createQueryBuilder('l')
             ->select('SUM(l.factor) as factors_summary')
             ->addSelect('COUNT(l.agreementLineId) as count')
             ->where('l.isDeleted = 0')
             ->andWhere('l.productionEndDate IS NULL')
             ->andWhere('l.productionStartDate <= :end')
-            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59))
-            ->getQuery()
-            ->getSingleResult();
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
+
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getSingleResult();
     }
 
     /**
@@ -84,14 +89,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
 
-        if ($customerIds !== null) {
-            if (empty($customerIds)) {
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere('l.customerId IN (:customerIds)')
-                    ->setParameter('customerIds', $customerIds);
-            }
-        }
+        $this->restrictToCustomers($qb, $customerIds);
 
         return $qb->getQuery()->getSingleResult();
     }
@@ -99,10 +97,12 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
     /**
      * Linie dla szczegółów miernika "Orders Pending": rozpoczęte do końca zakresu i niezakończone.
      * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null - bez filtra dat.
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
      *
+     * @param int[]|null $customerIds
      * @return AgreementLineRM[]
      */
-    public function findPendingDetailLines(?\DateTimeInterface $end): array
+    public function findPendingDetailLines(?\DateTimeInterface $end, ?array $customerIds = null): array
     {
         $qb = $this->createQueryBuilder('l')
             ->where('l.isDeleted = 0')
@@ -112,6 +112,8 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             $qb->andWhere('l.productionStartDate <= :end')
                 ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
         }
+
+        $this->restrictToCustomers($qb, $customerIds);
 
         return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
     }
@@ -136,16 +138,25 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
 
-        if ($customerIds !== null) {
-            if (empty($customerIds)) {
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere('l.customerId IN (:customerIds)')
-                    ->setParameter('customerIds', $customerIds);
-            }
-        }
+        $this->restrictToCustomers($qb, $customerIds);
 
         return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
+    }
+
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     */
+    private function restrictToCustomers(QueryBuilder $qb, ?array $customerIds): void
+    {
+        if ($customerIds === null) {
+            return;
+        }
+        if (empty($customerIds)) {
+            $qb->andWhere('1 = 0');
+            return;
+        }
+        $qb->andWhere('l.customerId IN (:customerIds)')
+            ->setParameter('customerIds', $customerIds);
     }
 
     public function search(?array $criteria)

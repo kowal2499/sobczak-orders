@@ -27,7 +27,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
     {
         // Given
         $em = $this->getManager();
-        $user = $this->createUser([], [], ['work-configuration.capacity']);
+        $user = $this->createUser([], [], ['reports.calendar_general']);
         $client = $this->login($user);
 
         $customerA = $this->factory->make(Customer::class);
@@ -61,7 +61,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
     {
         // Given
         $em = $this->getManager();
-        $user = $this->createUser([], [], ['work-configuration.capacity'], ['ROLE_CUSTOMER']);
+        $user = $this->createUser([], [], ['reports.calendar_general'], ['ROLE_CUSTOMER']);
         $client = $this->login($user);
 
         $customerA = $this->factory->make(Customer::class);
@@ -103,7 +103,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
     {
         // Given
         $em = $this->getManager();
-        $user = $this->createUser([], [], ['work-configuration.capacity'], ['ROLE_CUSTOMER']);
+        $user = $this->createUser([], [], ['reports.calendar_general'], ['ROLE_CUSTOMER']);
         $client = $this->login($user);
 
         $customer = $this->factory->make(Customer::class);
@@ -131,5 +131,29 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 
         // agreementLines puste - brak przypisanych klientów
         $this->assertCount(0, $content[0]['agreementLines']);
+    }
+
+    public function testShouldAllowDashboardWeeklyCapacityGrant(): void
+    {
+        // Given
+        $client = $this->login($this->createUser([], [], ['reports.dashboard:weekly-capacity']));
+
+        // When
+        $client->xmlHttpRequest('GET', '/reports/schedule/capacity?startDate=2026-03-03&endDate=2026-03-03');
+
+        // Then
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function testShouldDenyAccessWithoutCalendarOrDashboardGrant(): void
+    {
+        // Given
+        $client = $this->login($this->createUser([], [], ['work-configuration.capacity']));
+
+        // When
+        $client->xmlHttpRequest('GET', '/reports/schedule/capacity?startDate=2026-03-03&endDate=2026-03-03');
+
+        // Then
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
     }
 }

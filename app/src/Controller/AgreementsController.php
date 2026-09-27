@@ -10,6 +10,7 @@ use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,6 +49,7 @@ class AgreementsController extends AbstractController
      * @return Response
      */
     #[Route(path: '/orders/edit/{id}', name: 'orders_edit', options: ['expose' => true])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
     public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t): Response
     {
             return $this->render('orders/order_single_edit.html.twig', [
@@ -62,6 +64,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/fetch_single/{agreement}', name: 'orders_single_fetch', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
     public function fetchSingle(Agreement $agreement, UploaderHelper $uploaderHelper): JsonResponse
     {
         $returnData = [
@@ -123,6 +126,8 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/delete/{agreement}', name: 'orders_delete', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('order.manage')]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
     public function delete(
         Agreement $agreement,
         EntityManagerInterface $em,
@@ -148,6 +153,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/number/{id}', name: 'orders_number', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'customer')]
     public function orderNumber(Customer $customer, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->getByCustomerPostalCode($customer->getPostalCode());

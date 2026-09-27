@@ -25,23 +25,12 @@ export default defineComponent({
         dateEnd: { type: String, default: null },
     },
 
-    watch: {
-        data: {
-            deep: true,
-            handler() {
-                // set inner data
-                if (!Array.isArray(this.data)) {
-                    return
-                }
-                if (!this.data.length) {
-                    return;
-                }
-                this.innerData = this.mapDetails(this.data).map(item => this.addSearchKey(item));
-            }
-        }
-    },
-
     computed: {
+        innerData() {
+            return Array.isArray(this.data)
+                ? this.mapDetails(this.data).map(item => this.addSearchKey(item))
+                : []
+        },
         perDepartmentData() {
             return this.aggregateByDepartment(this.data)
         },
@@ -83,7 +72,8 @@ export default defineComponent({
                             <tr v-for="department in perDepartmentData">
                                 <td>{{ department.name }}</td>
                                 <td class="text-right">
-                                    <a href="#" @click.prevent="beforeOpen(); open()">
+                                    <b-skeleton v-if="!hasDepartmentData" width="2.5rem" class="ml-auto mb-0" />
+                                    <a v-else href="#" @click.prevent="beforeOpen(); open()">
                                         {{ department.value | roundFloat }}
                                     </a>
                                 </td>

@@ -69,6 +69,7 @@ class ProductionController extends BaseController
      * @throws ProductionAlreadyExistsException
      */
     #[Route(path: '/production/start/{agreementLine}', methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function startProduction(
         AgreementLine $agreementLine,
 //        ProductionTaskDatesResolver $datesResolver,
@@ -184,6 +185,9 @@ class ProductionController extends BaseController
     {
         $productionId = $request->request->getInt('productionId');
         $existing = $taskRepository->find($productionId);
+        if ($existing) {
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $existing);
+        }
         if ($existing && $existing->isGhost()) {
             return $this->json(
                 ['error' => 'Cannot change status of a ghost production task'],
@@ -206,6 +210,7 @@ class ProductionController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/production/delete/{agreementLine}', name: 'production_delete', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function delete(
         AgreementLine $agreementLine,
         EntityManagerInterface $em,

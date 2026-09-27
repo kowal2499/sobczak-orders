@@ -1,5 +1,6 @@
 export default {
     'title': 'Kalendarz produkcji',
+    'generalTitle': 'Kalendarz ogólny',
     'breadcrumb': {
         'home': 'Pulpit',
         'calendar': 'Kalendarz',

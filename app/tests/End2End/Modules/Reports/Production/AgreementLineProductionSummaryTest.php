@@ -23,7 +23,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testShouldReturnZeroCountsWhenNoData(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // When
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
@@ -41,7 +41,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testPendingCountsLinesStartedBeforeEndWithoutCompletion(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // Liczy się: start w oknie, brak completion
         $this->makeAgreementLine(
@@ -87,7 +87,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testFinishedCountsLinesCompletedInRange(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // Liczy się: completion w oknie, start ustawiony
         $this->makeAgreementLine(
@@ -133,7 +133,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testFinishedRespectsRangeBoundaries(): void
     {
         // Given - completion dokładnie na granicach okna (00:00 startu i 23:59:59 końca)
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-05-01'),
@@ -157,7 +157,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testFinishedFiltersByOwnedCustomersForRoleCustomer(): void
     {
         // Given
-        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
+        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER', 'ROLE_PRODUCTION']);
         $customerOwned = $this->factory->make(Customer::class);
         $customerOther = $this->factory->make(Customer::class);
         $this->factory->flush();
@@ -188,10 +188,34 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
         $this->assertSame(4.0, (float) $content['orders_finished']['factors_summary']);
     }
 
+    public function testPendingFiltersByOwnedCustomersForRoleCustomer(): void
+    {
+        // Given
+        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER', 'ROLE_PRODUCTION']);
+        $customerOwned = $this->factory->make(Customer::class);
+        $customerOther = $this->factory->make(Customer::class);
+        $this->factory->flush();
+        $user->addCustomer($customerOwned);
+        $this->factory->flush();
+
+        $client = $this->login($user);
+
+        $this->makeAgreementLine(customer: $customerOwned, productionStartDate: new \DateTime('2026-05-01'), factor: 4.0);
+        $this->makeAgreementLine(customer: $customerOther, productionStartDate: new \DateTime('2026-05-01'), factor: 6.0);
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then - licznik zgodny ze szczegółami, które też są filtrowane
+        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->assertSame(1, (int) $content['orders_pending']['count']);
+        $this->assertSame(4.0, (float) $content['orders_pending']['factors_summary']);
+    }
+
     public function testShouldReturn400WhenDatesMissing(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // When
         $client->xmlHttpRequest('GET', self::URL);
@@ -203,7 +227,7 @@ class AgreementLineProductionSummaryTest extends BaseProductionReportsTestCase
     public function testShouldReturn400WhenStartAfterEnd(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // When
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-31&end=2026-05-01');

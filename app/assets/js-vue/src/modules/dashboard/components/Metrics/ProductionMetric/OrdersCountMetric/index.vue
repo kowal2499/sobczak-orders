@@ -48,7 +48,8 @@ export default defineComponent({
 
     methods: {
         fetchDetails(callback) {
-            this.reset()
+            this.q = null
+            this.innerData = []
             this.isFetchingDetails = true
             const promise = this.status === 'orders_pending'
                 ? getProductionPendingDetails(null, this.filters?.dateEnd)
@@ -69,6 +70,7 @@ export default defineComponent({
 
     data: () => ({
         isFetchingDetails: false,
+        innerData: [],
     })
 })
 </script>

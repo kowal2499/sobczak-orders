@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\Security;
  *
  * Rekordy poza oknem NIE są odfiltrowywane (kwalifikacja bez zmian) - trafiają do wyniku z onTime=false,
  * aby front mógł je pokazać wyszarzone (0 pkt). Brak zaplanowanego okna (null start/end) => onTime=false.
- * Agregat firmowy (bez filtra ROLE_CUSTOMER).
+ * Dla ROLE_CUSTOMER rekordy zawężone do przypisanych klientów (poza rozliczeniem - OPTION_COMPANY_WIDE).
  */
 class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrategy
 {
@@ -83,6 +83,11 @@ class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrat
     }
 
     protected function emitsOutOfRange(): bool
+    {
+        return true;
+    }
+
+    protected function filtersByOwnership(): bool
     {
         return true;
     }

@@ -19,11 +19,33 @@ class OrdersMetricStrategyTest extends TestCase
         $expected = ['factors_summary' => '5', 'count' => '2'];
 
         $repo = $this->createMock(AgreementLineRMRepository::class);
-        $repo->expects($this->once())->method('getPendingSummary')->with($end)->willReturn($expected);
+        $repo->expects($this->once())->method('getPendingSummary')->with($end, null)->willReturn($expected);
 
         $strategy = new OrdersPendingMetricStrategy($repo, $this->createMock(Security::class));
 
         $this->assertSame($expected, $strategy->compute(new \DateTime('2026-05-01'), $end));
+    }
+
+    public function testPendingWithRoleCustomerPassesOwnedCustomerIds(): void
+    {
+        $customer = $this->createMock(Customer::class);
+        $customer->method('getId')->willReturn(42);
+
+        $user = $this->createMock(User::class);
+        $user->method('getCustomers')->willReturn(new ArrayCollection([$customer]));
+
+        $security = $this->createMock(Security::class);
+        $security->method('isGranted')->with('ROLE_CUSTOMER')->willReturn(true);
+        $security->method('getUser')->willReturn($user);
+
+        $repo = $this->createMock(AgreementLineRMRepository::class);
+        $repo->expects($this->once())
+            ->method('getPendingSummary')
+            ->with($this->anything(), [42])
+            ->willReturn(['factors_summary' => '4', 'count' => '1']);
+
+        $strategy = new OrdersPendingMetricStrategy($repo, $security);
+        $strategy->compute(new \DateTime('2026-05-01'), new \DateTime('2026-05-31'));
     }
 
     public function testFinishedWithoutRoleCustomerPassesNullFilter(): void

@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Modules\BonusSettlement;
 use App\Module\BonusSettlement\Service\DepartmentFactorsCalculator;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
+use App\Module\Reports\Production\Metric\AbstractProductionRecordStrategy;
 use App\Module\Reports\Production\Metric\MetricStrategyInterface;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 use PHPUnit\Framework\TestCase;
@@ -128,6 +129,19 @@ class DepartmentFactorsCalculatorTest extends TestCase
 
         // Then
         $this->assertSame(3, $strategy->receivedOptions['toleranceDays']);
+    }
+
+    public function testShouldRequestCompanyWideRecordsRegardlessOfCaller(): void
+    {
+        // Given
+        $strategy = $this->strategy([]);
+        $calculator = new DepartmentFactorsCalculator(new DashboardMetricProvider([$strategy]));
+
+        // When
+        $calculator->forRange(new \DateTime('2026-08-01'), new \DateTime('2026-08-31'), 5);
+
+        // Then
+        $this->assertTrue($strategy->receivedOptions[AbstractProductionRecordStrategy::OPTION_COMPANY_WIDE]);
     }
 
     /**

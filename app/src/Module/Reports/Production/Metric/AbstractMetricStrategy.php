@@ -30,7 +30,7 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
 
     /**
      * Dodaje do kryteriów filtr własności klienta, gdy bieżący użytkownik ma ROLE_CUSTOMER.
-     * Mierniki o charakterze agregatów firmowych (capacity, bonus) tego nie używają -
+     * Mierniki o charakterze agregatów firmowych (capacity) tego nie używają -
      * zgodnie z zasadą "agregaty liczone firmowo".
      *
      * @param array<string, mixed> $search

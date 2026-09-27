@@ -15,9 +15,17 @@ div#wrapper nav.sidebar {
 
     display: flex;
     flex-direction: column;
-    overflow: visible; // let footer flyouts escape the rail
+    // the rail clips its content instead of letting it reflow: the zones below
+    // are laid out at the expanded width, so the width transition only reveals them
+    overflow: hidden;
 
     transition: width 180ms ease;
+
+    > .sidebar__brand,
+    > .sidebar__nav,
+    > .sidebar__footer {
+        width: calc(#{$sidebar-expanded-width} - 1px); // minus border-right
+    }
 
     // toned-down light variant: a quiet light-gray rail; --colorPrimary is
     // reserved for icons and accents so the chrome no longer competes with
@@ -183,8 +191,8 @@ div#wrapper nav.sidebar {
     }
 
     .sidebar-divider {
-        width: 60%;
-        margin: 0.5rem auto;
+        width: calc(#{$sidebar-rail-width} * 0.6);
+        margin: 0.5rem 0 0.5rem calc(#{$sidebar-rail-width} * 0.2);
         border-color: #d6d6d6;
     }
 
@@ -193,17 +201,18 @@ div#wrapper nav.sidebar {
     .sidebar__footer {
         flex: 0 0 auto;
         padding: 0;
-        background: #fff;
+        background: #eef0f5;
 
         .sidebar-divider {
             display: none;
         }
 
+        // a block (not flex) container, so the fixed menu's static position is
+        // right below its trigger - the flyout below relies on it
         .language-switcher,
         .s-dropdown {
             width: 100%;
-            display: flex;
-            flex-direction: column-reverse;
+            display: block;
         }
 
         // triggers share the nav-link geometry: a fixed icon column (= rail
@@ -241,7 +250,6 @@ div#wrapper nav.sidebar {
                 margin: 0 0.9rem 0 auto;
                 color: var(--colorPrimary);
                 display: none;
-                transition: transform 0.2s;
             }
 
             // leading icon (user menu) sits in the same column as nav icons
@@ -269,18 +277,25 @@ div#wrapper nav.sidebar {
             display: none;
         }
 
-        // dropdown options render inline, styled like the accordion submenu
-        // items (not a right-side flyout)
+        // options open as a flyout to the right of the expanded sidebar, bottom
+        // edge level with the trigger. Fixed, so the rail's overflow does not
+        // clip it; top stays auto (static position = below the trigger) and the
+        // transform lifts it by its own height
         .dropdown-menu {
-            position: static !important;
+            position: fixed !important;
+            top: auto;
+            right: auto;
+            bottom: auto;
+            left: $sidebar-expanded-width;
+            transform: translateY(-100%);
             float: none;
             display: none;
-            width: 100%;
+            min-width: 12rem;
             margin: 0;
-            padding: 0;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 0.25rem 0;
+            border: 1px solid #d6d6d6;
+            border-radius: 0.35rem;
+            box-shadow: 0.25rem 0.25rem 1.5rem rgba(0, 0, 0, 0.12);
             background: #fff;
 
             &.show {
@@ -290,7 +305,7 @@ div#wrapper nav.sidebar {
             .dropdown-item {
                 display: flex;
                 align-items: center;
-                padding: 0.5rem 0.7rem 0.5rem 2.5rem;
+                padding: 0.5rem 1rem;
                 font-size: 0.85rem;
                 color: #6e707e;
                 white-space: nowrap;
@@ -325,6 +340,11 @@ div#wrapper.sidebar-open nav.sidebar {
         display: inline;
     }
 
+    .sidebar-divider {
+        width: 60%;
+        margin: 0.5rem auto;
+    }
+
     // selector mirrors the (more specific) collapsed rule so the reveal wins
     .sidebar__nav li.nav-item a.nav-link .expander {
         display: inline-block;
@@ -332,7 +352,8 @@ div#wrapper.sidebar-open nav.sidebar {
 
     .sidebar__footer {
         // labels reveal after the fixed icon column, aligned with nav labels
-        .s-dropdown > button.btn span {
+        .s-dropdown > button.btn span,
+        .language-switcher > button.btn .sidebar__label {
             display: inline;
         }
 
@@ -342,10 +363,11 @@ div#wrapper.sidebar-open nav.sidebar {
             display: inline-block;
         }
 
-        // point it down while the menu is open (menu opens upward)
-        > .language-switcher:has(.dropdown-menu.show) > button.btn::after,
-        .s-dropdown:has(.dropdown-menu.show) > button.btn::after {
-            transform: rotate(90deg);
+        // the trigger stays highlighted while its flyout is open
+        > .language-switcher:has(.dropdown-menu.show) > button.btn,
+        .s-dropdown:has(.dropdown-menu.show) > button.btn {
+            color: #3a3b45;
+            background-color: rgba($mainBlue, 0.06) !important;
         }
     }
 }

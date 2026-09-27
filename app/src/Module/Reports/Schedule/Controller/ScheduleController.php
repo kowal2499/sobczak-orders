@@ -27,6 +27,11 @@ class ScheduleController extends BaseController
         Request $request,
         ScheduleCapacityService $service
     ): Response {
+        // kalendarz ogólny i kafel obłożenia tygodniowego na pulpicie
+        if (!$this->isGranted('reports.calendar_general') && !$this->isGranted('reports.dashboard:weekly-capacity')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $result = $this->validateDateRange(
             $request->query->get('startDate'),
             $request->query->get('endDate')
@@ -118,6 +123,7 @@ class ScheduleController extends BaseController
     }
 
     #[Route(path: '/agreement-lines', methods: ['GET'])]
+    #[IsGranted('reports.calendar_general')]
     public function agreementLines(
         Request $request,
         AgreementLineRMRepository $agreementLineRMRepository
@@ -131,18 +137,19 @@ class ScheduleController extends BaseController
         }
         ['start' => $startDate, 'end' => $endDate] = $result;
 
-        $criteria = [
-            'search' => [
-                'hasProduction' => true,
-                'statusNot' => [AgreementLine::STATUS_DELETED],
-                'dateStart' => [
-                    'start' => $startDate->format('Y-m-d'),
-                    'end' => $endDate->format('Y-m-d')
-                ]
+        $search = [
+            'hasProduction' => true,
+            'statusNot' => [AgreementLine::STATUS_DELETED],
+            'dateStart' => [
+                'start' => $startDate->format('Y-m-d'),
+                'end' => $endDate->format('Y-m-d')
             ]
         ];
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $search['ownedBy'] = $this->getUser();
+        }
 
-        $results = $agreementLineRMRepository->search($criteria)->getResult();
+        $results = $agreementLineRMRepository->search(['search' => $search])->getResult();
 
         return $this->json(array_map(fn($item) => $item->toArray(), $results));
     }

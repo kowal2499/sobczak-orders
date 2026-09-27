@@ -4,6 +4,10 @@ export default {
     methods: {
         mapDetails(data) {
             const agreementLinesMap = data?.reduce((acc, item) => {
+                // rekord zamaskowany przez backend (linia innego klienta) liczy się tylko do sum
+                if (!item.agreementLine) {
+                    return acc
+                }
                 if (!acc.has(item.agreementLine.id)) {
                     acc.set(item.agreementLine.id, {
                         ...item.agreementLine,

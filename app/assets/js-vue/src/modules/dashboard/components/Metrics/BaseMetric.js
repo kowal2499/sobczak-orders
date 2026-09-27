@@ -35,11 +35,6 @@ export default {
     },
 
     methods: {
-        reset() {
-            this.q = null
-            this.innerData = []
-        },
-
         addSearchKey(row) {
             return {
                 ...row,
@@ -56,7 +51,6 @@ export default {
 
     data: () => ({
         q: null,
-        innerData: [],
         excel: new ExcelExport()
     })
 }
