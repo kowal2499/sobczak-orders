@@ -40,21 +40,6 @@ export default defineComponent({
         dateEnd: { type: String, default: null },
     },
     watch: {
-        data: {
-            deep: true,
-            handler() {
-                // set inner data
-                if (!Array.isArray(this.data)) {
-                    return
-                }
-                if (!this.data.length) {
-                    return
-                }
-                this.innerData = this.mapDetails(this.data)
-                    .map(item => this.addSearchKey(item))
-                ;
-            }
-        },
         showForecast(value) {
             if (value) {
                 this.fetchForecast()
@@ -74,6 +59,11 @@ export default defineComponent({
         },
     },
     computed: {
+        innerData() {
+            return Array.isArray(this.data)
+                ? this.mapDetails(this.data).map(item => this.addSearchKey(item))
+                : []
+        },
         ghostOnlyData() {
             if (!Array.isArray(this.forecastData)) {
                 return []

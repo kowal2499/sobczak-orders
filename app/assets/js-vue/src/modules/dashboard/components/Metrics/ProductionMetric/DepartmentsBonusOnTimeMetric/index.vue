@@ -30,23 +30,12 @@ export default defineComponent({
         onToleranceChange: { type: Function, default: () => {} },
     },
 
-    watch: {
-        data: {
-            deep: true,
-            handler() {
-                // set inner data
-                if (!Array.isArray(this.data)) {
-                    return
-                }
-                if (!this.data.length) {
-                    return;
-                }
-                this.innerData = this.mapDetails(this.data).map(item => this.addSearchKey(item));
-            }
-        }
-    },
-
     computed: {
+        innerData() {
+            return Array.isArray(this.data)
+                ? this.mapDetails(this.data).map(item => this.addSearchKey(item))
+                : []
+        },
         perDepartmentData() {
             return this.aggregateByDepartment(this.data)
         },
