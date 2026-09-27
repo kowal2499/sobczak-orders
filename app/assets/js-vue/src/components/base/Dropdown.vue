@@ -6,7 +6,7 @@
         <button class="btn btn-light dropdown-toggle" type="button"
             @click.prevent="expanded = !expanded">
             <i :class="iconClass" aria-hidden="true"></i>
-            <span v-if="btnText">&nbsp;{{ btnText }}</span>
+            <span v-if="btnText">{{ btnText }}</span>
         </button>
 
         <div class="dropdown-menu"
