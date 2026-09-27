@@ -16,10 +16,8 @@ use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -268,25 +266,6 @@ class AgreementLineController extends BaseController
                 ));
             }
         }
-    }
-
-    /**
-     * @param Request $request
-     */
-    #[Route(path: '/agreement_line/upload', name: 'agreement_line_upload', options: ['expose' => true], methods: ['POST'])]
-    public function uploadTest(Request $request)
-    {
-        /** @var UploadedFile $uploadedFile */
-        $uploadedFile = $request->files->get('sobczak-attach');
-        $destination = $this->getParameter('kernel.project_dir') . '/public/uploads';
-
-        $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $newFileName = Urlizer::urlize($originalFileName) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
-        dd($uploadedFile->move(
-            $destination,
-            $newFileName
-        ));
-
     }
 
     /**
