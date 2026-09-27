@@ -193,7 +193,7 @@ export default {
 
 <template>
     <div class="schedule-production">
-        <SectionBlockTitle block :title="$t('schedule.title')" :breadcrumbs="breadcrumbs">
+        <SectionBlockTitle block :title="$t('schedule.generalTitle')" :breadcrumbs="breadcrumbs">
             <template #filters>
                 <ScheduleProductionFilters
                     :agreementLines="events.departments"

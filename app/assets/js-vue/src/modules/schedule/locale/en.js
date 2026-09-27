@@ -1,5 +1,6 @@
 export default {
     'title': 'Production calendar',
+    'generalTitle': 'General calendar',
     'breadcrumb': {
         'home': 'Dashboard',
         'calendar': 'Calendar',
