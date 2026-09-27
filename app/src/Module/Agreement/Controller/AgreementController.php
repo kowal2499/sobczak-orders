@@ -5,8 +5,10 @@ namespace App\Module\Agreement\Controller;
 use App\Entity\Agreement;
 use App\Module\Agreement\Command\CreateAgreementCommand;
 use App\Module\Agreement\Command\UpdateAgreementCommand;
+use App\Repository\CustomerRepository;
 use App\Service\UploaderHelper;
 use App\System\CommandBus;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +31,7 @@ class AgreementController extends AbstractController
      * Utworzenie nowego zamówienia
      */
     #[Route('/save', name: 'orders_add', options: ['expose' => true], methods: ['POST'])]
-    public function save(Request $request): JsonResponse
+    public function save(Request $request, CustomerRepository $customerRepository): JsonResponse
     {
         if ($errorResponse = $this->validatePostSize($request)) {
             return $errorResponse;
@@ -53,6 +55,7 @@ class AgreementController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+        $this->denyUnlessAssignedCustomer($customerRepository, $customerId);
 
         if (empty($orderNumber)) {
             return $this->json(
@@ -124,7 +127,8 @@ class AgreementController extends AbstractController
      * Aktualizacja istniejącego zamówienia
      */
     #[Route('/patch/{agreement}', name: 'orders_patch', options: ['expose' => true], methods: ['POST'])]
-    public function update(Agreement $agreement, Request $request): JsonResponse
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
+    public function update(Agreement $agreement, Request $request, CustomerRepository $customerRepository): JsonResponse
     {
         if ($errorResponse = $this->validatePostSize($request)) {
             return $errorResponse;
@@ -151,6 +155,7 @@ class AgreementController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+        $this->denyUnlessAssignedCustomer($customerRepository, $customerId);
 
         if (empty($orderNumber)) {
             return $this->json(
@@ -217,6 +222,14 @@ class AgreementController extends AbstractController
                 ['error' => 'An unexpected error occurred'],
                 Response::HTTP_INTERNAL_SERVER_ERROR
             );
+        }
+    }
+
+    private function denyUnlessAssignedCustomer(CustomerRepository $customerRepository, int $customerId): void
+    {
+        $customer = $customerRepository->find($customerId);
+        if ($customer !== null) {
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $customer);
         }
     }
 

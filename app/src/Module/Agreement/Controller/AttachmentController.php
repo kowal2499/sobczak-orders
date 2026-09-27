@@ -37,6 +37,7 @@ class AttachmentController extends AbstractController
         if (!$attachment) {
             throw new NotFoundHttpException('Attachment not found');
         }
+        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $attachment);
 
         $filePath = $this->uploadsPath . '/' . $attachment->getPath();
 

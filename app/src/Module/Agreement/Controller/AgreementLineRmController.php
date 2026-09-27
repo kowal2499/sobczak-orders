@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AgreementLineRmController extends BaseController
 {
     #[Route(path: '/rm/{agreementLineRM}', methods: ['GET'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLineRM')]
     public function fetchSingle(AgreementLineRM $agreementLineRM): Response
     {
         return $this->json(['data' => $agreementLineRM], Response::HTTP_OK);

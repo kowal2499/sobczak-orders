@@ -42,6 +42,7 @@ class AgreementLineActivityLogController extends AbstractController
         if ($line === null) {
             return $this->json(['error' => 'AgreementLine not found'], Response::HTTP_NOT_FOUND);
         }
+        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $line);
         $agreementId = $line->getAgreement()->getId();
 
         $page = max(1, (int) $request->query->get('page', 1));
