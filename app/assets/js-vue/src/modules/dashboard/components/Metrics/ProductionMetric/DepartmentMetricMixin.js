@@ -1,6 +1,12 @@
 import { getUserDepartments } from "@/helpers";
 
 export default {
+    computed: {
+        // przed pierwszą odpowiedzią źródło ma data === null, a suma wyszłaby NaN
+        hasDepartmentData() {
+            return Array.isArray(this.data)
+        },
+    },
     methods: {
         aggregateByDepartment(data) {
             return getUserDepartments().map((department) => ({

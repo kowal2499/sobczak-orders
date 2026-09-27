@@ -86,7 +86,8 @@ export default defineComponent({
                             <tr v-for="department in perDepartmentData">
                                 <td>{{ department.name }}</td>
                                 <td class="text-right">
-                                    <a href="#" @click.prevent="beforeOpen(); open()">
+                                    <b-skeleton v-if="!hasDepartmentData" width="2.5rem" class="ml-auto mb-0" />
+                                    <a v-else href="#" @click.prevent="beforeOpen(); open()">
                                         {{ department.value | roundFloat }}
                                     </a>
                                 </td>
