@@ -75,7 +75,7 @@ export default defineComponent({
                                 <span class="badge badge-secondary mr-1">{{ name }}</span>
                             </span>
                         </td>
-                        <td>
+                        <td class="text-right text-nowrap">
                             <button class="btn btn-primary btn-sm" @click="onImpersonate(user.email)">Przeloguj</button>
                         </td>
                     </tr>
