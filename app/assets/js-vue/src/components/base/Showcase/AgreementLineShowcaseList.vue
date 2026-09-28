@@ -2,11 +2,10 @@
 import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import AgreementLineRmShowcaseItem from './AgreementLineRmShowcaseItem.vue'
-import OrderPanelDrawer from '@/modules/agreement/components/OrderPanelDrawer.vue'
 
 export default {
     name: 'AgreementLineShowcaseList',
-    components: { SidebarLayout, SidebarNavbar, AgreementLineRmShowcaseItem, OrderPanelDrawer },
+    components: { SidebarLayout, SidebarNavbar, AgreementLineRmShowcaseItem },
     props: {
         lines: {
             type: Array,
@@ -26,28 +25,6 @@ export default {
             default: () => []
         },
     },
-    computed: {
-        panelDepartment() {
-            return this.departments?.length === 1 ? this.departments[0] : null
-        },
-    },
-    methods: {
-        openPanel(lineId) {
-            this.panelLineId = lineId
-            this.panelOpen = false
-            this.$nextTick(() => {
-                this.panelOpen = true
-            })
-        },
-        // listę karmią różni właściciele danych (pulpit, kalendarz, raport) - każdy przeładowuje swoje źródło
-        onPanelSaved() {
-            EventBus.$emit('agreementLineSaved', this.panelLineId)
-        },
-    },
-    data: () => ({
-        panelLineId: null,
-        panelOpen: false,
-    }),
 }
 </script>
 
@@ -79,20 +56,8 @@ export default {
                 :key="`${line.agreementLineId}-${i}`"
                 :data="line"
                 :departments="departments"
-                @open-panel="openPanel"
             />
             <div v-if="!lines.length" class="text-muted text-center m-3">-</div>
-
-            <!-- .b-sidebar ma stały transform, więc drawer zagnieżdżony w DOM mierzyłby się względem rodzica, nie okna -->
-            <MountingPortal v-if="panelLineId" mount-to="body" append>
-                <OrderPanelDrawer
-                    :key="panelLineId"
-                    v-model="panelOpen"
-                    :line-id="panelLineId"
-                    :active-department="panelDepartment"
-                    @saved="onPanelSaved"
-                />
-            </MountingPortal>
         </template>
     </SidebarLayout>
 </template>

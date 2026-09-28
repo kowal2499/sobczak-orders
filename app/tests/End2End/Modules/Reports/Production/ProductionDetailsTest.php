@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\Reports\Production;
 
+use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
 
@@ -66,6 +67,8 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
         // factor z linii
         $this->assertSame(2.0, (float) $records[0]['factors']['factor']);
         $this->assertSame(2.0, (float) $records[0]['agreementLine']['factor']);
+        // status linii dla nagłówka zamówienia w tabeli szczegółów
+        $this->assertSame(AgreementLine::STATUS_MANUFACTURING, $records[0]['agreementLine']['status']);
     }
 
     public function testPendingLineWithoutMatchingProductionYieldsSingleEmptyDeptRecord(): void

@@ -1,6 +1,7 @@
 <script>
-import { statuses, getUserDepartments, getDepartmentName, getLocalDate, orderDisplayNumber, agreementStatusesMap } from '@/helpers'
+import { statuses, getUserDepartments, getDepartmentName, getLocalDate, orderDisplayNumber } from '@/helpers'
 import Avatar from '@/components/base/Avatar.vue'
+import AgreementLineHeading from './AgreementLineHeading.vue'
 import FactorCell from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/FactorCell.vue'
 import FactorBreakdown from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/FactorBreakdown.vue'
 import ProductionDates from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/ProductionDates.vue'
@@ -8,6 +9,7 @@ import ProductionDates from '@/modules/dashboard/components/Metrics/ProductionMe
 export default {
     name: "AgreementLineRmShowcaseItem",
     components: {
+        AgreementLineHeading,
         Avatar,
         FactorCell,
         FactorBreakdown,
@@ -31,9 +33,6 @@ export default {
         },
         orderNumber() {
             return orderDisplayNumber(this.data.orderNumber, this.data.internalNumber)
-        },
-        lineStatus() {
-            return agreementStatusesMap[this.data.status] || null
         },
         fields() {
             return [
@@ -62,9 +61,6 @@ export default {
         },
     },
     methods: {
-        panelUrl(id) {
-            return `/agreement/line/${id}`;
-        },
         formatDate(date) {
             return date ? getLocalDate(date) : '-'
         },
@@ -79,28 +75,15 @@ export default {
             {{ $t('dashboard.ghostOrderBanner') }}
         </div>
 
-        <header class="showcase-header">
-            <div class="showcase-header-main">
-                <div class="showcase-title">
-                    <span class="showcase-order-number">{{ orderNumber }}</span>
-                    <span class="showcase-customer">{{ data.customerName }}</span>
-                </div>
-                <div class="showcase-subtitle">{{ data.productName }}</div>
-            </div>
-            <div class="showcase-header-aside">
-                <span v-if="lineStatus" class="badge" :class="lineStatus.className">{{ lineStatus.name }}</span>
-                <a
-                    :href="panelUrl(data.agreementLineId)"
-                    target="_blank"
-                    class="showcase-panel-link"
-                    @click.exact.prevent="$emit('open-panel', data.agreementLineId)"
-                    :title="$t('_go_to_panel')"
-                    :aria-label="$t('_go_to_panel')"
-                >
-                    <font-awesome-icon icon="link" />
-                </a>
-            </div>
-        </header>
+        <AgreementLineHeading
+            class="showcase-header"
+            :agreement-line-id="data.agreementLineId"
+            :order-number="orderNumber"
+            :customer-name="data.customerName"
+            :product-name="data.productName"
+            :status="data.status"
+            :panel-department="departments && departments.length === 1 ? departments[0] : null"
+        />
 
         <dl class="showcase-fields">
             <div v-for="(field, index) in fields" :key="index" class="showcase-field">
@@ -172,60 +155,8 @@ $production-columns: minmax(6rem, 1.1fr) minmax(11rem, 1.6fr) minmax(5.5rem, 0.8
 }
 
 .showcase-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid $rule;
-}
-
-.showcase-title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 0.6rem;
-    line-height: 1.3;
-}
-
-.showcase-order-number {
-    color: $primary;
-    font-size: 1.05rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-.showcase-customer {
-    color: $ink-strong;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.showcase-subtitle {
-    color: $muted;
-    margin-top: 0.15rem;
-}
-
-.showcase-header-aside {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
-}
-
-.showcase-panel-link {
-    color: rgba(var(--colorPrimaryRgb), 0.75);
-    border-radius: 4px;
-    padding: 0.1rem 0.2rem;
-
-    &:hover {
-        color: $primary;
-    }
-
-    &:focus-visible {
-        outline: 2px solid rgba(var(--colorPrimaryRgb), 0.5);
-        outline-offset: 2px;
-    }
 }
 
 .showcase-fields {

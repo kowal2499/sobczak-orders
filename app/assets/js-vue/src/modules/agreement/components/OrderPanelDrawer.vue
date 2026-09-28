@@ -114,6 +114,7 @@ export default {
                 this.pushedHistory = false
                 history.back()
             }
+            this.$emit('closed')
         },
 
         async handlePopstate(event) {

@@ -46,21 +46,40 @@ export default defineComponent({
         },
     },
 
+    created() {
+        EventBus.$on('agreementLineSaved', this.reloadDetails)
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadDetails)
+    },
+
     methods: {
         fetchDetails(callback) {
             this.q = null
             this.innerData = []
             this.isFetchingDetails = true
+
+            return this.loadDetails()
+                .then(() => callback())
+                .finally(() => this.isFetchingDetails = false)
+        },
+
+        loadDetails() {
             const promise = this.status === 'orders_pending'
                 ? getProductionPendingDetails(null, this.filters?.dateEnd)
                 : getProductionFinishedDetails(this.filters?.dateStart, this.filters?.dateEnd);
 
-            return promise
-                .then(({data}) => {
-                    this.innerData = this.mapDetails(data).map(item => this.addSearchKey(item));
-                    callback()
-                })
-                .finally(() => this.isFetchingDetails = false)
+            return promise.then(({data}) => {
+                this.innerData = this.mapDetails(data).map(item => this.addSearchKey(item));
+            })
+        },
+
+        // szczegóły pobiera sam kafel, więc przeładowanie źródeł pulpitu ich nie obejmuje
+        reloadDetails() {
+            if (this.innerData.length) {
+                this.loadDetails()
+            }
         },
 
         onExportExcel() {

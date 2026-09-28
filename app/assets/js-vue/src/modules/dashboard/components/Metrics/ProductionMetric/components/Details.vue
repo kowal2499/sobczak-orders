@@ -3,6 +3,7 @@ import { defineComponent } from 'vue'
 import StatusIcon from './StatusIcon.vue'
 import DepartmentFactorValue from './DepartmentFactorValue.vue';
 import PlainFactorCell from './FactorCell/PlainFactorCell.vue';
+import AgreementLineHeading from '@/components/base/Showcase/AgreementLineHeading.vue';
 
 const DEFAULT_ROW = () => ({
     context: null,
@@ -17,7 +18,7 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: {DepartmentFactorValue, PlainFactorCell, StatusIcon },
+    components: {AgreementLineHeading, DepartmentFactorValue, PlainFactorCell, StatusIcon },
     props: {
         data: {
             type: Array,
@@ -35,11 +36,6 @@ export default defineComponent({
             default: () => ({ start: null, end: null })
         },
     },
-    methods: {
-        panelUrl(id) {
-            return `/agreement/line/${id}`;
-        },
-    },
     computed: {
         cellComponent() {
             return this.detailedCells ? 'PlainFactorCell' : 'DepartmentFactorValue'
@@ -55,7 +51,8 @@ export default defineComponent({
                         id: record.id,
                         orderNumber: record.orderNumber,
                         customer: record.customerName,
-                        product: record.productName
+                        product: record.productName,
+                        status: record.status,
                     },
                     factor: record.factor,
                     dpt01: record.involved_dpt01,
@@ -149,26 +146,15 @@ export default defineComponent({
          class="orders-count-table"
     >
         <template #cell(context)="{item}">
-            <div v-if="item.context">
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="user" />
-                    <span>{{ (item.context.customer || '').trim() }}</span>
-                </div>
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="shopping-cart" />
-                    <span>{{ (item.context.product || '').trim() }}</span>
-                </div>
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="hashtag" />
-                    <span>{{ (item.context.orderNumber || '').trim() }}</span>
-                </div>
-                <div class="context-row" v-if="$user.can('production.panel')">
-                    <a :href="panelUrl(item.context.id)" target="_blank" class="text-decoration-none">
-                        <font-awesome-icon size="sm" icon="link" />
-                        <span>{{ $t('_agreement_line_panel') }}</span>
-                    </a>
-                </div>
-            </div>
+            <AgreementLineHeading
+                v-if="item.context"
+                compact
+                :agreement-line-id="item.context.id"
+                :order-number="(item.context.orderNumber || '').trim()"
+                :customer-name="(item.context.customer || '').trim()"
+                :product-name="(item.context.product || '').trim()"
+                :status="item.context.status"
+            />
         </template>
 
         <template #cell(dpt01)="{item}">
@@ -243,23 +229,6 @@ export default defineComponent({
     td.data-cell {
         text-align: center;
         width: 100px;
-    }
-
-    .context-row {
-        display: flex;
-        align-items: baseline;
-        justify-content: flex-start;
-
-        svg {
-            color: #CCC;
-        }
-        a {
-            font-size: 0.8em;
-        }
-        span {
-            padding-left: 10px;
-            white-space: pre-line;
-        }
     }
 }
 </style>

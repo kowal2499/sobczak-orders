@@ -68,6 +68,12 @@ export default defineComponent({
             return this.exportExcel(this.$t('dashboard.tasksCompletedOnTime'), fields, this.innerData)
         },
     },
+    created() {
+        EventBus.$on('agreementLineSaved', this.load)
+    },
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.load)
+    },
     mounted() {
         this.load()
     },
