@@ -17,7 +17,8 @@
                 <slot />
             </div>
 
-            <b-popover :target=popoverTargetId triggers="hover">
+            <!-- domyślna granica to scrollParent, czyli przewijana karta - wysoki opis wystawał wtedy poza okno -->
+            <b-popover :target=popoverTargetId triggers="hover" boundary="viewport">
                 <template #title><span class="text-primary"><slot name="title" /></span></template>
                 <slot name="description" />
             </b-popover>
