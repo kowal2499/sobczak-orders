@@ -1,8 +1,5 @@
 <script>
-import SidebarLayout from "@/components/layout/SidebarLayout.vue";
-import AgreementLineRmShowcaseItem from "@/components/base/Showcase/AgreementLineRmShowcaseItem.vue";
-import SidebarNavbar from "@/components/layout/SidebarNavbar.vue";
-import ShowcaseBadge from '@/components/base/Showcase/ShowcaseBadge.vue'
+import AgreementLineShowcaseList from "@/components/base/Showcase/AgreementLineShowcaseList.vue";
 
 import {getLocalDate, orderDisplayNumber} from '@/helpers'
 import {deburr} from "lodash";
@@ -22,10 +19,7 @@ export default {
     },
 
     components: {
-        AgreementLineRmShowcaseItem,
-        SidebarLayout,
-        SidebarNavbar,
-        ShowcaseBadge,
+        AgreementLineShowcaseList,
     },
 
     mounted() {
@@ -54,6 +48,20 @@ export default {
             return (this.data?.events?.capacity || [])[0]
         },
 
+        summary() {
+            const { capacity, capacityBurned } = this.capacityData || {}
+            const roundFloat = this.$options.filters.roundFloat
+
+            return [
+                { label: this.$t('schedule.weekCapacity'), value: roundFloat(capacity) },
+                {
+                    label: this.$t('schedule.capacityBurned'),
+                    value: roundFloat(capacityBurned),
+                    hint: capacity ? `${Math.round((capacityBurned / capacity) * 100)}%` : null,
+                },
+            ]
+        },
+
         filteredSelectedData() {
             let data = this.capacityData?.agreementLines || []
             const lines = Object.values(data)
@@ -79,36 +87,5 @@ export default {
 </script>
 
 <template>
-    <SidebarLayout>
-          <template #header>
-              <div class="d-flex flex-row justify-content-between mx-2 gap-2">
-                  <ShowcaseBadge
-                    :label="$t('schedule.weekCapacity')"
-                    :value="String($options.filters.roundFloat(capacityData.capacity))"
-                    icon="cogs"
-                  />
-                  <ShowcaseBadge
-                      :label="$t('schedule.capacityBurned')"
-                      icon="cogs"
-                  >
-                      <template #value>
-                          {{ capacityData.capacityBurned | roundFloat }} ({{ Math.round((capacityData.capacityBurned / capacityData.capacity) * 100) }}%)
-                      </template>
-                  </ShowcaseBadge>
-                  <SidebarNavbar @search="q = $event" :show-excel-export-btn="false" />
-              </div>
-          </template>
-
-          <template #content>
-              <AgreementLineRmShowcaseItem
-                  v-for="line in filteredSelectedData"
-                  :key="line.id"
-                  :data="line"
-              />
-          </template>
-    </SidebarLayout>
+    <AgreementLineShowcaseList :lines="filteredSelectedData" :summary="summary" @search="q = $event" />
 </template>
-
-<style scoped lang="scss">
-
-</style>

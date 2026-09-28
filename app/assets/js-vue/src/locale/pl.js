@@ -26,6 +26,8 @@ export default {
     '_logout': 'Wyloguj',
     '_noData': 'Brak danych',
     '_department': 'Dział',
+    '_production_term': 'Termin',
+    '_production_status': 'Status',
     '_description': 'Opis',
     '_add': 'Dodaj',
     '_edit': 'Edytuj',

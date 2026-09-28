@@ -3,9 +3,10 @@ import { defineComponent } from 'vue'
 import { DEPARTMENTS, orderDisplayNumber } from '@/helpers'
 import { MONTHS, dateToString, firstDay, lastDay } from '@/services/datesService'
 import { getDepartmentsCapacity, getProductionTasksCompletionSummary } from '@/modules/dashboard/repository'
+import { deburr } from 'lodash'
 import Sidebar from '@/components/base/Sidebar.vue'
-import SidebarLayout from '@/components/layout/SidebarLayout.vue'
-import DetailsDepartment from '@/modules/dashboard/components/Metrics/ProductionMetric/components/DetailsDepartment.vue'
+import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
+import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 
 const START_YEAR = 2018
 
@@ -15,7 +16,7 @@ function r2(val) {
 
 export default defineComponent({
     name: 'DifferencesReport',
-    components: { Sidebar, SidebarLayout, DetailsDepartment },
+    components: { Sidebar, AgreementLineShowcaseList },
     computed: {
         breadcrumbs() {
             return [
@@ -76,10 +77,22 @@ export default defineComponent({
                     ...this.computeStats(odpByDept[d.slug] || [], uzpByDept[d.slug] || [], ds, de)
                 }))
         },
-        mappedSidebarRecords() {
+        // wyliczane z bieżących wierszy, żeby otwarty sidebar odświeżył się po przeładowaniu danych
+        sidebarRecords() {
+            if (!this.sidebarSource) {
+                return []
+            }
+            const row = this.rows.find(r => r.slug === this.sidebarSource.slug)
+            return row ? row[this.sidebarSource.recordsKey] : []
+        },
+        sidebarLines() {
+            const searchTerm = this.q ? deburr(this.q).toLowerCase() : null
+
             return this.sidebarRecords
                 .filter(r => r.agreementLine)
                 .map(r => this.toDetailRecord(r))
+                .filter(record => !searchTerm || deburr(`${record.customerName} ${record.productName} ${record.orderNumber}`).toLowerCase().includes(searchTerm))
+                .map(record => departmentRecordToShowcaseLine(record))
         },
     },
     methods: {
@@ -150,6 +163,11 @@ export default defineComponent({
                 customerName: r.customer?.name,
                 productName: r.agreementLine?.productName,
                 orderNumber: orderDisplayNumber(r.agreement?.orderNumber, r.agreementLine?.internalNumber),
+                factor: r.agreementLine?.factor,
+                status: r.agreementLine?.status,
+                userName: r.agreementLine?.userName,
+                agreementCreateDate: r.agreementLine?.agreementCreateDate,
+                confirmedDate: r.agreement?.confirmedDate,
                 data: {
                     factor: r.factors?.factor,
                     factorsStack: r.factors?.factorsStack || [],
@@ -162,9 +180,10 @@ export default defineComponent({
                 },
             }
         },
-        openSidebar(records, deptName, groupLabel) {
-            this.sidebarRecords = records
-            this.sidebarTitle = `${deptName} - ${groupLabel}`
+        openSidebar(row, recordsKey, groupLabel) {
+            this.sidebarSource = { slug: row.slug, recordsKey }
+            this.q = null
+            this.sidebarTitle = `${row.name} - ${groupLabel}`
             this.sidebarVisible = true
         },
         fmt(val) {
@@ -179,11 +198,13 @@ export default defineComponent({
             if (val < -0.005) return 'text-danger'
             return 'text-muted'
         },
-        async fetchData() {
+        async fetchData({ keepCurrent = false } = {}) {
             if (!this.dateRangeStart || !this.dateRangeEnd) return
             this.busy = true
-            this.odp = null
-            this.uzp = null
+            if (!keepCurrent) {
+                this.odp = null
+                this.uzp = null
+            }
             try {
                 const [odpRes, uzpRes] = await Promise.all([
                     getDepartmentsCapacity(this.dateRangeStart, this.dateRangeEnd),
@@ -198,12 +219,21 @@ export default defineComponent({
                 this.busy = false
             }
         },
+        reloadAfterSave() {
+            this.fetchData({ keepCurrent: true })
+        },
     },
     watch: {
         filters: {
             deep: true,
             handler() { this.fetchData() },
         },
+    },
+    created() {
+        EventBus.$on('agreementLineSaved', this.reloadAfterSave)
+    },
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadAfterSave)
     },
     mounted() {
         const today = new Date()
@@ -217,7 +247,8 @@ export default defineComponent({
         uzp: null,
         sidebarVisible: false,
         sidebarTitle: '',
-        sidebarRecords: [],
+        sidebarSource: null,
+        q: null,
     }),
 })
 </script>
@@ -280,7 +311,7 @@ export default defineComponent({
                                     v-if="row.correction !== 0"
                                     class="group-link"
                                     :class="deltaClass(row.correction)"
-                                    @click="openSidebar(row._correctionRecs, row.name, $t('differences_report.col.correction'))"
+                                    @click="openSidebar(row, '_correctionRecs', $t('differences_report.col.correction'))"
                                 >{{ fmtDelta(row.correction) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
@@ -288,7 +319,7 @@ export default defineComponent({
                                 <span
                                     v-if="row.incomplete"
                                     class="group-link text-danger"
-                                    @click="openSidebar(row._incompleteRecs, row.name, $t('differences_report.col.incomplete'))"
+                                    @click="openSidebar(row, '_incompleteRecs', $t('differences_report.col.incomplete'))"
                                 >−{{ fmt(row.incomplete) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
@@ -296,7 +327,7 @@ export default defineComponent({
                                 <span
                                     v-if="row.completedOutside"
                                     class="group-link text-danger"
-                                    @click="openSidebar(row._completedOutsideRecs, row.name, $t('differences_report.col.completed_outside'))"
+                                    @click="openSidebar(row, '_completedOutsideRecs', $t('differences_report.col.completed_outside'))"
                                 >−{{ fmt(row.completedOutside) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
@@ -304,7 +335,7 @@ export default defineComponent({
                                 <span
                                     v-if="row.delayed"
                                     class="group-link text-success"
-                                    @click="openSidebar(row._delayedRecs, row.name, $t('differences_report.col.delayed'))"
+                                    @click="openSidebar(row, '_delayedRecs', $t('differences_report.col.delayed'))"
                                 >+{{ fmt(row.delayed) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
@@ -312,7 +343,7 @@ export default defineComponent({
                                 <span
                                     v-if="row.accelerated"
                                     class="group-link text-success"
-                                    @click="openSidebar(row._acceleratedRecs, row.name, $t('differences_report.col.accelerated'))"
+                                    @click="openSidebar(row, '_acceleratedRecs', $t('differences_report.col.accelerated'))"
                                 >+{{ fmt(row.accelerated) }}</span>
                                 <span v-else class="text-muted">-</span>
                             </td>
@@ -345,18 +376,10 @@ export default defineComponent({
         <Sidebar
             :title="sidebarTitle"
             v-model="sidebarVisible"
-            sidebar-class="size-100 size-lg-50"
+            sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
             <template #sidebar-content>
-                <SidebarLayout>
-                    <template #content>
-                        <DetailsDepartment
-                            v-for="(record, i) in mappedSidebarRecords"
-                            :key="`sidebar-${i}`"
-                            :record="record"
-                        />
-                    </template>
-                </SidebarLayout>
+                <AgreementLineShowcaseList :lines="sidebarLines" @search="q = $event" />
             </template>
         </Sidebar>
     </div>

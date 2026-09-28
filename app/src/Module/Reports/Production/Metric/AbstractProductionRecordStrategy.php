@@ -204,6 +204,9 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
                 $line->getProductionStartDate(),
                 $line->getProductionEndDate(),
                 $line->getInternalNumber(),
+                $line->getAgreementCreateDate(),
+                $line->getUserName(),
+                $line->getStatus(),
             ),
             new AgreementDTO(
                 $line->getOrderNumber(),
