@@ -3,11 +3,10 @@ import { defineComponent } from 'vue'
 import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import Sidebar from '@/components/base/Sidebar.vue'
-import DetailsDepartment from '../components/DetailsDepartment.vue'
-import SidebarNavbar from '@/components/layout/SidebarNavbar'
+import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
+import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
-import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import Chart from './Chart.js'
 import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
 import { deburr } from 'lodash'
@@ -31,9 +30,7 @@ export default defineComponent({
         MetricLayout,
         Chart,
         Sidebar,
-        DetailsDepartment,
-        SidebarNavbar,
-        SidebarLayout,
+        AgreementLineShowcaseList,
     },
     props: {
         dateStart: { type: String, default: null },
@@ -114,6 +111,9 @@ export default defineComponent({
         },
         perDptAllData() {
             return [...this.perDptAgreementData, ...this.perDptGhostAgreementData]
+        },
+        perDptShowcaseLines() {
+            return this.perDptAllData.map(record => departmentRecordToShowcaseLine(record, !!record._isGhost))
         },
         activeDepartmentName() {
             const dpt = DEPARTMENTS.find(d => d.slug === this.activeDepartmentSlug)
@@ -254,25 +254,16 @@ export default defineComponent({
         <Sidebar
             :title="`Szczegóły obłożenia działu - ${activeDepartmentName}`"
             v-model="showSidebar"
-            sidebar-class="size-100 size-lg-50"
+            sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
             <template #sidebar-content>
-                <SidebarLayout>
-                    <template #header>
-                        <SidebarNavbar
-                            @search="q = $event"
-                            @exportExcel="onExportExcel"
-                        />
-                    </template>
-                    <template #content>
-                        <DetailsDepartment
-                            v-for="(record, i) in perDptAllData"
-                            :key="`${record._isGhost ? 'ghost' : 'real'}-${record.id}-${i}`"
-                            :record="record"
-                            :is-ghost="!!record._isGhost"
-                        />
-                    </template>
-                </SidebarLayout>
+                <AgreementLineShowcaseList
+                    :lines="perDptShowcaseLines"
+                    :departments="[activeDepartmentSlug]"
+                    exportable
+                    @search="q = $event"
+                    @exportExcel="onExportExcel"
+                />
             </template>
         </Sidebar>
     </MetricLayout>

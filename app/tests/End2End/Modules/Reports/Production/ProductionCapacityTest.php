@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\Reports\Production;
 
+use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
 
@@ -53,6 +54,30 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
         $this->assertFalse($content[0]['isGhost']);
         $this->assertArrayHasKey('factors', $content[0]);
         $this->assertArrayHasKey('factorsStack', $content[0]['factors']);
+    }
+
+    public function testShouldExposeLineDetailsForShowcase(): void
+    {
+        // Given
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
+        $line = $this->makeAgreementLine(
+            status: AgreementLine::STATUS_MANUFACTURING,
+            productions: [
+                ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC, 'dateStart' => new \DateTime('2026-05-10'), 'dateEnd' => new \DateTime('2026-05-15')],
+            ],
+        );
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $record = json_decode($client->getResponse()->getContent(), true)[0];
+        $this->assertSame(AgreementLine::STATUS_MANUFACTURING, $record['agreementLine']['status']);
+        $this->assertSame(
+            $line->getAgreement()->getCreateDate()->format('Y-m-d'),
+            substr($record['agreementLine']['agreementCreateDate'], 0, 10)
+        );
+        $this->assertArrayHasKey('userName', $record['agreementLine']);
     }
 
     public function testShouldExcludeProductionEndingOutsideRange(): void

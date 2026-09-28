@@ -237,7 +237,9 @@ export default defineComponent({
 
 .b-sidebar {
     $sizes: (25, 50, 75, 100);
-    $breakpoints: (md, lg, xl);
+    $breakpoints: (md, lg, xl, xxl);
+    // Bootstrap 4 nie ma progu xxl; 50% szerokości poniżej 1400px jest za wąskie na listy kart
+    $sidebar-breakpoints: map-merge($grid-breakpoints, (xxl: 1400px));
 
     > .b-sidebar-body { font-size: 0.95rem; }
 
@@ -248,7 +250,7 @@ export default defineComponent({
     }
 
     @each $bp in $breakpoints {
-        @include media-breakpoint-up($bp) {
+        @include media-breakpoint-up($bp, $sidebar-breakpoints) {
             @each $s in $sizes {
                 &.size-#{$bp}-#{$s} {
                     width: $s * 1%;

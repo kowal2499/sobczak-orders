@@ -88,21 +88,53 @@ export default {
 
                 this.lastDate = { ...this.filters.date }
 
-                await Promise.all([
-                    this.fetchHolidayEvents(this.filters.date),
-                    this.fetchCapacityEvents(this.filters.date),
-                    this.fetchDepartmentEvents(this.filters.date)
-                ]).then(([holidayEvents, capacityEvents, departmentEvents]) => {
-                    this.events.holiday = holidayEvents
-                    this.events.capacity = capacityEvents
-                    this.events.departments = departmentEvents
-                })
+                await this.loadEvents()
             },
             deep: true,
         },
     },
 
+    created() {
+        EventBus.$on('agreementLineSaved', this.reloadAfterSave)
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadAfterSave)
+    },
+
     methods: {
+        async loadEvents() {
+            const [holidayEvents, capacityEvents, departmentEvents] = await Promise.all([
+                this.fetchHolidayEvents(this.filters.date),
+                this.fetchCapacityEvents(this.filters.date),
+                this.fetchDepartmentEvents(this.filters.date)
+            ])
+            this.events.holiday = holidayEvents
+            this.events.capacity = capacityEvents
+            this.events.departments = departmentEvents
+        },
+
+        async reloadAfterSave() {
+            if (!this.filters.date.start || !this.filters.date.end) {
+                return
+            }
+            await this.loadEvents()
+            this.refreshSidebarEvents()
+        },
+
+        // sidebar trzyma migawkę zdarzeń z chwili kliknięcia - podmieniamy ją na świeże z tego samego dnia
+        refreshSidebarEvents() {
+            const dateKey = this.sidebar.data?.events?.capacity?.[0]?.dateKey
+            if (!dateKey) {
+                return
+            }
+            const fresh = this.events.capacity.find(event => event.dateKey === dateKey)
+            this.sidebar.data = {
+                ...this.sidebar.data,
+                events: { ...this.sidebar.data.events, capacity: fresh ? [fresh] : [] },
+            }
+        },
+
         onDateSet(data) {
             this.filters.date.start = data.start
             this.filters.date.end = data.end
@@ -223,7 +255,7 @@ export default {
         </Calendar>
         </SectionBlock>
 
-        <Sidebar v-model="sidebar.isOpen" :title="sidebar.title" sidebar-class="size-75 size-lg-50">
+        <Sidebar v-model="sidebar.isOpen" :title="sidebar.title" sidebar-class="size-100 size-lg-75 size-xxl-50">
             <template #sidebar-content>
                 <component
                     v-if="sidebar.component"

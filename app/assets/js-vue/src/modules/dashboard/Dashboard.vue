@@ -151,6 +151,11 @@ export default {
         }, {})
 
         this.persistLayout = debounce(this.saveLayout, 500);
+        EventBus.$on('agreementLineSaved', this.reloadSources);
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadSources);
     },
 
     mounted() {
@@ -197,6 +202,9 @@ export default {
                         this.sourcesState[source.id].isBusy = false;
                     });
             })
+        },
+        reloadSources() {
+            this.loadSources();
         },
         setOnTimeTolerance(days) {
             this.onTimeTolerance = days;
