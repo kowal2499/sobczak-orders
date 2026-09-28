@@ -1,8 +1,8 @@
 <script>
 import { defineComponent } from 'vue'
 import StatusIcon from './StatusIcon.vue'
-import DepartmentFactorValue from './DepartmentFactorValue.vue';
 import PlainFactorCell from './FactorCell/PlainFactorCell.vue';
+import OrderFactorCell from './FactorCell/OrderFactorCell.vue';
 import AgreementLineHeading from '@/components/base/Showcase/AgreementLineHeading.vue';
 
 const DEFAULT_ROW = () => ({
@@ -18,14 +18,14 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: {AgreementLineHeading, DepartmentFactorValue, PlainFactorCell, StatusIcon },
+    components: {AgreementLineHeading, OrderFactorCell, PlainFactorCell, StatusIcon },
     props: {
         data: {
             type: Array,
             default: () => []
         },
         height: [String, Number],
-        // komórka z rozbiciem współczynnika na paski (jak w raporcie premii "w terminie")
+        // komórka raportu "Ukończone zadania produkcyjne" - z datami produkcji i wariantem "poza zakresem"
         detailedCells: {
             type: Boolean,
             default: false,
@@ -38,10 +38,10 @@ export default defineComponent({
     },
     computed: {
         cellComponent() {
-            return this.detailedCells ? 'PlainFactorCell' : 'DepartmentFactorValue'
+            return this.detailedCells ? 'PlainFactorCell' : 'OrderFactorCell'
         },
         cellProps() {
-            // stara komórka nie zna zakresu raportu i nie ma wariantu "poza zakresem"
+            // szczegóły zamówień nie mają zakresu raportu ani wariantu "poza zakresem"
             return this.detailedCells ? { reportRange: this.reportRange } : {}
         },
         rows() {
