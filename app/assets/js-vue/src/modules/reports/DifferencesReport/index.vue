@@ -175,6 +175,7 @@ export default defineComponent({
                         status: r.status,
                         dateStart: r.dateStart,
                         dateEnd: r.dateEnd,
+                        completedAt: r.completedAt,
                         departmentSlug: r.departmentSlug,
                     },
                 },

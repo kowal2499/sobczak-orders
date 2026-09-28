@@ -22,6 +22,7 @@ export function departmentRecordToShowcaseLine(record, isGhost = false) {
             status: production.status,
             dateStart: production.dateStart,
             dateEnd: production.dateEnd,
+            completedAt: production.completedAt,
             factorRatio: {
                 factor: record.data?.factor ?? null,
                 factorsStack: record.data?.factorsStack || [],

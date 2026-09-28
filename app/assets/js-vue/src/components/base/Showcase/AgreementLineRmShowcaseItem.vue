@@ -1,12 +1,17 @@
 <script>
 import { statuses, getUserDepartments, getDepartmentName, getLocalDate, orderDisplayNumber, agreementStatusesMap } from '@/helpers'
-import DepartmentFactorValue
-    from "@/modules/dashboard/components/Metrics/ProductionMetric/components/DepartmentFactorValue.vue";
+import Avatar from '@/components/base/Avatar.vue'
+import FactorCell from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/FactorCell.vue'
+import FactorBreakdown from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/FactorBreakdown.vue'
+import ProductionDates from '@/modules/dashboard/components/Metrics/ProductionMetric/components/FactorCell/ProductionDates.vue'
 
 export default {
     name: "AgreementLineRmShowcaseItem",
     components: {
-        DepartmentFactorValue,
+        Avatar,
+        FactorCell,
+        FactorBreakdown,
+        ProductionDates,
     },
     props: {
         data: {
@@ -35,7 +40,7 @@ export default {
                 { label: this.$t('_created_at'), value: this.data.agreementCreateDate },
                 { label: this.$t('_confirmed_at'), value: this.data.confirmedDate },
                 { label: this.$t('_factor'), value: this.$options.filters.roundFloat(this.data.factor, 2) },
-                { label: this.$t('_created_by'), value: this.data.userName },
+                { label: this.$t('_created_by'), value: this.data.userName, avatar: !!this.data.userName },
             ]
         },
         productionData() {
@@ -50,7 +55,9 @@ export default {
                     ...prod,
                     rowKey: prod.id ?? prod.departmentSlug,
                     departmentName: getDepartmentName(prod.departmentSlug),
-                    statusInfo: statuses.find(s => s.value === parseInt(prod.status)) || { name: prod.status, color: '#ccc' }
+                    statusInfo: statuses.find(s => s.value === parseInt(prod.status)) || { name: prod.status, color: '#ccc' },
+                    // FactorCell pokazuje popover tylko wtedy, gdy współczynnik niesie dane swojej produkcji
+                    factorData: prod.factorRatio ? { ...prod.factorRatio, production: prod } : null,
                 }));
         },
     },
@@ -98,7 +105,10 @@ export default {
         <dl class="showcase-fields">
             <div v-for="(field, index) in fields" :key="index" class="showcase-field">
                 <dt>{{ field.label }}</dt>
-                <dd>{{ field.value || '-' }}</dd>
+                <dd :class="{ 'showcase-field-person': field.avatar }">
+                    <Avatar v-if="field.avatar" :name="field.value" class="showcase-avatar" />
+                    <template v-else>{{ field.value || '-' }}</template>
+                </dd>
             </div>
         </dl>
 
@@ -119,7 +129,17 @@ export default {
                 </span>
                 <span class="showcase-production-factor" role="cell">
                     <span class="showcase-inline-label">{{ $t('_factor') }}</span>
-                    <DepartmentFactorValue v-if="prod.factorRatio" :factorData="prod.factorRatio" no-status-icon />
+                    <FactorCell
+                        v-if="prod.factorData"
+                        :factor-data="prod.factorData"
+                        trigger="hover"
+                        tone="value"
+                        v-slot="{ production }"
+                    >
+                        <ProductionDates :production="production" />
+                        <div class="pop-divider"></div>
+                        <FactorBreakdown :factor-data="prod.factorData" />
+                    </FactorCell>
                     <span v-else>-</span>
                 </span>
                 <span class="showcase-production-status" role="cell">
@@ -230,6 +250,18 @@ $production-columns: minmax(6rem, 1.1fr) minmax(11rem, 1.6fr) minmax(5.5rem, 0.8
     }
 }
 
+.showcase-field-person {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    .showcase-avatar {
+        width: 22px;
+        height: 22px;
+        font-size: 0.6rem;
+    }
+}
+
 .showcase-productions {
     margin-top: 1rem;
 }
@@ -278,8 +310,11 @@ $production-columns: minmax(6rem, 1.1fr) minmax(11rem, 1.6fr) minmax(5.5rem, 0.8
     align-items: center;
     gap: 0.35rem;
 
-    // DepartmentFactorValue pogrubia wartość w domyślnym (czarnym) kolorze tekstu
-    ::v-deep .font-weight-bold {
+    // FactorCell jest skrojony pod komórkę tabeli - w wierszu karty ma rozmiar i kolor tekstu wiersza
+    ::v-deep .cell-value {
+        font-size: inherit;
+        padding: 0.05rem 0.45rem;
+        margin-left: -0.45rem;
         color: $ink-strong;
     }
 }
