@@ -60,3 +60,7 @@ export function getWeeklyCapacity(start, end, { includeGhost = false } = {}) {
     }
     return axios.get(`/reports/schedule/capacity`, { params });
 }
+
+export function getAttentionLists() {
+    return axios.get(`/reports/production/attention-lists`);
+}

@@ -16,6 +16,14 @@ app_module:
             optionSlug: capacity-utilization
           - label: Obłożenie tygodniowe
             optionSlug: weekly-capacity
+          - label: Zamówienia po terminie realizacji
+            optionSlug: attention-overdue-orders
+          - label: Zamówienia bez zleconej produkcji
+            optionSlug: attention-unplanned-orders
+          - label: Produkcja nierozpoczęta mimo planu
+            optionSlug: attention-not-started-productions
+          - label: Produkcja po terminie
+            optionSlug: attention-overdue-productions
     - name: Kalendarz ogólny
       description: Dostęp do kalendarza ogólnego
       slug: reports.calendar_general

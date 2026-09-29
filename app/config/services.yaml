@@ -101,4 +101,5 @@ services:
                 - '@App\Module\Reports\Production\Metric\OrdersFinishedMetricStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersPendingDetailsStrategy'
                 - '@App\Module\Reports\Production\Metric\OrdersFinishedDetailsStrategy'
+                - '@App\Module\Reports\Production\Metric\AttentionListsMetricStrategy'
 
