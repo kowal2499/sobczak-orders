@@ -80,6 +80,9 @@ make api-token-revoke ID=<id>                     # unieważnij token
 - Code is grouped in modules: `src/Module/[ModuleName]/`
 - Each module has its own controllers, services, entities, repositories
 - Module config in `module.yaml` (name, permissions), autowiring in `config.yaml`, routing in `routes.yaml`
+- Grants from `module.yaml` reach the database and the permission panel through `app:module:register`.
+  Deploy runs it automatically after migrations (`app:sync_modules` in `deploy.php`); locally run it by
+  hand, for both `dev` and `--env=test`, or tests fail with "Grant ... not exists"
 - Legacy code outside `Module/` (in `src/Controller`, `src/Entity`, `src/Repository`) should eventually be moved into modules
 - **Clear Symfony cache after any significant API change**
 
@@ -398,8 +401,6 @@ each report composes only the sections it needs. Do not reintroduce boolean "mod
 - The adjustment cell is deliberately **not** the dashboard's `FactorCell` - that component describes
   a single production and hides its popover when `production` is null, which on the dashboard means
   an empty department cell
-- Deployment needs `doctrine:migrations:migrate` **and** `app:module:register`, otherwise the grants
-  never appear in the permission panel
 
 ## Testing
 
