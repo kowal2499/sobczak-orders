@@ -20,8 +20,8 @@ use App\Tests\End2End\Modules\Reports\Production\BaseProductionReportsTestCase;
  *  - "zakończone": isGhost=0, status='3', StatusLog.currentStatus='3' z createdAt w obrębie miesiąca,
  *             AgreementLine.deleted=0, status NOT IN (DELETED),
  *  - factorLimit = floor(capacity * workingDays),
- *  - dla ROLE_CUSTOMER zarówno ordersInProduction jak i factorsInProduction są filtrowane po
- *    przypisanych klientach (współdzielony, mutowany QueryBuilder - patrz test poniżej).
+ *  - dla ROLE_CUSTOMER ordersInProduction jest filtrowane po przypisanych klientach,
+ *    a factorsInProduction (i firstFreeDay) liczone dla całej firmy.
  */
 class ProductionSummaryTest extends BaseProductionReportsTestCase
 {
@@ -151,12 +151,7 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         $this->assertSame([$line->getId()], $content['production']['finishedIds']);
     }
 
-    /**
-     * UWAGA - utrwala faktyczne zachowanie: withConnectedCustomers() mutuje współdzielony
-     * QueryBuilder, więc dla ROLE_CUSTOMER zarówno ordersInProduction, jak i factorsInProduction
-     * są filtrowane po przypisanych klientach (mimo komentarza "bez połączonych klientów" w kodzie).
-     */
-    public function testRoleCustomerFiltersBothOrdersAndFactors(): void
+    public function testRoleCustomerFiltersOrdersButKeepsCompanyWideFactors(): void
     {
         // Given
         $user = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
@@ -175,10 +170,10 @@ class ProductionSummaryTest extends BaseProductionReportsTestCase
         // When
         $client->request('POST', self::URL, ['month' => $this->month, 'year' => $this->year]);
 
-        // Then - oba filtrowane po przypisanym kliencie (współdzielony QueryBuilder)
+        // Then - lista zamówień zawężona do klienta, obłożenie (i firstFreeDay) liczone dla całej firmy
         $content = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(1, $content['production']['ordersInProduction']);
-        $this->assertSame(4.0, (float) $content['production']['factorsInProduction']);
+        $this->assertSame(10.0, (float) $content['production']['factorsInProduction']);
     }
 
     private function makeDpt05Line(

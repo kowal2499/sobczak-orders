@@ -313,8 +313,10 @@ class ProductionController extends BaseController
 
             $query = $repository->getNotCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
 
+            // withConnectedCustomers() modyfikuje QueryBuilder w miejscu - bez clone współczynniki poniżej
+            // liczyłyby się tylko dla klientów ROLE_CUSTOMER zamiast dla całej firmy
             foreach ($repository
-                         ->withConnectedCustomers($query)
+                         ->withConnectedCustomers(clone $query)
                          ->getQuery()
                          ->getResult() as $line) {
                 $summary['production']['ordersInProduction'] += 1;
