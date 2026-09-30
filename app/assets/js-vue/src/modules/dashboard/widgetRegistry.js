@@ -6,6 +6,7 @@ import DepartmentsBonusOnTimeMetric from "./components/Metrics/ProductionMetric/
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue";
 import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue";
 import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue";
+import AttentionListMetric from "./components/Metrics/AttentionListMetric.vue";
 import PRIVILEGES from "../../definitions/userRoles";
 
 const GRID_COLUMNS = 12;
@@ -13,7 +14,8 @@ const GRID_COLUMNS = 12;
 /**
  * Each widget's default reading-order position (replaces the old hardcoded
  * row/col markup) and size. `grant`, when set, must be held by the current
- * user (this.$user.can(grant)) for the widget to be available at all.
+ * user (this.$user.can(grant)) for the widget to be available at all; an
+ * array means every listed grant is required.
  */
 export const WIDGETS = [
     {
@@ -123,11 +125,28 @@ export const WIDGETS = [
             dateEnd: ctx.dateRangeEnd,
         }),
     },
+    ...[
+        ["attention_overdue_orders", "overdueOrders", "attention-overdue-orders"],
+        ["attention_unplanned_orders", "unplannedOrders", "attention-unplanned-orders"],
+        ["attention_not_started_productions", "notStartedProductions", "attention-not-started-productions"],
+        ["attention_overdue_productions", "overdueProductions", "attention-overdue-productions"],
+    ].map(([key, kind, option], idx) => ({
+        key,
+        component: AttentionListMetric,
+        order: 10 + idx,
+        defaultSize: { w: 6, h: 8 },
+        grant: [PRIVILEGES.CAN_PRODUCTION, `reports.dashboard:${option}`],
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src07.isBusy,
+            data: ctx.sourcesState.src07.data?.[kind] ?? null,
+            kind,
+        }),
+    })),
 ];
 
 export function getAvailableWidgets(canFn) {
     return WIDGETS
-        .filter(widget => !widget.grant || canFn(widget.grant))
+        .filter(widget => !widget.grant || [].concat(widget.grant).every(canFn))
         .sort((a, b) => a.order - b.order);
 }
 

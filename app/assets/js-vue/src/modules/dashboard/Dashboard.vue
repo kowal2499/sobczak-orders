@@ -66,8 +66,10 @@ import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
     getProductionTasksOnTimeSummary,
-    getOldSummary, getDepartmentsCapacity, getWeeklyCapacity
+    getOldSummary, getDepartmentsCapacity, getWeeklyCapacity,
+    getAttentionLists
 } from "./repository";
+import PRIVILEGES from "../../definitions/userRoles";
 
 const START_YEAR = 2018;
 const LAYOUT_CONTEXT = 'dashboard.layout';
@@ -86,6 +88,8 @@ const DATA_SOURCES = [
         // dodatkowe argumenty fetchera zależne od stanu pulpitu (widełki terminowości)
         extraArgs: ctx => [ctx.onTimeTolerance],
     },
+    // stan na dziś, niezależny od wybranego miesiąca
+    { id: 'src07', fetcher: getAttentionLists, grant: PRIVILEGES.CAN_PRODUCTION, active: true, dateIndependent: true },
 ]
 
 export default {
@@ -170,16 +174,19 @@ export default {
         filters: {
             deep: true,
             handler() {
-                this.loadSources();
+                this.loadSources(null, { periodChange: true });
             }
         }
     },
 
 
     methods: {
-        loadSources(ids = null) {
+        loadSources(ids = null, { periodChange = false } = {}) {
             DATA_SOURCES.forEach(source => {
                 if (ids && !ids.includes(source.id)) {
+                    return;
+                }
+                if (periodChange && source.dateIndependent && this.sourcesState[source.id].data !== null) {
                     return;
                 }
                 if (source.grant && !this.$user.can(source.grant)) {

@@ -144,6 +144,24 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
     }
 
     /**
+     * Zamówienia w toku (oczekujące i w realizacji) - magazyn i archiwum są już zrealizowane.
+     *
+     * @param int[]|null $customerIds
+     * @return AgreementLineRM[]
+     */
+    public function findActiveLines(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.status IN (:activeStatuses)')
+            ->setParameter('activeStatuses', [AgreementLine::STATUS_WAITING, AgreementLine::STATUS_MANUFACTURING]);
+
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
      * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
      */
     private function restrictToCustomers(QueryBuilder $qb, ?array $customerIds): void

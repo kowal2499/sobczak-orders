@@ -74,6 +74,30 @@ export default {
     'forecastLabel': 'Prognoza',
     'ghostOrderBanner': 'Zadania w prognozie - produkcja jeszcze nie została zlecona',
 
+    'attention': {
+        'empty': 'Brak pozycji',
+        'daysAfterDeadline': '{n} dzień po terminie | {n} dni po terminie',
+        'daysWaiting': 'czeka {n} dzień | czeka {n} dni',
+        'overdueOrders': {
+            'title': 'Zamówienia po terminie realizacji',
+            'description': 'Zamówienia oczekujące i w realizacji, których data realizacji już minęła - najdłużej po terminie na górze. Pod nazwą statusy produkcji w działach (kolor jak na liście zamówień, status w dymku).',
+        },
+        'unplannedOrders': {
+            'title': 'Zamówienia bez zleconej produkcji',
+            'description': 'Zamówienia w toku, dla których nie zlecono jeszcze produkcji w żadnym dziale (co najwyżej prognoza) - najdłużej czekające na górze.',
+        },
+        'notStartedProductions': {
+            'title': 'Produkcja nierozpoczęta mimo planu',
+            'description': 'Zadania produkcyjne wciąż oczekujące, choć ich planowany start już minął - najdłuższe opóźnienie na górze. Liczba dni to dni kalendarzowe od planowanego startu.',
+            'days': '{n} dzień opóźnienia | {n} dni opóźnienia',
+        },
+        'overdueProductions': {
+            'title': 'Produkcja po terminie',
+            'description': 'Zadania produkcyjne nieukończone, choć ich planowany koniec już minął - najdłużej po terminie na górze. Liczba dni to dni kalendarzowe od planowanego końca.',
+            'days': '{n} dzień po terminie | {n} dni po terminie',
+        },
+    },
+
     'layout': {
         'edit': 'Edytuj układ',
         'done': 'Zakończ edycję',

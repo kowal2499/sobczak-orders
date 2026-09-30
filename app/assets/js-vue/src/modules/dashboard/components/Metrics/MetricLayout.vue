@@ -1,6 +1,9 @@
 <template>
     <div class="card shadow">
-        <div class="card-body card-body--scroll" :class="isBusy && 'card-body--busy'">
+        <div
+            class="card-body"
+            :class="[pinnedTitle ? 'card-body--pinned' : 'card-body--scroll', isBusy && 'card-body--busy']"
+        >
             <div class="d-flex justify-content-between">
                 <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                     <slot name="title" />
@@ -13,7 +16,10 @@
                 </div>
             </div>
 
-            <div class="h5 mb-0 font-weight-bold text-gray-800">
+            <div v-if="pinnedTitle" class="card-body__content">
+                <slot />
+            </div>
+            <div v-else class="h5 mb-0 font-weight-bold text-gray-800">
                 <slot />
             </div>
 
@@ -33,7 +39,12 @@ export default {
         isBusy: {
             type: Boolean,
             default: false
-        }
+        },
+        // długie listy: przewija się tylko treść, tytuł zostaje na miejscu
+        pinnedTitle: {
+            type: Boolean,
+            default: false
+        },
     },
     computed: {
         popoverTargetId() {
@@ -58,6 +69,19 @@ export default {
 }
 
 .card-body--scroll {
+    overflow-y: auto;
+}
+
+.card-body--pinned {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.card-body__content {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
 }
 

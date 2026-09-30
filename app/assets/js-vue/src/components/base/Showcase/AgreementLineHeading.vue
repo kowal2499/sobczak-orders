@@ -88,19 +88,24 @@ export default {
             </div>
             <div class="line-heading-product">{{ productName }}</div>
         </div>
-        <div class="line-heading-aside">
-            <span v-if="lineStatus" class="badge" :class="lineStatus.className">{{ lineStatus.name }}</span>
-            <a
-                v-if="canOpenPanel"
-                :href="panelUrl"
-                target="_blank"
-                class="line-heading-link"
-                :title="$t('_go_to_panel')"
-                :aria-label="$t('_go_to_panel')"
-                @click.exact.prevent="openPanel"
-            >
-                <font-awesome-icon icon="link" />
-            </a>
+        <div class="line-heading-side">
+            <div class="line-heading-aside">
+                <span v-if="lineStatus" class="badge" :class="lineStatus.className">{{ lineStatus.name }}</span>
+                <a
+                    v-if="canOpenPanel"
+                    :href="panelUrl"
+                    target="_blank"
+                    class="line-heading-link"
+                    :title="$t('_go_to_panel')"
+                    :aria-label="$t('_go_to_panel')"
+                    @click.exact.prevent="openPanel"
+                >
+                    <font-awesome-icon icon="link" />
+                </a>
+            </div>
+            <div v-if="$slots.aside" class="line-heading-aside-extra">
+                <slot name="aside" />
+            </div>
         </div>
 
         <!-- .b-sidebar ma stały transform, więc drawer zagnieżdżony w DOM mierzyłby się względem rodzica, nie okna -->
@@ -156,11 +161,22 @@ export default {
     margin-top: 0.15rem;
 }
 
+.line-heading-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
 .line-heading-aside {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex-shrink: 0;
+}
+
+.line-heading-aside-extra {
+    margin-top: 0.15rem;
+    white-space: nowrap;
 }
 
 .line-heading-link {

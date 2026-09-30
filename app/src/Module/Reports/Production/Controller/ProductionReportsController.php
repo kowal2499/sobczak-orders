@@ -135,4 +135,11 @@ class ProductionReportsController extends BaseController
 
         return $this->json($metrics->getMetric('capacity', $start, $end, $includeGhost));
     }
+
+    #[Route(path: '/attention-lists', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
+    public function attentionLists(DashboardMetricProvider $metrics): Response
+    {
+        return $this->json($metrics->getMetric('attention_lists', null, null));
+    }
 }

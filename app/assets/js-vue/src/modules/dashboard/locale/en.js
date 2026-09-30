@@ -74,6 +74,30 @@ export default {
     'forecastLabel': 'Forecast',
     'ghostOrderBanner': 'Order in forecast - production has not yet been started',
 
+    'attention': {
+        'empty': 'Nothing here',
+        'daysAfterDeadline': '{n} day overdue | {n} days overdue',
+        'daysWaiting': 'waiting {n} day | waiting {n} days',
+        'overdueOrders': {
+            'title': 'Orders past their delivery date',
+            'description': 'Waiting and in-production orders whose delivery date has passed - most overdue first. Below the name: production status per department (colour as in the orders list, status in the tooltip).',
+        },
+        'unplannedOrders': {
+            'title': 'Orders without production assigned',
+            'description': 'Open orders with no production assigned in any department yet (forecast at most) - longest waiting first.',
+        },
+        'notStartedProductions': {
+            'title': 'Production not started as planned',
+            'description': 'Production tasks still waiting although their planned start has passed - longest delay first. Days are calendar days since the planned start.',
+            'days': '{n} day late | {n} days late',
+        },
+        'overdueProductions': {
+            'title': 'Production past its deadline',
+            'description': 'Unfinished production tasks whose planned end has passed - most overdue first. Days are calendar days since the planned end.',
+            'days': '{n} day overdue | {n} days overdue',
+        },
+    },
+
     'layout': {
         'edit': 'Edit layout',
         'done': 'Done editing',
