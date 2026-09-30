@@ -27,10 +27,10 @@ class ScheduleController extends BaseController
         Request $request,
         ScheduleCapacityService $service
     ): Response {
-        // kalendarz ogólny i kafel obłożenia tygodniowego na pulpicie
-        if (!$this->isGranted('reports.calendar_general') && !$this->isGranted('reports.dashboard:weekly-capacity')) {
-            throw $this->createAccessDeniedException();
-        }
+        // sumy obłożenia są potrzebne każdemu, kto składa zamówienie (wybór daty dostawy),
+        // lista zleceń tylko kalendarzowi ogólnemu i kaflowi obłożenia tygodniowego
+        $canSeeLines = $this->isGranted('reports.calendar_general')
+            || $this->isGranted('reports.dashboard:weekly-capacity');
 
         $result = $this->validateDateRange(
             $request->query->get('startDate'),
@@ -45,7 +45,12 @@ class ScheduleController extends BaseController
 
         return $this->json(
             array_map(
-                fn(ScheduleCapacityDTO $capacityDTO) => $capacityDTO->toArray(),
+                function (ScheduleCapacityDTO $capacityDTO) use ($canSeeLines) {
+                    if (!$canSeeLines) {
+                        $capacityDTO->agreementLines = [];
+                    }
+                    return $capacityDTO->toArray();
+                },
                 $service->calculateBurnout($start, $end, $includeGhost)
             ),
             Response::HTTP_OK

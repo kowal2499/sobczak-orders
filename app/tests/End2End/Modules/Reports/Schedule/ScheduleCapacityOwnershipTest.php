@@ -145,15 +145,40 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
     }
 
-    public function testShouldDenyAccessWithoutCalendarOrDashboardGrant(): void
+    public function testShouldReturnTotalsWithoutLinesForOrderFormUserWithoutCalendarGrant(): void
     {
         // Given
-        $client = $this->login($this->createUser([], [], ['work-configuration.capacity']));
+        $em = $this->getManager();
+        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
+        $client = $this->login($user);
+
+        $customerA = $this->factory->make(Customer::class);
+        $customerB = $this->factory->make(Customer::class);
+        $em->flush();
+
+        $user->addCustomer($customerA);
+        $em->flush();
+
+        $rmA = $this->createAgreementLineRM(401, 'AL-401', new \DateTime('2026-03-03'), AgreementLine::STATUS_MANUFACTURING, 1.0, false, false, true);
+        $rmA->setCustomerId($customerA->getId());
+
+        $rmB = $this->createAgreementLineRM(402, 'AL-402', new \DateTime('2026-03-03'), AgreementLine::STATUS_MANUFACTURING, 2.0, false, false, true);
+        $rmB->setCustomerId($customerB->getId());
+
+        $this->createCapacity(new \DateTime('2026-03-03'), 5.0);
+        $em->flush();
+        $em->clear();
 
         // When
         $client->xmlHttpRequest('GET', '/reports/schedule/capacity?startDate=2026-03-03&endDate=2026-03-03');
 
         // Then
-        $this->assertSame(403, $client->getResponse()->getStatusCode());
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertCount(1, $content);
+        $this->assertEquals(3.0, $content[0]['capacityBurned']);
+        $this->assertCount(0, $content[0]['agreementLines']);
     }
 }
