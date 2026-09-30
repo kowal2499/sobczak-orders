@@ -3,18 +3,19 @@
         <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs" />
 
         <SectionBlock class="section-gap">
-            <b-pagination
-                v-if="args.meta.pages > 1"
-                align="right"
-                v-model="args.meta.page"
-                :total-rows="args.meta.totalCount"
-                :per-page="args.meta.pageSize"
-                first-number last-number size="sm"
-            />
-
             <BaseListing :listing-configuration="listing">
                 <template #filters>
                     <filters :filters-collection="listing.criteriaValues" stacked />
+                </template>
+
+                <template #toolbar-end>
+                    <b-pagination
+                        v-if="args.meta.pages > 1"
+                        v-model="args.meta.page"
+                        :total-rows="args.meta.totalCount"
+                        :per-page="args.meta.pageSize"
+                        first-number last-number size="sm"
+                    />
                 </template>
 
                 <ListingTable
@@ -73,10 +74,16 @@ import {
     CRITERION_HIDE_ARCHIVE,
     CRITERION_NOT_STARTED,
     CRITERION_START_DELAYED,
+    CRITERION_CUSTOMERS,
+    CRITERION_AUTHORS,
+    CRITERION_OVERDUE,
     columnsFactory as productionListingColumnsFactory,
     criteriaFactory as productionListingCriteriaFactory,
 } from "../configuration/productionListing";
 import { isPreset } from "@/services/dateRangePresets";
+import { loadFilterOptions } from "@/services/orderFilterOptions";
+
+const LIST_CRITERIA = [CRITERION_CUSTOMERS, CRITERION_AUTHORS];
 
 const DATE_QUERY_KEYS = {
     [CRITERION_DATE_START]: { from: 'dateReceive0', to: 'dateReceive1', preset: 'dateReceivePreset' },
@@ -103,6 +110,7 @@ export default {
             productionListingCriteriaFactory(this.$user)
         )
         this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+        loadFilterOptions();
 
         const query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
         const queryCriteria = this.parseQueryCriteria(query);
@@ -115,7 +123,7 @@ export default {
             }
 
             this.args.meta.page = parseInt(query.page) || 1;
-            this.args.meta.sort = query.sort ? String(query.sort) : resolveDefaultOrder(this.$user);
+            this.args.meta.sort = query.sort !== undefined ? String(query.sort) : resolveDefaultOrder(this.$user);
 
             // dopiero teraz przepisujemy stan do adresu - to uruchamia pierwsze pobranie
             this.syncQueryString = true;
@@ -193,11 +201,17 @@ export default {
             if (criteria[CRITERION_START_DELAYED]) {
                 query.startDelayed = 'true';
             }
+            if (criteria[CRITERION_OVERDUE]) {
+                query.overdue = 'true';
+            }
+            for (const id of LIST_CRITERIA) {
+                if ((criteria[id] || []).length) {
+                    query[id] = criteria[id].join(',');
+                }
+            }
 
             query.page = this.args.meta.page;
-            if (this.args.meta.sort) {
-                query.sort = this.args.meta.sort;
-            }
+            query.sort = this.args.meta.sort;
 
             let qString = window.location.pathname.concat('?', qs.stringify(query));
             history.pushState(null, '', qString);
@@ -265,6 +279,16 @@ export default {
 
             if (query.startDelayed !== undefined) {
                 criteria[CRITERION_START_DELAYED] = query.startDelayed === 'true';
+            }
+
+            if (query.overdue !== undefined) {
+                criteria[CRITERION_OVERDUE] = query.overdue === 'true';
+            }
+
+            for (const id of LIST_CRITERIA) {
+                if (query[id] !== undefined) {
+                    criteria[id] = String(query[id]).split(',').map(Number).filter(Boolean);
+                }
             }
 
             return criteria;

@@ -80,6 +80,7 @@ export default {
 
     'listing': {
         'loading': 'Loading...',
+        'noOptions': 'No matching items',
         'columns': 'Columns',
         'newView': 'New view',
         'newViewTitle': 'New view',

@@ -101,7 +101,8 @@ export default {
             'notStarted': 'Not started',
             'onlyNotStarted': 'Only overdue, not started',
             'startedDelay': 'Started with delay',
-            'onlyStartedDelay': 'Only started with delay'
+            'onlyStartedDelay': 'Only started with delay',
+            'onlyOverdue': 'Only past delivery date'
         }
 
 
@@ -206,7 +207,8 @@ export default {
             'notStarted': 'Nie rozpoczęto',
             'onlyNotStarted': 'Tylko nierozpoczęte po terminie',
             'startedDelay': 'Rozpoczęto z opóźnieniem',
-            'onlyStartedDelay': 'Tylko rozpoczęte z opóźnieniem'
+            'onlyStartedDelay': 'Tylko rozpoczęte z opóźnieniem',
+            'onlyOverdue': 'Tylko po terminie dostawy'
         }
 
     }

@@ -1,8 +1,10 @@
 import moment from "moment";
 import Column from "@/components/base/BaseListing/model/Column";
-import Criterion, { TYPE_DATE_RANGE, TYPE_TEXT } from "@/components/base/BaseListing/model/Criterion";
+import Criterion, { TYPE_BOOLEAN, TYPE_DATE_RANGE, TYPE_LIST, TYPE_TEXT } from "@/components/base/BaseListing/model/Criterion";
+import { filterOptions, namesOf } from "@/services/orderFilterOptions";
 import i18n from "@/../i18n";
-import helpers from "@/helpers";
+import helpers, { DEPARTMENTS } from "@/helpers";
+import Roles from "@/definitions/userRoles";
 import OrderNumberCell from "../cells/OrderNumberCell";
 import OrderUserCell from "../cells/OrderUserCell";
 import OrderProductCell from "../cells/OrderProductCell";
@@ -29,10 +31,25 @@ export const COLUMN_ORDERS_PRODUCTION_STATUS = 'orders_production_status'
 export const CRITERION_SEARCH = 'q'
 export const CRITERION_DATE_START = 'dateStart'
 export const CRITERION_DATE_DELIVERY = 'dateDelivery'
+export const CRITERION_CUSTOMERS = 'customers'
+export const CRITERION_AUTHORS = 'authors'
+export const CRITERION_HIDE_ARCHIVE = 'hideArchive'
+export const CRITERION_OVERDUE = 'overdue'
+export const CRITERION_NOT_STARTED = 'notStarted'
+export const CRITERION_START_DELAYED = 'startDelayed'
 
 const formatDate = value => value ? moment(value).format('YYYY-MM-DD') : ''
 
-export const criteriaFactory = () => ([
+// przełączniki o terminach i postępie produkcji są dla pracowników, nie dla klientów
+const canSeeProduction = (user) => user.can(Roles.CAN_PRODUCTION)
+const canSeeAnyDepartment = (user) => canSeeProduction(user) && DEPARTMENTS.some(dpt => user.can(dpt.grant))
+
+/**
+ * @param {Object} user
+ * @param {boolean} statusScoped strona jednego statusu (/orders/{status}) - ukrywanie archiwum
+ *                               wyzerowałoby zakładkę "Archiwum", więc tam tego kryterium nie ma
+ */
+export const criteriaFactory = (user, statusScoped = false) => ([
   new Criterion({
     id: CRITERION_SEARCH,
     label: i18n.t('search'),
@@ -51,7 +68,45 @@ export const criteriaFactory = () => ([
     type: TYPE_DATE_RANGE,
     defaultValue: { start: null, end: null },
   }),
-])
+  new Criterion({
+    id: CRITERION_CUSTOMERS,
+    label: i18n.t('customer'),
+    type: TYPE_LIST,
+    defaultValue: [],
+    formatter: ids => `${i18n.t('customer')}: ${namesOf(filterOptions.customers, ids)}`,
+  }),
+  new Criterion({
+    id: CRITERION_AUTHORS,
+    label: i18n.t('orders.issuedBy'),
+    type: TYPE_LIST,
+    defaultValue: [],
+    formatter: ids => `${i18n.t('orders.issuedBy')}: ${namesOf(filterOptions.authors, ids)}`,
+  }),
+  !statusScoped && new Criterion({
+    id: CRITERION_HIDE_ARCHIVE,
+    label: i18n.t('orders.hideArchivedOrder'),
+    type: TYPE_BOOLEAN,
+    defaultValue: true,
+  }),
+  canSeeProduction(user) && new Criterion({
+    id: CRITERION_OVERDUE,
+    label: i18n.t('orders.onlyOverdue'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
+  }),
+  canSeeAnyDepartment(user) && new Criterion({
+    id: CRITERION_NOT_STARTED,
+    label: i18n.t('orders.onlyNotStarted'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
+  }),
+  canSeeAnyDepartment(user) && new Criterion({
+    id: CRITERION_START_DELAYED,
+    label: i18n.t('orders.onlyStartedDelay'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
+  }),
+]).filter(Boolean)
 
 export const columnsFactory = () => ([
   new Column({

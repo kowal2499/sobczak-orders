@@ -35,6 +35,10 @@ export default {
         return axios.post('/agreement-line/rm/orders', { search });
     },
 
+    fetchOrdersFilterOptions() {
+        return axios.get('/agreement-line/rm/orders/filter-options');
+    },
+
 
 
     setAgreementStatus(agreementId, statusId) {

@@ -171,7 +171,7 @@ export default class Listing {
             return;
         }
 
-        this.setCriterionValue(id, criterion.defaultValue);
+        this.setCriterionValue(id, criterion.emptyValue);
     }
 
     /** Kryteria z ustawioną wartością - do chipów i licznika. */
@@ -191,9 +191,12 @@ export default class Listing {
         this.setCriteriaValues(this.viewCriteriaValues());
     }
 
-    /** Czyści filtry do wartości domyślnych, bez zapisu. */
+    /** Wyłącza wszystkie filtry, bez zapisu. */
     clearCriteria() {
-        this.criteriaValues = this.defaultCriteriaValues();
+        this.criteriaValues = this.supportedCriteria.reduce((acc, criterion) => {
+            acc[criterion.id] = criterion.emptyValue;
+            return acc;
+        }, {});
     }
 
     /** Utrwala bieżące filtry w aktywnym widoku. */

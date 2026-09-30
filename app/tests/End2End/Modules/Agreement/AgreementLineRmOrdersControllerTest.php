@@ -107,6 +107,142 @@ class AgreementLineRmOrdersControllerTest extends ApiTestCase
         $this->assertNotContains($completedId, $ids);
     }
 
+    public function testOrdersListFiltersOverdue(): void
+    {
+        $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
+        $client = $this->login($user);
+        $client->disableReboot();
+
+        $lines = [
+            'overdue' => ['status' => AgreementLine::STATUS_MANUFACTURING, 'confirmedDate' => new \DateTime('-3 days')],
+            'dueToday' => ['status' => AgreementLine::STATUS_MANUFACTURING, 'confirmedDate' => new \DateTime('today')],
+            'future' => ['status' => AgreementLine::STATUS_WAITING, 'confirmedDate' => new \DateTime('+3 days')],
+            'delivered' => ['status' => AgreementLine::STATUS_WAREHOUSE, 'confirmedDate' => new \DateTime('-3 days')],
+        ];
+        $orderNumbers = [];
+        foreach ($lines as $name => $attributes) {
+            $line = $this->chainFactory->make([], $attributes);
+            $this->factory->flush();
+            $orderNumbers[$name] = (string) $line->getAgreement()->getOrderNumber();
+            $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($line->getId()));
+        }
+        $this->getManager()->clear();
+
+        $matches = [];
+        foreach ($orderNumbers as $name => $orderNumber) {
+            $result = $this->search($client, '/agreement-line/rm/orders', ['q' => $orderNumber, 'overdue' => true]);
+            $matches[$name] = (int) $result['meta']['totalCount'] > 0;
+        }
+
+        $this->assertSame(
+            ['overdue' => true, 'dueToday' => false, 'future' => false, 'delivered' => false],
+            $matches
+        );
+    }
+
+    public function testOrdersListFiltersByCustomerAndAuthor(): void
+    {
+        $viewer = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
+        $client = $this->login($viewer);
+        $client->disableReboot();
+
+        $anna = $this->createUser()->setFirstName('Anna')->setLastName('Autorka');
+        $piotr = $this->createUser();
+
+        $annaFirst = $this->chainFactory->make(['user' => $anna]);
+        $piotrs = $this->chainFactory->make(['user' => $piotr]);
+        $annaSecond = $this->chainFactory->make(['user' => $anna]);
+        $ids = [$annaFirst->getId(), $piotrs->getId(), $annaSecond->getId()];
+        $customerOf = fn (AgreementLine $line) => $line->getAgreement()->getCustomer()->getId();
+        $customers = [$customerOf($annaFirst), $customerOf($piotrs)];
+        $authors = [$anna->getId(), $piotr->getId()];
+        $this->getManager()->clear();
+
+        foreach ($ids as $id) {
+            $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($id));
+        }
+        $this->getManager()->clear();
+
+        $byCustomers = $this->search($client, '/agreement-line/rm/orders', ['customers' => $customers]);
+        $this->assertEqualsCanonicalizing([$ids[0], $ids[1]], array_column($byCustomers['data'], 'id'));
+
+        $byAuthor = $this->search($client, '/agreement-line/rm/orders', ['authors' => [$anna->getId()]]);
+        $this->assertEqualsCanonicalizing([$ids[0], $ids[2]], array_column($byAuthor['data'], 'id'));
+
+        $combined = $this->search($client, '/agreement-line/rm/orders', [
+            'customers' => $customers,
+            'authors' => [$anna->getId()],
+        ]);
+        $this->assertSame([$ids[0]], array_column($combined['data'], 'id'));
+
+        $client->request('GET', '/agreement-line/rm/orders/filter-options');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $options = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEmpty(array_diff($customers, array_column($options['customers'], 'id')));
+        $this->assertContains(['id' => $anna->getId(), 'name' => 'Anna Autorka'], $options['authors']);
+        $this->assertEmpty(array_diff($authors, array_column($options['authors'], 'id')));
+    }
+
+    public function testFilterOptionsAreLimitedToOwnCustomers(): void
+    {
+        $author = $this->createUser();
+        $own = $this->chainFactory->make();
+        $foreign = $this->chainFactory->make(['user' => $author]);
+        $ownCustomer = $own->getAgreement()->getCustomer();
+        $foreignCustomerId = $foreign->getAgreement()->getCustomer()->getId();
+
+        $viewer = $this->createUser([], [], [], ['ROLE_CUSTOMER', 'ROLE_PRODUCTION']);
+        $viewer->addCustomer($ownCustomer);
+        $this->getManager()->flush();
+        $ownId = $own->getId();
+        $foreignId = $foreign->getId();
+        $ownCustomerId = $ownCustomer->getId();
+        $authorId = $author->getId();
+        $this->getManager()->clear();
+
+        $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($ownId));
+        $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($foreignId));
+        $this->getManager()->clear();
+
+        $client = $this->login($viewer);
+        $client->request('GET', '/agreement-line/rm/orders/filter-options');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $options = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertSame([$ownCustomerId], array_column($options['customers'], 'id'));
+        $this->assertNotContains($foreignCustomerId, array_column($options['customers'], 'id'));
+        $this->assertNotContains($authorId, array_column($options['authors'], 'id'));
+    }
+
+    public function testProductionOnlyFiltersAreIgnoredForCustomers(): void
+    {
+        $overdue = $this->chainFactory->make([], [
+            'status' => AgreementLine::STATUS_MANUFACTURING,
+            'confirmedDate' => new \DateTime('-3 days'),
+        ]);
+        $customer = $overdue->getAgreement()->getCustomer();
+        $future = $this->chainFactory->make(['customer' => $customer], [
+            'status' => AgreementLine::STATUS_WAITING,
+            'confirmedDate' => new \DateTime('+3 days'),
+        ]);
+
+        $viewer = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
+        $viewer->addCustomer($customer);
+        $this->getManager()->flush();
+        $ids = [$overdue->getId(), $future->getId()];
+        $this->getManager()->clear();
+
+        foreach ($ids as $id) {
+            $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($id));
+        }
+        $this->getManager()->clear();
+
+        $client = $this->login($viewer);
+        $result = $this->search($client, '/agreement-line/rm/orders', ['overdue' => true]);
+
+        $this->assertEqualsCanonicalizing($ids, array_column($result['data'], 'id'));
+    }
+
     private function search(KernelBrowser $client, string $url, array $search): array
     {
         $client->request(
