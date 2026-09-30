@@ -37,7 +37,9 @@ export const CRITERION_CUSTOMERS = 'customers'
 export const CRITERION_AUTHORS = 'authors'
 export const CRITERION_OVERDUE = 'overdue'
 
-const canSeeAnyDepartment = (user) => DEPARTMENTS.some(dpt => user.can(dpt.grant))
+// przełączniki o terminach i postępie produkcji są dla pracowników, nie dla klientów
+const canSeeProduction = (user) => user.can(Roles.CAN_PRODUCTION)
+const canSeeAnyDepartment = (user) => canSeeProduction(user) && DEPARTMENTS.some(dpt => user.can(dpt.grant))
 
 export const criteriaFactory = (user) => ([
   new Criterion({
@@ -73,7 +75,7 @@ export const criteriaFactory = (user) => ([
     formatter: ids => `${i18n.t('orders.issuedBy')}: ${namesOf(filterOptions.authors, ids)}`,
   }),
   // filtr zdradza pośrednio datę dostawy, więc wymaga tego samego uprawnienia co jej zakres
-  user.can('production.show.production_date') && new Criterion({
+  canSeeProduction(user) && user.can('production.show.production_date') && new Criterion({
     id: CRITERION_OVERDUE,
     label: i18n.t('orders.onlyOverdue'),
     type: TYPE_BOOLEAN,

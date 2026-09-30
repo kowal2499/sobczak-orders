@@ -4,6 +4,7 @@ import Criterion, { TYPE_BOOLEAN, TYPE_DATE_RANGE, TYPE_LIST, TYPE_TEXT } from "
 import { filterOptions, namesOf } from "@/services/orderFilterOptions";
 import i18n from "@/../i18n";
 import helpers, { DEPARTMENTS } from "@/helpers";
+import Roles from "@/definitions/userRoles";
 import OrderNumberCell from "../cells/OrderNumberCell";
 import OrderUserCell from "../cells/OrderUserCell";
 import OrderProductCell from "../cells/OrderProductCell";
@@ -39,7 +40,9 @@ export const CRITERION_START_DELAYED = 'startDelayed'
 
 const formatDate = value => value ? moment(value).format('YYYY-MM-DD') : ''
 
-const canSeeAnyDepartment = (user) => DEPARTMENTS.some(dpt => user.can(dpt.grant))
+// przełączniki o terminach i postępie produkcji są dla pracowników, nie dla klientów
+const canSeeProduction = (user) => user.can(Roles.CAN_PRODUCTION)
+const canSeeAnyDepartment = (user) => canSeeProduction(user) && DEPARTMENTS.some(dpt => user.can(dpt.grant))
 
 /**
  * @param {Object} user
@@ -85,7 +88,7 @@ export const criteriaFactory = (user, statusScoped = false) => ([
     type: TYPE_BOOLEAN,
     defaultValue: true,
   }),
-  new Criterion({
+  canSeeProduction(user) && new Criterion({
     id: CRITERION_OVERDUE,
     label: i18n.t('orders.onlyOverdue'),
     type: TYPE_BOOLEAN,

@@ -46,6 +46,7 @@ class AgreementLineRmController extends BaseController
         if ($this->isGranted('ROLE_CUSTOMER')) {
             $payload['search']['ownedBy'] = $this->getUser();
         }
+        $payload['search'] = $this->withoutProductionCriteria($payload['search']);
 
         $query = $agreementLineRepository->search($payload);
         $query->setHydrationMode(AbstractQuery::HYDRATE_ARRAY);
@@ -103,6 +104,7 @@ class AgreementLineRmController extends BaseController
         if ($this->isGranted('ROLE_CUSTOMER')) {
             $payload['search']['ownedBy'] = $this->getUser();
         }
+        $payload['search'] = $this->withoutProductionCriteria($payload['search']);
 
         $query = $agreementLineRepository->search($payload);
         $query->setHydrationMode(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
@@ -124,5 +126,21 @@ class AgreementLineRmController extends BaseController
                 'pageSize' => $paginationMeta['numItemsPerPage']
             ]
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Filtry po terminach i postępie produkcji są tylko dla pracowników produkcji - bez tej
+     * roli pomijamy je, żeby nie dało się nimi wypytać o stan produkcji przez samo API.
+     *
+     * @param array<string, mixed> $search
+     * @return array<string, mixed>
+     */
+    private function withoutProductionCriteria(array $search): array
+    {
+        if ($this->isGranted('ROLE_PRODUCTION')) {
+            return $search;
+        }
+
+        return array_diff_key($search, array_flip(['overdue', 'notStarted', 'startDelayed']));
     }
 }

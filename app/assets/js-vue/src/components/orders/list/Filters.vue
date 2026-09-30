@@ -46,6 +46,7 @@
         >{{ $t('orders.hideArchivedOrder') }}</b-form-checkbox>
 
         <b-form-checkbox
+            v-if="has('overdue')"
             class="filter-toolbar__toggle"
             v-model="filtersCollection.overdue"
             switch

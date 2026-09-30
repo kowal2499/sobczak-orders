@@ -214,6 +214,35 @@ class AgreementLineRmOrdersControllerTest extends ApiTestCase
         $this->assertNotContains($authorId, array_column($options['authors'], 'id'));
     }
 
+    public function testProductionOnlyFiltersAreIgnoredForCustomers(): void
+    {
+        $overdue = $this->chainFactory->make([], [
+            'status' => AgreementLine::STATUS_MANUFACTURING,
+            'confirmedDate' => new \DateTime('-3 days'),
+        ]);
+        $customer = $overdue->getAgreement()->getCustomer();
+        $future = $this->chainFactory->make(['customer' => $customer], [
+            'status' => AgreementLine::STATUS_WAITING,
+            'confirmedDate' => new \DateTime('+3 days'),
+        ]);
+
+        $viewer = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
+        $viewer->addCustomer($customer);
+        $this->getManager()->flush();
+        $ids = [$overdue->getId(), $future->getId()];
+        $this->getManager()->clear();
+
+        foreach ($ids as $id) {
+            $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($id));
+        }
+        $this->getManager()->clear();
+
+        $client = $this->login($viewer);
+        $result = $this->search($client, '/agreement-line/rm/orders', ['overdue' => true]);
+
+        $this->assertEqualsCanonicalizing($ids, array_column($result['data'], 'id'));
+    }
+
     private function search(KernelBrowser $client, string $url, array $search): array
     {
         $client->request(
