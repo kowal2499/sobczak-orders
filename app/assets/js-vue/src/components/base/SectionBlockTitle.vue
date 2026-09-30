@@ -1,34 +1,43 @@
 <template>
-    <div class="section-block-title" :class="{ 'section-block-title--block': block }">
+    <div
+        class="section-block-title"
+        :class="{ 'section-block-title--block': block, 'section-block-title--with-actions': hasActions }"
+    >
         <div class="section-block-title__head">
-            <span class="section-block-title__title">
-                <slot>{{ title }}</slot>
-            </span>
-
-            <nav
-                v-if="breadcrumbs && breadcrumbs.length"
-                aria-label="breadcrumb"
-                class="section-block-title__breadcrumb"
-            >
-                <ol class="breadcrumb">
-                    <li
-                        v-for="(crumb, i) in breadcrumbs"
-                        :key="i"
-                        class="breadcrumb-item"
-                        :class="{ active: isLast(i) }"
-                        :aria-current="isLast(i) ? 'page' : null"
-                    >
-                        <component
-                            :is="crumb.href && !isLast(i) ? 'a' : 'span'"
-                            :href="crumb.href && !isLast(i) ? crumb.href : null"
-                            :aria-label="crumb.icon ? crumb.label : null"
+            <div class="section-block-title__heading">
+                <span class="section-block-title__title">
+                    <slot>{{ title }}</slot>
+                </span>
+    
+                <nav
+                    v-if="breadcrumbs && breadcrumbs.length"
+                    aria-label="breadcrumb"
+                    class="section-block-title__breadcrumb"
+                >
+                    <ol class="breadcrumb">
+                        <li
+                            v-for="(crumb, i) in breadcrumbs"
+                            :key="i"
+                            class="breadcrumb-item"
+                            :class="{ active: isLast(i) }"
+                            :aria-current="isLast(i) ? 'page' : null"
                         >
-                            <font-awesome-icon v-if="crumb.icon" :icon="crumb.icon" />
-                            <template v-else>{{ crumb.label }}</template>
-                        </component>
-                    </li>
-                </ol>
-            </nav>
+                            <component
+                                :is="crumb.href && !isLast(i) ? 'a' : 'span'"
+                                :href="crumb.href && !isLast(i) ? crumb.href : null"
+                                :aria-label="crumb.icon ? crumb.label : null"
+                            >
+                                <font-awesome-icon v-if="crumb.icon" :icon="crumb.icon" />
+                                <template v-else>{{ crumb.label }}</template>
+                            </component>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div v-if="hasActions" class="section-block-title__actions">
+                <slot name="actions" />
+            </div>
         </div>
 
         <template v-if="hasFilters">
@@ -54,6 +63,9 @@
  * panel (instead of an inline cluster nested in a SectionBlock). In that
  * mode the optional `#filters` slot is rendered full width below the
  * title, separated by a horizontal divider.
+ *
+ * The optional `#actions` slot (e.g. a "create" button) sits on the right;
+ * the breadcrumb then moves beneath the title to make room for it.
  */
 export default {
     name: "SectionBlockTitle",
@@ -78,6 +90,9 @@ export default {
         hasFilters() {
             return !!(this.$slots.filters || this.$scopedSlots.filters);
         },
+        hasActions() {
+            return !!(this.$slots.actions || this.$scopedSlots.actions);
+        },
     },
     methods: {
         isLast(index) {
@@ -97,12 +112,34 @@ export default {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-// Title left, breadcrumb right, aligned on the same line.
 .section-block-title__head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+// Title left, breadcrumb right, aligned on the same line.
+.section-block-title__heading {
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+}
+
+.section-block-title--with-actions .section-block-title__heading {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.15rem;
+}
+
+.section-block-title__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .section-block-title__title {

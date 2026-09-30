@@ -79,6 +79,7 @@ export default {
 
     'listing': {
         'loading': 'Wczytywanie...',
+        'noOptions': 'Brak pasujących pozycji',
         'columns': 'Kolumny',
         'newView': 'Nowy widok',
         'newViewTitle': 'Nowy widok',

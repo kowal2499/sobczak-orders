@@ -226,9 +226,11 @@ export default {
                 return;
             }
 
-            const order = (this.headerSort.sortKey === sortKey && this.headerSort.order === 'ASC') ? 'DESC' : 'ASC';
-            this.headerSort = { sortKey, order };
-            this.$emit('sortChanged', `${sortKey}_${order.toLowerCase()}`);
+            const current = this.headerSort.sortKey === sortKey ? this.headerSort.order : '';
+            const order = { '': 'ASC', ASC: 'DESC', DESC: '' }[current];
+
+            this.headerSort = order ? { sortKey, order } : { sortKey: '', order: '' };
+            this.$emit('sortChanged', order ? `${sortKey}_${order.toLowerCase()}` : '');
         },
 
         rowClass(item) {

@@ -27,6 +27,27 @@
             presets
         />
 
+        <options-multi-select
+            v-if="has('customers')"
+            v-model="filtersCollection.customers"
+            :options="options.customers"
+            :placeholder="$t('customer')"
+        />
+
+        <options-multi-select
+            v-if="has('authors')"
+            v-model="filtersCollection.authors"
+            :options="options.authors"
+            :placeholder="$t('orders.issuedBy')"
+        />
+
+        <b-form-checkbox
+            v-if="has('overdue')"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.overdue"
+            switch
+        >{{ $t('orders.onlyOverdue') }}</b-form-checkbox>
+
         <b-form-checkbox
             v-if="canFilterNotStarted"
             class="filter-toolbar__toggle"
@@ -52,11 +73,25 @@
 <script>
 
     import DatePicker from '../base/DatePicker';
+    import OptionsMultiSelect from '../base/OptionsMultiSelect';
     import { PAST_PRESET_KEYS } from '@/services/dateRangePresets';
+    import { filterOptions, loadFilterOptions } from '@/services/orderFilterOptions';
 
     export default {
         name: "Filters",
-        components: { DatePicker },
+        components: { DatePicker, OptionsMultiSelect },
+
+        created() {
+            if (this.has('customers') || this.has('authors')) {
+                loadFilterOptions();
+            }
+        },
+
+        methods: {
+            has(key) {
+                return Boolean(this.filtersCollection) && this.filtersCollection[key] !== undefined;
+            }
+        },
 
         props: {
             filtersCollection: {
@@ -72,6 +107,10 @@
         },
 
         computed: {
+            options() {
+                return filterOptions;
+            },
+
             // data otrzymania zawsze jest już za nami - skróty w przyszłość nic by nie zwróciły
             pastPresets() {
                 return PAST_PRESET_KEYS;

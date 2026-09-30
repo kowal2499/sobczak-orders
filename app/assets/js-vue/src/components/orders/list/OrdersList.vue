@@ -1,31 +1,27 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs" />
-
-        <SectionBlock class="section-gap">
-            <div class="orders-toolbar">
-                <a
-                    v-if="userCanAddOrder()"
-                    :href="newOrderLink"
-                    class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn"
-                >
+        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
+            <template v-if="userCanAddOrder()" #actions>
+                <a :href="newOrderLink" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
                     <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
                 </a>
+            </template>
+        </SectionBlockTitle>
 
-                <b-pagination
-                    v-if="args.meta.pages > 1"
-                    class="mb-0"
-                    align="right"
-                    v-model="args.meta.page"
-                    :total-rows="args.meta.totalCount"
-                    :per-page="args.meta.pageSize"
-                    first-number last-number size="sm"
-                />
-            </div>
-
+        <SectionBlock class="section-gap">
             <BaseListing :listing-configuration="listing">
                 <template #filters>
                     <filters :filters-collection="listing.criteriaValues" stacked />
+                </template>
+
+                <template #toolbar-end>
+                    <b-pagination
+                        v-if="args.meta.pages > 1"
+                        v-model="args.meta.page"
+                        :total-rows="args.meta.totalCount"
+                        :per-page="args.meta.pageSize"
+                        first-number last-number size="sm"
+                    />
                 </template>
 
                 <ListingTable
@@ -67,14 +63,20 @@
     import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
     import Listing from "@/components/base/BaseListing/model/Listing.js";
     import { isPreset } from "@/services/dateRangePresets";
+    import { TYPE_BOOLEAN } from "@/components/base/BaseListing/model/Criterion";
     import {
         LISTING_ORDERS_ID,
         CRITERION_SEARCH,
         CRITERION_DATE_START,
         CRITERION_DATE_DELIVERY,
+        CRITERION_CUSTOMERS,
+        CRITERION_AUTHORS,
         columnsFactory as ordersListingColumnsFactory,
         criteriaFactory as ordersListingCriteriaFactory,
     } from "./configuration/ordersListing";
+    import { loadFilterOptions } from "@/services/orderFilterOptions";
+
+    const LIST_CRITERIA = [CRITERION_CUSTOMERS, CRITERION_AUTHORS];
 
     const DATE_QUERY_KEYS = {
         [CRITERION_DATE_START]: { from: 'dateReceive0', to: 'dateReceive1', preset: 'dateReceivePreset' },
@@ -125,9 +127,10 @@
                 LISTING_ORDERS_ID,
                 this.$t('orders.list'),
                 ordersListingColumnsFactory(),
-                ordersListingCriteriaFactory()
+                ordersListingCriteriaFactory(this.$user, parseInt(this.status) > 0)
             )
             this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+            loadFilterOptions();
 
             const query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
             const queryCriteria = this.parseQueryCriteria(query);
@@ -140,7 +143,8 @@
                 }
 
                 this.args.meta.page = parseInt(query.page) || 1;
-                this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
+                // puste `sort=` w adresie to świadomie wyłączone sortowanie, nie brak parametru
+                this.args.meta.sort = query.sort !== undefined ? String(query.sort) : 'dateConfirmed_asc';
 
                 // dopiero teraz przepisujemy stan do adresu - to uruchamia pierwsze pobranie
                 this.syncQueryString = true;
@@ -178,6 +182,10 @@
                 return this.listing ? this.listing.criteriaValues : {};
             },
 
+            booleanCriteria() {
+                return this.listing ? this.listing.supportedCriteria.filter(c => c.type === TYPE_BOOLEAN) : [];
+            },
+
             /**
              * Tworzenie queryString na podstawie zmiennych z data
              *
@@ -213,10 +221,20 @@
                     query.q = criteria[CRITERION_SEARCH];
                 }
 
-                query.page = this.args.meta.page;
-                if (this.args.meta.sort) {
-                    query.sort = this.args.meta.sort;
+                // przełączniki idą do adresu zawsze, także z wartością domyślną - inaczej odbiorca
+                // linku zobaczyłby wartość ze swojego widoku zamiast tej, którą miał nadawca
+                for (const criterion of this.booleanCriteria) {
+                    query[criterion.id] = criteria[criterion.id] ? 'true' : 'false';
                 }
+
+                for (const id of LIST_CRITERIA) {
+                    if ((criteria[id] || []).length) {
+                        query[id] = criteria[id].join(',');
+                    }
+                }
+
+                query.page = this.args.meta.page;
+                query.sort = this.args.meta.sort;
 
                 let qString = window.location.pathname.concat('?', qs.stringify(query));
                 history.pushState(null, '', qString);
@@ -254,6 +272,18 @@
 
                 if (query.q !== undefined) {
                     criteria[CRITERION_SEARCH] = String(query.q);
+                }
+
+                for (const criterion of this.booleanCriteria) {
+                    if (query[criterion.id] !== undefined) {
+                        criteria[criterion.id] = query[criterion.id] === 'true';
+                    }
+                }
+
+                for (const id of LIST_CRITERIA) {
+                    if (query[id] !== undefined) {
+                        criteria[id] = String(query[id]).split(',').map(Number).filter(Boolean);
+                    }
                 }
 
                 return criteria;
@@ -303,16 +333,6 @@
 
 .section-gap {
     margin-top: 2rem;
-}
-
-/* Przycisk i paginacja w jednym rzędzie, dosunięte do prawej. */
-.orders-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
-    margin-bottom: 1rem;
 }
 
 .orders-new-btn {

@@ -69,6 +69,25 @@ class AgreementLineRmController extends BaseController
         ], Response::HTTP_OK);
     }
 
+    /**
+     * @IsGranted("ROLE_PRODUCTION_VIEW")
+     */
+    #[Route(path: '/rm/orders/filter-options', options: ['expose' => true], methods: ['GET'])]
+    public function ordersFilterOptions(AgreementLineRMRepository $agreementLineRepository): Response
+    {
+        $customerIds = null;
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $customerIds = array_values(array_filter(
+                $this->getUser()->getCustomers()->map(fn ($c) => $c?->getId())->toArray()
+            ));
+        }
+
+        return $this->json([
+            'customers' => $agreementLineRepository->findCustomerOptions($customerIds),
+            'authors' => $agreementLineRepository->findAuthorOptions($customerIds),
+        ], Response::HTTP_OK);
+    }
+
     #[Route(path: '/rm/search', methods: ['POST'])]
     public function search(
         Request $request,

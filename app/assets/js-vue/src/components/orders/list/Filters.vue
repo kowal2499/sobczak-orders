@@ -25,13 +25,54 @@
             :placeholder="$t('deliveryDate')"
             presets
         />
+
+        <options-multi-select
+            v-model="filtersCollection.customers"
+            :options="options.customers"
+            :placeholder="$t('customer')"
+        />
+
+        <options-multi-select
+            v-model="filtersCollection.authors"
+            :options="options.authors"
+            :placeholder="$t('orders.issuedBy')"
+        />
+
+        <b-form-checkbox
+            v-if="has('hideArchive')"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.hideArchive"
+            switch
+        >{{ $t('orders.hideArchivedOrder') }}</b-form-checkbox>
+
+        <b-form-checkbox
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.overdue"
+            switch
+        >{{ $t('orders.onlyOverdue') }}</b-form-checkbox>
+
+        <b-form-checkbox
+            v-if="has('notStarted')"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.notStarted"
+            switch
+        >{{ $t('orders.onlyNotStarted') }}</b-form-checkbox>
+
+        <b-form-checkbox
+            v-if="has('startDelayed')"
+            class="filter-toolbar__toggle"
+            v-model="filtersCollection.startDelayed"
+            switch
+        >{{ $t('orders.onlyStartedDelay') }}</b-form-checkbox>
     </div>
 </template>
 
 <script>
 
     import DatePicker from '../../base/DatePicker';
+    import OptionsMultiSelect from '../../base/OptionsMultiSelect';
     import { PAST_PRESET_KEYS } from '@/services/dateRangePresets';
+    import { filterOptions, loadFilterOptions } from '@/services/orderFilterOptions';
 
     export default {
         name: "filters",
@@ -48,12 +89,26 @@
             }
         },
 
-        components: { DatePicker },
+        components: { DatePicker, OptionsMultiSelect },
+
+        created() {
+            loadFilterOptions();
+        },
 
         computed: {
+            options() {
+                return filterOptions;
+            },
+
             // data otrzymania zawsze jest już za nami - skróty w przyszłość nic by nie zwróciły
             pastPresets() {
                 return PAST_PRESET_KEYS;
+            }
+        },
+
+        methods: {
+            has(key) {
+                return Boolean(this.filtersCollection) && this.filtersCollection[key] !== undefined;
             }
         },
     }
@@ -90,6 +145,10 @@
                 border-left: 0;
                 padding-left: 0;
             }
+        }
+
+        &__toggle {
+            white-space: nowrap;
         }
     }
 </style>

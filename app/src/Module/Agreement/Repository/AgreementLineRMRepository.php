@@ -2,6 +2,7 @@
 
 namespace App\Module\Agreement\Repository;
 
+use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
@@ -177,6 +178,50 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->setParameter('customerIds', $customerIds);
     }
 
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     * @return array<array{id: int, name: string}>
+     */
+    public function findCustomerOptions(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('l.customerId AS id', 'MAX(l.customerName) AS name')
+            ->where('l.isDeleted = 0')
+            ->groupBy('l.customerId')
+            ->orderBy('name', 'ASC');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return array_map(
+            fn (array $row) => ['id' => (int) $row['id'], 'name' => (string) $row['name']],
+            $qb->getQuery()->getArrayResult()
+        );
+    }
+
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     * @return array<array{id: int, name: string}>
+     */
+    public function findAuthorOptions(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('DISTINCT u.id', 'u.firstName', 'u.lastName')
+            ->from(Agreement::class, 'a')
+            ->join('a.user', 'u')
+            ->where('a.id = l.agreementId')
+            ->andWhere('l.isDeleted = 0')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return array_map(
+            fn (array $row) => [
+                'id' => (int) $row['id'],
+                'name' => trim($row['firstName'] . ' ' . $row['lastName']),
+            ],
+            $qb->getQuery()->getArrayResult()
+        );
+    }
+
     public function search(?array $criteria)
     {
         $qb = $this->createQueryBuilder('l')
@@ -317,6 +362,40 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     ]);
                     $qb->setParameter('notStartedToday', new \DateTime('today'));
                     break;
+                case 'customers':
+                    $ids = array_values(array_filter(array_map('intval', (array) $value)));
+                    if ($ids) {
+                        $qb->andWhere('l.customerId IN (:filterCustomerIds)');
+                        $qb->setParameter('filterCustomerIds', $ids);
+                    }
+                    break;
+                case 'authors':
+                    $ids = array_values(array_filter(array_map('intval', (array) $value)));
+                    if (!$ids) {
+                        break;
+                    }
+                    // autor siedzi w read modelu tylko jako JSON, stąd podzapytanie do umowy
+                    $byAuthor = $this->getEntityManager()->createQueryBuilder()
+                        ->select('aAuthor.id')
+                        ->from(Agreement::class, 'aAuthor')
+                        ->where('IDENTITY(aAuthor.user) IN (:filterAuthorIds)');
+                    $qb->andWhere($qb->expr()->in('l.agreementId', $byAuthor->getDQL()));
+                    $qb->setParameter('filterAuthorIds', $ids);
+                    break;
+                case 'overdue':
+                    // Termin dostawy minął (dzisiejszy jeszcze nie), a zamówienie nie trafiło do magazynu.
+                    if (!$value) {
+                        break;
+                    }
+                    $qb->andWhere('l.confirmedDate < :overdueToday');
+                    $qb->andWhere('l.status NOT IN (:overdueDone)');
+                    $qb->setParameter('overdueToday', new \DateTime('today'));
+                    $qb->setParameter('overdueDone', [
+                        AgreementLine::STATUS_WAREHOUSE,
+                        AgreementLine::STATUS_ARCHIVED,
+                        AgreementLine::STATUS_DELETED,
+                    ]);
+                    break;
                 case 'startDelayed':
                     // Odpowiednik plakietki "Rozpoczęto z opóźnieniem" - flaga ustawiana
                     // przy zmianie statusu na rozpoczęty po zaplanowanej dacie.
@@ -452,6 +531,8 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     break;
 //                    todo: departmentDates
             }
+        } else {
+            $qb->orderBy('l.agreementLineId', 'ASC');
         }
 
         return $qb->getQuery();

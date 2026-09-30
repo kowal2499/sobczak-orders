@@ -121,6 +121,74 @@ export default {
     <div>
         <div v-if="fetchingData">{{ $t('listing.loading') }}</div>
         <template v-else>
+            <div class="listing-toolbar">
+                <b-nav class="listing-toolbar__controls">
+                    <FiltersPanel v-if="$scopedSlots.filters" :listing="listingConfiguration">
+                        <slot name="filters" />
+                    </FiltersPanel>
+
+                    <b-nav-item-dropdown>
+                        <template #button-content>
+                            <font-awesome-icon icon="cog" />
+                            <span class="ml-1">{{ $t('listing.columns') }}</span>
+                        </template>
+
+                        <b-dropdown-text>{{ $t('listing.columns') }}</b-dropdown-text>
+                        <b-dropdown-form v-if="activeView" class="listing-columns">
+                            <div
+                                v-for="entry in columnEntries"
+                                :key="entry.column.id"
+                                class="listing-columns__row"
+                            >
+                                <b-form-checkbox
+                                    :checked="entry.visible"
+                                    @change="toggleColumn(entry.column.id)"
+                                >
+                                    {{ entry.column.label }}
+                                </b-form-checkbox>
+
+                                <span class="listing-columns__actions" v-if="entry.visible">
+                                    <b-button
+                                        size="sm"
+                                        variant="link"
+                                        :class="isColumnPinned(entry.column.id) ? 'text-primary' : 'text-muted'"
+                                        :disabled="!canPinColumn(entry.column.id)"
+                                        :title="isColumnPinned(entry.column.id) ? $t('listing.unpinColumn') : $t('listing.pinColumn')"
+                                        @click="togglePin(entry.column.id)"
+                                    >
+                                        <font-awesome-icon icon="thumbtack" />
+                                    </b-button>
+                                    <b-button
+                                        size="sm"
+                                        variant="link"
+                                        :disabled="entry.position === 0"
+                                        :title="$t('listing.moveColumnUp')"
+                                        @click="moveColumn(entry.column.id, -1)"
+                                    >
+                                        <font-awesome-icon icon="chevron-up" />
+                                    </b-button>
+                                    <b-button
+                                        size="sm"
+                                        variant="link"
+                                        :disabled="entry.position === visibleColumnCount - 1"
+                                        :title="$t('listing.moveColumnDown')"
+                                        @click="moveColumn(entry.column.id, 1)"
+                                    >
+                                        <font-awesome-icon icon="chevron-down" />
+                                    </b-button>
+                                </span>
+                            </div>
+                        </b-dropdown-form>
+                        <b-dropdown-divider />
+                        <b-dropdown-item-btn @click="createView">{{ $t('listing.newView') }}</b-dropdown-item-btn>
+                    </b-nav-item-dropdown>
+                </b-nav>
+
+                <div v-if="$scopedSlots['toolbar-end'] || $slots['toolbar-end']" class="listing-toolbar__end">
+                    <slot name="toolbar-end" />
+                </div>
+            </div>
+
             <b-nav tabs>
                 <template v-for="(view, index) in viewCollection">
                     <b-nav-item-dropdown
@@ -145,6 +213,9 @@ export default {
                             {{ $t('listing.moveViewRight') }}
                         </b-dropdown-item-btn>
                         <b-dropdown-divider />
+                        <b-dropdown-item-btn @click="createView">
+                            {{ $t('listing.newView') }}
+                        </b-dropdown-item-btn>
                         <b-dropdown-item-btn
                             variant="danger"
                             :disabled="viewCollection.length <= 1"
@@ -158,66 +229,6 @@ export default {
                         {{ view.title }}
                     </b-nav-item>
                 </template>
-
-                <FiltersPanel v-if="$scopedSlots.filters" :listing="listingConfiguration" class="ml-auto">
-                    <slot name="filters" />
-                </FiltersPanel>
-
-                <b-nav-item-dropdown :class="$scopedSlots.filters ? '' : 'ml-auto'" right>
-                    <template #button-content>
-                        <font-awesome-icon icon="cog" />
-                        <span class="ml-1">{{ $t('listing.columns') }}</span>
-                    </template>
-
-                    <b-dropdown-text>{{ $t('listing.columns') }}</b-dropdown-text>
-                    <b-dropdown-form v-if="activeView" class="listing-columns">
-                        <div
-                            v-for="entry in columnEntries"
-                            :key="entry.column.id"
-                            class="listing-columns__row"
-                        >
-                            <b-form-checkbox
-                                :checked="entry.visible"
-                                @change="toggleColumn(entry.column.id)"
-                            >
-                                {{ entry.column.label }}
-                            </b-form-checkbox>
-
-                            <span class="listing-columns__actions" v-if="entry.visible">
-                                <b-button
-                                    size="sm"
-                                    variant="link"
-                                    :class="isColumnPinned(entry.column.id) ? 'text-primary' : 'text-muted'"
-                                    :disabled="!canPinColumn(entry.column.id)"
-                                    :title="isColumnPinned(entry.column.id) ? $t('listing.unpinColumn') : $t('listing.pinColumn')"
-                                    @click="togglePin(entry.column.id)"
-                                >
-                                    <font-awesome-icon icon="thumbtack" />
-                                </b-button>
-                                <b-button
-                                    size="sm"
-                                    variant="link"
-                                    :disabled="entry.position === 0"
-                                    :title="$t('listing.moveColumnUp')"
-                                    @click="moveColumn(entry.column.id, -1)"
-                                >
-                                    <font-awesome-icon icon="chevron-up" />
-                                </b-button>
-                                <b-button
-                                    size="sm"
-                                    variant="link"
-                                    :disabled="entry.position === visibleColumnCount - 1"
-                                    :title="$t('listing.moveColumnDown')"
-                                    @click="moveColumn(entry.column.id, 1)"
-                                >
-                                    <font-awesome-icon icon="chevron-down" />
-                                </b-button>
-                            </span>
-                        </div>
-                    </b-dropdown-form>
-                    <b-dropdown-divider />
-                    <b-dropdown-item-btn @click="createView">{{ $t('listing.newView') }}</b-dropdown-item-btn>
-                </b-nav-item-dropdown>
             </b-nav>
 
             <CriteriaChips :listing="listingConfiguration" />
@@ -235,6 +246,28 @@ export default {
 </template>
 
 <style scoped lang="scss">
+
+.listing-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+
+    &__controls ::v-deep .nav-link {
+        padding-left: 0;
+        padding-right: 1.5rem;
+    }
+
+    &__end {
+        margin-left: auto;
+
+        ::v-deep .pagination {
+            margin-bottom: 0;
+        }
+    }
+}
 
 .listing-columns {
     max-height: 60vh;

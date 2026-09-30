@@ -1,6 +1,7 @@
 import moment from "moment";
 import Column from "@/components/base/BaseListing/model/Column";
-import Criterion, { TYPE_BOOLEAN, TYPE_DATE_RANGE, TYPE_TEXT } from "@/components/base/BaseListing/model/Criterion";
+import Criterion, { TYPE_BOOLEAN, TYPE_DATE_RANGE, TYPE_LIST, TYPE_TEXT } from "@/components/base/BaseListing/model/Criterion";
+import { filterOptions, namesOf } from "@/services/orderFilterOptions";
 import i18n from "@/../i18n";
 import { DEPARTMENTS } from "@/helpers";
 import Roles from "@/definitions/userRoles";
@@ -32,6 +33,9 @@ export const CRITERION_DATE_DELIVERY = 'dateDelivery'
 export const CRITERION_HIDE_ARCHIVE = 'hideArchive'
 export const CRITERION_NOT_STARTED = 'notStarted'
 export const CRITERION_START_DELAYED = 'startDelayed'
+export const CRITERION_CUSTOMERS = 'customers'
+export const CRITERION_AUTHORS = 'authors'
+export const CRITERION_OVERDUE = 'overdue'
 
 const canSeeAnyDepartment = (user) => DEPARTMENTS.some(dpt => user.can(dpt.grant))
 
@@ -53,6 +57,27 @@ export const criteriaFactory = (user) => ([
     label: i18n.t('deliveryDate'),
     type: TYPE_DATE_RANGE,
     defaultValue: { start: null, end: null },
+  }),
+  new Criterion({
+    id: CRITERION_CUSTOMERS,
+    label: i18n.t('customer'),
+    type: TYPE_LIST,
+    defaultValue: [],
+    formatter: ids => `${i18n.t('customer')}: ${namesOf(filterOptions.customers, ids)}`,
+  }),
+  new Criterion({
+    id: CRITERION_AUTHORS,
+    label: i18n.t('orders.issuedBy'),
+    type: TYPE_LIST,
+    defaultValue: [],
+    formatter: ids => `${i18n.t('orders.issuedBy')}: ${namesOf(filterOptions.authors, ids)}`,
+  }),
+  // filtr zdradza pośrednio datę dostawy, więc wymaga tego samego uprawnienia co jej zakres
+  user.can('production.show.production_date') && new Criterion({
+    id: CRITERION_OVERDUE,
+    label: i18n.t('orders.onlyOverdue'),
+    type: TYPE_BOOLEAN,
+    defaultValue: false,
   }),
   // plakietki działowe - bez żadnego widocznego działu te filtry nie mają sensu
   canSeeAnyDepartment(user) && new Criterion({

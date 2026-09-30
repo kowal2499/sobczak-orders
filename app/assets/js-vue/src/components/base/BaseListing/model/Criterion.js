@@ -3,6 +3,7 @@ import { isPreset, presetLabel, resolveDateRange } from "@/services/dateRangePre
 export const TYPE_TEXT = 'text'
 export const TYPE_BOOLEAN = 'boolean'
 export const TYPE_DATE_RANGE = 'dateRange'
+export const TYPE_LIST = 'list'
 
 export default class Criterion {
 
@@ -62,6 +63,14 @@ export default class Criterion {
     }
 
     /**
+     * Wartość „bez filtra" - do czyszczenia. Różni się od domyślnej tylko dla przełączników
+     * włączonych od startu (np. ukrywanie archiwum): wyczyszczenie ma je wyłączyć.
+     */
+    get emptyValue() {
+        return this.#type === TYPE_BOOLEAN ? false : this.defaultValue;
+    }
+
+    /**
      * Czy wartość odpowiada „brak filtra". Steruje licznikiem aktywnych filtrów i chipami.
      *
      * @param {*} value
@@ -80,7 +89,11 @@ export default class Criterion {
         }
 
         if (this.#type === TYPE_BOOLEAN) {
-            return Boolean(value) === Boolean(this.#defaultValue);
+            return !value;
+        }
+
+        if (this.#type === TYPE_LIST) {
+            return !Array.isArray(value) || value.length === 0;
         }
 
         return false;
