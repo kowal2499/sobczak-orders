@@ -28,7 +28,7 @@ and penalty basis for employees.
 
 ## Tech Stack
 
-- **Backend**: Symfony 5.4 (PHP 8.1), Twig templates, `src/` (excluding `assets/`)
+- **Backend**: Symfony 5.4 (PHP 8.2), Twig templates, `src/` (excluding `assets/`)
 - **Frontend**: Vue 2.7 components communicating via axios HTTP, `assets/` directory
 - **JS Bundler**: symfony/webpack-encore v4
 - **Dev environment**: Docker Compose (`php-apache` and `mysql` containers)

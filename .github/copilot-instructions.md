@@ -21,7 +21,7 @@ zwykle tylko jedna dla danego Agreement. Kluczowa pozycja w całym systemie o sz
 
 ## Kontekst techniczny
 
-Aplikacja jest napisana w Symfony 5.4 (PHP 8.1). Widoki frontendu zwracane są przez szablony twig. 
+Aplikacja jest napisana w Symfony 5.4 (PHP 8.2). Widoki frontendu zwracane są przez szablony twig. 
 W dalszej kolejności generowanie widoku przejmują komponenty Vue 2.7 które komunikują się za api poprzez żądania http (axios).
 JS bundler to symfony/webpack-encore w wersji 4.
 Kod frontendu jest w app/assets
