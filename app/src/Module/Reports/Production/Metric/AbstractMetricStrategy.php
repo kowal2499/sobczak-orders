@@ -13,6 +13,18 @@ use Symfony\Component\Security\Core\Security;
  */
 abstract class AbstractMetricStrategy implements MetricStrategyInterface
 {
+    /**
+     * Opcja compute() wyłączająca filtr klienta - dla konsumentów serwerowych liczących agregat
+     * firmowy (rozliczenie premii, historia mierników), niezależnie od tego, kto wywołał przeliczenie.
+     */
+    public const OPTION_COMPANY_WIDE = 'companyWide';
+
+    /**
+     * Opcja compute() mierników agregatowych: zamiast jednej sumy zwraca sumy per klient
+     * (historia mierników składa z nich widok dowolnego użytkownika).
+     */
+    public const OPTION_BY_CUSTOMER = 'byCustomer';
+
     public function __construct(
         protected readonly AgreementLineRMRepository $agreementLineRepo,
         protected readonly Security $security,
@@ -42,6 +54,15 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
             $search['ownedBy'] = $this->security->getUser();
         }
         return $search;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     * @return int[]|null
+     */
+    protected function customerFilter(array $options): ?array
+    {
+        return empty($options[self::OPTION_COMPANY_WIDE]) ? $this->ownedCustomerIds() : null;
     }
 
     /**

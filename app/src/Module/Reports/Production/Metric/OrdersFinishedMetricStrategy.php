@@ -21,6 +21,12 @@ class OrdersFinishedMetricStrategy extends AbstractMetricStrategy
         bool $includeGhost = false,
         array $options = []
     ): array {
-        return $this->agreementLineRepo->getFinishedSummary($start, $end, $this->ownedCustomerIds());
+        $customerIds = $this->customerFilter($options);
+
+        if (!empty($options[self::OPTION_BY_CUSTOMER])) {
+            return $this->agreementLineRepo->getFinishedSummaryByCustomer($start, $end, $customerIds);
+        }
+
+        return $this->agreementLineRepo->getFinishedSummary($start, $end, $customerIds);
     }
 }

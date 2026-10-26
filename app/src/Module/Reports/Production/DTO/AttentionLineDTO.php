@@ -17,6 +17,7 @@ class AttentionLineDTO
         public readonly \DateTimeInterface $confirmedDate,
         public readonly int $days,
         public readonly array $productions = [],
+        public readonly ?int $customerId = null,
     ) {
     }
 }

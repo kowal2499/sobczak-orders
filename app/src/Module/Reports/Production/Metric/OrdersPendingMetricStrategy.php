@@ -20,6 +20,12 @@ class OrdersPendingMetricStrategy extends AbstractMetricStrategy
         bool $includeGhost = false,
         array $options = []
     ): array {
-        return $this->agreementLineRepo->getPendingSummary($end, $this->ownedCustomerIds());
+        $customerIds = $this->customerFilter($options);
+
+        if (!empty($options[self::OPTION_BY_CUSTOMER])) {
+            return $this->agreementLineRepo->getPendingSummaryByCustomer($end, $customerIds);
+        }
+
+        return $this->agreementLineRepo->getPendingSummary($end, $customerIds);
     }
 }
