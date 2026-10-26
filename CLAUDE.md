@@ -402,6 +402,24 @@ each report composes only the sections it needs. Do not reintroduce boolean "mod
   a single production and hides its popover when `production` is null, which on the dashboard means
   an empty department cell
 
+### 9. MetricSnapshot
+- Daily, frozen history of every dashboard metric for the trend view (`/metric-history`,
+  front `assets/js-vue/src/modules/metricHistory/`). Spec: `spec/metric-snapshot.md`
+- Written by `app:metric-snapshot:capture` (cron every 30 min, set up by hand in the hosting panel) or
+  `POST /metric-snapshot/capture`; a run replaces all rows of **today** only. A past day is frozen -
+  it may only be filled once with `--backfill`, which skips state metrics
+- Stored **per customer, never per user**: `MetricSnapshotCollector` always computes company-wide
+  (`AbstractMetricStrategy::OPTION_COMPANY_WIDE`, also honoured by `AttentionListsMetricStrategy`) and
+  splits by `customer_id`; the read side sums the viewer's customers. `customer_id = 0` / `period_key = '-'`
+  instead of NULL, because MySQL treats NULLs in a unique index as distinct
+- Flow metrics are cumulative from the 1st of the month (daily change = difference), state metrics are
+  the value on the day; capacity is a plan, so it covers the whole current and next month
+- `DepartmentFactorRule` is the single server-side copy of the front's per-department sum rule; both
+  `DepartmentFactorsCalculator` and the collector use it
+- Read visibility mirrors the tiles (`MetricVisibility`): same tile grants, `production.show.*` for
+  department dimensions, `ROLE_CUSTOMER` customer filter
+- Grants: `metric-snapshot.view`, `metric-snapshot.manage`
+
 ## Testing
 
 ### General rules

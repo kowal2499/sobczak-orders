@@ -3,8 +3,8 @@
 namespace App\Module\BonusSettlement\Service;
 
 use App\Module\Production\ValueObject\DepartmentEnum;
-use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
 use App\Module\Reports\Production\Metric\AbstractProductionRecordStrategy;
+use App\Module\Reports\Production\Metric\DepartmentFactorRule;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 
 /**
@@ -43,7 +43,8 @@ class DepartmentFactorsCalculator
         ]);
 
         foreach ($records as $record) {
-            if (!$this->countsTowardsBonus($record)) {
+            // warunek musi pozostać identyczny z frontowym (DepartmentMetricMixin.js)
+            if (!DepartmentFactorRule::counts($record)) {
                 continue;
             }
             $slug = $record->getDepartmentSlug();
@@ -54,24 +55,5 @@ class DepartmentFactorsCalculator
         }
 
         return $sums;
-    }
-
-    /**
-     * Warunek musi pozostać identyczny z frontowym:
-     * assets/js-vue/src/modules/dashboard/components/Metrics/ProductionMetric/DepartmentMetricMixin.js
-     */
-    private function countsTowardsBonus(ProductionReportRecordDTO $record): bool
-    {
-        if (!$record->getInRange()) {
-            return false;
-        }
-        if (!$record->getOnTime()) {
-            return false;
-        }
-        if ($record->getIsGhost()) {
-            return false;
-        }
-
-        return null !== $record->getFactors();
     }
 }

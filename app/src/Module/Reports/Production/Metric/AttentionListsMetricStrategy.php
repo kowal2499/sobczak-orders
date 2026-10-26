@@ -30,6 +30,8 @@ class AttentionListsMetricStrategy extends AbstractMetricStrategy
     /** @var array<string, bool> */
     private array $departmentVisibility = [];
 
+    private bool $companyWide = false;
+
     public function getName(): string
     {
         return 'attention_lists';
@@ -45,9 +47,12 @@ class AttentionListsMetricStrategy extends AbstractMetricStrategy
         array $options = []
     ): array {
         $today = new \DateTimeImmutable('today');
+        // tryb firmowy (historia mierników) liczy wszystkie listy i działy, bez względu na wywołującego
+        $this->companyWide = !empty($options[self::OPTION_COMPANY_WIDE]);
+        $this->departmentVisibility = [];
         $lists = [];
         foreach (self::LIST_GRANTS as $list => $grant) {
-            if ($this->security->isGranted($grant)) {
+            if ($this->companyWide || $this->security->isGranted($grant)) {
                 $lists[$list] = [];
             }
         }
@@ -55,7 +60,8 @@ class AttentionListsMetricStrategy extends AbstractMetricStrategy
             return [];
         }
 
-        foreach ($this->agreementLineRepo->findActiveLines($this->ownedCustomerIds()) as $line) {
+        $customerIds = $this->companyWide ? null : $this->ownedCustomerIds();
+        foreach ($this->agreementLineRepo->findActiveLines($customerIds) as $line) {
             $productions = $this->visibleProductions($line);
 
             if (isset($lists['overdueOrders']) && $line->getConfirmedDate() < $today) {
@@ -130,7 +136,8 @@ class AttentionListsMetricStrategy extends AbstractMetricStrategy
     {
         if (!isset($this->departmentVisibility[$slug])) {
             $grant = DepartmentGrantMap::grantFor($slug);
-            $this->departmentVisibility[$slug] = $grant !== null && $this->security->isGranted($grant);
+            $this->departmentVisibility[$slug] = $grant !== null
+                && ($this->companyWide || $this->security->isGranted($grant));
         }
 
         return $this->departmentVisibility[$slug];
@@ -151,6 +158,7 @@ class AttentionListsMetricStrategy extends AbstractMetricStrategy
             $line->getConfirmedDate(),
             $days,
             $productions,
+            $line->getCustomerId(),
         );
     }
 

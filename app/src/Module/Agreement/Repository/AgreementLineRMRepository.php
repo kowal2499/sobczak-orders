@@ -55,17 +55,37 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
      */
     public function getPendingSummary(\DateTimeInterface $end, ?array $customerIds = null): array
     {
-        $qb = $this->createQueryBuilder('l')
+        $qb = $this->pendingSummaryQuery($end);
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * To samo co getPendingSummary(), w rozbiciu na klientów (historia mierników).
+     *
+     * @param int[]|null $customerIds
+     * @return array<array{customer_id: int|string, factors_summary: string|float|null, count: int|string}>
+     */
+    public function getPendingSummaryByCustomer(\DateTimeInterface $end, ?array $customerIds = null): array
+    {
+        $qb = $this->pendingSummaryQuery($end)
+            ->addSelect('l.customerId as customer_id')
+            ->groupBy('l.customerId');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    private function pendingSummaryQuery(\DateTimeInterface $end): QueryBuilder
+    {
+        return $this->createQueryBuilder('l')
             ->select('SUM(l.factor) as factors_summary')
             ->addSelect('COUNT(l.agreementLineId) as count')
             ->where('l.isDeleted = 0')
             ->andWhere('l.productionEndDate IS NULL')
             ->andWhere('l.productionStartDate <= :end')
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
-
-        $this->restrictToCustomers($qb, $customerIds);
-
-        return $qb->getQuery()->getSingleResult();
     }
 
     /**
@@ -80,7 +100,34 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         \DateTimeInterface $end,
         ?array $customerIds = null
     ): array {
-        $qb = $this->createQueryBuilder('l')
+        $qb = $this->finishedSummaryQuery($start, $end);
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * To samo co getFinishedSummary(), w rozbiciu na klientów (historia mierników).
+     *
+     * @param int[]|null $customerIds
+     * @return array<array{customer_id: int|string, factors_summary: string|float|null, count: int|string}>
+     */
+    public function getFinishedSummaryByCustomer(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->finishedSummaryQuery($start, $end)
+            ->addSelect('l.customerId as customer_id')
+            ->groupBy('l.customerId');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    private function finishedSummaryQuery(\DateTimeInterface $start, \DateTimeInterface $end): QueryBuilder
+    {
+        return $this->createQueryBuilder('l')
             ->select('SUM(l.factor) as factors_summary')
             ->addSelect('COUNT(l.agreementLineId) as count')
             ->where('l.isDeleted = 0')
@@ -89,10 +136,6 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->andWhere('l.productionEndDate <= :end')
             ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
-
-        $this->restrictToCustomers($qb, $customerIds);
-
-        return $qb->getQuery()->getSingleResult();
     }
 
     /**

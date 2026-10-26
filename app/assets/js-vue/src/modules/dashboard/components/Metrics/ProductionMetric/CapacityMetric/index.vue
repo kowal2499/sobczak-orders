@@ -8,19 +8,11 @@ import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/depar
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
 import Chart from './Chart.js'
-import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
+import { DEPARTMENTS } from '@/helpers'
+import { departmentColor } from '@/services/departmentColors'
 import { deburr } from 'lodash'
 import exportFields from './exportFields'
 import { getDepartmentsCapacity } from '../../../../repository'
-
-const BAR_COLORS = {
-    [DPT_GLUEING]:     { bg: 'rgba(78, 121, 167, 0.7)',  border: '#4E79A7' },
-    [DPT_CNC]:         { bg: 'rgba(242, 142, 43, 0.7)',  border: '#F28E2B' },
-    [DPT_GRINDING]:    { bg: 'rgba(89, 161, 79, 0.7)',   border: '#59A14F' },
-    [DPT_LACQUERING]:  { bg: 'rgba(225, 87, 89, 0.7)',   border: '#E15759' },
-    [DPT_PACKING]:     { bg: 'rgba(118, 183, 178, 0.7)', border: '#76B7B2' },
-    _fallback:         { bg: 'rgba(128, 128, 128, 0.5)', border: '#808080' },
-}
 
 export default defineComponent({
     name: "CapacityMetric",
@@ -126,8 +118,8 @@ export default defineComponent({
             })
         },
         datasets() {
-            const bg = this.perDepartmentData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).bg)
-            const border = this.perDepartmentData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).border)
+            const bg = this.perDepartmentData.map(({slug}) => departmentColor(slug).bg)
+            const border = this.perDepartmentData.map(({slug}) => departmentColor(slug).border)
             const main = {
                 label: this.$t('dashboard.capacityMetric'),
                 data: this.perDepartmentData.map(({ value }) => value),
@@ -140,13 +132,13 @@ export default defineComponent({
                 return [main]
             }
             const forecastBg = this.perDepartmentForecastData.map(({slug}) => {
-                const c = (BAR_COLORS[slug] || BAR_COLORS._fallback).bg
+                const c = departmentColor(slug).bg
                 return c.replace(/rgba?\(([^)]+)\)/, (_, inner) => {
                     const parts = inner.split(',').map(s => s.trim())
                     return `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, 0.25)`
                 })
             })
-            const forecastBorder = this.perDepartmentForecastData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).border)
+            const forecastBorder = this.perDepartmentForecastData.map(({slug}) => departmentColor(slug).border)
             return [
                 main,
                 {

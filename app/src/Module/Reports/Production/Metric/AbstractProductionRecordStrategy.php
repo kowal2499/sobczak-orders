@@ -20,12 +20,6 @@ use App\Module\Reports\Production\DTO\ProductionReportRecordDTO;
 abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
 {
     /**
-     * Opcja compute() wyłączająca filtr klienta - dla konsumentów serwerowych liczących agregat
-     * firmowy (rozliczenie premii), niezależnie od tego, kto wywołał przeliczenie.
-     */
-    public const OPTION_COMPANY_WIDE = 'companyWide';
-
-    /**
      * @return array<string, mixed> kryteria dla AgreementLineRMRepository::search()
      */
     abstract protected function buildSearch(
@@ -214,6 +208,7 @@ abstract class AbstractProductionRecordStrategy extends AbstractMetricStrategy
             ),
             new CustomerDTO(
                 $line->getCustomer()->getName(),
+                $line->getCustomer()->getId(),
             ),
             $inRange ? $this->factorsOf($production) : null,
             $production->isGhost(),

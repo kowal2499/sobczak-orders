@@ -42,5 +42,7 @@ export default {
 
     DifferencesReport: () => import('../modules/reports/DifferencesReport/index.vue'),
 
-    BonusSettlement: () => import('../modules/bonusSettlement/index.vue')
+    BonusSettlement: () => import('../modules/bonusSettlement/index.vue'),
+
+    MetricHistory: () => import('../modules/metricHistory/index.vue'),
 }

@@ -98,6 +98,12 @@ doctrine:
                 prefix: 'App\Module\ApiToken\Entity'
                 alias: ApiToken
                 type: attribute
+            MetricSnapshot:
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Module/MetricSnapshot/Entity'
+                prefix: 'App\Module\MetricSnapshot\Entity'
+                alias: MetricSnapshot
+                type: attribute
 
 when@test:
     doctrine:

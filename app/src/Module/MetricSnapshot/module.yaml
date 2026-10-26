@@ -1,0 +1,13 @@
+app_module:
+  namespace: metric-snapshot
+  description: Dzienna historia mierników pulpitu (dynamika)
+  active: true
+  grants:
+    - name: Podgląd historii mierników
+      description: Dostęp do widoku dynamiki mierników pulpitu
+      slug: metric-snapshot.view
+      type: boolean
+    - name: Przeliczanie historii mierników
+      description: Ręczne przeliczenie dzisiejszych wartości mierników
+      slug: metric-snapshot.manage
+      type: boolean
