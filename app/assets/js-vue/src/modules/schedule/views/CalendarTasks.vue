@@ -1,6 +1,6 @@
 <script>
 import ResourceCalendar from "@/modules/schedule/components/ResourceCalendar/ResourceCalendar.vue";
-import OrderPanelDrawer from "@/modules/agreement/components/OrderPanelDrawer.vue";
+import { openOrderPanel } from "@/modules/agreement/orderPanel";
 import VueSelect from 'vue-select'
 import moment from 'moment'
 import { fetchProductionResources, updateProductionDates, fetchHolidays } from "@/modules/schedule/repository/scheduleRepository";
@@ -14,7 +14,6 @@ export default {
 
     components: {
         ResourceCalendar,
-        OrderPanelDrawer,
         VueSelect,
     },
 
@@ -31,9 +30,6 @@ export default {
                 statuses: [],
                 agreementLineIds: [],
             },
-            panelLineId: null,
-            panelOpen: false,
-            panelDepartment: null,
         }
     },
 
@@ -103,6 +99,14 @@ export default {
         this.loadMonth(this.currentMonth)
     },
 
+    mounted() {
+        window.EventBus.$on('agreementLineSaved', this.onPanelSaved)
+    },
+
+    beforeDestroy() {
+        window.EventBus.$off('agreementLineSaved', this.onPanelSaved)
+    },
+
     methods: {
         rangeFor(month) {
             const m = moment(month, 'YYYY-MM')
@@ -162,12 +166,7 @@ export default {
         },
 
         onEventClick(event) {
-            this.panelLineId = event.agreementLineId
-            this.panelDepartment = event.resourceId
-            this.panelOpen = false
-            this.$nextTick(() => {
-                this.panelOpen = true
-            })
+            openOrderPanel(this.$router, event.agreementLineId, event.resourceId)
         },
 
         onEventMoved({ previous, updated }) {
@@ -301,14 +300,6 @@ export default {
         </ResourceCalendar>
         </SectionBlock>
 
-        <OrderPanelDrawer
-            v-if="panelLineId"
-            :key="panelLineId"
-            v-model="panelOpen"
-            :line-id="panelLineId"
-            :active-department="panelDepartment"
-            @saved="onPanelSaved"
-        />
     </div>
 </template>
 

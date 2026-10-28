@@ -1,12 +1,11 @@
 <script>
 import { agreementStatusesMap } from '@/helpers'
-import OrderPanelDrawer from '@/modules/agreement/components/OrderPanelDrawer.vue'
+import { openOrderPanel } from '@/modules/agreement/orderPanel'
 
 // Numer, klient, produkt i status zamówienia z linkiem do panelu - wspólne dla kart w drawerach
 // i kolumny zamówienia w tabelach szczegółów mierników.
 export default {
     name: 'AgreementLineHeading',
-    components: { OrderPanelDrawer },
     props: {
         agreementLineId: {
             type: Number,
@@ -51,31 +50,9 @@ export default {
     },
     methods: {
         openPanel() {
-            this.panelMounted = true
-            this.panelOpen = false
-            this.$nextTick(() => {
-                this.panelOpen = true
-            })
-        },
-        onPanelSaved() {
-            this.savedInPanel = true
-        },
-        // Listy karmią różni właściciele danych (pulpit, kalendarz, raport) - każdy przeładowuje swoje
-        // źródło. Dopiero po zamknięciu panelu: przeładowanie może przebudować wiersz, który go trzyma,
-        // a drawer zniszczony w trakcie animacji nie cofnąłby adresu ani blokady scrolla.
-        onPanelClosed() {
-            if (!this.savedInPanel) {
-                return
-            }
-            this.savedInPanel = false
-            EventBus.$emit('agreementLineSaved', this.agreementLineId)
+            openOrderPanel(this.$router, this.agreementLineId, this.panelDepartment)
         },
     },
-    data: () => ({
-        panelMounted: false,
-        panelOpen: false,
-        savedInPanel: false,
-    }),
 }
 </script>
 
@@ -107,17 +84,6 @@ export default {
                 <slot name="aside" />
             </div>
         </div>
-
-        <!-- .b-sidebar ma stały transform, więc drawer zagnieżdżony w DOM mierzyłby się względem rodzica, nie okna -->
-        <MountingPortal v-if="panelMounted" mount-to="body" append>
-            <OrderPanelDrawer
-                v-model="panelOpen"
-                :line-id="agreementLineId"
-                :active-department="panelDepartment"
-                @saved="onPanelSaved"
-                @closed="onPanelClosed"
-            />
-        </MountingPortal>
     </div>
 </template>
 

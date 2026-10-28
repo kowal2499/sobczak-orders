@@ -54,6 +54,7 @@
 <script>
 import qs from 'qs';
 import moment from 'moment';
+import { currentPanelQuery } from '@/modules/agreement/orderPanel';
 import routing from '../../../api/routing';
 import productionApi from '../../../api/production';
 import Helpers from '../../../helpers';
@@ -100,6 +101,14 @@ export default {
             type: Object,
             default: () => {}
         }
+    },
+
+    mounted() {
+        EventBus.$on('agreementLineSaved', this.fetchData);
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.fetchData);
     },
 
     created() {
@@ -212,6 +221,7 @@ export default {
 
             query.page = this.args.meta.page;
             query.sort = this.args.meta.sort;
+            Object.assign(query, currentPanelQuery());
 
             let qString = window.location.pathname.concat('?', qs.stringify(query));
             history.pushState(null, '', qString);
