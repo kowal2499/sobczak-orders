@@ -18,6 +18,45 @@ export default [
         meta: { title: 'app.title.dashboard' },
     },
     {
+        path: '/products',
+        name: 'products',
+        component: () => import('@/modules/products/views/ProductList.vue'),
+        meta: { title: 'products.title', access: user => user.hasRole('ROLE_PRODUCTS') },
+    },
+    {
+        path: '/products/new',
+        name: 'product-new',
+        component: () => import('@/modules/products/views/ProductForm.vue'),
+        meta: { title: 'products.titleNew', access: user => user.hasRole('ROLE_PRODUCTS') },
+    },
+    {
+        path: '/products/edit/:id(\\d+)',
+        name: 'product-edit',
+        component: () => import('@/modules/products/views/ProductForm.vue'),
+        props: id('productId'),
+        meta: { title: 'products.titleEdit', access: user => user.hasRole('ROLE_PRODUCTS') },
+    },
+    {
+        path: '/customers',
+        name: 'customers',
+        component: () => import('@/modules/customers/views/CustomerList.vue'),
+        meta: { title: 'customers.title', access: user => user.hasRole('ROLE_CUSTOMERS') },
+    },
+    {
+        path: '/customers/new',
+        name: 'customer-new',
+        component: () => import('@/modules/customers/views/CustomerForm.vue'),
+        meta: { title: 'customers.titleNew', access: user => user.hasRole('ROLE_CUSTOMERS') },
+    },
+    {
+        // Open to customer accounts for their own customer; the endpoint checks ownership.
+        path: '/customers/edit/:id(\\d+)',
+        name: 'customer-edit',
+        component: () => import('@/modules/customers/views/CustomerForm.vue'),
+        props: id('customerId'),
+        meta: { title: 'customers.titleEdit' },
+    },
+    {
         path: '/orders/add',
         name: 'order-new',
         component: () => import('@/modules/app/pages/OrderFormPage.vue'),

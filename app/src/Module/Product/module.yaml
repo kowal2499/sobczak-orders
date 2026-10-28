@@ -1,0 +1,4 @@
+app_module:
+  namespace: products
+  description: Katalog produktów i ich współczynników
+  active: true

@@ -2,13 +2,11 @@ import Vue from 'vue';
 import { timeago } from './src/services/timeago';
 import moment from "moment";
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
-import components from './src/components/root-components';
 import FormLayout from '@/components/base/Form/FormLayout.vue'
 import SectionBlock from '@/components/base/SectionBlock.vue'
 import SectionBlockTitle from '@/components/base/SectionBlockTitle.vue'
 import { privileges, Tasks, User, Roles } from "./src/services/privilages";
 import helpers from "./src/helpers";
-import routing from "./src/api/routing";
 import i18n from "./i18n";
 import store from './src/store';
 import * as TYPES from './src/store/types';
@@ -69,7 +67,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         methods: {
             __mixin_convertNewlinesToHtml: helpers.convertNewlinesToHtml,
             __mixin_customerName: helpers.customerName,
-            __mixin_getRouting: routing.get,
         },
     });
 
@@ -115,25 +112,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const root = document.getElementById('app');
-
-    if (root.hasAttribute('data-spa')) {
-        new Vue({
-            el: root,
-            router: createRouter(Vue.prototype.$user),
-            i18n,
-            store,
-            render: h => h(AppLayout),
-        });
-        return;
-    }
-
-    // Products and customers are still server-rendered Twig pages with Vue islands.
     new Vue({
-        el: root,
-        components,
+        el: '#app',
+        router: createRouter(Vue.prototype.$user),
         i18n,
         store,
+        render: h => h(AppLayout),
     });
 
 });

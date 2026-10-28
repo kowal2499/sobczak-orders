@@ -3,29 +3,18 @@
 
         <div class="submenu collapse-inner" v-for="element in elements">
 
-            <router-link v-if="element.to" :to="element.to" class="d-flex justify-content-between align-items-center" :class="{active: element.active}">
+            <router-link :to="element.to" class="d-flex justify-content-between align-items-center" :class="{active: element.active}">
                 {{ element.title }}
 
                 <span class="badge badge-light" v-if="getCount(element.statusId) !== null">{{ getCount(element.statusId) }}</span>
             </router-link>
-
-            <a v-else :href="element.path" class="d-flex justify-content-between align-items-center" :class="{active: element.active}">
-                {{ element.title }}
-
-                <span class="badge badge-light" v-if="getCount(element.statusId) !== null">{{ getCount(element.statusId) }}</span>
-
-            </a>
-
 
         </div>
 
         <div class="submenu collapse-inner new-order-wrapper" v-if="userCanAddOrder">
-            <router-link v-if="$router" :to="{ name: 'order-new' }" class="new-order btn btn-success btn-sm">
+            <router-link :to="{ name: 'order-new' }" class="new-order btn btn-success btn-sm">
                 <i class="fa fa-plus mr-2" aria-hidden="true"></i>{{ $t('newOrder') }}
             </router-link>
-            <a v-else :href="newOrderLink" class="new-order btn btn-success btn-sm">
-                <i class="fa fa-plus mr-2" aria-hidden="true"></i>{{ $t('newOrder') }}
-            </a>
         </div>
 
     </div>
@@ -44,7 +33,6 @@
         data() {
             return {
                 summary: [],
-                newOrderLink: '/orders/add',
             }
         },
 

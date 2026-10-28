@@ -28,7 +28,7 @@ class SpaShellTest extends ApiTestCase
 
         // Then
         $this->assertSame(200, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('<div id="app" data-spa></div>', $client->getResponse()->getContent());
+        $this->assertStringContainsString('<div id="app"></div>', $client->getResponse()->getContent());
     }
 
     public function testShouldServeShellForRootPath(): void
@@ -41,7 +41,7 @@ class SpaShellTest extends ApiTestCase
 
         // Then
         $this->assertSame(200, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('data-spa', $client->getResponse()->getContent());
+        $this->assertStringContainsString('<div id="app"></div>', $client->getResponse()->getContent());
     }
 
     /**
@@ -52,13 +52,19 @@ class SpaShellTest extends ApiTestCase
         // Given
         $client = $this->login($this->createUser());
 
-        foreach (['/orders', '/orders/5', '/orders/add', '/production', '/users', '/users/edit/1', '/work-configuration', '/bonus-settlement'] as $path) {
+        $paths = [
+            '/orders', '/orders/5', '/orders/add', '/production', '/users', '/users/edit/1', '/work-configuration',
+            '/bonus-settlement', '/products', '/products/new', '/products/edit/1', '/customers', '/customers/new',
+            '/customers/edit/1',
+        ];
+
+        foreach ($paths as $path) {
             // When
             $client->request('GET', $path, [], [], ['HTTP_ACCEPT' => 'text/html']);
 
             // Then
             $this->assertSame(200, $client->getResponse()->getStatusCode(), $path);
-            $this->assertStringContainsString('data-spa', $client->getResponse()->getContent(), $path);
+            $this->assertStringContainsString('<div id="app"></div>', $client->getResponse()->getContent(), $path);
         }
     }
 

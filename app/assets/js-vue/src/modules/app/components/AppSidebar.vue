@@ -1,9 +1,5 @@
 <template>
-    <nav
-        class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
-        :class="{ 'sidebar--suppressed': suppressed }"
-        @mouseleave="suppressed = false"
-    >
+    <nav class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
 
         <div class="sidebar__brand text-center">
             <img class="img-fluid sidebar__logo-full" src="/imgs/logo-sobczak.png" alt="Sobczak">
@@ -44,14 +40,10 @@
                 </MenuItem>
 
                 <li v-else :key="item.label" class="nav-item" :class="{ active: item.isActive($route) }">
-                    <router-link v-if="item.to" :to="item.to" class="nav-link">
+                    <router-link :to="item.to" class="nav-link">
                         <i :class="item.icon" aria-hidden="true"></i>
                         <span class="sidebar__label">{{ $t(`app.${item.label}`) }}</span>
                     </router-link>
-                    <a v-else :href="item.href" class="nav-link">
-                        <i :class="item.icon" aria-hidden="true"></i>
-                        <span class="sidebar__label">{{ $t(`app.${item.label}`) }}</span>
-                    </a>
                 </li>
             </template>
         </ul>
@@ -74,18 +66,12 @@ import { buildMenu } from '../navigation/menu'
 export default {
     name: 'AppSidebar',
     components: { MenuItem, NavOrders, ContextMenu, LanguageSwitcher },
-    data: () => ({
-        suppressed: false,
-    }),
     watch: {
-        // A page load used to collapse the sidebar; without one, the focused link and the cursor still resting
-        // on the menu would keep it expanded, so hover expansion stays off until the cursor leaves.
+        // The clicked link keeps focus without a page load, and :focus-within would hold the sidebar open.
         $route() {
-            document.getElementById('wrapper')?.classList.remove('sidebar-open')
             if (this.$el.contains(document.activeElement)) {
                 document.activeElement.blur()
             }
-            this.suppressed = this.$el.matches(':hover')
         },
     },
     computed: {

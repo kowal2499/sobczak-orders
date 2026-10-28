@@ -19,15 +19,13 @@
                 <i class="fa fa-phone-square mr-1"></i><a :href="`tel:${customer.phone}`">{{ customer.phone }}</a>
             </div>
         </div>
-        <a :href="getEditLink" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
+        <router-link :to="{ name: 'customer-edit', params: { id: customer.id } }" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-        </a>
+        </router-link>
     </div>
 </template>
 
 <script>
-    import routing from "../../../api/routing";
-
     export default {
         name: "CustomerDetails",
         props: {
@@ -41,11 +39,6 @@
             }
         },
 
-        computed: {
-            getEditLink() {
-                return routing.get('customers_edit').concat('/' + String(this.customer.id));
-            }
-        },
 
         methods: {
             userCan() {

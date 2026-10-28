@@ -99,12 +99,12 @@ export default {
         isLast(index) {
             return index === this.breadcrumbs.length - 1;
         },
-        // Server-rendered pages have no router, and paths the router does not know must reload the page.
+        // Paths the router does not know must reload the page.
         crumbTag(crumb, index) {
             if (!crumb.href || this.isLast(index)) {
                 return 'span';
             }
-            if (this.$router && this.$router.resolve(crumb.href).route.name !== 'not-found') {
+            if (this.$router.resolve(crumb.href).route.name !== 'not-found') {
                 return 'router-link';
             }
             return 'a';

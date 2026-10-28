@@ -61,6 +61,14 @@ describe('buildMenu', () => {
         expect(calendars.children).toHaveLength(3)
     })
 
+    it('keeps the products entry active on its form routes', () => {
+        const products = buildMenu(user(SALES)).find(i => i.label === 'menu.products')
+
+        expect(products.to).toEqual({ name: 'products' })
+        expect(products.isActive({ name: 'product-edit', params: { id: '3' } })).toBe(true)
+        expect(products.isActive({ name: 'customers', params: {} })).toBe(false)
+    })
+
     it('marks the order status entry active by the route param', () => {
         const orders = buildMenu(user(ADMIN)).find(i => i.key === 'orders')
         const waiting = orders.children.find(c => c.label === 'menu.ordersWaiting')

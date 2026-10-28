@@ -18,11 +18,6 @@ function link(label, to, activeOn = [to.name]) {
     return { label, to, isActive: route => activeOn.includes(route.name) }
 }
 
-// Products and customers are still server-rendered pages, hence plain hrefs.
-function href(label, path) {
-    return { label, href: path, isActive: () => false }
-}
-
 /**
  * The visibility rules mirror the former Twig sidebar, which used is_granted() - hence
  * hasRole()/hasGrant() and never can(), which lets ROLE_ADMIN through every grant.
@@ -33,11 +28,17 @@ export function buildMenu(user) {
     items.push({ ...link('menu.dashboard', { name: 'dashboard' }), icon: 'fa fa-tachometer' })
 
     if (user.hasRole('ROLE_PRODUCTS')) {
-        items.push({ ...href('menu.products', '/products'), icon: 'fa fa-star' })
+        items.push({
+            ...link('menu.products', { name: 'products' }, ['products', 'product-new', 'product-edit']),
+            icon: 'fa fa-star',
+        })
     }
 
     if (user.hasRole('ROLE_CUSTOMERS')) {
-        items.push({ ...href('menu.customers', '/customers'), icon: 'fa fa-users' })
+        items.push({
+            ...link('menu.customers', { name: 'customers' }, ['customers', 'customer-new', 'customer-edit']),
+            icon: 'fa fa-users',
+        })
     }
 
     const orders = [
