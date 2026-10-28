@@ -8,11 +8,23 @@ use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use Symfony\Component\Security\Core\Security;
 
 /**
- * Wspólna baza strategii mierników — dostęp do read modelu i danych użytkownika
+ * Wspólna baza strategii mierników - dostęp do read modelu i danych użytkownika
  * oraz pomocnicze metody budowania kryteriów wyszukiwania.
  */
 abstract class AbstractMetricStrategy implements MetricStrategyInterface
 {
+    /**
+     * Opcja compute() wyłączająca filtr klienta - dla konsumentów serwerowych liczących agregat
+     * firmowy (rozliczenie premii, historia mierników), niezależnie od tego, kto wywołał przeliczenie.
+     */
+    public const OPTION_COMPANY_WIDE = 'companyWide';
+
+    /**
+     * Opcja compute() mierników agregatowych: zamiast jednej sumy zwraca sumy per klient
+     * (historia mierników składa z nich widok dowolnego użytkownika).
+     */
+    public const OPTION_BY_CUSTOMER = 'byCustomer';
+
     public function __construct(
         protected readonly AgreementLineRMRepository $agreementLineRepo,
         protected readonly Security $security,
@@ -30,7 +42,7 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
 
     /**
      * Dodaje do kryteriów filtr własności klienta, gdy bieżący użytkownik ma ROLE_CUSTOMER.
-     * Mierniki o charakterze agregatów firmowych (capacity, bonus) tego nie używają —
+     * Mierniki o charakterze agregatów firmowych (capacity) tego nie używają -
      * zgodnie z zasadą "agregaty liczone firmowo".
      *
      * @param array<string, mixed> $search
@@ -45,8 +57,17 @@ abstract class AbstractMetricStrategy implements MetricStrategyInterface
     }
 
     /**
+     * @param array<string, mixed> $options
+     * @return int[]|null
+     */
+    protected function customerFilter(array $options): ?array
+    {
+        return empty($options[self::OPTION_COMPANY_WIDE]) ? $this->ownedCustomerIds() : null;
+    }
+
+    /**
      * Lista id przypisanych klientów dla ROLE_CUSTOMER, albo null gdy filtr nie obowiązuje
-     * (brak roli / brak przypisanych klientów — zgodnie z dotychczasowym zachowaniem).
+     * (brak roli / brak przypisanych klientów - zgodnie z dotychczasowym zachowaniem).
      *
      * @return int[]|null
      */

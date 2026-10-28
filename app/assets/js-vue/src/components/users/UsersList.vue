@@ -1,11 +1,8 @@
 <template>
-    <div class="row">
-        <div class="col-sm-12">
-            <collapsible-card
-                :title="'Użytkownicy systemu'"
-                :locked="locked"
-            >
-                <div class="d-flex justify-content-end align-items-center gap-4 mb-3">
+    <div>
+        <SectionBlockTitle block :title="pageTitle" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <div class="d-flex flex-wrap justify-content-end align-items-center gap-4">
                     <input
                         v-model="filterQuery"
                         type="text"
@@ -16,9 +13,12 @@
                     <b-form-checkbox v-model="showInactiveUsers" switch>
                         <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
                     </b-form-checkbox>
-                    <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
+                    <router-link :to="{ name: 'user-new' }" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></router-link>
                 </div>
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
                 <div class="table-responsive has-dropdown" v-if="!locked">
                     <table class="table">
                         <thead>
@@ -27,7 +27,8 @@
                                 <th>Imię</th>
                                 <th>Nazwisko</th>
                                 <th>Email</th>
-                                <th>Rola w systemie</th>
+                                <th>Role</th>
+                                <th>Role (nowy system)</th>
                                 <th>Aktywny</th>
                                 <th>Akcje</th>
                             </tr>
@@ -45,6 +46,11 @@
                                     </span>
                                 </td>
                                 <td>
+                                    <span v-for="name in (user.authRoles || [])" :key="name">
+                                        <span class="badge badge-secondary mr-1">{{ name }}</span>
+                                    </span>
+                                </td>
+                                <td>
                                     <i v-if="user.active" class="fa fa-check text-success"></i>
                                     <i v-else class="fa fa-times text-danger"></i>
                                 </td>
@@ -53,7 +59,7 @@
                                         <template #button-content>
                                             <i class="fa fa-bars"></i>
                                         </template>
-                                        <b-dropdown-item :href="getRouting().get('security_user_edit') + '/' + user.id">
+                                        <b-dropdown-item :to="{ name: 'user-edit', params: { id: user.id } }">
                                             <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
                                         </b-dropdown-item>
                                     </b-dropdown>
@@ -62,24 +68,29 @@
                         </tbody>
                     </table>
                 </div>
-
-            </collapsible-card>
-        </div>
+        </SectionBlock>
     </div>
 </template>
 
 <script>
-    import CollapsibleCard from "../base/CollapsibleCard";
-    import routing from "../../api/routing";
     import helpers from "../../helpers";
     import store from "@/store";
     import * as TYPES from "@/store/types"
     import { mapGetters } from "vuex";
 
     export default {
-        components: { CollapsibleCard },
-
         name: "UsersList",
+
+        props: {
+            pageTitle: {
+                type: String,
+                default: ''
+            },
+            breadcrumbs: {
+                type: Array,
+                default: () => []
+            }
+        },
 
         mounted() {
             this.fetchData()
@@ -106,10 +117,6 @@
                 this.locked = true;
                 return store.dispatch(`user/${TYPES.ACTION_USER_FETCH_USERS}`)
                     .finally(() => this.locked = false)
-            },
-
-            getRouting() {
-                return routing;
             },
 
             getRoleName(role) {

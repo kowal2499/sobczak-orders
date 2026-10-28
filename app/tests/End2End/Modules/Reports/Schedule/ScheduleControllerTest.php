@@ -26,7 +26,7 @@ class ScheduleControllerTest extends BaseScheduleReportsTestCase
     {
         // Given
         $em = $this->getManager();
-        $user = $this->createUser([], [], ['work-configuration.capacity']);
+        $user = $this->createUser([], [], ['reports.calendar_general']);
         $client = $this->login($user);
 
         // Prosty scenariusz: tydzień z capacity, agreement lines i świętem

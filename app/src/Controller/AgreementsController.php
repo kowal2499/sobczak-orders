@@ -10,51 +10,14 @@ use App\Repository\AgreementRepository;
 use App\Service\UploaderHelper;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
 {
-    #[Route(path: '/orders/add', name: 'orders_view_new', options: ['expose' => true])]
-    public function viewNewAgreement(TranslatorInterface $t): Response
-    {
-        return $this->render('orders/order_single.html.twig', [
-            'title' => $t->trans('Nowe zamówienie', [], 'agreements'),
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @param $status
-     * @return Response
-     */
-    #[Route(path: '/orders/{status}', name: 'agreements_show', options: ['expose' => true], defaults: ['status' => 0], methods: ['GET'])]
-    public function index($status, TranslatorInterface $t): Response
-    {
-        return $this->render('orders/orders_show.html.twig', [
-            'title' => $t->trans('Lista zamówień', [], 'agreements'),
-            'taskStatuses' => AgreementLine::getStatuses(),
-            'status' => $status
-        ]);
-    }
-
-    /**
-     * @param Agreement $agreement
-     * @param TranslatorInterface $t
-     * @return Response
-     */
-    #[Route(path: '/orders/edit/{id}', name: 'orders_edit', options: ['expose' => true])]
-    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t): Response
-    {
-            return $this->render('orders/order_single_edit.html.twig', [
-            'title' => $t->trans('Edycja zamówienia', [], 'agreements'),
-            'agreement' => $agreement
-        ]);
-    }
 
     /**
      * @param Agreement $agreement
@@ -62,6 +25,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/fetch_single/{agreement}', name: 'orders_single_fetch', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
     public function fetchSingle(Agreement $agreement, UploaderHelper $uploaderHelper): JsonResponse
     {
         $returnData = [
@@ -77,7 +41,8 @@ class AgreementsController extends AbstractController
                 'description' => $line->getDescription(),
                 'productId' => $line->getProduct()->getId(),
                 'requiredDate' => $line->getConfirmedDate()->format('Y-m-d'),
-                'factor' => (float) $line->getFactor()
+                'factor' => (float) $line->getFactor(),
+                'internalNumber' => $line->getInternalNumber(),
             ];
         }
 
@@ -122,6 +87,8 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/delete/{agreement}', name: 'orders_delete', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('order.manage')]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
     public function delete(
         Agreement $agreement,
         EntityManagerInterface $em,
@@ -147,6 +114,7 @@ class AgreementsController extends AbstractController
      * @return JsonResponse
      */
     #[Route(path: '/orders/number/{id}', name: 'orders_number', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'customer')]
     public function orderNumber(Customer $customer, EntityManagerInterface $em): JsonResponse
     {
         $orders = $em->getRepository(Agreement::class)->getByCustomerPostalCode($customer->getPostalCode());

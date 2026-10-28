@@ -1,6 +1,11 @@
 export default {
     title: 'Raport Rozbieżności od Planu',
     no_data: 'Brak danych dla wybranego okresu.',
+    breadcrumb: {
+        home: 'Pulpit',
+        reports: 'Raporty',
+        current: 'Raport rozbieżności',
+    },
     col: {
         department: 'Dział',
         totals: 'Sumy',

@@ -32,7 +32,10 @@ class GetPaginatedLogsQueryHandler
         $qb = $this->activityLogRepository->createQueryBuilder('lg')
             ->leftJoin('lg.user', 'u')
             ->addSelect('u')
-            ->orderBy('lg.createdAt', 'DESC');
+            ->orderBy('lg.createdAt', 'DESC')
+            // Wpisy z tej samej sekundy inaczej ustawiają się losowo, a przy stronicowaniu
+            // potrafią się powtórzyć albo zgubić. Id jest append-only, więc oddaje kolejność zapisu.
+            ->addOrderBy('lg.id', 'DESC');
 
         LogFinder::applyTypeFilter($qb, 'lg', $query->type);
 

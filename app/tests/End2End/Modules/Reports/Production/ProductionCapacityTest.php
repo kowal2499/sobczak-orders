@@ -2,6 +2,8 @@
 
 namespace App\Tests\End2End\Modules\Reports\Production;
 
+use App\Entity\AgreementLine;
+use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
 
 /**
@@ -16,11 +18,12 @@ use App\Entity\Definitions\TaskTypes;
 class ProductionCapacityTest extends BaseProductionReportsTestCase
 {
     private const URL = '/reports/production/production-capacity';
+    private const GRANT = 'reports.dashboard:capacity-utilization';
 
     public function testShouldReturnEmptyArrayWhenNoData(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
 
         // When
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
@@ -33,7 +36,7 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
     public function testShouldReturnRecordForProductionEndingInRange(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(
             factor: 2.0,
             productions: [
@@ -53,10 +56,34 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
         $this->assertArrayHasKey('factorsStack', $content[0]['factors']);
     }
 
+    public function testShouldExposeLineDetailsForShowcase(): void
+    {
+        // Given
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
+        $line = $this->makeAgreementLine(
+            status: AgreementLine::STATUS_MANUFACTURING,
+            productions: [
+                ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC, 'dateStart' => new \DateTime('2026-05-10'), 'dateEnd' => new \DateTime('2026-05-15')],
+            ],
+        );
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $record = json_decode($client->getResponse()->getContent(), true)[0];
+        $this->assertSame(AgreementLine::STATUS_MANUFACTURING, $record['agreementLine']['status']);
+        $this->assertSame(
+            $line->getAgreement()->getCreateDate()->format('Y-m-d'),
+            substr($record['agreementLine']['agreementCreateDate'], 0, 10)
+        );
+        $this->assertArrayHasKey('userName', $record['agreementLine']);
+    }
+
     public function testShouldExcludeProductionEndingOutsideRange(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC, 'dateStart' => new \DateTime('2026-06-10'), 'dateEnd' => new \DateTime('2026-06-15')],
         ]);
@@ -71,13 +98,13 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
     public function testShouldHideGhostByDefault(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC, 'dateStart' => new \DateTime('2026-05-05'), 'dateEnd' => new \DateTime('2026-05-08'), 'isGhost' => false],
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, 'dateStart' => new \DateTime('2026-05-20'), 'dateEnd' => new \DateTime('2026-05-22'), 'isGhost' => true],
         ]);
 
-        // When (default — bez ghost)
+        // When (default - bez ghost)
         $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
 
         // Then
@@ -89,7 +116,7 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
     public function testShouldIncludeGhostWhenRequested(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC, 'dateStart' => new \DateTime('2026-05-05'), 'dateEnd' => new \DateTime('2026-05-08'), 'isGhost' => false],
             ['slug' => TaskTypes::TYPE_DEFAULT_SLUG_GRINDING, 'dateStart' => new \DateTime('2026-05-20'), 'dateEnd' => new \DateTime('2026-05-22'), 'isGhost' => true],
@@ -106,7 +133,7 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
     public function testShouldExcludeNonDefaultDepartments(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
         $this->makeAgreementLine(productions: [
             ['slug' => 'custom-department', 'dateStart' => new \DateTime('2026-05-10'), 'dateEnd' => new \DateTime('2026-05-15')],
         ]);
@@ -118,10 +145,68 @@ class ProductionCapacityTest extends BaseProductionReportsTestCase
         $this->assertSame([], json_decode($client->getResponse()->getContent(), true));
     }
 
+    public function testShouldMaskForeignLinesButKeepThemInTotalsForRoleCustomer(): void
+    {
+        // Given
+        $ownCustomer = $this->factory->make(Customer::class);
+        $foreignCustomer = $this->factory->make(Customer::class);
+        $user = $this->createUser([], [], [self::GRANT], ['ROLE_CUSTOMER']);
+        $user->addCustomer($ownCustomer);
+        $production = [[
+            'slug' => TaskTypes::TYPE_DEFAULT_SLUG_CNC,
+            'dateStart' => new \DateTime('2026-05-10'),
+            'dateEnd' => new \DateTime('2026-05-15'),
+        ]];
+        $ownLine = $this->makeAgreementLine(customer: $ownCustomer, factor: 2.0, productions: $production);
+        $this->makeAgreementLine(customer: $foreignCustomer, factor: 3.0, productions: $production);
+        $client = $this->login($user);
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(2, $content);
+        $this->assertEqualsWithDelta(5.0, array_sum(array_column(array_column($content, 'factors'), 'factor')), 0.001);
+
+        $visible = array_values(array_filter($content, fn (array $r) => $r['agreementLine'] !== null));
+        $this->assertCount(1, $visible);
+        $this->assertSame($ownLine->getId(), $visible[0]['agreementLine']['id']);
+
+        $masked = array_values(array_filter($content, fn (array $r) => $r['agreementLine'] === null));
+        $this->assertNull($masked[0]['agreement']);
+        $this->assertNull($masked[0]['customer']);
+        $this->assertSame([], $masked[0]['factors']['factorsStack']);
+    }
+
+    public function testShouldDenyAccessWithoutGrant(): void
+    {
+        // Given
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
+    }
+
+    public function testShouldAllowAdminForDifferencesReport(): void
+    {
+        // Given
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_ADMIN']));
+
+        // When
+        $client->xmlHttpRequest('GET', self::URL . '?start=2026-05-01&end=2026-05-31');
+
+        // Then
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
     public function testShouldReturn400WhenDatesMissing(): void
     {
         // Given
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser([], [], [self::GRANT]));
 
         // When
         $client->xmlHttpRequest('GET', self::URL);

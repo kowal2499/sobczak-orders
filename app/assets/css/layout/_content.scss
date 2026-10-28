@@ -2,9 +2,10 @@ div#content-wrapper {
 
     position: relative;
 
-    margin-left: $sidebar-mobile-width !important;
-    @media (min-width: 768px) {
-        margin-left: $sidebar-default-width !important;
+    // content sits beside the collapsed rail; the sidebar overlays it on hover
+    margin-left: $sidebar-rail-width;
+    @media (max-width: 767.98px) {
+        margin-left: 0;
     }
 
     width: 100%;
@@ -15,28 +16,11 @@ div#content-wrapper {
 
     background-color: #f8f9fc;
 
-    .topbar {
-        background-color: #fff;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+    #content {
+        padding-top: 1.25rem;
 
-        .breadcrumb {
-            font-size: 0.78rem;
-            background-color: transparent;
-            padding: 0;
-            margin: 4px 0 0;
-
-            a {
-                color: var(--colorPrimary);
-                &:hover { opacity: 0.75; text-decoration: none; }
-            }
-
-            .breadcrumb-item,
-            .breadcrumb-item.active,
-            .breadcrumb-item + .breadcrumb-item::before {
-                color: #adb5bd;
-            }
+        @media (max-width: 767.98px) {
+            padding-top: 3.5rem; // clear the fixed hamburger
         }
     }
 

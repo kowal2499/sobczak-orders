@@ -61,6 +61,17 @@ export function getUserDepartments() {
  * @param { Date } date
  * @returns {string}
  */
+/**
+ * Pełny numer linii do wyświetlenia: numer zamówienia + opcjonalny sufiks wewnętrzny.
+ */
+export function orderDisplayNumber(orderNumber, internalNumber) {
+    const base = orderNumber ?? '';
+    if (internalNumber !== null && internalNumber !== undefined && String(internalNumber).length > 0) {
+        return `${base}-${internalNumber}`;
+    }
+    return base;
+}
+
 export function getLocalDate(date) {
     if (typeof date === 'string') {
         date = new Date(date)

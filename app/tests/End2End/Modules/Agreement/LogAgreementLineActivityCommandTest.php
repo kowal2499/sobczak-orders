@@ -70,7 +70,7 @@ class LogAgreementLineActivityCommandTest extends ApiTestCase
 
     public function testShouldDoNothingWhenAgreementLineMissing(): void
     {
-        // Given — no agreement line exists with the given id
+        // Given - no agreement line exists with the given id
         $missingId = 999999999;
         $this->getManager()->clear();
 
@@ -82,7 +82,7 @@ class LogAgreementLineActivityCommandTest extends ApiTestCase
             AgreementActivityLogType::AGREEMENT_LINE_DELETED,
         ));
 
-        // Then — handler is a no-op, no exception, no log created
+        // Then - handler is a no-op, no exception, no log created
         $this->getManager()->clear();
         $logsAfter = count($this->activityLogRepository->findAll());
         $this->assertSame($logsBefore, $logsAfter);

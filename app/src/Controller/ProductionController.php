@@ -33,30 +33,9 @@ use App\Entity\AgreementLine;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductionController extends BaseController
 {
-    /**
-     * @isGranted("ROLE_PRODUCTION_VIEW")
-     */
-    #[Route(path: '/production', name: 'production_show')]
-    public function index(TranslatorInterface $t): Response
-    {
-        $departments = array_map(
-            fn(DepartmentEnum $dept) => [
-                'name' => $t->trans($dept->getName(), [], 'agreements'),
-                'slug' => $dept->value
-            ],
-            DepartmentEnum::getProductionDepartments()
-        );
-
-        return $this->render('production/production_show.html.twig', [
-            'title' => $t->trans('Harmonogram produkcji', [], 'production'),
-            'statuses' => AgreementLine::getStatuses(),
-            'departments' => $departments
-        ]);
-    }
 
     /**
      * @IsGranted("ROLE_PRODUCTION")
@@ -69,6 +48,7 @@ class ProductionController extends BaseController
      * @throws ProductionAlreadyExistsException
      */
     #[Route(path: '/production/start/{agreementLine}', methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function startProduction(
         AgreementLine $agreementLine,
 //        ProductionTaskDatesResolver $datesResolver,
@@ -184,6 +164,9 @@ class ProductionController extends BaseController
     {
         $productionId = $request->request->getInt('productionId');
         $existing = $taskRepository->find($productionId);
+        if ($existing) {
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $existing);
+        }
         if ($existing && $existing->isGhost()) {
             return $this->json(
                 ['error' => 'Cannot change status of a ghost production task'],
@@ -206,6 +189,7 @@ class ProductionController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/production/delete/{agreementLine}', name: 'production_delete', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function delete(
         AgreementLine $agreementLine,
         EntityManagerInterface $em,
@@ -308,8 +292,10 @@ class ProductionController extends BaseController
 
             $query = $repository->getNotCompletedAgreementLines($request->request->getInt('month'), $request->request->getInt('year'));
 
+            // withConnectedCustomers() modyfikuje QueryBuilder w miejscu - bez clone współczynniki poniżej
+            // liczyłyby się tylko dla klientów ROLE_CUSTOMER zamiast dla całej firmy
             foreach ($repository
-                         ->withConnectedCustomers($query)
+                         ->withConnectedCustomers(clone $query)
                          ->getQuery()
                          ->getResult() as $line) {
                 $summary['production']['ordersInProduction'] += 1;

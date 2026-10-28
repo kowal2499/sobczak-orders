@@ -10,44 +10,46 @@
                 <font-awesome-icon icon="chevron-right" />
             </button>
         </div>
-        <div class="calendar">
-            <div class="calendar-row" v-for="(week, weekIdx) in monthDays" :key="weekIdx">
-                <div
-                    class="calendar-day"
-                    v-for="(day, dayIdx) in week"
-                    :key="dayIdx"
-                    :class="{
-                        'empty': day.day === 0,
-                        'calendar-day--selected': day.dateString === modelValue,
-                        'calendar-day--holiday': events.holidays[day.dateString],
-                        'calendar-day--unavailable': !selectableDays.includes(day.dateString),
-                        'calendar-day--exceeded': (editMode && noCapacityDays.includes(day.dateString)) || (!strictMode && noCapacityDays.includes(day.dateString))
-                    }"
-                    v-if="day.day !== 0"
-                >
-                    <CapacityProgress
-                        v-if="false && events.capacity[day.dateString]"
-                        :capacity="events.capacity[day.dateString].capacity"
-                        :capacityBurned="realBurnedCapacity[day.dateString]"
-                    />
-                    <div class="day-number">{{ day.day }}</div>
-                    <div class="d-flex flex-column justify-content-center h-100">
-                        <font-awesome-icon class="text-white" icon="check" v-if="day.dateString === modelValue" size="lg"/>
-                        <button :class="['btn btn-sm', !strictMode && noCapacityDays.includes(day.dateString) ? 'btn-outline-success' : 'btn-outline-success']"
-                                v-else-if="selectableDays.includes(day.dateString)"
-                                @click="onSelectDay(day)"
-                        >
-                            {{ $t('schedule.select') }}
-                        </button>
+        <b-overlay :show="isBusy" rounded="sm">
+            <div class="calendar">
+                <div class="calendar-row" v-for="(week, weekIdx) in monthDays" :key="weekIdx">
+                    <div
+                        class="calendar-day"
+                        v-for="(day, dayIdx) in week"
+                        :key="dayIdx"
+                        :class="{
+                            'empty': day.day === 0,
+                            'calendar-day--selected': day.dateString === modelValue,
+                            'calendar-day--holiday': events.holidays[day.dateString],
+                            'calendar-day--unavailable': !selectableDays.includes(day.dateString),
+                            'calendar-day--exceeded': (editMode && noCapacityDays.includes(day.dateString)) || (!strictMode && noCapacityDays.includes(day.dateString))
+                        }"
+                        v-if="day.day !== 0"
+                    >
+                        <CapacityProgress
+                            v-if="false && events.capacity[day.dateString]"
+                            :capacity="events.capacity[day.dateString].capacity"
+                            :capacityBurned="realBurnedCapacity[day.dateString]"
+                        />
+                        <div class="day-number">{{ day.day }}</div>
+                        <div class="d-flex flex-column justify-content-center h-100">
+                            <font-awesome-icon class="text-white" icon="check" v-if="day.dateString === modelValue" size="lg"/>
+                            <button :class="['btn btn-sm', !strictMode && noCapacityDays.includes(day.dateString) ? 'btn-outline-success' : 'btn-outline-success']"
+                                    v-else-if="selectableDays.includes(day.dateString)"
+                                    @click="onSelectDay(day)"
+                            >
+                                {{ $t('schedule.select') }}
+                            </button>
+                        </div>
                     </div>
+                    <div
+                        v-else
+                        class="calendar-day empty"
+                        :key="'empty-' + dayIdx"
+                    ></div>
                 </div>
-                <div
-                    v-else
-                    class="calendar-day empty"
-                    :key="'empty-' + dayIdx"
-                ></div>
             </div>
-        </div>
+        </b-overlay>
     </div>
 </template>
 
@@ -98,12 +100,22 @@ export default {
     watch: {
         range: {
             handler() {
+                // przy szybkim przełączaniu miesięcy starsza odpowiedź nie może nadpisać nowszej
+                const requestId = ++this.lastRequestId
+                this.isBusy = true
                 Promise.all([
                     this.fetchHolidayEvents(this.range),
                     this.fetchCapacityEvents(this.range),
                 ]).then(([holidayEvents, capacityEvents]) => {
+                    if (requestId !== this.lastRequestId) {
+                        return
+                    }
                     this.events.holidays = holidayEvents
                     this.events.capacity = capacityEvents
+                }).finally(() => {
+                    if (requestId === this.lastRequestId) {
+                        this.isBusy = false
+                    }
                 })
             },
             deep: true,
@@ -294,6 +306,8 @@ export default {
         month: null,
         selectedDay: null,
         borderDate: null,
+        isBusy: false,
+        lastRequestId: 0,
     })
 }
 </script>

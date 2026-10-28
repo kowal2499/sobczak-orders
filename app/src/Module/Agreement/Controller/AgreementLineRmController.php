@@ -5,7 +5,10 @@ namespace App\Module\Agreement\Controller;
 use App\Controller\BaseController;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
+use App\Module\Agreement\Service\LegacyAgreementLineMapper;
+use Doctrine\ORM\AbstractQuery;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,9 +17,76 @@ use Symfony\Component\Routing\Annotation\Route;
 class AgreementLineRmController extends BaseController
 {
     #[Route(path: '/rm/{agreementLineRM}', methods: ['GET'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLineRM')]
     public function fetchSingle(AgreementLineRM $agreementLineRM): Response
     {
         return $this->json(['data' => $agreementLineRM], Response::HTTP_OK);
+    }
+
+    /**
+     * Orders list, served from the read model and reshaped to the legacy
+     * AgreementLine payload. Unlike /rm/search this does NOT force
+     * hasProduction - the orders list shows every order, including those
+     * without (or with only ghost) production.
+     *
+     * @IsGranted("ROLE_PRODUCTION_VIEW")
+     */
+    #[Route(path: '/rm/orders', options: ['expose' => true], methods: ['POST'])]
+    public function searchForOrders(
+        Request $request,
+        AgreementLineRMRepository $agreementLineRepository,
+        PaginatorInterface $paginator,
+        LegacyAgreementLineMapper $mapper,
+    ): Response {
+        $payload = $request->request->all();
+        if (!isset($payload['search']) || !is_array($payload['search'])) {
+            $payload['search'] = [];
+        }
+
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $payload['search']['ownedBy'] = $this->getUser();
+        }
+        $payload['search'] = $this->withoutProductionCriteria($payload['search']);
+
+        $query = $agreementLineRepository->search($payload);
+        $query->setHydrationMode(AbstractQuery::HYDRATE_ARRAY);
+
+        $data = $paginator->paginate(
+            $query,
+            $payload['search']['page'] ?? 1,
+            20
+        );
+
+        $paginationMeta = $data->getPaginationData();
+
+        return $this->json([
+            'data' => array_map([$mapper, 'mapRow'], iterator_to_array($data)),
+            'meta' => [
+                'current' => $paginationMeta['current'],
+                'pages' => $paginationMeta['pageCount'],
+                'totalCount' => $paginationMeta['totalCount'],
+                'pageSize' => $paginationMeta['numItemsPerPage'],
+            ],
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * @IsGranted("ROLE_PRODUCTION_VIEW")
+     */
+    #[Route(path: '/rm/orders/filter-options', options: ['expose' => true], methods: ['GET'])]
+    public function ordersFilterOptions(AgreementLineRMRepository $agreementLineRepository): Response
+    {
+        $customerIds = null;
+        if ($this->isGranted('ROLE_CUSTOMER')) {
+            $customerIds = array_values(array_filter(
+                $this->getUser()->getCustomers()->map(fn ($c) => $c?->getId())->toArray()
+            ));
+        }
+
+        return $this->json([
+            'customers' => $agreementLineRepository->findCustomerOptions($customerIds),
+            'authors' => $agreementLineRepository->findAuthorOptions($customerIds),
+        ], Response::HTTP_OK);
     }
 
     #[Route(path: '/rm/search', methods: ['POST'])]
@@ -34,6 +104,7 @@ class AgreementLineRmController extends BaseController
         if ($this->isGranted('ROLE_CUSTOMER')) {
             $payload['search']['ownedBy'] = $this->getUser();
         }
+        $payload['search'] = $this->withoutProductionCriteria($payload['search']);
 
         $query = $agreementLineRepository->search($payload);
         $query->setHydrationMode(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
@@ -55,5 +126,21 @@ class AgreementLineRmController extends BaseController
                 'pageSize' => $paginationMeta['numItemsPerPage']
             ]
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Filtry po terminach i postępie produkcji są tylko dla pracowników produkcji - bez tej
+     * roli pomijamy je, żeby nie dało się nimi wypytać o stan produkcji przez samo API.
+     *
+     * @param array<string, mixed> $search
+     * @return array<string, mixed>
+     */
+    private function withoutProductionCriteria(array $search): array
+    {
+        if ($this->isGranted('ROLE_PRODUCTION')) {
+            return $search;
+        }
+
+        return array_diff_key($search, array_flip(['overdue', 'notStarted', 'startDelayed']));
     }
 }

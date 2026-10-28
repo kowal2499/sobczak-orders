@@ -49,7 +49,6 @@ export default {
 
     data: () => ({
         internalOpen: false,
-        pushedHistory: false,
         isDirty: false,
     }),
 
@@ -62,80 +61,37 @@ export default {
     },
 
     watch: {
-        value(val) {
-            if (val) {
-                this.openDrawer()
-            } else {
-                this.internalOpen = false
-            }
+        value: {
+            handler(val) {
+                this.internalOpen = val
+            },
+            immediate: true,
         },
         internalOpen(val) {
             this.$emit('input', val)
         }
     },
 
-    mounted() {
-        window.addEventListener('popstate', this.handlePopstate)
-    },
-
-    beforeDestroy() {
-        window.removeEventListener('popstate', this.handlePopstate)
-    },
-
     methods: {
-        openDrawer() {
-            const targetPath = `/agreement/line/${this.lineId}`
-            this.internalOpen = true
-
-            if (window.location.pathname === targetPath) {
-                return
-            }
-
-            if (this.pushedHistory) {
-                history.replaceState({ orderPanel: this.lineId }, '', targetPath)
-            } else {
-                history.pushState({ orderPanel: this.lineId }, '', targetPath)
-                this.pushedHistory = true
-            }
+        async beforeClose() {
+            return this.confirmLeave()
         },
 
-        async beforeClose() {
-            if (this.isDirty) {
-                const confirmed = await this.confirmDiscard()
-                if (!confirmed) return false
-                this.$refs.singleOrder?.revert()
-                this.isDirty = false
+        // Also used by OrderPanelHost's router guard, so a back button or a menu click asks too.
+        async confirmLeave() {
+            if (!this.isDirty) {
+                return true
             }
+            if (!(await this.confirmDiscard())) {
+                return false
+            }
+            this.$refs.singleOrder?.revert()
+            this.isDirty = false
             return true
         },
 
         onClosed() {
-            if (this.pushedHistory) {
-                this.pushedHistory = false
-                history.back()
-            }
-        },
-
-        async handlePopstate(event) {
-            if (!this.internalOpen) {
-                return
-            }
-            if (event.state && event.state.orderPanel) {
-                return
-            }
-
-            if (this.isDirty) {
-                const confirmed = await this.confirmDiscard()
-                if (!confirmed) {
-                    history.pushState({ orderPanel: this.lineId }, '', `/agreement/line/${this.lineId}`)
-                    this.pushedHistory = true
-                    return
-                }
-                this.$refs.singleOrder?.revert()
-                this.isDirty = false
-            }
-            this.pushedHistory = false
-            this.internalOpen = false
+            this.$emit('closed')
         },
 
         onDirtyChange(val) {

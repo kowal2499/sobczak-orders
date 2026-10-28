@@ -72,6 +72,7 @@ class UpdateAgreementLineRMHandler
             ? $agreementLine->getAgreement()->getUser()->getUserFullName()
             : null);
         $model->setOrderNumber($agreementLine->getAgreement()->getOrderNumber());
+        $model->setInternalNumber($agreementLine->getInternalNumber());
         $model->setCustomerName($this->getCustomerName($agreementLine));
         $model->setProductName($agreementLine->getProduct() ? $agreementLine->getProduct()->getName() : null);
         $model->setDescription($agreementLine->getDescription());
@@ -105,6 +106,9 @@ class UpdateAgreementLineRMHandler
         $model->setQ(
             trim(implode(' ', array_filter([
                 $model->getOrderNumber(),
+                $model->getInternalNumber(),
+                // pełny numer (np. "mmmm-111"), aby wyszukiwarka działała także na sklejonej formie
+                $model->getDisplayNumber(),
                 $model->getCustomerName(),
                 $model->getProductName(),
                 $model->getUserName()
@@ -239,8 +243,16 @@ class UpdateAgreementLineRMHandler
                     FactorSource::FACTOR_ADJUSTMENT_BONUS
                 );
 
+                $factorBonusCompletedTasks = $this->factorCalculator->calculate(
+                    $agreementLine,
+                    $production->getDepartmentSlug(),
+                    $agreementLine->getFactors()->toArray(),
+                    FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS
+                );
+
                 $productionModel->setFactorRatio($factorRatio);
                 $productionModel->setFactorBonus($factorBonus);
+                $productionModel->setFactorBonusCompletedTasks($factorBonusCompletedTasks);
             }
             $data[$production->getDepartmentSlug()] = $productionModel;
         }

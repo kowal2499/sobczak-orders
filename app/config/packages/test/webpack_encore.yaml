@@ -1,2 +1,4 @@
-#webpack_encore:
-#    strict_mode: false
+# Testy jadą na CI zanim powstanie build frontu, więc entrypoints.json nie istnieje.
+# Bez tego każdy test renderujący szablon z layoutem kończy się pięćsetką.
+webpack_encore:
+    strict_mode: false

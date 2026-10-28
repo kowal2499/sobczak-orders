@@ -1,6 +1,6 @@
 <script>
 import VueSelect from 'vue-select'
-import { getUserDepartments } from '@/helpers'
+import { getUserDepartments, orderDisplayNumber } from '@/helpers'
 import proxyValue from '@/mixins/proxyValue'
 
 export default {
@@ -42,7 +42,7 @@ export default {
             return agreementLines
                 .map(line => ({
                     value: line.agreementLineId,
-                    label: `${line.orderNumber} - ${line.productName}`,
+                    label: `${orderDisplayNumber(line.orderNumber, line.internalNumber)} - ${line.productName}`,
                 }))
                 .sort((a, b) =>  b.value - a.value)
         },

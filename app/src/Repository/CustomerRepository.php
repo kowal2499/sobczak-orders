@@ -30,6 +30,9 @@ class CustomerRepository extends ServiceEntityRepository
                     $qb->andWhere('c.name LIKE :term OR c.first_name LIKE :term OR c.last_name LIKE :term OR c.street LIKE :term OR c.city LIKE :term OR c.country LIKE :term OR c.phone LIKE :term OR c.email LIKE :term')
                         ->setParameter('term', '%' . $value . '%');
                     break;
+                case 'ids':
+                    $qb->andWhere('c.id IN (:ids)')->setParameter('ids', $value ?: [0]);
+                    break;
                 case 'ownedBy':
                     $customers = $value->getCustomers();
                     if ($customers->count() > 0) {

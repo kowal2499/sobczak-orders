@@ -2,6 +2,7 @@
 
 namespace App\Tests\End2End\Modules\Reports\Production;
 
+use App\Entity\AgreementLine;
 use App\Entity\Customer;
 use App\Entity\Definitions\TaskTypes;
 
@@ -13,7 +14,7 @@ use App\Entity\Definitions\TaskTypes;
  * Reguły utrwalone z DoctrineProductionPendingRepository::getDetails() /
  * DoctrineProductionFinishedRepository::getDetails() (+ BaseSupplier::transformRows):
  *  - Pending:  productionCompletionDate IS NULL AND deleted=0 AND productionStartDate <= end.
- *              UWAGA: getRecords woła getDetails(null, $end) — dolna granica jest ignorowana.
+ *              UWAGA: getRecords woła getDetails(null, $end) - dolna granica jest ignorowana.
  *  - Finished: productionStartDate IS NOT NULL AND deleted=0
  *              AND productionCompletionDate BETWEEN start AND end; filtr ROLE_CUSTOMER.
  *  - Rekordy powstają per kwalifikująca się produkcja (leftJoin: departmentSlug w działach
@@ -29,7 +30,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testPendingReturnsEmptyWhenNoData(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         $client->xmlHttpRequest('GET', self::PENDING_URL . '?end=2026-05-31');
 
@@ -39,7 +40,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testPendingRecordPerQualifyingProduction(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-05-10'),
@@ -66,13 +67,15 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
         // factor z linii
         $this->assertSame(2.0, (float) $records[0]['factors']['factor']);
         $this->assertSame(2.0, (float) $records[0]['agreementLine']['factor']);
+        // status linii dla nagłówka zamówienia w tabeli szczegółów
+        $this->assertSame(AgreementLine::STATUS_MANUFACTURING, $records[0]['agreementLine']['status']);
     }
 
     public function testPendingLineWithoutMatchingProductionYieldsSingleEmptyDeptRecord(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
-        // produkcja ghost — wykluczona z leftJoin, więc brak dopasowania => jeden rekord z pustym działem
+        // produkcja ghost - wykluczona z leftJoin, więc brak dopasowania => jeden rekord z pustym działem
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-05-10'),
             productionCompletionDate: null,
@@ -93,7 +96,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testPendingExcludesCompletedAfterEndAndDeleted(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // ma completionDate => wykluczona
         $this->makeAgreementLine(
@@ -111,7 +114,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
             productionCompletionDate: null,
             deleted: true,
         );
-        // kwalifikuje się (start przed zakresem — dolna granica ignorowana)
+        // kwalifikuje się (start przed zakresem - dolna granica ignorowana)
         $this->makeAgreementLine(
             productionStartDate: new \DateTime('2026-04-01'),
             productionCompletionDate: null,
@@ -125,7 +128,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testFinishedReturnsEmptyWhenNoData(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         $client->xmlHttpRequest('GET', self::FINISHED_URL . '?start=2026-05-01&end=2026-05-31');
 
@@ -135,7 +138,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testFinishedRecordsForLinesCompletedInRange(): void
     {
-        $client = $this->login($this->createUser());
+        $client = $this->login($this->createUser(legacyRoles: ['ROLE_PRODUCTION']));
 
         // kwalifikuje się: completion w zakresie, start ustawiony, produkcja COMPLETED
         $this->makeAgreementLine(
@@ -167,7 +170,7 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
 
     public function testFinishedFiltersByOwnedCustomersForRoleCustomer(): void
     {
-        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER']);
+        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER', 'ROLE_PRODUCTION']);
         $owned = $this->factory->make(Customer::class);
         $other = $this->factory->make(Customer::class);
         $this->factory->flush();
@@ -194,5 +197,37 @@ class ProductionDetailsTest extends BaseProductionReportsTestCase
         $records = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(1, $records);
         $this->assertSame(4.0, (float) $records[0]['agreementLine']['factor']);
+    }
+
+    public function testPendingFiltersByOwnedCustomersForRoleCustomer(): void
+    {
+        $user = $this->createUser([], [], [], ['ROLE_CUSTOMER', 'ROLE_PRODUCTION']);
+        $owned = $this->factory->make(Customer::class);
+        $other = $this->factory->make(Customer::class);
+        $this->factory->flush();
+        $user->addCustomer($owned);
+        $this->factory->flush();
+
+        $client = $this->login($user);
+
+        $this->makeAgreementLine(customer: $owned, productionStartDate: new \DateTime('2026-05-01'), factor: 4.0);
+        $this->makeAgreementLine(customer: $other, productionStartDate: new \DateTime('2026-05-01'), factor: 6.0);
+
+        $client->xmlHttpRequest('GET', self::PENDING_URL . '?end=2026-05-31');
+
+        $records = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $records);
+        $this->assertSame(4.0, (float) $records[0]['agreementLine']['factor']);
+    }
+
+    public function testDetailsDenyAccessWithoutRoleProduction(): void
+    {
+        $client = $this->login($this->createUser([], [], [], ['ROLE_CUSTOMER']));
+
+        $client->xmlHttpRequest('GET', self::PENDING_URL . '?end=2026-05-31');
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
+
+        $client->xmlHttpRequest('GET', self::FINISHED_URL . '?start=2026-05-01&end=2026-05-31');
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
     }
 }

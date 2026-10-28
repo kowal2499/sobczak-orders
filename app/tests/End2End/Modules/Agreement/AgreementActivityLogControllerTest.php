@@ -120,7 +120,7 @@ class AgreementActivityLogControllerTest extends ApiTestCase
 
     public function testShouldIncludeRelatedProductionLogs(): void
     {
-        // Given — production logs carry the agreementId of their line, so they must surface here too
+        // Given - production logs carry the agreementId of their line, so they must surface here too
         $user = $this->createUser([], [], ['activity-log.read']);
         $client = $this->login($user);
 
@@ -160,7 +160,7 @@ class AgreementActivityLogControllerTest extends ApiTestCase
 
     public function testShouldReturnEmptyListForAgreementWithoutLogs(): void
     {
-        // Given — no logs at all for agreementId=42
+        // Given - no logs at all for agreementId=42
         $user = $this->createUser([], [], ['activity-log.read']);
         $client = $this->login($user);
         $this->getManager()->clear();
@@ -219,7 +219,7 @@ class AgreementActivityLogControllerTest extends ApiTestCase
      */
     public function testShouldLocalizeStatusAndDepartmentNamesForEnglishLocale(): void
     {
-        // Given — a status-change log holding canonical Polish enum names
+        // Given - a status-change log holding canonical Polish enum names
         $user = $this->createUser([], [], ['activity-log.read']);
         $client = $this->login($user);
 
@@ -234,10 +234,10 @@ class AgreementActivityLogControllerTest extends ApiTestCase
         );
         $this->getManager()->clear();
 
-        // When — request in the English locale (LocaleSubscriber honours the `locale` query param)
+        // When - request in the English locale (LocaleSubscriber honours the `locale` query param)
         $client->request('GET', '/agreement/' . $agreementId . '/activity-log?locale=en');
 
-        // Then — enum-derived content-param values are localized on the backend
+        // Then - enum-derived content-param values are localized on the backend
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $payload = json_decode($client->getResponse()->getContent(), true);
         $params = $payload['items'][0]['contentParams'];

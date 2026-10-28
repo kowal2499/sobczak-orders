@@ -36,7 +36,7 @@ class ProductionStartRefreshesReadModelTest extends ApiTestCase
 
     public function testStartingProductionMakesGhostLineVisibleOnProductionList(): void
     {
-        // Given — a waiting line whose productions are all ghosts (status AWAITS),
+        // Given - a waiting line whose productions are all ghosts (status AWAITS),
         // mirroring an order that has only pending/ghost production tasks.
         $user = $this->createUser([], [], [], ['ROLE_PRODUCTION']);
         $client = $this->login($user);
@@ -64,19 +64,19 @@ class ProductionStartRefreshesReadModelTest extends ApiTestCase
         $this->get(CommandBus::class)->dispatch(new UpdateAgreementLineRM($lineId));
         $this->getManager()->clear();
 
-        // Sanity — while all productions are ghosts the line is hidden from the list.
+        // Sanity - while all productions are ghosts the line is hidden from the list.
         $this->assertSame(
             0,
             $this->searchProductionListCount($client, $orderNumber),
             'A line with only ghost productions must not appear on the production list',
         );
 
-        // When — production is started (ghosts are un-ghosted).
+        // When - production is started (ghosts are un-ghosted).
         $client->request('POST', '/production/start/' . $lineId);
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->getManager()->clear();
 
-        // Then — the read model no longer reports any ghost production...
+        // Then - the read model no longer reports any ghost production...
         /** @var AgreementLineRM $model */
         $model = $this->rmRepository->find($lineId);
         $this->assertNotNull($model, 'Read model must exist after starting production');

@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="container-fluid py-3">
-    <h4 class="mb-3">Kalendarz zasobów — planowanie produkcji</h4>
+    <h4 class="mb-3">Kalendarz zasobów - planowanie produkcji</h4>
 
 
   </div>

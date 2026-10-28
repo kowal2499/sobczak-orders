@@ -140,7 +140,7 @@ export default {
             </b-form-checkbox>
         </div>
         <div v-else-if="!isBusy" class="text-muted" style="font-size: 0.85rem">
-            —
+            -
         </div>
     </MetricLayout>
 </template>

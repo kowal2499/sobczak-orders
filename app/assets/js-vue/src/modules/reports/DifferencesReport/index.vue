@@ -1,11 +1,12 @@
 <script>
 import { defineComponent } from 'vue'
-import { DEPARTMENTS } from '@/helpers'
+import { DEPARTMENTS, orderDisplayNumber } from '@/helpers'
 import { MONTHS, dateToString, firstDay, lastDay } from '@/services/datesService'
 import { getDepartmentsCapacity, getProductionTasksCompletionSummary } from '@/modules/dashboard/repository'
+import { deburr } from 'lodash'
 import Sidebar from '@/components/base/Sidebar.vue'
-import SidebarLayout from '@/components/layout/SidebarLayout.vue'
-import DetailsDepartment from '@/modules/dashboard/components/Metrics/ProductionMetric/components/DetailsDepartment.vue'
+import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
+import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 
 const START_YEAR = 2018
 
@@ -15,8 +16,15 @@ function r2(val) {
 
 export default defineComponent({
     name: 'DifferencesReport',
-    components: { Sidebar, SidebarLayout, DetailsDepartment },
+    components: { Sidebar, AgreementLineShowcaseList },
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('differences_report.breadcrumb.home') },
+                { label: this.$t('differences_report.breadcrumb.reports') },
+                { label: this.$t('differences_report.breadcrumb.current') },
+            ]
+        },
         yearsOptions() {
             const currentYear = new Date().getFullYear()
             const years = Array.from({ length: currentYear - START_YEAR + 2 }, (_, i) => i + START_YEAR).reverse()
@@ -69,8 +77,22 @@ export default defineComponent({
                     ...this.computeStats(odpByDept[d.slug] || [], uzpByDept[d.slug] || [], ds, de)
                 }))
         },
-        mappedSidebarRecords() {
-            return this.sidebarRecords.map(r => this.toDetailRecord(r))
+        // wyliczane z bieżących wierszy, żeby otwarty sidebar odświeżył się po przeładowaniu danych
+        sidebarRecords() {
+            if (!this.sidebarSource) {
+                return []
+            }
+            const row = this.rows.find(r => r.slug === this.sidebarSource.slug)
+            return row ? row[this.sidebarSource.recordsKey] : []
+        },
+        sidebarLines() {
+            const searchTerm = this.q ? deburr(this.q).toLowerCase() : null
+
+            return this.sidebarRecords
+                .filter(r => r.agreementLine)
+                .map(r => this.toDetailRecord(r))
+                .filter(record => !searchTerm || deburr(`${record.customerName} ${record.productName} ${record.orderNumber}`).toLowerCase().includes(searchTerm))
+                .map(record => departmentRecordToShowcaseLine(record))
         },
     },
     methods: {
@@ -140,7 +162,12 @@ export default defineComponent({
                 id: r.agreementLine?.id,
                 customerName: r.customer?.name,
                 productName: r.agreementLine?.productName,
-                orderNumber: r.agreement?.orderNumber,
+                orderNumber: orderDisplayNumber(r.agreement?.orderNumber, r.agreementLine?.internalNumber),
+                factor: r.agreementLine?.factor,
+                status: r.agreementLine?.status,
+                userName: r.agreementLine?.userName,
+                agreementCreateDate: r.agreementLine?.agreementCreateDate,
+                confirmedDate: r.agreement?.confirmedDate,
                 data: {
                     factor: r.factors?.factor,
                     factorsStack: r.factors?.factorsStack || [],
@@ -148,14 +175,16 @@ export default defineComponent({
                         status: r.status,
                         dateStart: r.dateStart,
                         dateEnd: r.dateEnd,
+                        completedAt: r.completedAt,
                         departmentSlug: r.departmentSlug,
                     },
                 },
             }
         },
-        openSidebar(records, deptName, groupLabel) {
-            this.sidebarRecords = records
-            this.sidebarTitle = `${deptName} — ${groupLabel}`
+        openSidebar(row, recordsKey, groupLabel) {
+            this.sidebarSource = { slug: row.slug, recordsKey }
+            this.q = null
+            this.sidebarTitle = `${row.name} - ${groupLabel}`
             this.sidebarVisible = true
         },
         fmt(val) {
@@ -170,11 +199,13 @@ export default defineComponent({
             if (val < -0.005) return 'text-danger'
             return 'text-muted'
         },
-        async fetchData() {
+        async fetchData({ keepCurrent = false } = {}) {
             if (!this.dateRangeStart || !this.dateRangeEnd) return
             this.busy = true
-            this.odp = null
-            this.uzp = null
+            if (!keepCurrent) {
+                this.odp = null
+                this.uzp = null
+            }
             try {
                 const [odpRes, uzpRes] = await Promise.all([
                     getDepartmentsCapacity(this.dateRangeStart, this.dateRangeEnd),
@@ -189,12 +220,21 @@ export default defineComponent({
                 this.busy = false
             }
         },
+        reloadAfterSave() {
+            this.fetchData({ keepCurrent: true })
+        },
     },
     watch: {
         filters: {
             deep: true,
             handler() { this.fetchData() },
         },
+    },
+    created() {
+        EventBus.$on('agreementLineSaved', this.reloadAfterSave)
+    },
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadAfterSave)
     },
     mounted() {
         const today = new Date()
@@ -208,23 +248,25 @@ export default defineComponent({
         uzp: null,
         sidebarVisible: false,
         sidebarTitle: '',
-        sidebarRecords: [],
+        sidebarSource: null,
+        q: null,
     }),
 })
 </script>
 
 <template>
     <div>
-        <div class="section-block d-flex align-items-center justify-content-between">
-            <span class="report-title">{{ $t('differences_report.title') }}</span>
-            <b-form inline>
-                <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-                <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
-                <b-spinner v-if="busy" small variant="secondary" />
-            </b-form>
-        </div>
+        <SectionBlockTitle block :title="$t('differences_report.title')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <b-form inline>
+                    <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
+                    <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
+                    <b-spinner v-if="busy" small variant="secondary" />
+                </b-form>
+            </template>
+        </SectionBlockTitle>
 
-        <div v-if="!busy && rows.length" class="section-block section-gap" style="padding: 2rem">
+        <SectionBlock v-if="!busy && rows.length" class="section-gap" style="padding: 2rem">
             <div class="table-responsive">
                 <table class="table table-sm table-hover diff-table mb-0">
                     <thead class="thead-light">
@@ -260,51 +302,51 @@ export default defineComponent({
                     <tbody>
                         <tr v-for="row in rows" :key="row.slug">
                             <td class="font-weight-bold">{{ row.name }}</td>
-                            <td class="text-right text-monospace">{{ fmt(row.odpTotal) }}</td>
-                            <td class="text-right text-monospace">{{ fmt(row.uzpTotal) }}</td>
-                            <td class="text-right text-monospace font-weight-bold" :class="deltaClass(row.delta)">
+                            <td class="text-right numeric">{{ fmt(row.odpTotal) }}</td>
+                            <td class="text-right numeric">{{ fmt(row.uzpTotal) }}</td>
+                            <td class="text-right numeric font-weight-bold" :class="deltaClass(row.delta)">
                                 {{ fmtDelta(row.delta) }}
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.correction !== 0"
                                     class="group-link"
                                     :class="deltaClass(row.correction)"
-                                    @click="openSidebar(row._correctionRecs, row.name, $t('differences_report.col.correction'))"
+                                    @click="openSidebar(row, '_correctionRecs', $t('differences_report.col.correction'))"
                                 >{{ fmtDelta(row.correction) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.incomplete"
                                     class="group-link text-danger"
-                                    @click="openSidebar(row._incompleteRecs, row.name, $t('differences_report.col.incomplete'))"
+                                    @click="openSidebar(row, '_incompleteRecs', $t('differences_report.col.incomplete'))"
                                 >−{{ fmt(row.incomplete) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.completedOutside"
                                     class="group-link text-danger"
-                                    @click="openSidebar(row._completedOutsideRecs, row.name, $t('differences_report.col.completed_outside'))"
+                                    @click="openSidebar(row, '_completedOutsideRecs', $t('differences_report.col.completed_outside'))"
                                 >−{{ fmt(row.completedOutside) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.delayed"
                                     class="group-link text-success"
-                                    @click="openSidebar(row._delayedRecs, row.name, $t('differences_report.col.delayed'))"
+                                    @click="openSidebar(row, '_delayedRecs', $t('differences_report.col.delayed'))"
                                 >+{{ fmt(row.delayed) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
-                            <td class="text-right text-monospace">
+                            <td class="text-right numeric">
                                 <span
                                     v-if="row.accelerated"
                                     class="group-link text-success"
-                                    @click="openSidebar(row._acceleratedRecs, row.name, $t('differences_report.col.accelerated'))"
+                                    @click="openSidebar(row, '_acceleratedRecs', $t('differences_report.col.accelerated'))"
                                 >+{{ fmt(row.accelerated) }}</span>
-                                <span v-else class="text-muted">—</span>
+                                <span v-else class="text-muted">-</span>
                             </td>
                             <td class="text-center">
                                 <font-awesome-icon v-if="row.balanced" icon="check" class="text-success" />
@@ -314,17 +356,17 @@ export default defineComponent({
                     </tbody>
                 </table>
             </div>
-        </div>
+        </SectionBlock>
 
-        <div v-else-if="!busy && odp !== null && !rows.length" class="section-block section-gap text-muted">
+        <SectionBlock v-else-if="!busy && odp !== null && !rows.length" class="section-gap text-muted">
             {{ $t('differences_report.no_data') }}
-        </div>
+        </SectionBlock>
 
         <div v-if="!busy && rows.length" class="legend section-gap">
             <div class="legend__row">
-                <strong>{{ $t('differences_report.col.odp') }}</strong> — {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.uzp') }}</strong> — {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.delta') }}</strong> — {{ $t('differences_report.legend.delta') }}
+                <strong>{{ $t('differences_report.col.odp') }}</strong> - {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
+                <strong>{{ $t('differences_report.col.uzp') }}</strong> - {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
+                <strong>{{ $t('differences_report.col.delta') }}</strong> - {{ $t('differences_report.legend.delta') }}
             </div>
             <div class="legend__row mt-1">
                 <strong>{{ $t('differences_report.legend.formula') }}</strong>
@@ -335,38 +377,16 @@ export default defineComponent({
         <Sidebar
             :title="sidebarTitle"
             v-model="sidebarVisible"
-            sidebar-class="size-100 size-lg-50"
+            sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
             <template #sidebar-content>
-                <SidebarLayout>
-                    <template #content>
-                        <DetailsDepartment
-                            v-for="(record, i) in mappedSidebarRecords"
-                            :key="`sidebar-${i}`"
-                            :record="record"
-                        />
-                    </template>
-                </SidebarLayout>
+                <AgreementLineShowcaseList :lines="sidebarLines" @search="q = $event" />
             </template>
         </Sidebar>
     </div>
 </template>
 
 <style scoped lang="scss">
-.report-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--colorPrimary);
-}
-
-.section-block {
-    background-color: #fff;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid #ddd;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
 .section-gap {
     margin-top: 2rem;
 }
@@ -386,6 +406,12 @@ export default defineComponent({
 
 .diff-table {
     font-size: 0.875rem;
+
+    // Cyfry o równej szerokości bez zmiany kroju - kolumny mają się układać w słupek,
+    // ale liczby zostają w foncie interfejsu.
+    .numeric {
+        font-variant-numeric: tabular-nums;
+    }
 
     th, td {
         white-space: nowrap;

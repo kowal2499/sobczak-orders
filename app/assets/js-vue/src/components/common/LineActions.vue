@@ -12,7 +12,7 @@
                     icon-class="fa fa-exclamation-circle text-danger"
                     v-if="canDelete"
                 >
-                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ line.Agreement.orderNumber }}'?</strong></p>
+                    <p><strong>{{ $t('areYouSureToDeleteOrder') }} {{ displayNumber }}'?</strong></p>
                     <ul class="list-unstyled">
                         <li>{{ line.Product.name }}</li>
                     </ul>
@@ -28,7 +28,7 @@
                     :label="$t('restoreOrder')"
                     icon-class="fa fa-undo"
                 >
-                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ line.Agreement.orderNumber }}'?</p>
+                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ displayNumber }}'?</p>
                     <ul class="list-unstyled">
                         <li>{{ line.Product.name }}</li>
                     </ul>
@@ -37,7 +37,7 @@
 
             <template v-if="false === isTrashed">
                 <!-- sekcja wspólna -->
-                <b-dropdown-item v-if="$user.can('production.panel')" @click="orderPanelState = !orderPanelState">
+                <b-dropdown-item v-if="$user.can('production.panel')" @click="openPanel">
                     <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
                 </b-dropdown-item>
 
@@ -52,7 +52,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+                <b-dropdown-item :to="{ name: 'order-edit', params: { id: line.Agreement.id } }">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 
@@ -65,7 +65,7 @@
                 >
                     <p class="text-info">{{ $t('setAsWarehoused') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
+                        <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.Product.name }}</li>
                         <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
                     </ul>
@@ -80,7 +80,7 @@
                 >
                     <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
                     <ul class="list-unstyled">
-                        <li>{{ $t('id') }}: {{ line.Agreement.orderNumber }}</li>
+                        <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.Product.name }}</li>
                         <li>{{ $t('customer') }}: {{ __mixin_customerName(line.Agreement.Customer) }}</li>
                     </ul>
@@ -94,7 +94,7 @@
                     anchor-class="text-danger"
                 >
                     <p class="text-info">
-                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: line.Agreement.orderNumber}) }}</p>
+                        {{ $t('agreement_line_list.trashConfirmQuestion', {num: displayNumber}) }}</p>
                     <ul class="list-unstyled">
                         <li>{{ line.Product.name }}</li>
                     </ul>
@@ -123,17 +123,12 @@
             </template>
         </Sidebar>
 
-        <OrderPanelDrawer
-            v-if="$user.can('production.panel')"
-            v-model="orderPanelState"
-            :line-id="line.id"
-            @saved="$emit('lineChanged')"
-        />
     </div>
 </template>
 
 <script>
 import ApiNewOrder from "../../api/neworder"
+import { orderDisplayNumber } from "@/helpers"
 import {
     AGREEMENT_LINE_STATUS_ARCHIVED,
     AGREEMENT_LINE_STATUS_DELETED, AGREEMENT_LINE_STATUS_MANUFACTURING, AGREEMENT_LINE_STATUS_WAITING,
@@ -144,7 +139,7 @@ import ConfirmableAction from "../../modules/agreementLineList/Actions/Confirmab
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
-import OrderPanelDrawer from '@/modules/agreement/components/OrderPanelDrawer.vue'
+import { openOrderPanel } from '@/modules/agreement/orderPanel'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -159,7 +154,6 @@ export default {
         StartProductionAction,
         Sidebar,
         FactorsView,
-        OrderPanelDrawer,
     },
     props: {
         line: {
@@ -169,6 +163,9 @@ export default {
     },
 
     computed: {
+        displayNumber() {
+            return orderDisplayNumber(this.line.Agreement.orderNumber, this.line.internalNumber);
+        },
         isTrashed() {
             return this.line && this.line.status === AGREEMENT_LINE_STATUS_DELETED
         },
@@ -217,10 +214,13 @@ export default {
 
     data: () => ({
         sidebarFactorsState: false,
-        orderPanelState: false,
     }),
 
     methods: {
+        openPanel() {
+            openOrderPanel(this.$router, this.line.id)
+        },
+
         trashAction() {
             return this.updateAgreementStatus(AGREEMENT_LINE_STATUS_DELETED)
         },

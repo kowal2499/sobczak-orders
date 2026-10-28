@@ -8,8 +8,9 @@ use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
 /**
- * Miernik "Capacity" — produkcje działów domyślnych, których dateEnd mieści się w zakresie.
- * Współczynnik: factorRatio. Agregat firmowy (bez filtra ROLE_CUSTOMER).
+ * Miernik "Capacity" - produkcje działów domyślnych, których dateEnd mieści się w zakresie.
+ * Współczynnik: factorRatio. Agregat firmowy - dla ROLE_CUSTOMER linie cudzych klientów
+ * wchodzą do sum, ale bez danych zamówienia.
  */
 class CapacityMetricStrategy extends AbstractProductionRecordStrategy
 {
@@ -43,5 +44,10 @@ class CapacityMetricStrategy extends AbstractProductionRecordStrategy
     protected function factorsOf(ProductionRM $production): ?AssembledFactorDTO
     {
         return $production->getFactorRatio();
+    }
+
+    protected function masksForeignLines(): bool
+    {
+        return true;
     }
 }

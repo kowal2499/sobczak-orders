@@ -38,8 +38,8 @@ set('writable_mode', 'chmod');
 
 set('sub_directory', 'app');
 
-set('bin/php', '/usr/local/bin/php81');
-set('bin/composer', '/opt/alt/php81/usr/bin/php -c /usr/local/php/php.ini /usr/local/bin/composer');
+set('bin/php', '/usr/local/bin/php82');
+set('bin/composer', '/opt/alt/php82/usr/bin/php -c /usr/local/php/php.ini /usr/local/bin/composer');
 
 set('keep_releases', 3);
 

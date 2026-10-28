@@ -15,16 +15,13 @@
                 <div>{{ product.description }}</div>
             </div>
         </div>
-        <a :href="editLink" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
+        <router-link :to="{ name: 'product-edit', params: { id: product.id } }" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
-        </a>
+        </router-link>
     </div>
 </template>
 
 <script>
-
-    import routing from "../../../api/routing";
-
     export default {
         name: "ProductWidget",
         props: {
@@ -38,11 +35,6 @@
             }
         },
 
-        computed: {
-            editLink() {
-                return routing.get('products_edit').concat('/' + String(this.product.id));
-            }
-        },
 
         methods: {
             userCan() {

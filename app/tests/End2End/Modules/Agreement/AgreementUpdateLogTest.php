@@ -98,7 +98,7 @@ class AgreementUpdateLogTest extends ApiTestCase
 
         $uploadedFile = $this->createTestFile('new-attachment.pdf', 'application/pdf');
 
-        // When — change customer, order number, the line's product/factor/date/description,
+        // When - change customer, order number, the line's product/factor/date/description,
         // remove the existing attachment and add a new one.
         $client->request('POST', '/orders/patch/' . $agreementId, [
             'customerId' => $customerBId,
@@ -146,7 +146,7 @@ class AgreementUpdateLogTest extends ApiTestCase
         $this->assertSame('ORIG-1', $orderNumberChange['old']);
         $this->assertSame('NEW-2', $orderNumberChange['new']);
 
-        // Line-level changes — labelled by product name, carry the line id
+        // Line-level changes - labelled by product name, carry the line id
         $productChange = $this->findChange($changes, 'line', 'product');
         $this->assertSame($lineId, $productChange['lineId']);
         $this->assertSame($productNewName, $productChange['productName']);
@@ -211,7 +211,7 @@ class AgreementUpdateLogTest extends ApiTestCase
         $productId = $product->getId();
         $this->getManager()->clear();
 
-        // When — patch with identical values
+        // When - patch with identical values
         $client->request('POST', '/orders/patch/' . $agreementId, [
             'customerId' => $customerId,
             'orderNumber' => 'SAME-1',

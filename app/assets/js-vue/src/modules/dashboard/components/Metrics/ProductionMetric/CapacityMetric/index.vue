@@ -3,25 +3,16 @@ import { defineComponent } from 'vue'
 import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import Sidebar from '@/components/base/Sidebar.vue'
-import DetailsDepartment from '../components/DetailsDepartment.vue'
-import SidebarNavbar from '@/components/layout/SidebarNavbar'
+import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
+import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
-import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import Chart from './Chart.js'
-import { DPT_GLUEING, DPT_CNC, DPT_GRINDING, DPT_LACQUERING, DPT_PACKING, DEPARTMENTS } from '@/helpers'
+import { DEPARTMENTS } from '@/helpers'
+import { departmentColor } from '@/services/departmentColors'
 import { deburr } from 'lodash'
 import exportFields from './exportFields'
 import { getDepartmentsCapacity } from '../../../../repository'
-
-const BAR_COLORS = {
-    [DPT_GLUEING]:     { bg: 'rgba(78, 121, 167, 0.7)',  border: '#4E79A7' },
-    [DPT_CNC]:         { bg: 'rgba(242, 142, 43, 0.7)',  border: '#F28E2B' },
-    [DPT_GRINDING]:    { bg: 'rgba(89, 161, 79, 0.7)',   border: '#59A14F' },
-    [DPT_LACQUERING]:  { bg: 'rgba(225, 87, 89, 0.7)',   border: '#E15759' },
-    [DPT_PACKING]:     { bg: 'rgba(118, 183, 178, 0.7)', border: '#76B7B2' },
-    _fallback:         { bg: 'rgba(128, 128, 128, 0.5)', border: '#808080' },
-}
 
 export default defineComponent({
     name: "CapacityMetric",
@@ -31,30 +22,13 @@ export default defineComponent({
         MetricLayout,
         Chart,
         Sidebar,
-        DetailsDepartment,
-        SidebarNavbar,
-        SidebarLayout,
+        AgreementLineShowcaseList,
     },
     props: {
         dateStart: { type: String, default: null },
         dateEnd: { type: String, default: null },
     },
     watch: {
-        data: {
-            deep: true,
-            handler() {
-                // set inner data
-                if (!Array.isArray(this.data)) {
-                    return
-                }
-                if (!this.data.length) {
-                    return
-                }
-                this.innerData = this.mapDetails(this.data)
-                    .map(item => this.addSearchKey(item))
-                ;
-            }
-        },
         showForecast(value) {
             if (value) {
                 this.fetchForecast()
@@ -74,6 +48,11 @@ export default defineComponent({
         },
     },
     computed: {
+        innerData() {
+            return Array.isArray(this.data)
+                ? this.mapDetails(this.data).map(item => this.addSearchKey(item))
+                : []
+        },
         ghostOnlyData() {
             if (!Array.isArray(this.forecastData)) {
                 return []
@@ -125,6 +104,9 @@ export default defineComponent({
         perDptAllData() {
             return [...this.perDptAgreementData, ...this.perDptGhostAgreementData]
         },
+        perDptShowcaseLines() {
+            return this.perDptAllData.map(record => departmentRecordToShowcaseLine(record, !!record._isGhost))
+        },
         activeDepartmentName() {
             const dpt = DEPARTMENTS.find(d => d.slug === this.activeDepartmentSlug)
             return dpt ? dpt.name : this.activeDepartmentSlug
@@ -136,8 +118,8 @@ export default defineComponent({
             })
         },
         datasets() {
-            const bg = this.perDepartmentData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).bg)
-            const border = this.perDepartmentData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).border)
+            const bg = this.perDepartmentData.map(({slug}) => departmentColor(slug).bg)
+            const border = this.perDepartmentData.map(({slug}) => departmentColor(slug).border)
             const main = {
                 label: this.$t('dashboard.capacityMetric'),
                 data: this.perDepartmentData.map(({ value }) => value),
@@ -150,13 +132,13 @@ export default defineComponent({
                 return [main]
             }
             const forecastBg = this.perDepartmentForecastData.map(({slug}) => {
-                const c = (BAR_COLORS[slug] || BAR_COLORS._fallback).bg
+                const c = departmentColor(slug).bg
                 return c.replace(/rgba?\(([^)]+)\)/, (_, inner) => {
                     const parts = inner.split(',').map(s => s.trim())
                     return `rgba(${parts[0]}, ${parts[1]}, ${parts[2]}, 0.25)`
                 })
             })
-            const forecastBorder = this.perDepartmentForecastData.map(({slug}) => (BAR_COLORS[slug] || BAR_COLORS._fallback).border)
+            const forecastBorder = this.perDepartmentForecastData.map(({slug}) => departmentColor(slug).border)
             return [
                 main,
                 {
@@ -264,25 +246,16 @@ export default defineComponent({
         <Sidebar
             :title="`Szczegóły obłożenia działu - ${activeDepartmentName}`"
             v-model="showSidebar"
-            sidebar-class="size-100 size-lg-50"
+            sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
             <template #sidebar-content>
-                <SidebarLayout>
-                    <template #header>
-                        <SidebarNavbar
-                            @search="q = $event"
-                            @exportExcel="onExportExcel"
-                        />
-                    </template>
-                    <template #content>
-                        <DetailsDepartment
-                            v-for="(record, i) in perDptAllData"
-                            :key="`${record._isGhost ? 'ghost' : 'real'}-${record.id}-${i}`"
-                            :record="record"
-                            :is-ghost="!!record._isGhost"
-                        />
-                    </template>
-                </SidebarLayout>
+                <AgreementLineShowcaseList
+                    :lines="perDptShowcaseLines"
+                    :departments="[activeDepartmentSlug]"
+                    exportable
+                    @search="q = $event"
+                    @exportExcel="onExportExcel"
+                />
             </template>
         </Sidebar>
     </MetricLayout>

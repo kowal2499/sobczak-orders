@@ -30,6 +30,7 @@ class UpdateProductionCompletionDateHandlerTest extends ApiTestCase
     private $agreementLineRepository;
     /** @var \Doctrine\ORM\EntityManager */
     private $em;
+    private ProductionCompletionDateResolverService $service;
 
     protected function setUp(): void
     {

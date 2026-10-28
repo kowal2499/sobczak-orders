@@ -50,7 +50,7 @@
                         </collapsible-card>
 
                         <collapsible-card :title="$t('orders.orderDetails')" v-if="agreementLine?.Agreement" collapsed-on-start>
-                            <agreement-widget :agreement="agreementLine.Agreement" disable-edit />
+                            <agreement-widget :agreement="agreementLine.Agreement" :internal-number="agreementLine.internalNumber" disable-edit />
                         </collapsible-card>
                     </div>
                 </div>
@@ -180,8 +180,8 @@ function getForm(productions = []) {
 
     const initialValues = productions.reduce((acc, p) => {
         acc[p.departmentSlug] = {
-            dateStart: getLocalDate(p.dateStart),
-            dateEnd: getLocalDate(p.dateEnd),
+            dateStart: p.dateStart ? getLocalDate(p.dateStart) : null,
+            dateEnd: p.dateEnd ? getLocalDate(p.dateEnd) : null,
         };
         return acc;
     }, {});

@@ -101,6 +101,9 @@ class CapacityMetricStrategyTest extends TestCase
     {
         $line = new AgreementLineRM($id);
         $line->setOrderNumber('ORD-' . $id);
+        $line->setAgreementCreateDate(new \DateTime('2026-04-01'));
+        $line->setUserName(null);
+        $line->setStatus(null);
         $line->setConfirmedDate(new \DateTime('2026-05-01'));
         $line->setCustomer(new CustomerRM($id, 'Klient ' . $id));
         $line->setProductName('Produkt ' . $id);

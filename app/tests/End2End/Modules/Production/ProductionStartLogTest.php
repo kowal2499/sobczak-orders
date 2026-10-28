@@ -66,7 +66,7 @@ class ProductionStartLogTest extends ApiTestCase
             $fields,
         );
 
-        // Sanity — endpoint really moved the line to MANUFACTURING
+        // Sanity - endpoint really moved the line to MANUFACTURING
         $reloaded = $this->getManager()->find(AgreementLine::class, $lineId);
         $this->assertSame(AgreementLine::STATUS_MANUFACTURING, $reloaded->getStatus());
     }

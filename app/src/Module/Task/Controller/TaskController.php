@@ -13,6 +13,7 @@ use App\Module\Task\ValueObject\TaskStatusEnum;
 use App\Module\Task\ValueObject\TaskTypeEnum;
 use App\Repository\AgreementLineRepository;
 use App\System\CommandBus;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,11 @@ class TaskController extends BaseController
 
         if (!isset($data['type']) || !in_array($data['type'], ['task_custom', 'task_confirm_realization_date'])) {
             return $this->json(['error' => 'type is required and must be one of: task_custom, task_confirm_realization_date'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $agreementLine = $this->agreementLineRepository->find((int) $data['agreementLineId']);
+        if ($agreementLine !== null) {
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $agreementLine);
         }
 
         try {
@@ -95,6 +101,8 @@ class TaskController extends BaseController
             return $this->json(['error' => 'status is required and must be one of: 10, 11, 12'], Response::HTTP_BAD_REQUEST);
         }
 
+        $this->denyUnlessOwnTask($id);
+
         try {
             $command = new UpdateTaskCommand(
                 taskId: $id,
@@ -129,6 +137,7 @@ class TaskController extends BaseController
     }
 
     #[Route('/{task}/status', methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'task')]
     public function updateStatus(Task $task, Request $request): JsonResponse
     {
         $user = $this->security->getUser();
@@ -184,6 +193,8 @@ class TaskController extends BaseController
             return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
+        $this->denyUnlessOwnTask($id);
+
         try {
             $command = new DeleteTaskCommand(
                 taskId: $id,
@@ -238,6 +249,7 @@ class TaskController extends BaseController
             if ($agreementLine === null) {
                 return $this->json(['error' => 'AgreementLine not found'], Response::HTTP_NOT_FOUND);
             }
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $agreementLine);
             $criteria['agreementLine'] = $agreementLine;
         }
 
@@ -245,8 +257,19 @@ class TaskController extends BaseController
             $criteria['type'] = $type;
         }
 
-        $tasks = $this->taskRepository->findBy($criteria, ['createdAt' => 'ASC']);
+        $tasks = array_filter(
+            $this->taskRepository->findBy($criteria, ['createdAt' => 'ASC']),
+            fn (Task $task) => $this->isGranted('ASSIGNED_CUSTOMER', $task)
+        );
 
-        return $this->json(array_map(fn(Task $task) => TaskDTO::fromEntity($task), $tasks));
+        return $this->json(array_values(array_map(fn(Task $task) => TaskDTO::fromEntity($task), $tasks)));
+    }
+
+    private function denyUnlessOwnTask(int $taskId): void
+    {
+        $task = $this->taskRepository->find($taskId);
+        if ($task !== null) {
+            $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $task);
+        }
     }
 }

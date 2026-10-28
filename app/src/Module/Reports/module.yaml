@@ -10,10 +10,20 @@ app_module:
       options:
           - label: Ukończone zadania produkcyjne
             optionSlug: completedTasks
+          - label: Ukończone zadania produkcyjne (w terminie)
+            optionSlug: on-time-bonus
           - label: Zapełnienie listy produkcyjnej
             optionSlug: capacity-utilization
           - label: Obłożenie tygodniowe
             optionSlug: weekly-capacity
+          - label: Zamówienia po terminie realizacji
+            optionSlug: attention-overdue-orders
+          - label: Zamówienia bez zleconej produkcji
+            optionSlug: attention-unplanned-orders
+          - label: Produkcja nierozpoczęta mimo planu
+            optionSlug: attention-not-started-productions
+          - label: Produkcja po terminie
+            optionSlug: attention-overdue-productions
     - name: Kalendarz ogólny
       description: Dostęp do kalendarza ogólnego
       slug: reports.calendar_general
@@ -21,4 +31,8 @@ app_module:
     - name: Kalendarz zadań
       description: Dostęp do kalendarza zadań
       slug: reports.calendar_tasks
+      type: boolean
+    - name: Kalendarz zamówień
+      description: Dostęp do kalendarza zamówień
+      slug: reports.calendar_orders
       type: boolean

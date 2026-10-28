@@ -25,6 +25,12 @@ class FactorCalculator
             FactorSource::AGREEMENT_LINE,
             FactorSource::FACTOR_ADJUSTMENT_RATIO
         ],
+        'factor_adjustment_bonus_completed_tasks' => [
+            FactorSource::AGREEMENT_LINE,
+            FactorSource::FACTOR_ADJUSTMENT_RATIO,
+            FactorSource::FACTOR_ADJUSTMENT_BONUS,
+            FactorSource::FACTOR_ADJUSTMENT_BONUS_COMPLETED_TASKS,
+        ],
     ];
 
     private array $assemblers;

@@ -18,6 +18,7 @@ class ProductionRM
     private ?DateTimeInterface $completedAt;
     private ?AssembledFactorDTO $factorRatio;
     private ?AssembledFactorDTO $factorBonus;
+    private ?AssembledFactorDTO $factorBonusCompletedTasks;
     private bool $isGhost;
 
     public function __construct(
@@ -32,6 +33,7 @@ class ProductionRM
         ?AssembledFactorDTO $factorRatio = null,
         ?AssembledFactorDTO $factorBonus = null,
         bool $isGhost = false,
+        ?AssembledFactorDTO $factorBonusCompletedTasks = null,
     ) {
         $this->id = $id;
         $this->departmentSlug = $departmentSlug;
@@ -43,6 +45,7 @@ class ProductionRM
         $this->completedAt = $completedAt;
         $this->factorRatio = $factorRatio;
         $this->factorBonus = $factorBonus;
+        $this->factorBonusCompletedTasks = $factorBonusCompletedTasks;
         $this->isGhost = $isGhost;
     }
 
@@ -104,6 +107,16 @@ class ProductionRM
     public function getFactorBonus(): ?AssembledFactorDTO
     {
         return $this->factorBonus;
+    }
+
+    public function getFactorBonusCompletedTasks(): ?AssembledFactorDTO
+    {
+        return $this->factorBonusCompletedTasks;
+    }
+
+    public function setFactorBonusCompletedTasks(?AssembledFactorDTO $factorBonusCompletedTasks): void
+    {
+        $this->factorBonusCompletedTasks = $factorBonusCompletedTasks;
     }
 
     public function setId(?int $id): void
@@ -169,6 +182,7 @@ class ProductionRM
             'completedAt' => $this->completedAt?->format('Y-m-d H:i:s'),
             'factorRatio' => $this->factorRatio?->toArray() ?? null,
             'factorBonus' => $this->factorBonus?->toArray() ?? null,
+            'factorBonusCompletedTasks' => $this->factorBonusCompletedTasks?->toArray() ?? null,
             'isGhost' => $this->isGhost,
         ];
     }
@@ -187,6 +201,9 @@ class ProductionRM
             factorRatio: $data['factorRatio'] ? AssembledFactorDTO::fromArray($data['factorRatio']) : null,
             factorBonus: $data['factorBonus'] ? AssembledFactorDTO::fromArray($data['factorBonus']) : null,
             isGhost: (bool) ($data['isGhost'] ?? false),
+            factorBonusCompletedTasks: isset($data['factorBonusCompletedTasks'])
+                ? AssembledFactorDTO::fromArray($data['factorBonusCompletedTasks'])
+                : null,
         );
     }
 }

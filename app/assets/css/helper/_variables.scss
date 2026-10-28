@@ -5,6 +5,7 @@ $mainBlue: #4e73df;
 $gray: #808080;
 $green: #28a745;
 $yellow: #ffc107;
+$red: #dc3545;
 
 $lightgray: #efefef;
 $lightgray2: color.scale(#efefef, $lightness: -10%);
@@ -12,6 +13,10 @@ $lightgray3: #f8f9fc;
 
 $sidebar-mobile-width: 8.5rem;
 $sidebar-default-width: 13rem;
+
+// Collapsible icon-rail sidebar
+$sidebar-rail-width: 3.8rem;
+$sidebar-expanded-width: 15rem;
 
 $primary: $mainBlue;
 $primaryLight10: color.mix(#fff, $mainBlue, 10%);
@@ -67,4 +72,7 @@ $text: #333;
 
     --colorYellow: #{$yellow};
     --colorYellowRgb: #{color.red($yellow)}, #{color.green($yellow)}, #{color.blue($yellow)};
+
+    --colorRed: #{$red};
+    --colorRedRgb: #{color.red($red)}, #{color.green($red)}, #{color.blue($red)};
 }

@@ -443,7 +443,7 @@ class AgreementControllerTest extends ApiTestCase
 
     public function testShouldLogAgreementLineCreatedWhenUpdateAddsNewLine(): void
     {
-        // Given — existing agreement with one line, no logs yet
+        // Given - existing agreement with one line, no logs yet
         $user = $this->createUser();
         $client = $this->login($user);
 
@@ -479,7 +479,7 @@ class AgreementControllerTest extends ApiTestCase
         $newProductId = $newProduct->getId();
         $this->getManager()->clear();
 
-        // When — update keeps existing line + adds a new line (no `id` key)
+        // When - update keeps existing line + adds a new line (no `id` key)
         $client->request('POST', '/orders/patch/' . $agreementId, [
             'customerId' => $customer->getId(),
             'orderNumber' => 'UPDATE-LOG-TEST',

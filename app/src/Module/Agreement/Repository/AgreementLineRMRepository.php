@@ -2,12 +2,16 @@
 
 namespace App\Module\Agreement\Repository;
 
+use App\Entity\Agreement;
 use App\Entity\AgreementLine;
 use App\Entity\Customer;
+use App\Entity\Definitions\TaskTypes;
+use App\Entity\Production;
 use App\Module\Agreement\ReadModel\AgreementLineRM;
 use App\Module\Agreement\Repository\Interface\AgreementLineRMRepositoryInterface;
 use App\Module\Production\ValueObject\DepartmentEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -43,11 +47,37 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
 
     /**
      * Agregat miernika "Orders Pending": linie rozpoczęte do końca zakresu i jeszcze niezakończone.
-     * Dolna granica (start) jest celowo pomijana — zgodnie z dotychczasowym zachowaniem miernika.
+     * Dolna granica (start) jest celowo pomijana - zgodnie z dotychczasowym zachowaniem miernika.
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
      *
+     * @param int[]|null $customerIds
      * @return array{factors_summary: string|float|null, count: int|string}
      */
-    public function getPendingSummary(\DateTimeInterface $end): array
+    public function getPendingSummary(\DateTimeInterface $end, ?array $customerIds = null): array
+    {
+        $qb = $this->pendingSummaryQuery($end);
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * To samo co getPendingSummary(), w rozbiciu na klientów (historia mierników).
+     *
+     * @param int[]|null $customerIds
+     * @return array<array{customer_id: int|string, factors_summary: string|float|null, count: int|string}>
+     */
+    public function getPendingSummaryByCustomer(\DateTimeInterface $end, ?array $customerIds = null): array
+    {
+        $qb = $this->pendingSummaryQuery($end)
+            ->addSelect('l.customerId as customer_id')
+            ->groupBy('l.customerId');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    private function pendingSummaryQuery(\DateTimeInterface $end): QueryBuilder
     {
         return $this->createQueryBuilder('l')
             ->select('SUM(l.factor) as factors_summary')
@@ -55,9 +85,7 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->where('l.isDeleted = 0')
             ->andWhere('l.productionEndDate IS NULL')
             ->andWhere('l.productionStartDate <= :end')
-            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59))
-            ->getQuery()
-            ->getSingleResult();
+            ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
     }
 
     /**
@@ -72,7 +100,34 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
         \DateTimeInterface $end,
         ?array $customerIds = null
     ): array {
-        $qb = $this->createQueryBuilder('l')
+        $qb = $this->finishedSummaryQuery($start, $end);
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * To samo co getFinishedSummary(), w rozbiciu na klientów (historia mierników).
+     *
+     * @param int[]|null $customerIds
+     * @return array<array{customer_id: int|string, factors_summary: string|float|null, count: int|string}>
+     */
+    public function getFinishedSummaryByCustomer(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?array $customerIds = null
+    ): array {
+        $qb = $this->finishedSummaryQuery($start, $end)
+            ->addSelect('l.customerId as customer_id')
+            ->groupBy('l.customerId');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    private function finishedSummaryQuery(\DateTimeInterface $start, \DateTimeInterface $end): QueryBuilder
+    {
+        return $this->createQueryBuilder('l')
             ->select('SUM(l.factor) as factors_summary')
             ->addSelect('COUNT(l.agreementLineId) as count')
             ->where('l.isDeleted = 0')
@@ -81,26 +136,17 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->andWhere('l.productionEndDate <= :end')
             ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
-
-        if ($customerIds !== null) {
-            if (empty($customerIds)) {
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere('l.customerId IN (:customerIds)')
-                    ->setParameter('customerIds', $customerIds);
-            }
-        }
-
-        return $qb->getQuery()->getSingleResult();
     }
 
     /**
      * Linie dla szczegółów miernika "Orders Pending": rozpoczęte do końca zakresu i niezakończone.
-     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null — bez filtra dat.
+     * Dolna granica jest pomijana (zgodnie z zachowaniem miernika). Gdy $end jest null - bez filtra dat.
+     * Gdy podano $customerIds, wynik jest ograniczony do tych klientów (filtr ROLE_CUSTOMER).
      *
+     * @param int[]|null $customerIds
      * @return AgreementLineRM[]
      */
-    public function findPendingDetailLines(?\DateTimeInterface $end): array
+    public function findPendingDetailLines(?\DateTimeInterface $end, ?array $customerIds = null): array
     {
         $qb = $this->createQueryBuilder('l')
             ->where('l.isDeleted = 0')
@@ -110,6 +156,8 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             $qb->andWhere('l.productionStartDate <= :end')
                 ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
         }
+
+        $this->restrictToCustomers($qb, $customerIds);
 
         return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
     }
@@ -134,16 +182,87 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
             ->setParameter('start', \DateTime::createFromInterface($start)->setTime(0, 0, 0))
             ->setParameter('end', \DateTime::createFromInterface($end)->setTime(23, 59, 59));
 
-        if ($customerIds !== null) {
-            if (empty($customerIds)) {
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere('l.customerId IN (:customerIds)')
-                    ->setParameter('customerIds', $customerIds);
-            }
-        }
+        $this->restrictToCustomers($qb, $customerIds);
 
         return $qb->orderBy('l.agreementLineId', 'ASC')->getQuery()->getResult();
+    }
+
+    /**
+     * Zamówienia w toku (oczekujące i w realizacji) - magazyn i archiwum są już zrealizowane.
+     *
+     * @param int[]|null $customerIds
+     * @return AgreementLineRM[]
+     */
+    public function findActiveLines(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->where('l.isDeleted = 0')
+            ->andWhere('l.status IN (:activeStatuses)')
+            ->setParameter('activeStatuses', [AgreementLine::STATUS_WAITING, AgreementLine::STATUS_MANUFACTURING]);
+
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     */
+    private function restrictToCustomers(QueryBuilder $qb, ?array $customerIds): void
+    {
+        if ($customerIds === null) {
+            return;
+        }
+        if (empty($customerIds)) {
+            $qb->andWhere('1 = 0');
+            return;
+        }
+        $qb->andWhere('l.customerId IN (:customerIds)')
+            ->setParameter('customerIds', $customerIds);
+    }
+
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     * @return array<array{id: int, name: string}>
+     */
+    public function findCustomerOptions(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('l.customerId AS id', 'MAX(l.customerName) AS name')
+            ->where('l.isDeleted = 0')
+            ->groupBy('l.customerId')
+            ->orderBy('name', 'ASC');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return array_map(
+            fn (array $row) => ['id' => (int) $row['id'], 'name' => (string) $row['name']],
+            $qb->getQuery()->getArrayResult()
+        );
+    }
+
+    /**
+     * @param int[]|null $customerIds null = bez filtra, pusta tablica = brak wyników
+     * @return array<array{id: int, name: string}>
+     */
+    public function findAuthorOptions(?array $customerIds = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->select('DISTINCT u.id', 'u.firstName', 'u.lastName')
+            ->from(Agreement::class, 'a')
+            ->join('a.user', 'u')
+            ->where('a.id = l.agreementId')
+            ->andWhere('l.isDeleted = 0')
+            ->orderBy('u.firstName', 'ASC')
+            ->addOrderBy('u.lastName', 'ASC');
+        $this->restrictToCustomers($qb, $customerIds);
+
+        return array_map(
+            fn (array $row) => [
+                'id' => (int) $row['id'],
+                'name' => trim($row['firstName'] . ' ' . $row['lastName']),
+            ],
+            $qb->getQuery()->getArrayResult()
+        );
     }
 
     public function search(?array $criteria)
@@ -249,6 +368,89 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                 case 'q':
                     $qb->andWhere("l.q Like :q");
                     $qb->setParameter('q', '%' . $value . '%');
+                    break;
+                case 'orderDateRange':
+                    // Zamówienie trwa od daty utworzenia umowy (agreementCreateDate) do potwierdzonej
+                    // daty dostawy (confirmedDate). Zwracamy zamówienia, których zakres nachodzi na okno.
+                    if (
+                        !isset($value['start'], $value['end'])
+                        || \DateTime::createFromFormat('Y-m-d', $value['start']) === false
+                        || \DateTime::createFromFormat('Y-m-d', $value['end']) === false
+                    ) {
+                        break;
+                    }
+                    $qb->andWhere('l.agreementCreateDate <= :ordRangeEnd');
+                    $qb->andWhere('l.confirmedDate >= :ordRangeStart');
+                    $qb->setParameter('ordRangeStart', new \DateTime($value['start'] . ' 00:00:00'));
+                    $qb->setParameter('ordRangeEnd', new \DateTime($value['end'] . ' 23:59:59'));
+                    break;
+                case 'notStarted':
+                    // Odpowiednik plakietki "Nie rozpoczęto" z listingu: zadanie wciąż czeka,
+                    // a jego data rozpoczęcia jest już przeszła. Wystarczy jeden taki dział.
+                    if (!$value) {
+                        break;
+                    }
+                    $notStarted = $this->getEntityManager()->createQueryBuilder()
+                        ->select('1')
+                        ->from(Production::class, 'pNotStarted')
+                        ->where('IDENTITY(pNotStarted.agreementLine) = l.agreementLineId')
+                        ->andWhere('pNotStarted.status IN (:notStartedStatuses)')
+                        ->andWhere('pNotStarted.dateStart IS NOT NULL')
+                        ->andWhere('pNotStarted.dateStart < :notStartedToday');
+                    $qb->andWhere($qb->expr()->exists($notStarted->getDQL()));
+                    // kolumna jest tekstowa - wiążemy stringami, żeby nie wymuszać konwersji po stronie bazy
+                    $qb->setParameter('notStartedStatuses', [
+                        (string) TaskTypes::TYPE_DEFAULT_STATUS_AWAITS,
+                        (string) TaskTypes::TYPE_CUSTOM_STATUS_AWAITS,
+                    ]);
+                    $qb->setParameter('notStartedToday', new \DateTime('today'));
+                    break;
+                case 'customers':
+                    $ids = array_values(array_filter(array_map('intval', (array) $value)));
+                    if ($ids) {
+                        $qb->andWhere('l.customerId IN (:filterCustomerIds)');
+                        $qb->setParameter('filterCustomerIds', $ids);
+                    }
+                    break;
+                case 'authors':
+                    $ids = array_values(array_filter(array_map('intval', (array) $value)));
+                    if (!$ids) {
+                        break;
+                    }
+                    // autor siedzi w read modelu tylko jako JSON, stąd podzapytanie do umowy
+                    $byAuthor = $this->getEntityManager()->createQueryBuilder()
+                        ->select('aAuthor.id')
+                        ->from(Agreement::class, 'aAuthor')
+                        ->where('IDENTITY(aAuthor.user) IN (:filterAuthorIds)');
+                    $qb->andWhere($qb->expr()->in('l.agreementId', $byAuthor->getDQL()));
+                    $qb->setParameter('filterAuthorIds', $ids);
+                    break;
+                case 'overdue':
+                    // Termin dostawy minął (dzisiejszy jeszcze nie), a zamówienie nie trafiło do magazynu.
+                    if (!$value) {
+                        break;
+                    }
+                    $qb->andWhere('l.confirmedDate < :overdueToday');
+                    $qb->andWhere('l.status NOT IN (:overdueDone)');
+                    $qb->setParameter('overdueToday', new \DateTime('today'));
+                    $qb->setParameter('overdueDone', [
+                        AgreementLine::STATUS_WAREHOUSE,
+                        AgreementLine::STATUS_ARCHIVED,
+                        AgreementLine::STATUS_DELETED,
+                    ]);
+                    break;
+                case 'startDelayed':
+                    // Odpowiednik plakietki "Rozpoczęto z opóźnieniem" - flaga ustawiana
+                    // przy zmianie statusu na rozpoczęty po zaplanowanej dacie.
+                    if (!$value) {
+                        break;
+                    }
+                    $startDelayed = $this->getEntityManager()->createQueryBuilder()
+                        ->select('1')
+                        ->from(Production::class, 'pStartDelayed')
+                        ->where('IDENTITY(pStartDelayed.agreementLine) = l.agreementLineId')
+                        ->andWhere('pStartDelayed.isStartDelayed = true');
+                    $qb->andWhere($qb->expr()->exists($startDelayed->getDQL()));
                     break;
                 case 'dptDateRange':
                     if (
@@ -372,6 +574,8 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     break;
 //                    todo: departmentDates
             }
+        } else {
+            $qb->orderBy('l.agreementLineId', 'ASC');
         }
 
         return $qb->getQuery();

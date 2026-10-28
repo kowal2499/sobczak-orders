@@ -5,6 +5,7 @@ namespace App\Module\Reports\Production\Controller;
 use App\Controller\BaseController;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
 use App\Utilities\DateValidationTrait;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +15,7 @@ class ProductionReportsController extends BaseController
     use DateValidationTrait;
 
     #[Route(path: '/agreement-line-production-summary', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function agreementLinesProductionSummary(
         Request $request,
         DashboardMetricProvider $metrics,
@@ -35,6 +37,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-finished-details', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionFinishedDetails(
         Request $request,
         DashboardMetricProvider $metrics
@@ -52,6 +55,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-pending-details', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionPendingDetails(
         Request $request,
         DashboardMetricProvider $metrics
@@ -70,6 +74,7 @@ class ProductionReportsController extends BaseController
     }
 
     #[Route(path: '/production-tasks-completion-summary', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
     public function productionTasksCompletionSummary(
         Request $request,
         DashboardMetricProvider $metrics
@@ -86,8 +91,9 @@ class ProductionReportsController extends BaseController
         return $this->json($metrics->getMetric('departments_bonus', $start, $end));
     }
 
-    #[Route(path: '/production-capacity', methods: ['GET'])]
-    public function productionCapacity(
+    #[Route(path: '/production-tasks-on-time-summary', methods: ['GET'])]
+    #[IsGranted('reports.dashboard:on-time-bonus')]
+    public function productionTasksOnTimeSummary(
         Request $request,
         DashboardMetricProvider $metrics
     ): Response {
@@ -100,8 +106,40 @@ class ProductionReportsController extends BaseController
         }
         ['start' => $start, 'end' => $end] = $result;
 
+        // opcjonalne widełki terminowości (podgląd z pulpitu); brak = wartość domyślna strategii
+        return $this->json($metrics->getMetric('departments_bonus_on_time', $start, $end, false, [
+            'toleranceDays' => $request->query->get('tolerance'),
+        ]));
+    }
+
+    #[Route(path: '/production-capacity', methods: ['GET'])]
+    public function productionCapacity(
+        Request $request,
+        DashboardMetricProvider $metrics
+    ): Response {
+        // raport rozbieżności (ROLE_ADMIN) korzysta z tego endpointu bez grantu kafla
+        if (!$this->isGranted('reports.dashboard:capacity-utilization') && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $result = $this->validateDateRange(
+            $request->query->get('start'),
+            $request->query->get('end')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
+
         $includeGhost = $request->query->getBoolean('includeGhost');
 
         return $this->json($metrics->getMetric('capacity', $start, $end, $includeGhost));
+    }
+
+    #[Route(path: '/attention-lists', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
+    public function attentionLists(DashboardMetricProvider $metrics): Response
+    {
+        return $this->json($metrics->getMetric('attention_lists', null, null));
     }
 }

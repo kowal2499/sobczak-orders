@@ -1,0 +1,13 @@
+app_module:
+  namespace: bonus-settlement
+  description: Miesięczne rozliczanie premii pracowników produkcyjnych
+  active: true
+  grants:
+    - name: Podgląd rozliczeń premii
+      description: Dostęp do okresów rozliczeniowych i wyliczonych premii
+      slug: bonus-settlement.view
+      type: boolean
+    - name: Zarządzanie rozliczeniami premii
+      description: Tworzenie okresów, przeliczanie, korekty, zamykanie i ponowne otwieranie
+      slug: bonus-settlement.manage
+      type: boolean

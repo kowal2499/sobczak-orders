@@ -1,15 +1,24 @@
 <template>
   <div class="calendar-wrapper" ref="wrapper">
+   <div class="calendar-grid-inner">
+    <!-- Current time indicator -->
+    <div
+      v-if="nowLineLeft !== null"
+      class="now-line"
+      :style="{ left: nowLineLeft + 'px' }"
+    />
+
     <!-- Header row: corner + day numbers -->
     <div class="calendar-header-row">
       <div class="resource-label header-corner">Zasób</div>
       <div
         v-for="col in dayColumns"
         :key="col.day"
+        :title="col.isHoliday ? col.holidayName : null"
         class="day-header-cell"
         :class="{
           'is-today': col.isToday,
-          'is-weekend': col.isWeekend
+          'is-holiday': col.isHoliday
         }"
       >
         <div class="day-number">{{ col.day }}</div>
@@ -39,8 +48,8 @@
           class="day-cell"
           :class="{
             'is-selected': isCellSelected(resource.id, col.day),
-            'is-weekend': col.isWeekend,
             'is-today': col.isToday,
+            'is-holiday': col.isHoliday,
             'is-readonly': !interactive
           }"
           :data-resource-id="resource.id"
@@ -86,13 +95,14 @@
         </template>
       </CalendarEvent>
     </div>
+   </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
 import CalendarEvent from './CalendarEvent.vue'
-import { isWeekend, isToday } from './utils/dateHelpers'
+import { isToday } from './utils/dateHelpers'
 import { DAY_WIDTH, RESOURCE_WIDTH, EVENT_HEIGHT } from './utils/gridHelpers'
 
 export default {
@@ -106,22 +116,55 @@ export default {
     dragState: { type: Object, default: null },
     currentMonthMoment: { type: Object, required: true },
     interactive: { type: Boolean, default: true },
+    holidays: { type: Array, default: () => [] },
     canEditEvent: { type: Function, default: null }
   },
+  data() {
+    return {
+      now: moment(),
+      nowTimer: null
+    }
+  },
   computed: {
+    nowLineLeft() {
+      if (!this.now.isSame(this.currentMonthMoment, 'month')) return null
+      const dayOffset = this.now.date() - 1
+      const fractionOfDay = (this.now.hours() * 60 + this.now.minutes()) / (24 * 60)
+      return RESOURCE_WIDTH + (dayOffset + fractionOfDay) * DAY_WIDTH
+    },
+    holidayMap() {
+      const map = new Map()
+      this.holidays.forEach(h => map.set(h.date, h.description || ''))
+      return map
+    },
     dayColumns() {
       const year = this.currentMonthMoment.year()
       const month = this.currentMonthMoment.month()
-      return this.daysInMonth.map(day => ({
-        day,
-        isWeekend: isWeekend(year, month, day),
-        isToday: isToday(year, month, day),
-        dayName: this.$t(`schedule.dayAbbr.${moment([year, month, day]).day()}`)
-      }))
+      return this.daysInMonth.map(day => {
+        const dateStr = moment([year, month, day]).format('YYYY-MM-DD')
+        return {
+          day,
+          isToday: isToday(year, month, day),
+          isHoliday: this.holidayMap.has(dateStr),
+          holidayName: this.holidayMap.get(dateStr) || '',
+          dayName: this.$t(`schedule.dayAbbr.${moment([year, month, day]).day()}`)
+        }
+      })
     }
+  },
+  mounted() {
+    this.nowTimer = setInterval(() => {
+      this.now = moment()
+    }, 60 * 1000)
+  },
+  beforeDestroy() {
+    if (this.nowTimer) clearInterval(this.nowTimer)
   },
   methods: {
     rowHeight(resourceId) {
+      // A resource may request an explicit fixed height (e.g. compact single-bar rows).
+      const resource = this.resources.find(r => r.id === resourceId)
+      if (resource && resource.rowHeight) return resource.rowHeight
       const data = this.positionedEvents[resourceId]
       if (!data) return 60
       const maxLane = data.events.reduce((max, e) => Math.max(max, e.lane || 0), 0)
@@ -183,12 +226,42 @@ $header-height: 48px;
 
 .calendar-wrapper {
   overflow-x: auto;
+  // Own vertical scroll so the sticky header sticks within it. `200px` is the
+  // assumed space above the calendar (title + filters); tweak if needed. On a
+  // taller filter bar the page may add a second scrollbar - acceptable.
   overflow-y: auto;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 200px);
   border: 1px solid #dee2e6;
   border-radius: 4px;
   position: relative;
   background: #fff;
+}
+
+.calendar-grid-inner {
+  position: relative;
+  min-width: $resource-width + $day-width * 31;
+  width: max-content;
+}
+
+.now-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #0d6efd;
+  z-index: 25;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0d6efd;
+  }
 }
 
 .calendar-header-row {
@@ -228,11 +301,11 @@ $header-height: 48px;
     .day-number { color: #0d6efd; }
   }
 
-  &.is-weekend {
-    background: #f5f5f5;
+  &.is-holiday {
+    background: rgba(231, 120, 131, 0.25);
 
-    .day-number { color: #9e9e9e; }
-    .day-name { color: #bdbdbd; }
+    .day-number { color: #e77883; }
+    .day-name { color: #e77883; }
   }
 }
 
@@ -300,12 +373,12 @@ $header-height: 48px;
     background: rgba(13, 110, 253, 0.12);
   }
 
-  &.is-weekend {
-    background: #fafafa;
-  }
-
   &.is-today {
     background: rgba(13, 110, 253, 0.05);
+  }
+
+  &.is-holiday {
+    background: rgba(231, 120, 131, 0.16);
   }
 
   &.is-readonly {

@@ -34,7 +34,9 @@ Encore
     .cleanupOutputBeforeBuild(['**/*', '!.gitignore'])
     .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
-    .enableVersioning(Encore.isProduction())
+    // Also in dev: lazy-loaded chunks keep their names across builds, so without a content hash the
+    // browser mixes cached and fresh chunks ("Cannot find module") after a rebuild.
+    .enableVersioning()
     .enableSassLoader()
     .enableVueLoader()
     .addAliases({

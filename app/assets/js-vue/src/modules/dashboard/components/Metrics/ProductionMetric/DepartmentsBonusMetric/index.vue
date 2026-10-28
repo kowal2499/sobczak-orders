@@ -12,30 +12,25 @@ import SidebarLayout from '@/components/layout/SidebarLayout.vue'
 import fields from '../fields'
 
 export default defineComponent({
-    name: 'DepartmentsFactorMetric',
+    name: 'DepartmentsBonusMetric',
     extends: BaseMetric,
     mixins: [ ProductionMetricMixin, DepartmentMetricMixin ],
     components: {
         MetricLayout, Sidebar, Details, SidebarNavbar, SidebarLayout,
     },
 
-    watch: {
-        data: {
-            deep: true,
-            handler() {
-                // set inner data
-                if (!Array.isArray(this.data)) {
-                    return
-                }
-                if (!this.data.length) {
-                    return;
-                }
-                this.innerData = this.mapDetails(this.data).map(item => this.addSearchKey(item));
-            }
-        }
+    props: {
+        // zakres raportu (miesiąc wybrany na pulpicie) - potrzebny w dymku "poza zakresem dat"
+        dateStart: { type: String, default: null },
+        dateEnd: { type: String, default: null },
     },
 
     computed: {
+        innerData() {
+            return Array.isArray(this.data)
+                ? this.mapDetails(this.data).map(item => this.addSearchKey(item))
+                : []
+        },
         perDepartmentData() {
             return this.aggregateByDepartment(this.data)
         },
@@ -63,6 +58,7 @@ export default defineComponent({
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p2')"></p>
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p3')"></p>
             <p v-html="$t('dashboard.descriptions.tasksCompleted.p4')"></p>
+            <p v-html="$t('dashboard.descriptions.tasksCompleted.p5')"></p>
         </template>
 
         <template #default>
@@ -76,7 +72,8 @@ export default defineComponent({
                             <tr v-for="department in perDepartmentData">
                                 <td>{{ department.name }}</td>
                                 <td class="text-right">
-                                    <a href="#" @click.prevent="beforeOpen(); open()">
+                                    <b-skeleton v-if="!hasDepartmentData" width="2.5rem" class="ml-auto mb-0" />
+                                    <a v-else href="#" @click.prevent="beforeOpen(); open()">
                                         {{ department.value | roundFloat }}
                                     </a>
                                 </td>
@@ -94,7 +91,13 @@ export default defineComponent({
                             />
                         </template>
                         <template #content>
-                            <Details :data="filteredInnerData" :height="height" class="px-2 pb-2" />
+                            <Details
+                                :data="filteredInnerData"
+                                :height="height"
+                                :report-range="{ start: dateStart, end: dateEnd }"
+                                detailed-cells
+                                class="px-2 pb-2"
+                            />
                         </template>
                     </SidebarLayout>
                 </template>

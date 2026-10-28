@@ -6,7 +6,7 @@ use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ReadModel\ProductionRM;
 
 /**
- * Szczegóły miernika "Orders Finished" — linie zakończone w zakresie (i wcześniej rozpoczęte).
+ * Szczegóły miernika "Orders Finished" - linie zakończone w zakresie (i wcześniej rozpoczęte).
  * Produkcja kwalifikuje się gdy ma status COMPLETED. Dla ROLE_CUSTOMER z przypisanymi klientami
  * wynik ograniczony do tych klientów (dane wyświetlane filtrowane wg własności).
  */

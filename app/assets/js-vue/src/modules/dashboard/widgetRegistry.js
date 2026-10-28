@@ -2,9 +2,11 @@ import WorkingDaysMetric from "./components/Metrics/WorkingDaysMetric.vue";
 import FactorsLimitMetric from "./components/Metrics/FactorsLimitMetric.vue";
 import OrdersCountMetric from "./components/Metrics/ProductionMetric/OrdersCountMetric/index.vue";
 import DepartmentsBonusMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusMetric/index.vue";
+import DepartmentsBonusOnTimeMetric from "./components/Metrics/ProductionMetric/DepartmentsBonusOnTimeMetric/index.vue";
 import CompletionDateMetric from "./components/Metrics/CompletionDateMetric.vue";
 import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric/index.vue";
 import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue";
+import AttentionListMetric from "./components/Metrics/AttentionListMetric.vue";
 import PRIVILEGES from "../../definitions/userRoles";
 
 const GRID_COLUMNS = 12;
@@ -12,14 +14,15 @@ const GRID_COLUMNS = 12;
 /**
  * Each widget's default reading-order position (replaces the old hardcoded
  * row/col markup) and size. `grant`, when set, must be held by the current
- * user (this.$user.can(grant)) for the widget to be available at all.
+ * user (this.$user.can(grant)) for the widget to be available at all; an
+ * array means every listed grant is required.
  */
 export const WIDGETS = [
     {
         key: "working_days",
         component: WorkingDaysMetric,
         order: 1,
-        defaultSize: { w: 4, h: 2 },
+        defaultSize: { w: 4, h: 3 },
         grant: null,
         props: ctx => ({ isBusy: ctx.sourcesState.src01.isBusy, data: ctx.sourcesState.src01.data }),
     },
@@ -27,7 +30,7 @@ export const WIDGETS = [
         key: "factors_limit",
         component: FactorsLimitMetric,
         order: 2,
-        defaultSize: { w: 4, h: 2 },
+        defaultSize: { w: 4, h: 3 },
         grant: null,
         props: ctx => ({ isBusy: ctx.sourcesState.src01.isBusy, data: ctx.sourcesState.src01.data }),
     },
@@ -35,7 +38,7 @@ export const WIDGETS = [
         key: "weekly_capacity",
         component: WeeklyCapacityMetric,
         order: 3,
-        defaultSize: { w: 4, h: 4 },
+        defaultSize: { w: 4, h: 10 },
         grant: "reports.dashboard:weekly-capacity",
         props: ctx => ({
             isBusy: ctx.sourcesState.src05.isBusy,
@@ -48,7 +51,7 @@ export const WIDGETS = [
         key: "orders_pending",
         component: OrdersCountMetric,
         order: 4,
-        defaultSize: { w: 3, h: 2 },
+        defaultSize: { w: 3, h: 3 },
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
         props: ctx => ({
             isBusy: ctx.sourcesState.src02.isBusy,
@@ -62,7 +65,7 @@ export const WIDGETS = [
         key: "orders_finished",
         component: OrdersCountMetric,
         order: 5,
-        defaultSize: { w: 3, h: 2 },
+        defaultSize: { w: 3, h: 3 },
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
         props: ctx => ({
             isBusy: ctx.sourcesState.src02.isBusy,
@@ -76,7 +79,7 @@ export const WIDGETS = [
         key: "completion_date",
         component: CompletionDateMetric,
         order: 6,
-        defaultSize: { w: 2, h: 2 },
+        defaultSize: { w: 2, h: 3 },
         grant: null,
         props: ctx => ({ isBusy: ctx.sourcesState.src01.isBusy, data: ctx.sourcesState.src01.data }),
     },
@@ -84,15 +87,36 @@ export const WIDGETS = [
         key: "departments_bonus",
         component: DepartmentsBonusMetric,
         order: 7,
-        defaultSize: { w: 4, h: 3 },
+        defaultSize: { w: 4, h: 6 },
         grant: PRIVILEGES.CAN_DASHBOARD_METRICS_VIEW,
-        props: ctx => ({ isBusy: ctx.sourcesState.src03.isBusy, data: ctx.sourcesState.src03.data }),
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src03.isBusy,
+            data: ctx.sourcesState.src03.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+        }),
+    },
+    {
+        key: "departments_bonus_on_time",
+        component: DepartmentsBonusOnTimeMetric,
+        order: 8,
+        defaultSize: { w: 4, h: 6 },
+        grant: "reports.dashboard:on-time-bonus",
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src06.isBusy,
+            data: ctx.sourcesState.src06.data,
+            dateStart: ctx.dateRangeStart,
+            dateEnd: ctx.dateRangeEnd,
+            onRefresh: () => ctx.loadSources(['src06']),
+            tolerance: ctx.onTimeTolerance,
+            onToleranceChange: days => ctx.setOnTimeTolerance(days),
+        }),
     },
     {
         key: "capacity",
         component: CapacityMetric,
-        order: 8,
-        defaultSize: { w: 8, h: 3 },
+        order: 9,
+        defaultSize: { w: 8, h: 9 },
         grant: "reports.dashboard:capacity-utilization",
         props: ctx => ({
             isBusy: ctx.sourcesState.src04.isBusy,
@@ -101,18 +125,35 @@ export const WIDGETS = [
             dateEnd: ctx.dateRangeEnd,
         }),
     },
+    ...[
+        ["attention_overdue_orders", "overdueOrders", "attention-overdue-orders"],
+        ["attention_unplanned_orders", "unplannedOrders", "attention-unplanned-orders"],
+        ["attention_not_started_productions", "notStartedProductions", "attention-not-started-productions"],
+        ["attention_overdue_productions", "overdueProductions", "attention-overdue-productions"],
+    ].map(([key, kind, option], idx) => ({
+        key,
+        component: AttentionListMetric,
+        order: 10 + idx,
+        defaultSize: { w: 6, h: 8 },
+        grant: [PRIVILEGES.CAN_PRODUCTION, `reports.dashboard:${option}`],
+        props: ctx => ({
+            isBusy: ctx.sourcesState.src07.isBusy,
+            data: ctx.sourcesState.src07.data?.[kind] ?? null,
+            kind,
+        }),
+    })),
 ];
 
 export function getAvailableWidgets(canFn) {
     return WIDGETS
-        .filter(widget => !widget.grant || canFn(widget.grant))
+        .filter(widget => !widget.grant || [].concat(widget.grant).every(canFn))
         .sort((a, b) => a.order - b.order);
 }
 
 /**
  * Flows widgets shelf-style (CSS flex-wrap-like) into a fixed-column grid,
  * in the order given. Must only ever be called with an already
- * grant-filtered widget list — that way a missing grant simply shifts the
+ * grant-filtered widget list - that way a missing grant simply shifts the
  * rest up/left instead of leaving a reserved empty cell.
  */
 export function packDefaultLayout(widgets, { startY = 0 } = {}) {

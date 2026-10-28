@@ -1,95 +1,92 @@
 <template>
-    <collapsible-card :title="$t('orders.list')">
-        <template v-slot:header>
-            <div v-if="userCanAddOrder()">
-                <a :href="newOrderLink" class="btn btn-success btn-sm text-right m-1"><i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span></a>
-            </div>
-        </template>
+    <div>
+        <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
+            <template v-if="userCanAddOrder()" #actions>
+                <router-link :to="{ name: 'order-new' }" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
+                    <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
+                </router-link>
+            </template>
+        </SectionBlockTitle>
 
-        <template v-slot:filters>
-            <filters :filters-collection="args.filters"/>
-        </template>
+        <SectionBlock class="section-gap">
+            <BaseListing :listing-configuration="listing">
+                <template #filters>
+                    <filters :filters-collection="listing.criteriaValues" stacked />
+                </template>
 
-        <b-pagination
-						v-if="args.meta.pages > 1"
-						align="right"
-						v-model="args.meta.page"
-						:total-rows="args.meta.totalCount"
-						:per-page="args.meta.pageSize"
-						first-number last-number size="sm"
-        />
+                <template #toolbar-end>
+                    <b-pagination
+                        v-if="args.meta.pages > 1"
+                        v-model="args.meta.page"
+                        :total-rows="args.meta.totalCount"
+                        :per-page="args.meta.pageSize"
+                        first-number last-number size="sm"
+                    />
+                </template>
 
-        <table-plus :headers="tableHeaders" :loading="loading" :initial-sort="args.meta.sort" @sortChanged="updateSort" sticky-header>
-            <tr v-for="(line, key) in agreementLines" :key="key">
-                <td>
-                    <line-actions :line="line" @lineChanged="fetchData()"/>
-                </td>
-                <td>
-                    <div class="d-flex flex-column">
-                        <span class="text-nowrap">{{ line.Agreement.orderNumber || line.Agreement.id }}</span>
-                        <tags-indicator :logs="line.tags"/>
-                    </div>
-                </td>
-                <td class="text-nowrap">{{ line.Agreement.createDate | formatDate('YYYY-MM-DD') }}</td>
-                <td class="text-nowrap">{{ line.confirmedDate | formatDate('YYYY-MM-DD') }}</td>
-                <td>
-                    <span v-if="line.Agreement.user && line.Agreement.user.userFullName">
-                        {{ line.Agreement.user.userFullName }}
-                    </span>
-                    <span v-else class="text-muted text-sm text-nowrap opacity-75">
-                        <i class="fa fa-ban mr-1" /> {{ $t('noData') }}
-                    </span>
-                </td>
-                <td>{{ __mixin_customerName(line.Agreement.Customer) }}</td>
-                <td>{{ line.Product.name }}
-                    <tooltip v-if="line.description">
-                        <i slot="visible-content" class="fa fa-info-circle hasTooltip"/>
-                        <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(line.description)"></div>
-                    </tooltip>
-                    <span v-if="line.Agreement.attachments.length > 0"><i class="fa fa-paperclip sb-color"/></span>
-                </td>
-                <td>
-                    <span class="badge" :class="getAgreementStatusClass(line.status)">{{ getAgreementStatusName(line.status) }}</span>
-                </td>
-                <td>
-                    <span class="badge badge-pill" :class="getProductionStatusData(line.productions)['className']">
-                        {{ $t(getProductionStatusData(line.productions)['title']) }}
-                    </span>
-                </td>
-            </tr>
-        </table-plus>
+                <ListingTable
+                    :listing="listing"
+                    :items="agreementLines"
+                    :loading="loading"
+                    :sort="args.meta.sort"
+                    :actions-label="$t('actions')"
+                    sticky-header
+                    @sortChanged="updateSort"
+                >
+                    <template #actions="{ item }">
+                        <line-actions :line="item" @lineChanged="fetchData" />
+                    </template>
+                </ListingTable>
+            </BaseListing>
 
-        <b-pagination
+            <b-pagination
                 v-if="args.meta.pages > 1"
                 align="right"
                 v-model="args.meta.page"
                 :total-rows="args.meta.totalCount"
                 :per-page="args.meta.pageSize"
                 first-number last-number size="sm"
-        />
-    </collapsible-card>
+            />
+        </SectionBlock>
+    </div>
 </template>
 
 <script>
     import qs from 'qs';
     import moment from 'moment';
+    import { currentPanelQuery } from '@/modules/agreement/orderPanel';
     import Filters from './Filters';
-    import Dropdown from '../../base/Dropdown';
     import api from '../../../api/neworder';
-    import routing from  '../../../api/routing';
-    import ConfirmationModal from '../../base/ConfirmationModal';
-    import TablePlus from '../../base/TablePlus';
-    import Tooltip from '../../base/Tooltip';
     import LineActions from '../../common/LineActions';
-    import CollapsibleCard from '../../base/CollapsibleCard';
-    import TagsIndicator from "../../../modules/tags/widget/TagsIndicator";
-    import { agreementStatusesMap } from '@/helpers';
+
+    import BaseListing from "@/components/base/BaseListing/index.vue";
+    import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
+    import Listing from "@/components/base/BaseListing/model/Listing.js";
+    import { isPreset } from "@/services/dateRangePresets";
+    import { TYPE_BOOLEAN } from "@/components/base/BaseListing/model/Criterion";
+    import {
+        LISTING_ORDERS_ID,
+        CRITERION_SEARCH,
+        CRITERION_DATE_START,
+        CRITERION_DATE_DELIVERY,
+        CRITERION_CUSTOMERS,
+        CRITERION_AUTHORS,
+        columnsFactory as ordersListingColumnsFactory,
+        criteriaFactory as ordersListingCriteriaFactory,
+    } from "./configuration/ordersListing";
+    import { loadFilterOptions } from "@/services/orderFilterOptions";
+
+    const LIST_CRITERIA = [CRITERION_CUSTOMERS, CRITERION_AUTHORS];
+
+    const DATE_QUERY_KEYS = {
+        [CRITERION_DATE_START]: { from: 'dateReceive0', to: 'dateReceive1', preset: 'dateReceivePreset' },
+        [CRITERION_DATE_DELIVERY]: { from: 'dateDelivery0', to: 'dateDelivery1', preset: 'dateDeliveryPreset' },
+    };
 
     export default {
         name: "OrdersList",
 
-        components: { Filters, Dropdown, ConfirmationModal, TablePlus,
-            Tooltip, LineActions, CollapsibleCard, TagsIndicator },
+        components: { Filters, LineActions, BaseListing, ListingTable },
 
         props: {
             taskStatuses: {
@@ -103,84 +100,71 @@
 
         data() {
             return {
-
                 syncQueryString: false,
 
                 args: {
-                    filters: {
-                        dateStart: {
-                            start: null,
-                            end: null
-                        },
-                        dateDelivery: {
-                            start: null,
-                            end: null
-                        },
-                        q: '',
-                    },
-
                     meta: {
                         page: 0,
                         pages: 0,
                         sort: '',
-												totalCount: 0,
-												pageSize: 0
+                        totalCount: 0,
+                        pageSize: 0
                     },
                 },
 
                 agreementLines: [],
 
-                newOrderLink: routing.get('orders_view_new'),
 
                 loading: false,
+
+                listing: null,
             }
+        },
+
+        mounted() {
+            EventBus.$on('agreementLineSaved', this.fetchData);
+        },
+
+        beforeDestroy() {
+            EventBus.$off('agreementLineSaved', this.fetchData);
         },
 
         created() {
+            this.listing = new Listing(
+                LISTING_ORDERS_ID,
+                this.$t('orders.list'),
+                ordersListingColumnsFactory(),
+                ordersListingCriteriaFactory(this.$user, parseInt(this.status) > 0)
+            )
+            this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+            loadFilterOptions();
 
-            this.syncQueryString = true;
+            const query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+            const queryCriteria = this.parseQueryCriteria(query);
 
-            // parse initial query string
-            let query = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-
-            for (let i of [
-                    {
-                        moment0: moment(query.dateReceive0 || null),
-                        moment1: moment(query.dateReceive1 || null),
-                        store0: 'args.filters.dateStart.start',
-                        store1: 'args.filters.dateStart.end',
-                    },
-                    {
-                        moment0: moment(query.dateDelivery0 || null),
-                        moment1: moment(query.dateDelivery1 || null),
-                        store0: 'args.filters.dateDelivery.start',
-                        store1: 'args.filters.dateDelivery.end',
-                    },
-            ]) {
-
-                // both dates need to be set and valid
-                if (i.moment0.isValid() && i.moment1.isValid() && i.moment0 <= i.moment1) {
-                    _.set(this, i.store0, i.moment0.format('YYYY-MM-DD'));
-                    _.set(this, i.store1, i.moment1.format('YYYY-MM-DD'));
+            this.listing.fetchViews().then(() => {
+                // Filtry z adresu mają pierwszeństwo przed zapisanymi w widoku, żeby wysłany
+                // link otwierał to, co widział nadawca. Rozjazd pokaże się jako niezapisane zmiany.
+                if (Object.keys(queryCriteria).length) {
+                    this.listing.setCriteriaValues({ ...this.listing.criteriaValues, ...queryCriteria });
                 }
-            }
 
-            // q
-            this.args.filters.q = query.q ? String(query.q) : '';
+                this.args.meta.page = parseInt(query.page) || 1;
+                // puste `sort=` w adresie to świadomie wyłączone sortowanie, nie brak parametru
+                this.args.meta.sort = query.sort !== undefined ? String(query.sort) : 'dateConfirmed_asc';
 
-            // page
-            this.args.meta.page = parseInt(query.page) || 1;
-
-            // sort
-            this.args.meta.sort = query.sort ? String(query.sort) : 'dateConfirmed_asc';
-
+                // dopiero teraz przepisujemy stan do adresu - to uruchamia pierwsze pobranie
+                this.syncQueryString = true;
+            })
         },
 
         watch: {
-            'args.filters': {
+            criteria: {
                 handler() {
                     // zmiana filtrów przywraca paginację na stronę 1
-                    this.args.meta.page = 1
+                    if (this.syncQueryString) {
+                        this.args.meta.page = 1
+                    }
                 },
                 deep: true,
             },
@@ -194,6 +178,21 @@
 
         computed: {
 
+            breadcrumbs() {
+                return [
+                    { icon: 'home', href: '/', label: this.$t('dashboard.title') },
+                    { label: this.$t('orders.list') },
+                ]
+            },
+
+            criteria() {
+                return this.listing ? this.listing.criteriaValues : {};
+            },
+
+            booleanCriteria() {
+                return this.listing ? this.listing.supportedCriteria.filter(c => c.type === TYPE_BOOLEAN) : [];
+            },
+
             /**
              * Tworzenie queryString na podstawie zmiennych z data
              *
@@ -203,67 +202,125 @@
                 if (!this.syncQueryString) {
                     return;
                 }
+
+                const criteria = this.criteria;
                 let query = {};
-                if (this.args.filters.dateStart.start) {
-                    query.dateReceive0 = this.args.filters.dateStart.start;
+
+                for (const id of [CRITERION_DATE_START, CRITERION_DATE_DELIVERY]) {
+                    const keys = DATE_QUERY_KEYS[id];
+                    const value = criteria[id] || {};
+
+                    // zakres relatywny wędruje do adresu jako token, żeby link nie zamroził dat
+                    if (isPreset(value)) {
+                        query[keys.preset] = value.preset;
+                        continue;
+                    }
+
+                    if (value.start) {
+                        query[keys.from] = value.start;
+                    }
+                    if (value.end) {
+                        query[keys.to] = value.end;
+                    }
                 }
-                if (this.args.filters.dateStart.end) {
-                    query.dateReceive1 = this.args.filters.dateStart.end;
+
+                if (criteria[CRITERION_SEARCH]) {
+                    query.q = criteria[CRITERION_SEARCH];
                 }
-                if (this.args.filters.dateDelivery.start) {
-                    query.dateDelivery0 = this.args.filters.dateDelivery.start;
+
+                // przełączniki idą do adresu zawsze, także z wartością domyślną - inaczej odbiorca
+                // linku zobaczyłby wartość ze swojego widoku zamiast tej, którą miał nadawca
+                for (const criterion of this.booleanCriteria) {
+                    query[criterion.id] = criteria[criterion.id] ? 'true' : 'false';
                 }
-                if (this.args.filters.dateDelivery.end) {
-                    query.dateDelivery1 = this.args.filters.dateDelivery.end;
+
+                for (const id of LIST_CRITERIA) {
+                    if ((criteria[id] || []).length) {
+                        query[id] = criteria[id].join(',');
+                    }
                 }
-                if (this.args.filters.q && this.args.filters.q.length > 0) {
-                    query.q = this.args.filters.q;
-                }
+
                 query.page = this.args.meta.page;
-                if (this.args.meta.sort) {
-                    query.sort = this.args.meta.sort;
-                }
+                query.sort = this.args.meta.sort;
+                Object.assign(query, currentPanelQuery());
 
                 let qString = window.location.pathname.concat('?', qs.stringify(query));
                 history.pushState(null, '', qString);
 
                 return qString;
             },
-
-            tableHeaders() {
-                return [
-                    { name: this.$t('actions') },
-                    { name: this.$t('id'), sortKey: 'id' },
-                    { name: this.$t('receiveDate'), sortKey: 'dateReceive'},
-                    { name: this.$t('deliveryDate'), sortKey: 'dateConfirmed'},
-                    { name: this.$t('orders.issuedBy'), sortKey: 'user' },
-                    { name: this.$t('customer'), sortKey: 'customer'},
-                    { name: this.$t('product'), sortKey: 'product' },
-                    { name: this.$t('orderStatus') },
-                    { name: this.$t('productionStatus') },
-                ].filter(Boolean).map(i => ({ items: [i], thClass: null }))
-            },
         },
 
         methods: {
+            /**
+             * Filtry z adresu. Zwraca tylko te, które faktycznie w nim były.
+             *
+             * @param {Object} query
+             * @returns {Object}
+             */
+            parseQueryCriteria(query) {
+                const criteria = {};
+
+                for (const id of [CRITERION_DATE_START, CRITERION_DATE_DELIVERY]) {
+                    const keys = DATE_QUERY_KEYS[id];
+
+                    if (isPreset({ preset: query[keys.preset] })) {
+                        criteria[id] = { preset: query[keys.preset] };
+                        continue;
+                    }
+
+                    const from = moment(query[keys.from] || null);
+                    const to = moment(query[keys.to] || null);
+
+                    // obie daty muszą być poprawne i w kolejności
+                    if (from.isValid() && to.isValid() && from <= to) {
+                        criteria[id] = { start: from.format('YYYY-MM-DD'), end: to.format('YYYY-MM-DD') };
+                    }
+                }
+
+                if (query.q !== undefined) {
+                    criteria[CRITERION_SEARCH] = String(query.q);
+                }
+
+                for (const criterion of this.booleanCriteria) {
+                    if (query[criterion.id] !== undefined) {
+                        criteria[criterion.id] = query[criterion.id] === 'true';
+                    }
+                }
+
+                for (const id of LIST_CRITERIA) {
+                    if (query[id] !== undefined) {
+                        criteria[id] = String(query[id]).split(',').map(Number).filter(Boolean);
+                    }
+                }
+
+                return criteria;
+            },
+
             fetchData() {
                 this.loading = true;
 
-                let bag = this.args.filters;
-                bag.page = this.args.meta.page;
-                bag.sort = this.args.meta.sort;
+                const payload = this.listing.supportedCriteria.reduce((acc, criterion) => {
+                    acc[criterion.apiKey] = criterion.resolveValue(this.criteria[criterion.id]);
+                    return acc;
+                }, {});
+
+                payload.page = this.args.meta.page;
+                payload.sort = this.args.meta.sort;
+
+                // status jest zakresem strony (/orders/{status}), nie filtrem - nie należy do widoku
                 if (parseInt(this.status) > 0) {
-                    bag.status = this.status;
+                    payload.status = this.status;
                 }
 
-                api.fetchAgreements(bag)
+                api.fetchAgreementsFromReadModel(payload)
                     .then(({data}) => {
                         this.agreementLines = data.data || [];
                         this.args.meta.pages = data.meta.pages || 0;
                         this.args.meta.totalCount = data.meta.totalCount || 0;
-												this.args.meta.pageSize = data.meta.pageSize || 0;
+                        this.args.meta.pageSize = data.meta.pageSize || 0;
                     })
-                    .catch(data => {})
+                    .catch(() => {})
                     .finally(() => {
                         this.loading = false;
                     });
@@ -273,49 +330,37 @@
                 this.args.meta.sort = event
             },
 
-            getAgreementStatusName(statusId) {
-                const s = agreementStatusesMap[parseInt(statusId)];
-                return s ? s.name : statusId;
-            },
-
-            getAgreementStatusClass(statusId) {
-                const s = agreementStatusesMap[parseInt(statusId)];
-                return s ? s.className : 'badge-secondary';
-            },
-
-            getProductionStatusData(production) {
-
-                const realProductions = Array.isArray(production)
-                    ? production.filter(p => !p.isGhost)
-                    : [];
-
-                if (realProductions.length === 0) {
-                    return {
-                        className: 'badge-danger',
-                        title: 'Nie zlecone'
-                    };
-                }
-                if (realProductions[4] && parseInt(realProductions[4].status) === 3) {
-                    return {
-                        className: 'badge-success',
-                        title: 'Zakończona'
-                    }
-                }
-                return {
-                    className: 'badge-primary',
-                    title: 'W trakcie'
-                }
-            },
-
             userCanAddOrder() {
                 return this.$user.can(this.$privilages.CAN_ORDERS_ADD);
-            }
+            },
         },
     }
 </script>
 
 <style scoped>
 
+.section-gap {
+    margin-top: 2rem;
+}
+
+.orders-new-btn {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.orders-new-btn .fa-plus {
+    flex: 0 0 auto; /* icon never shrinks away */
+}
+
+.orders-new-btn .addNewOrder {
+    margin-left: 0.6rem; /* larger icon–text gap */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* No room at all → icon only, with no leftover gap. */
 @media screen and (max-width: 768px) {
     span.addNewOrder {
         display: none;

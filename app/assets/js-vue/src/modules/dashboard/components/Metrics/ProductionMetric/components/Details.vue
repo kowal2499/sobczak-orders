@@ -1,7 +1,10 @@
 <script>
 import { defineComponent } from 'vue'
 import StatusIcon from './StatusIcon.vue'
-import DepartmentFactorValue from './DepartmentFactorValue.vue';
+import PlainFactorCell from './FactorCell/PlainFactorCell.vue';
+import OrderFactorCell from './FactorCell/OrderFactorCell.vue';
+import AgreementLineHeading from '@/components/base/Showcase/AgreementLineHeading.vue';
+
 const DEFAULT_ROW = () => ({
     context: null,
     factor: 0,
@@ -15,20 +18,32 @@ const DEFAULT_ROW = () => ({
 
 export default defineComponent({
     name: 'Details',
-    components: {DepartmentFactorValue, StatusIcon },
+    components: {AgreementLineHeading, OrderFactorCell, PlainFactorCell, StatusIcon },
     props: {
         data: {
             type: Array,
             default: () => []
         },
-        height: [String, Number]
-    },
-    methods: {
-        panelUrl(id) {
-            return `/agreement/line/${id}`;
+        height: [String, Number],
+        // komórka raportu "Ukończone zadania produkcyjne" - z datami produkcji i wariantem "poza zakresem"
+        detailedCells: {
+            type: Boolean,
+            default: false,
+        },
+        // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu, dla dymka "poza zakresem dat"
+        reportRange: {
+            type: Object,
+            default: () => ({ start: null, end: null })
         },
     },
     computed: {
+        cellComponent() {
+            return this.detailedCells ? 'PlainFactorCell' : 'OrderFactorCell'
+        },
+        cellProps() {
+            // szczegóły zamówień nie mają zakresu raportu ani wariantu "poza zakresem"
+            return this.detailedCells ? { reportRange: this.reportRange } : {}
+        },
         rows() {
             return this.data.map(record => {
                 return {
@@ -36,7 +51,8 @@ export default defineComponent({
                         id: record.id,
                         orderNumber: record.orderNumber,
                         customer: record.customerName,
-                        product: record.productName
+                        product: record.productName,
+                        status: record.status,
                     },
                     factor: record.factor,
                     dpt01: record.involved_dpt01,
@@ -130,45 +146,34 @@ export default defineComponent({
          class="orders-count-table"
     >
         <template #cell(context)="{item}">
-            <div v-if="item.context">
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="user" />
-                    <span>{{ (item.context.customer || '').trim() }}</span>
-                </div>
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="shopping-cart" />
-                    <span>{{ (item.context.product || '').trim() }}</span>
-                </div>
-                <div class="context-row">
-                    <font-awesome-icon size="sm" icon="hashtag" />
-                    <span>{{ (item.context.orderNumber || '').trim() }}</span>
-                </div>
-                <div class="context-row" v-if="$user.can('production.panel')">
-                    <a :href="panelUrl(item.context.id)" target="_blank" class="text-decoration-none">
-                        <font-awesome-icon size="sm" icon="link" />
-                        <span>{{ $t('_agreement_line_panel') }}</span>
-                    </a>
-                </div>
-            </div>
+            <AgreementLineHeading
+                v-if="item.context"
+                compact
+                :agreement-line-id="item.context.id"
+                :order-number="(item.context.orderNumber || '').trim()"
+                :customer-name="(item.context.customer || '').trim()"
+                :product-name="(item.context.product || '').trim()"
+                :status="item.context.status"
+            />
         </template>
 
         <template #cell(dpt01)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt01" />
+            <component :is="cellComponent" :factorData="item.dpt01" v-bind="cellProps" />
         </template>
         <template #cell(dpt02)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt02" />
+            <component :is="cellComponent" :factorData="item.dpt02" v-bind="cellProps" />
         </template>
         <template #cell(dpt03)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt03" />
+            <component :is="cellComponent" :factorData="item.dpt03" v-bind="cellProps" />
         </template>
         <template #cell(dpt04)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt04" />
+            <component :is="cellComponent" :factorData="item.dpt04" v-bind="cellProps" />
         </template>
         <template #cell(dpt05)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt05" />
+            <component :is="cellComponent" :factorData="item.dpt05" v-bind="cellProps" />
         </template>
         <template #cell(dpt06)="{item}">
-            <DepartmentFactorValue :factorData="item.dpt06" />
+            <component :is="cellComponent" :factorData="item.dpt06" v-bind="cellProps" />
         </template>
 
         <template #head(context)="data">
@@ -224,23 +229,6 @@ export default defineComponent({
     td.data-cell {
         text-align: center;
         width: 100px;
-    }
-
-    .context-row {
-        display: flex;
-        align-items: baseline;
-        justify-content: flex-start;
-
-        svg {
-            color: #CCC;
-        }
-        a {
-            font-size: 0.8em;
-        }
-        span {
-            padding-left: 10px;
-            white-space: pre-line;
-        }
     }
 }
 </style>

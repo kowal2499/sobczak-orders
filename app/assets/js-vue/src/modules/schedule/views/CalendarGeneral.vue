@@ -7,7 +7,7 @@ import Sidebar from '@/components/base/Sidebar'
 import CapacitySidebar from '@/modules/schedule/sidebars/CapacitySidebar'
 import {fetchCapatity, fetchHolidays, fetchAgreementLines} from '@/modules/schedule/repository/scheduleRepository'
 import {v4 as uuidv4} from 'uuid';
-import {getLocalDate, getDepartmentName, getUserDepartments} from "@/helpers";
+import {getLocalDate, getDepartmentName, getUserDepartments, orderDisplayNumber} from "@/helpers";
 import VueSelect from 'vue-select'
 
 export default {
@@ -24,6 +24,13 @@ export default {
     },
 
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('schedule.breadcrumb.home') },
+                { label: this.$t('schedule.breadcrumb.calendar') },
+            ]
+        },
+
         departmentOptions() {
             return getUserDepartments()
         },
@@ -43,7 +50,7 @@ export default {
                         start: prod.dateStart,
                         end: prod.dateEnd,
                         departmentSlug: prod.departmentSlug,
-                        title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${line.orderNumber}`,
+                        title: `${getDepartmentName(prod.departmentSlug)} - ${line.customerName} - ${line.productName} - ${orderDisplayNumber(line.orderNumber, line.internalNumber)}`,
                         resourceId: prod.departmentSlug,
                         overlap: true,
                         allDay: true,
@@ -81,21 +88,53 @@ export default {
 
                 this.lastDate = { ...this.filters.date }
 
-                await Promise.all([
-                    this.fetchHolidayEvents(this.filters.date),
-                    this.fetchCapacityEvents(this.filters.date),
-                    this.fetchDepartmentEvents(this.filters.date)
-                ]).then(([holidayEvents, capacityEvents, departmentEvents]) => {
-                    this.events.holiday = holidayEvents
-                    this.events.capacity = capacityEvents
-                    this.events.departments = departmentEvents
-                })
+                await this.loadEvents()
             },
             deep: true,
         },
     },
 
+    created() {
+        EventBus.$on('agreementLineSaved', this.reloadAfterSave)
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadAfterSave)
+    },
+
     methods: {
+        async loadEvents() {
+            const [holidayEvents, capacityEvents, departmentEvents] = await Promise.all([
+                this.fetchHolidayEvents(this.filters.date),
+                this.fetchCapacityEvents(this.filters.date),
+                this.fetchDepartmentEvents(this.filters.date)
+            ])
+            this.events.holiday = holidayEvents
+            this.events.capacity = capacityEvents
+            this.events.departments = departmentEvents
+        },
+
+        async reloadAfterSave() {
+            if (!this.filters.date.start || !this.filters.date.end) {
+                return
+            }
+            await this.loadEvents()
+            this.refreshSidebarEvents()
+        },
+
+        // sidebar trzyma migawkę zdarzeń z chwili kliknięcia - podmieniamy ją na świeże z tego samego dnia
+        refreshSidebarEvents() {
+            const dateKey = this.sidebar.data?.events?.capacity?.[0]?.dateKey
+            if (!dateKey) {
+                return
+            }
+            const fresh = this.events.capacity.find(event => event.dateKey === dateKey)
+            this.sidebar.data = {
+                ...this.sidebar.data,
+                events: { ...this.sidebar.data.events, capacity: fresh ? [fresh] : [] },
+            }
+        },
+
         onDateSet(data) {
             this.filters.date.start = data.start
             this.filters.date.end = data.end
@@ -186,12 +225,16 @@ export default {
 
 <template>
     <div class="schedule-production">
-        <ScheduleProductionFilters
-            :agreementLines="events.departments"
-            v-model="filters"
-            class="mb-3"
-        />
+        <SectionBlockTitle block :title="$t('schedule.generalTitle')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <ScheduleProductionFilters
+                    :agreementLines="events.departments"
+                    v-model="filters"
+                />
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
         <Calendar
             ref="calendar"
             :events="calendarEvents"
@@ -210,7 +253,9 @@ export default {
                 <b-dropdown-item-button @click="showSidebar('capacity', { arg, events })">Szczegóły obłożenia</b-dropdown-item-button>
             </template>
         </Calendar>
-        <Sidebar v-model="sidebar.isOpen" :title="sidebar.title" sidebar-class="size-75 size-lg-50">
+        </SectionBlock>
+
+        <Sidebar v-model="sidebar.isOpen" :title="sidebar.title" sidebar-class="size-100 size-lg-75 size-xxl-50">
             <template #sidebar-content>
                 <component
                     v-if="sidebar.component"

@@ -1,10 +1,10 @@
 <template>
-    <collapsible-card :title="$t('tags.tags')">
-        <template #header>
+    <SectionBlock class="section-gap">
+        <div class="d-flex justify-content-end mb-3">
             <b-button size="sm" variant="success" :disabled="isBusy" @click="showModal({})">
                 {{ $t('tags.addNew') }}
             </b-button>
-        </template>
+        </div>
 
         <b-alert show variant="info" v-if="noResults">
             {{ $t('tags.nothingDefined') }}
@@ -29,18 +29,17 @@
         >
             {{ $t('tags.confirmRemove') }}
         </confirmation-modal>
-    </collapsible-card>
+    </SectionBlock>
 </template>
 
 <script>
-import CollapsibleCard from "../../../components/base/CollapsibleCard";
 import Modal from "./Modal";
 import ConfirmationModal from "../../../components/base/ConfirmationModal";
 import {fetchAll, deleteTag} from "../repository";
 
 export default {
     name: "TagsConfig",
-    components: {Modal, ConfirmationModal, CollapsibleCard},
+    components: {Modal, ConfirmationModal},
     mounted() {
         this.fetch();
     },

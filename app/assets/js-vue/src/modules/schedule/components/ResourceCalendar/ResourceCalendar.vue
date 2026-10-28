@@ -4,6 +4,7 @@
       :current-month="currentMonth"
       @prev="prevMonth"
       @next="nextMonth"
+      @today="goToday"
     />
 
     <CalendarGrid
@@ -14,6 +15,7 @@
       :drag-state="dragState"
       :current-month-moment="currentMonthMoment"
       :interactive="interactive"
+      :holidays="holidays"
       :can-edit-event="canEditEvent"
       v-bind="gridSlots"
       @cell-mousedown="onCellMousedown"
@@ -54,6 +56,7 @@ export default {
   props: {
     resources: { type: Array, required: true },
     events: { type: Array, default: () => [] },
+    holidays: { type: Array, default: () => [] },
     value: { type: String, default: null },
     interactive: { type: Boolean, default: true },
     allowCrossResource: { type: Boolean, default: false },
@@ -194,6 +197,12 @@ export default {
     },
     nextMonth() {
       this.currentMonth = moment(this.currentMonth, 'YYYY-MM').add(1, 'month').format('YYYY-MM')
+      this.$emit('month-change', this.currentMonth)
+    },
+    goToday() {
+      const thisMonth = moment().format('YYYY-MM')
+      if (this.currentMonth === thisMonth) return
+      this.currentMonth = thisMonth
       this.$emit('month-change', this.currentMonth)
     },
 

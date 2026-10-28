@@ -26,6 +26,23 @@ class AuthUserRoleTestRepository implements AuthUserRoleRepositoryInterface
         $this->storage[] = $userRole;
     }
 
+    /**
+     * @return array<int, string[]> mapa userId -> nazwy ról
+     */
+    public function findRoleNamesGroupedByUserId(): array
+    {
+        $map = [];
+        foreach ($this->storage as $userRole) {
+            $map[(int) $userRole->getUser()->getId()][] = $userRole->getRole()->getName();
+        }
+
+        foreach ($map as &$names) {
+            sort($names);
+        }
+
+        return $map;
+    }
+
     private function find(?User $user, ?AuthRole $role): array
     {
         return array_filter(

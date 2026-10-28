@@ -16,10 +16,8 @@ use App\System\CommandBus;
 use App\System\EventBus;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use Gedmo\Sluggable\Util\Urlizer;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,26 +31,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementLineController extends BaseController
 {
-    /**
-     * @param Request $request
-     * @param AgreementLine $agreementLine
-     * @param TranslatorInterface $t
-     * @return Response
-     */
-    #[Route(path: '/agreement/line/{id}', name: 'agreement_line_details', options: ['expose' => true], methods: ['GET'])]
-    public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t): Response
-    {
-        $taskStatuses = array_map(function ($value) use ($t) {
-            return $t->trans($value, [], 'agreements');
-        }, AgreementLine::getStatuses());
-
-        return $this->render('agreement_line/order_details.html.twig', [
-            'title' => $t->trans('Panel zamówienia', [], 'agreements'),
-            'agreementLineId' => $request->attributes->getInt('id'),
-            'taskStatuses' => $taskStatuses
-        ]);
-    }
-
     /**
      * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
@@ -112,6 +90,7 @@ class AgreementLineController extends BaseController
         if (empty($result)) {
             return $this->json(null, Response::HTTP_NOT_FOUND);
         }
+        $this->denyAccessUnlessGranted('ASSIGNED_CUSTOMER', $result[0]);
 
         return $this->json(
             $result[0], Response::HTTP_OK, [], [
@@ -132,6 +111,7 @@ class AgreementLineController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/update/{id}', name: 'agreement_line_update', options: ['expose' => true], methods: ['PUT'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function update(
         Request $request,
         AgreementLine $agreementLine,
@@ -241,7 +221,7 @@ class AgreementLineController extends BaseController
         foreach ($agreementLine->getProductions() as $production) {
             $old = $oldDates[$production->getId()] ?? null;
             if ($old === null) {
-                continue; // newly added production — not a date change
+                continue; // newly added production - not a date change
             }
 
             $newStart = $production->getDateStart()?->format('Y-m-d');
@@ -268,25 +248,6 @@ class AgreementLineController extends BaseController
     }
 
     /**
-     * @param Request $request
-     */
-    #[Route(path: '/agreement_line/upload', name: 'agreement_line_upload', options: ['expose' => true], methods: ['POST'])]
-    public function uploadTest(Request $request)
-    {
-        /** @var UploadedFile $uploadedFile */
-        $uploadedFile = $request->files->get('sobczak-attach');
-        $destination = $this->getParameter('kernel.project_dir') . '/public/uploads';
-
-        $originalFileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $newFileName = Urlizer::urlize($originalFileName) . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
-        dd($uploadedFile->move(
-            $destination,
-            $newFileName
-        ));
-
-    }
-
-    /**
      * @isGranted("ROLE_PRODUCTION")
      *
      * @param AgreementLine $agreementLine
@@ -296,6 +257,7 @@ class AgreementLineController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/archive/{id}/{statusId}', name: 'agreement_line_archive', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function setStatus(
         AgreementLine $agreementLine,
         $statusId,
@@ -325,6 +287,7 @@ class AgreementLineController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/agreement_line/delete/{agreementLine}', name: 'agreement_line_delete', options: ['expose' => true], methods: ['POST'])]
+    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
     public function delete(
         AgreementLine $agreementLine,
         EntityManagerInterface $em,

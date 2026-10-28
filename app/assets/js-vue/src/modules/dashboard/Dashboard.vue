@@ -1,15 +1,17 @@
 <template>
-    <collapsible-card :title="$t('dashboard.title')">
-        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
-            <b-form inline class="mb-0">
-                <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-                <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
-            </b-form>
+    <div>
+        <SectionBlock class="d-flex align-items-center justify-content-between flex-wrap">
+            <SectionBlockTitle :title="$t('dashboard.title')" />
 
-            <div>
+            <div class="d-flex align-items-center">
+                <b-form inline class="mb-0 mr-3">
+                    <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
+                    <b-form-select v-model="filters.month" :options="monthsOptions" />
+                </b-form>
+
                 <button
                     v-if="editMode"
-                    class="btn btn-outline-secondary btn-sm mr-2"
+                    class="btn btn-outline-secondary btn-sm mr-2 d-none d-md-inline-block"
                     type="button"
                     @click="resetLayout"
                 >
@@ -17,7 +19,7 @@
                     {{ $t('dashboard.layout.reset') }}
                 </button>
                 <button
-                    class="btn btn-sm"
+                    class="btn btn-sm d-none d-md-inline-block"
                     :class="editMode ? 'btn-primary' : 'btn-outline-primary'"
                     type="button"
                     @click="editMode = !editMode"
@@ -26,35 +28,35 @@
                     {{ editMode ? $t('dashboard.layout.done') : $t('dashboard.layout.edit') }}
                 </button>
             </div>
-        </div>
+        </SectionBlock>
 
-        <EditableGridLayout
-            v-if="gridLayout.length"
-            :layout="gridLayout"
-            :editable="editMode"
-            @update:layout="onLayoutUpdate"
-        >
-            <template #default="{ item }">
-                <div class="dashboard-widget" :class="{ 'dashboard-widget--hidden': editMode && !isVisible(item.i) }">
-                    <button
-                        v-if="editMode"
-                        class="dashboard-widget__visibility-toggle btn btn-sm btn-light"
-                        type="button"
-                        :title="$t(isVisible(item.i) ? 'dashboard.layout.hide' : 'dashboard.layout.show')"
-                        @click="toggleVisibility(item.i)"
-                    >
-                        <font-awesome-icon :icon="isVisible(item.i) ? 'eye-slash' : 'eye'" />
-                    </button>
-                    <component :is="widgetComponent(item.i)" v-bind="widgetProps(item.i)" />
-                </div>
-            </template>
-        </EditableGridLayout>
-    </collapsible-card>
+        <SectionBlock v-if="gridLayout.length" class="section-gap">
+            <EditableGridLayout
+                :layout="gridLayout"
+                :editable="editMode"
+                @update:layout="onLayoutUpdate"
+            >
+                <template #default="{ item }">
+                    <div class="dashboard-widget" :class="{ 'dashboard-widget--hidden': editMode && !isVisible(item.i) }">
+                        <button
+                            v-if="editMode"
+                            class="dashboard-widget__visibility-toggle btn btn-sm btn-light"
+                            type="button"
+                            :title="$t(isVisible(item.i) ? 'dashboard.layout.hide' : 'dashboard.layout.show')"
+                            @click="toggleVisibility(item.i)"
+                        >
+                            <font-awesome-icon :icon="isVisible(item.i) ? 'eye-slash' : 'eye'" />
+                        </button>
+                        <component :is="widgetComponent(item.i)" v-bind="widgetProps(item.i)" />
+                    </div>
+                </template>
+            </EditableGridLayout>
+        </SectionBlock>
+    </div>
 </template>
 
 <script>
 import { debounce } from "lodash";
-import CollapsibleCard from "../../components/base/CollapsibleCard";
 import EditableGridLayout from "../../components/base/EditableGridLayout";
 import { MONTHS, dateToString, firstDay, lastDay } from "../../services/datesService";
 import { WIDGETS, getAvailableWidgets, packDefaultLayout } from "./widgetRegistry";
@@ -63,8 +65,11 @@ import { getUserSetting, saveUserSetting } from "../userSettings/repository";
 import {
     getAgreementLinesSummary,
     getProductionTasksCompletionSummary,
-    getOldSummary, getDepartmentsCapacity, getWeeklyCapacity
+    getProductionTasksOnTimeSummary,
+    getOldSummary, getDepartmentsCapacity, getWeeklyCapacity,
+    getAttentionLists
 } from "./repository";
+import PRIVILEGES from "../../definitions/userRoles";
 
 const START_YEAR = 2018;
 const LAYOUT_CONTEXT = 'dashboard.layout';
@@ -75,13 +80,22 @@ const DATA_SOURCES = [
     { id: 'src03', fetcher: getProductionTasksCompletionSummary, grant: 'canDashboardMetricsView', active: true },
     { id: 'src04', fetcher: getDepartmentsCapacity, grant: 'reports.dashboard:capacity-utilization', active: true },
     { id: 'src05', fetcher: getWeeklyCapacity, grant: 'reports.dashboard:weekly-capacity', active: true },
+    {
+        id: 'src06',
+        fetcher: getProductionTasksOnTimeSummary,
+        grant: 'reports.dashboard:on-time-bonus',
+        active: true,
+        // dodatkowe argumenty fetchera zależne od stanu pulpitu (widełki terminowości)
+        extraArgs: ctx => [ctx.onTimeTolerance],
+    },
+    // stan na dziś, niezależny od wybranego miesiąca
+    { id: 'src07', fetcher: getAttentionLists, grant: PRIVILEGES.CAN_PRODUCTION, active: true, dateIndependent: true },
 ]
 
 export default {
     name: 'Dashboard3',
 
     components: {
-        CollapsibleCard,
         EditableGridLayout,
     },
 
@@ -141,6 +155,11 @@ export default {
         }, {})
 
         this.persistLayout = debounce(this.saveLayout, 500);
+        EventBus.$on('agreementLineSaved', this.reloadSources);
+    },
+
+    beforeDestroy() {
+        EventBus.$off('agreementLineSaved', this.reloadSources);
     },
 
     mounted() {
@@ -155,41 +174,49 @@ export default {
         filters: {
             deep: true,
             handler() {
-                DATA_SOURCES.forEach(source => {
-                    if (source.grant && !this.$user.can(source.grant)) {
-                        return;
-                    }
-                    if (!source.active) {
-                        return;
-                    }
-                    this.sourcesState[source.id].isBusy = true;
-                    this.sourcesState[source.id].error = null;
-                    source.fetcher(this.dateRangeStart, this.dateRangeEnd)
-                        .then(({data}) => {
-                            this.sourcesState[source.id].data = data;
-                        })
-                        .catch((error) => {
-                            this.sourcesState[source.id].error = error;
-                        })
-                        .finally(() => {
-                            this.sourcesState[source.id].isBusy = false;
-                        });
-                })
+                this.loadSources(null, { periodChange: true });
             }
         }
     },
-    data: () => ({
-        sourcesState: {},
-        layoutItems: [],
-        editMode: false,
 
-        filters: {
-            month: null,
-            year: null
-        },
-    }),
 
     methods: {
+        loadSources(ids = null, { periodChange = false } = {}) {
+            DATA_SOURCES.forEach(source => {
+                if (ids && !ids.includes(source.id)) {
+                    return;
+                }
+                if (periodChange && source.dateIndependent && this.sourcesState[source.id].data !== null) {
+                    return;
+                }
+                if (source.grant && !this.$user.can(source.grant)) {
+                    return;
+                }
+                if (!source.active) {
+                    return;
+                }
+                this.sourcesState[source.id].isBusy = true;
+                this.sourcesState[source.id].error = null;
+                const extraArgs = source.extraArgs ? source.extraArgs(this) : [];
+                source.fetcher(this.dateRangeStart, this.dateRangeEnd, ...extraArgs)
+                    .then(({data}) => {
+                        this.sourcesState[source.id].data = data;
+                    })
+                    .catch((error) => {
+                        this.sourcesState[source.id].error = error;
+                    })
+                    .finally(() => {
+                        this.sourcesState[source.id].isBusy = false;
+                    });
+            })
+        },
+        reloadSources() {
+            this.loadSources();
+        },
+        setOnTimeTolerance(days) {
+            this.onTimeTolerance = days;
+            this.loadSources(['src06']);
+        },
         widgetComponent(key) {
             return this.availableWidgetsByKey[key]?.component;
         },
@@ -201,8 +228,24 @@ export default {
             return !!this.layoutItems.find(item => item.key === key)?.visible;
         },
         async loadLayout() {
-            const { data } = await getUserSetting(LAYOUT_CONTEXT);
-            this.layoutItems = this.mergeLayout(data?.widgets ?? null);
+            const savedWidgets = await this.fetchSavedLayout();
+            this.layoutItems = this.mergeLayout(savedWidgets);
+
+            if (!savedWidgets) {
+                this.saveLayout();
+            }
+        },
+        async fetchSavedLayout() {
+            try {
+                // Endpoint wraps the stored payload: { data: { widgets: [...] } }
+                const { data: body } = await getUserSetting(LAYOUT_CONTEXT);
+                return body?.data?.widgets ?? null;
+            } catch (error) {
+                if (error.response?.status === 404) {
+                    return null;
+                }
+                throw error;
+            }
         },
         mergeLayout(savedWidgets) {
             const available = this.availableWidgets;
@@ -255,16 +298,35 @@ export default {
         },
         resetLayout() {
             this.layoutItems = packDefaultLayout(this.availableWidgets);
-            this.persistLayout();
+            this.saveLayout();
+            this.editMode = false;
         },
     },
+
+    data: () => ({
+        sourcesState: {},
+        // widełki terminowości (dni robocze) - podgląd, null = wartość obowiązująca z backendu
+        onTimeTolerance: null,
+        layoutItems: [],
+        editMode: false,
+
+        filters: {
+            month: null,
+            year: null
+        },
+    }),
 }
 </script>
 
 <style scoped lang="scss">
+.section-gap {
+    margin-top: 2rem;
+}
+
 .dashboard-widget {
     position: relative;
     height: 100%;
+    overflow: hidden;
 
     &--hidden {
         opacity: 0.4;

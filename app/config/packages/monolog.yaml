@@ -2,11 +2,19 @@ monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
         - activity_log
+        - metric_snapshot
     handlers:
         activity_log:
             type: service
             id: App\Module\ActivityLog\Logger\ActivityLogMonologHandler
             channels: [activity_log]
+        # przebiegi crona historii mierników - plik dzienny, 14 dni wstecz
+        metric_snapshot:
+            type: rotating_file
+            path: "%kernel.logs_dir%/metric_snapshot.log"
+            level: info
+            max_files: 14
+            channels: [metric_snapshot]
 
 when@dev:
     monolog:

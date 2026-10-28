@@ -31,7 +31,7 @@ export default defineComponent({
 
 <template>
     <Dropdown :icon-class="canImpersonateBack ? 'fa fa-user-secret' : 'fa fa-user-circle-o'" :btn-text="userName">
-        <ModalAction :title="$t('_impersonate.title')" v-if="canImpersonate">
+        <ModalAction :title="$t('_impersonate.title')" :configuration="{ size: 'xl' }" v-if="canImpersonate">
             <ImpersonateUser />
             <template #open-action="{ open }">
                 <span class="dropdown-item" @click.prevent="open">

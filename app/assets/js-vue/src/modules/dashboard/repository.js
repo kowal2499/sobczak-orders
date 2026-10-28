@@ -16,6 +16,20 @@ export function getProductionTasksCompletionSummary(start, end) {
 }
 
 
+/**
+ * @param tolerance widełki terminowości w dniach roboczych; null = wartość domyślna z backendu
+ */
+export function getProductionTasksOnTimeSummary(start, end, tolerance = null) {
+    const params = tolerance === null ? {start, end} : {start, end, tolerance};
+    return axios.get(`/reports/production/production-tasks-on-time-summary`, {params});
+}
+
+
+export function addCompletedTasksBonus(agreementLineId, payload) {
+    return axios.post(`/production/factor/${agreementLineId}/completed-tasks-bonus`, payload);
+}
+
+
 export function getOldSummary(start, end) {
     return axios.post(`production/summary`, {
         month: (new Date(start)).getMonth() + 1,
@@ -45,4 +59,8 @@ export function getWeeklyCapacity(start, end, { includeGhost = false } = {}) {
         params.includeGhost = 1;
     }
     return axios.get(`/reports/schedule/capacity`, { params });
+}
+
+export function getAttentionLists() {
+    return axios.get(`/reports/production/attention-lists`);
 }

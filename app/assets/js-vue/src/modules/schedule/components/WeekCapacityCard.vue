@@ -53,7 +53,7 @@ export default {
             {{ weekData.workingDays }} {{ $t('schedule.workingDaysShort') }}
         </div>
 
-        <div v-if="weekData.agreementLines && weekData.agreementLines.length" class="mb-1">
+        <div v-if="canProduction && weekData.agreementLines && weekData.agreementLines.length" class="mb-1">
             <button
                 class="btn btn-link btn-sm p-0 text-muted"
                 style="font-size: 0.75rem"
@@ -67,7 +67,7 @@ export default {
         <Sidebar
             v-model="sidebarOpen"
             :title="sidebarTitle"
-            sidebar-class="size-100 size-lg-50"
+            sidebar-class="size-100 size-lg-75 size-xxl-50"
             v-if="canProduction"
         >
             <template #sidebar-content>

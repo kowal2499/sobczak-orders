@@ -1,9 +1,9 @@
 <script>
 import ResourceCalendar from "@/modules/schedule/components/ResourceCalendar/ResourceCalendar.vue";
-import OrderPanelDrawer from "@/modules/agreement/components/OrderPanelDrawer.vue";
+import { openOrderPanel } from "@/modules/agreement/orderPanel";
 import VueSelect from 'vue-select'
 import moment from 'moment'
-import { fetchProductionResources, updateProductionDates } from "@/modules/schedule/repository/scheduleRepository";
+import { fetchProductionResources, updateProductionDates, fetchHolidays } from "@/modules/schedule/repository/scheduleRepository";
 import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
 
 const STATUS_OPTIONS = ['awaits', 'started', 'in_progress', 'completed', 'not_applicable']
@@ -14,7 +14,6 @@ export default {
 
     components: {
         ResourceCalendar,
-        OrderPanelDrawer,
         VueSelect,
     },
 
@@ -25,18 +24,23 @@ export default {
             loading: false,
             rawResources: [],
             rawEvents: [],
+            holidays: [],
             filters: {
                 departments: [],
                 statuses: [],
                 agreementLineIds: [],
             },
-            panelLineId: null,
-            panelOpen: false,
-            panelDepartment: null,
         }
     },
 
     computed: {
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('schedule.breadcrumb.home') },
+                { label: this.$t('schedule.breadcrumb.calendarV2') },
+            ]
+        },
+
         allLabel() {
             return this.$t('schedule.all')
         },
@@ -61,7 +65,7 @@ export default {
                 const m = e.meta || {}
                 const label = [m.orderNumber, m.customerName, m.productName]
                     .filter(Boolean)
-                    .join(' — ')
+                    .join(' - ')
                 seen.set(e.agreementLineId, {
                     value: e.agreementLineId,
                     label: label || `#${e.agreementLineId}`,
@@ -95,6 +99,14 @@ export default {
         this.loadMonth(this.currentMonth)
     },
 
+    mounted() {
+        window.EventBus.$on('agreementLineSaved', this.onPanelSaved)
+    },
+
+    beforeDestroy() {
+        window.EventBus.$off('agreementLineSaved', this.onPanelSaved)
+    },
+
     methods: {
         rangeFor(month) {
             const m = moment(month, 'YYYY-MM')
@@ -110,6 +122,7 @@ export default {
             }
             const { start, end } = this.rangeFor(month)
             this.loading = true
+            this.loadHolidays(start, end)
             return fetchProductionResources(start, end, this.includeGhost)
                 .then(({ data }) => {
                     this.rawResources = data.resources || []
@@ -123,6 +136,18 @@ export default {
                 })
                 .finally(() => {
                     this.loading = false
+                })
+        },
+
+        loadHolidays(start, end) {
+            return fetchHolidays(start, end)
+                .then(({ data }) => {
+                    this.holidays = (data || [])
+                        .filter(h => h.date)
+                        .map(h => ({ date: h.date, description: h.description || '' }))
+                })
+                .catch(() => {
+                    this.holidays = []
                 })
         },
 
@@ -141,12 +166,7 @@ export default {
         },
 
         onEventClick(event) {
-            this.panelLineId = event.agreementLineId
-            this.panelDepartment = event.resourceId
-            this.panelOpen = false
-            this.$nextTick(() => {
-                this.panelOpen = true
-            })
+            openOrderPanel(this.$router, event.agreementLineId, event.resourceId)
         },
 
         onEventMoved({ previous, updated }) {
@@ -202,7 +222,9 @@ export default {
 
 <template>
     <div>
-        <div class="row align-items-end mb-3">
+        <SectionBlockTitle block :title="$t('schedule.title')" :breadcrumbs="breadcrumbs">
+            <template #filters>
+                <div class="row align-items-end">
             <div class="col-md-3">
                 <label class="form-label small mb-1">{{ $t('schedule.filters.department') }}</label>
                 <vue-select
@@ -252,11 +274,15 @@ export default {
                     {{ $t('schedule.showGhost') }}
                 </b-form-checkbox>
             </div>
-        </div>
+                </div>
+            </template>
+        </SectionBlockTitle>
 
+        <SectionBlock class="section-gap">
         <ResourceCalendar
             :resources="filteredResources"
             :events="filteredEvents"
+            :holidays="holidays"
             :value="currentMonth"
             :interactive="true"
             :allow-create="false"
@@ -272,15 +298,8 @@ export default {
                 </span>
             </template>
         </ResourceCalendar>
+        </SectionBlock>
 
-        <OrderPanelDrawer
-            v-if="panelLineId"
-            :key="panelLineId"
-            v-model="panelOpen"
-            :line-id="panelLineId"
-            :active-department="panelDepartment"
-            @saved="onPanelSaved"
-        />
     </div>
 </template>
 

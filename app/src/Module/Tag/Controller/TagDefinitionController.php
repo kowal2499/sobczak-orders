@@ -21,12 +21,6 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TagDefinitionController extends BaseController
 {
-    #[Route(path: '/tag-definition', name: 'tags', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('configuration/tags.html.twig');
-    }
-
     #[Route(path: '/api/tag-definition', methods: ['GET'])]
     public function findAll(TagDefinitionRepository $repository): JsonResponse
     {

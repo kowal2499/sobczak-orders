@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserSecurityFormType;
-use App\Module\Authorization\Service\GrantsResolver;
+use App\Module\Authorization\Repository\AuthUserRoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -15,6 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -48,55 +49,31 @@ class SecurityController extends BaseController
 
     /**
      * @isGranted("ROLE_ADMIN")
-     * @return Response
-     */
-    #[Route(path: '/users', name: 'security_users', options: ['expose' => true], methods: ['GET'])]
-    public function users(): Response
-    {
-        return $this->render('configuration/users.html.twig', []);
-    }
-
-
-    /**
-     * @isGranted("ROLE_ADMIN")
-     * @param User $user
-     * @return Response
-     */
-    #[Route(path: '/users/edit/{id}', name: 'security_user_edit', options: ['expose' => true])]
-    public function editUserView(User $user): Response
-    {
-        return $this->render('configuration/single_user.html.twig', [
-            'user' => $user
-        ]);
-    }
-
-    /**
-     * @isGranted("ROLE_ADMIN")
-     * @return Response
-     */
-    #[Route(path: '/users/add', name: 'view_security_user_new', options: ['expose' => true])]
-    public function viewAddUser(): Response
-    {
-        return $this->render('configuration/single_user.html.twig', [
-            'user' => null
-        ]);
-    }
-
-    /**
-     * @isGranted("ROLE_ADMIN")
      * @param UserRepository $repository
      * @return JsonResponse
      *
      * Zwraca wszystkich użytkowników
      */
     #[Route(path: '/users/fetch', name: 'users_fetch', options: ['expose' => true], methods: ['GET'])]
-    public function fetchUsers(Request $request, UserRepository $repository): JsonResponse
-    {
+    public function fetchUsers(
+        Request $request,
+        UserRepository $repository,
+        NormalizerInterface $normalizer,
+        AuthUserRoleRepository $userRoleRepository
+    ): JsonResponse {
         $all = $request->query->getBoolean('all');
         $users = $all ? $repository->findAll() : $repository->findBy(['active' => true]);
-        return $this->json($users, Response::HTTP_OK, [], [
+
+        $rolesByUserId = $userRoleRepository->findRoleNamesGroupedByUserId();
+        $data = $normalizer->normalize($users, null, [
             ObjectNormalizer::GROUPS => ['user_main']
         ]);
+
+        foreach ($data as &$user) {
+            $user['authRoles'] = $rolesByUserId[$user['id']] ?? [];
+        }
+
+        return $this->json($data);
     }
 
     /**
@@ -166,18 +143,6 @@ class SecurityController extends BaseController
         }
 
         return new Response(null);
-    }
-
-    #[Route(path: '/user/grants', options: ['expose' => true], methods: ['GET'])]
-    public function grants(Security $security, GrantsResolver $grantsResolver): JsonResponse
-    {
-        $user = $security->getUser();
-
-        if (!$user instanceof User) {
-            throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
-        }
-
-        return new JsonResponse($grantsResolver->getGrants($user));
     }
 
     /**
