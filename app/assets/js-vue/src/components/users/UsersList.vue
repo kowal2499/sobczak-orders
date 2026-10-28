@@ -13,7 +13,7 @@
                     <b-form-checkbox v-model="showInactiveUsers" switch>
                         <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
                     </b-form-checkbox>
-                    <a :href="getRouting().get('view_security_user_new')" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></a>
+                    <router-link :to="{ name: 'user-new' }" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></router-link>
                 </div>
             </template>
         </SectionBlockTitle>
@@ -59,7 +59,7 @@
                                         <template #button-content>
                                             <i class="fa fa-bars"></i>
                                         </template>
-                                        <b-dropdown-item :href="getRouting().get('security_user_edit') + '/' + user.id">
+                                        <b-dropdown-item :to="{ name: 'user-edit', params: { id: user.id } }">
                                             <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
                                         </b-dropdown-item>
                                     </b-dropdown>
@@ -73,7 +73,6 @@
 </template>
 
 <script>
-    import routing from "../../api/routing";
     import helpers from "../../helpers";
     import store from "@/store";
     import * as TYPES from "@/store/types"
@@ -118,10 +117,6 @@
                 this.locked = true;
                 return store.dispatch(`user/${TYPES.ACTION_USER_FETCH_USERS}`)
                     .finally(() => this.locked = false)
-            },
-
-            getRouting() {
-                return routing;
             },
 
             getRoleName(role) {

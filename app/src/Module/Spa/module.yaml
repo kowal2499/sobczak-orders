@@ -1,0 +1,4 @@
+app_module:
+  namespace: spa
+  description: Powłoka aplikacji SPA - fallback dla tras frontu i dane startowe zalogowanego użytkownika
+  active: true

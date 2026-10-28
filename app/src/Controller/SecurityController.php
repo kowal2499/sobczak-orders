@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserSecurityFormType;
 use App\Module\Authorization\Repository\AuthUserRoleRepository;
-use App\Module\Authorization\Service\GrantsResolver;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -47,42 +46,6 @@ class SecurityController extends BaseController
     #[Route(path: '/logout', name: 'security_logout')]
     public function logout()
     {}
-
-    /**
-     * @isGranted("ROLE_ADMIN")
-     * @return Response
-     */
-    #[Route(path: '/users', name: 'security_users', options: ['expose' => true], methods: ['GET'])]
-    public function users(): Response
-    {
-        return $this->render('configuration/users.html.twig', []);
-    }
-
-
-    /**
-     * @isGranted("ROLE_ADMIN")
-     * @param User $user
-     * @return Response
-     */
-    #[Route(path: '/users/edit/{id}', name: 'security_user_edit', options: ['expose' => true])]
-    public function editUserView(User $user): Response
-    {
-        return $this->render('configuration/single_user.html.twig', [
-            'user' => $user
-        ]);
-    }
-
-    /**
-     * @isGranted("ROLE_ADMIN")
-     * @return Response
-     */
-    #[Route(path: '/users/add', name: 'view_security_user_new', options: ['expose' => true])]
-    public function viewAddUser(): Response
-    {
-        return $this->render('configuration/single_user.html.twig', [
-            'user' => null
-        ]);
-    }
 
     /**
      * @isGranted("ROLE_ADMIN")
@@ -180,18 +143,6 @@ class SecurityController extends BaseController
         }
 
         return new Response(null);
-    }
-
-    #[Route(path: '/user/grants', options: ['expose' => true], methods: ['GET'])]
-    public function grants(Security $security, GrantsResolver $grantsResolver): JsonResponse
-    {
-        $user = $security->getUser();
-
-        if (!$user instanceof User) {
-            throw new \LogicException('Authenticated user is not an instance of App\Entity\User.');
-        }
-
-        return new JsonResponse($grantsResolver->getGrants($user));
     }
 
     /**

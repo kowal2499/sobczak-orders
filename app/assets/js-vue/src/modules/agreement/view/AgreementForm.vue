@@ -345,7 +345,7 @@ export default {
             this.isSaving = false;
 
             if (!this.agreementId) {
-                window.location.replace(routing.get('agreements_show'));
+                this.$router.push({ name: 'orders' });
                 return;
             }
 

@@ -61,10 +61,4 @@ class RoleController extends BaseController
         // delete a role
         return new JsonResponse([]);
     }
-
-    #[Route(path: '/view', name: '_view', methods: ['GET'])]
-    public function view(): Response
-    {
-        return $this->render('configuration/role.html.twig');
-    }
 }

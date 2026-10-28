@@ -330,8 +330,8 @@ div#wrapper nav.sidebar {
 // ============================================================
 // Expanded state - hover, keyboard focus, or mobile "open"
 // ============================================================
-div#wrapper nav.sidebar:hover,
-div#wrapper nav.sidebar:focus-within,
+div#wrapper nav.sidebar:not(.sidebar--suppressed):hover,
+div#wrapper nav.sidebar:not(.sidebar--suppressed):focus-within,
 div#wrapper.sidebar-open nav.sidebar {
     width: $sidebar-expanded-width;
     box-shadow: 0.25rem 0 1.5rem rgba(0, 0, 0, 0.12);
@@ -373,8 +373,8 @@ div#wrapper.sidebar-open nav.sidebar {
 }
 
 // submenu opens only when the sidebar is expanded AND the item is expanded
-div#wrapper nav.sidebar:hover .nav-item.expandable.expanded .submenu,
-div#wrapper nav.sidebar:focus-within .nav-item.expandable.expanded .submenu,
+div#wrapper nav.sidebar:not(.sidebar--suppressed):hover .nav-item.expandable.expanded .submenu,
+div#wrapper nav.sidebar:not(.sidebar--suppressed):focus-within .nav-item.expandable.expanded .submenu,
 div#wrapper.sidebar-open .nav-item.expandable.expanded .submenu {
     display: block;
 }

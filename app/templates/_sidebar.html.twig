@@ -10,7 +10,7 @@
     <ul class="sidebar__nav" v-cloak>
 
         <li class="nav-item {% if active == 'dashboard_show' %}active{% endif %}">
-            <a href="{{ path('dashboard_show') }}" class="nav-link">
+            <a href="/" class="nav-link">
                 <i class="fa fa-tachometer" aria-hidden="true"></i>
                 <span class="sidebar__label">{{ 'Pulpit'|trans }}</span>
             </a>
@@ -51,31 +51,31 @@
                 {
                     'title': 'Wszystkie'|trans,
                     'statusId': 0,
-                    'path': path('agreements_show'),
+                    'path': '/orders',
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == 0) ? true : false
                 },
                 {
                     'title': 'Oczekujące'|trans,
                     'statusId': statusWaiting,
-                    'path': path('agreements_show', {'status': statusWaiting}),
+                    'path': '/orders/' ~ statusWaiting,
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWaiting) ? true : false
                 },
                 {
                     'title': 'W realizacji'|trans,
                     'statusId': statusManufacturing,
-                    'path': path('agreements_show', {'status': statusManufacturing}),
+                    'path': '/orders/' ~ statusManufacturing,
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusManufacturing) ? true : false
                 },
                 {
                     'title': 'Magazyn'|trans,
                     'statusId': statusWarehouse,
-                    'path': path('agreements_show', {'status': statusWarehouse}),
+                    'path': '/orders/' ~ statusWarehouse,
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusWarehouse) ? true : false
                 },
                 {
                     'title': 'Archiwum'|trans,
                     'statusId': statusArchived,
-                    'path': path('agreements_show', {'status': statusArchived}),
+                    'path': '/orders/' ~ statusArchived,
                     'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusArchived) ? true : false
                 }
 
@@ -85,7 +85,7 @@
                 {%  set array = array|merge([{
                         'title': 'Kosz'|trans,
                         'statusId': statusDeleted,
-                        'path': path('agreements_show', {'status': statusDeleted}),
+                        'path': '/orders/' ~ statusDeleted,
                         'active': (active == 'agreements_show' and app.request.attributes.get('status') == statusDeleted) ? true : false
                     }])
                 %}
@@ -97,7 +97,7 @@
 
         {% if is_granted('ROLE_PRODUCTION_VIEW') %}
             <li class="nav-item {% if active == 'production_show' %}active{% endif %}">
-                <a href="{{ path('production_show') }}" class="nav-link">
+                <a href="/production" class="nav-link">
                     <i class="fa fa-cogs" aria-hidden="true"></i>
                     <span class="sidebar__label">{{ 'Produkcja'|trans }}</span>
                 </a>
@@ -112,21 +112,21 @@
             >
                 <div class="submenu collapse-inner">
                     {% if is_granted('reports.calendar_tasks') %}
-                        <a href="{{ path('schedule_production_v2') }}"
+                        <a href="/reports/schedule/view/production"
                            class="{% if active == 'schedule_production_v2' %}active{% endif %}"
                         >
                             {{ 'Kalendarz produkcji'|trans }}
                         </a>
                     {% endif %}
                     {% if is_granted('reports.calendar_orders') %}
-                        <a href="{{ path('schedule_orders') }}"
+                        <a href="/reports/schedule/view/orders"
                            class="{% if active == 'schedule_orders' %}active{% endif %}"
                         >
                             {{ 'Kalendarz zamówień'|trans }}
                         </a>
                     {% endif %}
                     {% if is_granted('reports.calendar_general') %}
-                        <a href="{{ path('schedule_production') }}"
+                        <a href="/reports/schedule/view/production/basic"
                            class="{% if active == 'schedule_production' %}active{% endif %}"
                         >
                             {{ 'Kalendarz ogólny'|trans }}
@@ -144,14 +144,14 @@
             >
                 <div class="submenu collapse-inner">
                     {% if is_granted('ROLE_ADMIN') %}
-                        <a href="{{ path('reports_view_differences') }}"
+                        <a href="/reports/differences"
                            class="{% if active in ['reports_view_differences'] %}active{% endif %}"
                         >
                             {{ 'Raport rozbieżności'|trans }}
                         </a>
                     {% endif %}
                     {% if is_granted('bonus-settlement.view') %}
-                        <a href="{{ path('bonus_settlement_view') }}"
+                        <a href="/bonus-settlement"
                            class="{% if active in ['bonus_settlement_view'] %}active{% endif %}"
                         >
                             {{ 'Rozliczenie premii'|trans }}
@@ -168,12 +168,12 @@
 
             <menu-item
                     :active="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new', 'authorization_role_view', 'tags', 'work_configuration_view'] %}true{% else %}false{% endif %}"
-                    :path="'{{ path('production_show') }}'"
+                    :path="'/production'"
                     :title-icon="'fa fa-wrench'"
                     :title="'{{ 'Konfiguracja'|trans }}'"
             >
                 <div class="submenu collapse-inner">
-                    <a href="{{ path('security_users') }}"
+                    <a href="/users"
                        class="{% if active in ['security_users', 'security_user_edit', 'view_security_user_new'] %}active{% endif %}"
                     >
                         {{ 'Użytkownicy'|trans }}
@@ -183,7 +183,7 @@
                     >
                         {{ 'Role'|trans }}
                     </a>
-                    <a href="{{ path('tags') }}"
+                    <a href="/tag-definition"
                        class="{% if active in ['tags'] %}active{% endif %}"
                     >
                         {{ 'Tagi'|trans }}

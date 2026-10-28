@@ -71,6 +71,16 @@ export class User {
     setGrants(grants) {
         this.grants = Array.isArray(grants) ? grants.map(g => g.toLowerCase()) : []
     }
+
+    // Mirrors the server's is_granted('ROLE_X'); roles from /me already include the hierarchy.
+    hasRole(role) {
+        return this.user.roles.includes(role)
+    }
+
+    // Mirrors the server's is_granted('module.grant'): unlike can(), ROLE_ADMIN alone does not pass.
+    hasGrant(name) {
+        return this.grants.includes('authorization.admin') || this.grants.includes(name.toLowerCase())
+    }
     can(name) {
         if (this.user.roles.includes('ROLE_ADMIN')) {
             return true

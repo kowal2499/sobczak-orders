@@ -23,8 +23,9 @@
                             :aria-current="isLast(i) ? 'page' : null"
                         >
                             <component
-                                :is="crumb.href && !isLast(i) ? 'a' : 'span'"
-                                :href="crumb.href && !isLast(i) ? crumb.href : null"
+                                :is="crumbTag(crumb, i)"
+                                :href="crumbTag(crumb, i) === 'a' ? crumb.href : null"
+                                :to="crumbTag(crumb, i) === 'router-link' ? crumb.href : null"
                                 :aria-label="crumb.icon ? crumb.label : null"
                             >
                                 <font-awesome-icon v-if="crumb.icon" :icon="crumb.icon" />
@@ -97,6 +98,16 @@ export default {
     methods: {
         isLast(index) {
             return index === this.breadcrumbs.length - 1;
+        },
+        // Server-rendered pages have no router, and paths the router does not know must reload the page.
+        crumbTag(crumb, index) {
+            if (!crumb.href || this.isLast(index)) {
+                return 'span';
+            }
+            if (this.$router && this.$router.resolve(crumb.href).route.name !== 'not-found') {
+                return 'router-link';
+            }
+            return 'a';
         },
     },
 };

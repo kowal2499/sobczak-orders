@@ -43,9 +43,14 @@
             }
         },
 
-        mounted() {
-            if (this.active) {
-                this.expanded = true;
+        watch: {
+            active: {
+                handler(active) {
+                    if (active) {
+                        this.expanded = true;
+                    }
+                },
+                immediate: true
             }
         }
     }

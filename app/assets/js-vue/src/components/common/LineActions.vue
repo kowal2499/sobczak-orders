@@ -52,7 +52,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.Agreement.id">
+                <b-dropdown-item :to="{ name: 'order-edit', params: { id: line.Agreement.id } }">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 

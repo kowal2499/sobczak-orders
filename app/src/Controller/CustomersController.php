@@ -152,7 +152,7 @@ class CustomersController extends AbstractController
             if ($this->isGranted('ROLE_CUSTOMERS')) {
                 return $this->redirectToRoute('customers_show');
             } else {
-                return $this->redirectToRoute('agreements_show');
+                return $this->redirect('/orders');
             }
 
         }

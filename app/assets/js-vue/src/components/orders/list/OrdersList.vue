@@ -2,9 +2,9 @@
     <div>
         <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
             <template v-if="userCanAddOrder()" #actions>
-                <a :href="newOrderLink" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
+                <router-link :to="{ name: 'order-new' }" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
                     <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
-                </a>
+                </router-link>
             </template>
         </SectionBlockTitle>
 
@@ -56,7 +56,6 @@
     import moment from 'moment';
     import Filters from './Filters';
     import api from '../../../api/neworder';
-    import routing from  '../../../api/routing';
     import LineActions from '../../common/LineActions';
 
     import BaseListing from "@/components/base/BaseListing/index.vue";
@@ -114,7 +113,6 @@
 
                 agreementLines: [],
 
-                newOrderLink: routing.get('orders_view_new'),
 
                 loading: false,
 

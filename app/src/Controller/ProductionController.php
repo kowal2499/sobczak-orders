@@ -33,30 +33,9 @@ use App\Entity\AgreementLine;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductionController extends BaseController
 {
-    /**
-     * @isGranted("ROLE_PRODUCTION_VIEW")
-     */
-    #[Route(path: '/production', name: 'production_show')]
-    public function index(TranslatorInterface $t): Response
-    {
-        $departments = array_map(
-            fn(DepartmentEnum $dept) => [
-                'name' => $t->trans($dept->getName(), [], 'agreements'),
-                'slug' => $dept->value
-            ],
-            DepartmentEnum::getProductionDepartments()
-        );
-
-        return $this->render('production/production_show.html.twig', [
-            'title' => $t->trans('Harmonogram produkcji', [], 'production'),
-            'statuses' => AgreementLine::getStatuses(),
-            'departments' => $departments
-        ]);
-    }
 
     /**
      * @IsGranted("ROLE_PRODUCTION")
