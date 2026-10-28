@@ -32,27 +32,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AgreementLineController extends BaseController
 {
     /**
-     * @param Request $request
-     * @param AgreementLine $agreementLine
-     * @param TranslatorInterface $t
-     * @return Response
-     */
-    #[Route(path: '/agreement/line/{id}', name: 'agreement_line_details', options: ['expose' => true], methods: ['GET'])]
-    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreementLine')]
-    public function details(Request $request, AgreementLine $agreementLine, TranslatorInterface $t): Response
-    {
-        $taskStatuses = array_map(function ($value) use ($t) {
-            return $t->trans($value, [], 'agreements');
-        }, AgreementLine::getStatuses());
-
-        return $this->render('agreement_line/order_details.html.twig', [
-            'title' => $t->trans('Panel zamówienia', [], 'agreements'),
-            'agreementLineId' => $request->attributes->getInt('id'),
-            'taskStatuses' => $taskStatuses
-        ]);
-    }
-
-    /**
      * @IsGranted("ROLE_PRODUCTION_VIEW")
      *
      * @param Request $request

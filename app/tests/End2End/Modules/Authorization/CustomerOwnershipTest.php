@@ -33,9 +33,7 @@ class CustomerOwnershipTest extends BaseProductionReportsTestCase
     {
         yield 'read model line' => ['GET', '/agreement-line/rm/{line}'];
         yield 'legacy line' => ['GET', '/api/agreement-line/fetch-single/{line}'];
-        yield 'order panel page' => ['GET', '/agreement/line/{line}'];
         yield 'order edit data' => ['POST', '/orders/fetch_single/{agreement}'];
-        yield 'order edit page' => ['GET', '/orders/edit/{agreement}'];
         yield 'factors' => ['GET', '/production/factor/{line}'];
         yield 'tasks of line' => ['GET', '/tasks/find?agreementLineId={line}'];
         yield 'line activity log' => ['GET', '/agreement-line/{line}/activity-log'];

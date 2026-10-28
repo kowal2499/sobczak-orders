@@ -3,20 +3,18 @@
 
         <div class="submenu collapse-inner" v-for="element in elements">
 
-            <a :href="element.path" class="d-flex justify-content-between align-items-center" :class="{active: element.active}">
+            <router-link :to="element.to" class="d-flex justify-content-between align-items-center" :class="{active: element.active}">
                 {{ element.title }}
 
                 <span class="badge badge-light" v-if="getCount(element.statusId) !== null">{{ getCount(element.statusId) }}</span>
-
-            </a>
-
+            </router-link>
 
         </div>
 
         <div class="submenu collapse-inner new-order-wrapper" v-if="userCanAddOrder">
-            <a :href="newOrderLink" class="new-order btn btn-success btn-sm">
+            <router-link :to="{ name: 'order-new' }" class="new-order btn btn-success btn-sm">
                 <i class="fa fa-plus mr-2" aria-hidden="true"></i>{{ $t('newOrder') }}
-            </a>
+            </router-link>
         </div>
 
     </div>
@@ -24,7 +22,6 @@
 
 <script>
     import Api from '../../api/widgets';
-    import routing from '../../api/routing';
 
     const STATUS_ARCHIVED = 20;
 
@@ -36,7 +33,6 @@
         data() {
             return {
                 summary: [],
-                newOrderLink: routing.get('orders_view_new'),
             }
         },
 

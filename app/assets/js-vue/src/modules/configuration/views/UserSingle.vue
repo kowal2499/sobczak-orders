@@ -141,7 +141,6 @@
     import UserGrants from "../components/UserGrants"
     import helpers from "@/helpers";
     import Waiting from "@/components/base/Waiting";
-    import Routing from "@/api/routing";
     import ButtonPlus from "@/components/base/ButtonPlus";
     import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/configuration/components/roles/RoleSelect'
@@ -255,7 +254,7 @@
                     .then(() => {
                         // gdy dodano nowego użytkownika to przekieruj do listy
                         if (this.isNew) {
-                            window.location.replace(Routing.get('security_users'));
+                            this.$router.push({ name: 'users' });
                         } else {
                             EventBus.$emit('message', {
                                 type: 'success',

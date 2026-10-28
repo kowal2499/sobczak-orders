@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 class ApiTokenAuthenticationTest extends ApiTestCase
 {
-    private const PROBE_ENDPOINT = '/user/grants';
+    private const PROBE_ENDPOINT = '/me';
 
     private KernelBrowser $client;
     private ApiTokenRepository $repository;
@@ -49,7 +49,7 @@ class ApiTokenAuthenticationTest extends ApiTestCase
         $this->assertSame(200, $this->client->getResponse()->getStatusCode());
 
         // And - it is the token owner who is logged in, with their own grants
-        $grants = json_decode((string) $this->client->getResponse()->getContent(), true);
+        $grants = json_decode((string) $this->client->getResponse()->getContent(), true)['grants'];
         $this->assertIsArray($grants);
         $this->assertContains('work-configuration.capacity', $grants);
     }

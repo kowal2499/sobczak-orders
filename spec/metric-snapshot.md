@@ -68,8 +68,13 @@ granty `reports.dashboard:attention-*`. Ręczne przeliczenie dzisiejszego dnia:
 Założyć ręcznie w panelu hostingu, osobno dla prod i test:
 
 ```bash
-*/30 * * * * cd <deploy_path>/current && /usr/local/bin/php82 bin/console app:metric-snapshot:capture --env=prod >> var/log/metric_snapshot.log 2>&1
+*/30 * * * * /usr/local/bin/php82 <deploy_path>/current/bin/console app:metric-snapshot:capture --env=prod > /dev/null 2>> <deploy_path>/shared/var/log/metric_snapshot_cron_errors.log
 ```
+
+Każdy przebieg (sukces z liczbą wierszy i czasem, błąd z treścią) komenda zapisuje sama w kanale
+Monologa `metric_snapshot`: `var/log/metric_snapshot-RRRR-MM-DD.log`, rotacja 14 dni. Plik
+`metric_snapshot_cron_errors.log` łapie tylko to, czego aplikacja nie zdąży zalogować (błąd PHP,
+nieznana komenda przed deployem) - w normalnej pracy pozostaje pusty.
 
 Ostatni bieg dnia (~23:30) to wartość zamrożona; zmiany z ostatnich 30 minut wpadają do dnia
 następnego. Cron i przycisk nie liczą równolegle (Symfony Lock `metric_snapshot_capture`) - drugi

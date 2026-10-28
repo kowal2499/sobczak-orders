@@ -1,23 +1,7 @@
 import * as TYPES from "../types";
-import axios from "axios";
-import { get, set } from "../../services/localstorageCache"
 import UsersApi from "@/modules/configuration/repository/users";
 
 export default {
-    async [TYPES.ACTION_USER_FETCH_GRANTS]({ commit }, { force = false, userId = null } = {}) {
-        let grants
-        const storageKey = `-user-grants-${userId || ''}`;
-        if (!force) {
-            grants = get(storageKey)
-        }
-        if (grants === undefined) {
-            const response = await axios.get('/authorization/grants')
-            grants = response.data.data
-            set(storageKey, grants, 5)
-        }
-        commit(TYPES.MUTATION_SET_USER_GRANTS, grants);
-    },
-
     async [TYPES.ACTION_USER_FETCH_USERS]({ state, commit }, force = false) {
         if (force || state.users === undefined) {
             return UsersApi.fetchUsers(true)

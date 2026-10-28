@@ -20,10 +20,10 @@ class GrantsResolverTest extends ApiTestCase
         $client = $this->login($user);
 
         // when
-        $client->xmlHttpRequest('GET', '/authorization/grants');
+        $client->xmlHttpRequest('GET', '/me');
 
         // Then
-        $content = json_decode($client->getResponse()->getContent(), true)['data'];
+        $content = json_decode($client->getResponse()->getContent(), true)['grants'];
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertCount(4, $content);

@@ -189,11 +189,13 @@ export default defineComponent({
 
 <template>
     <div>
+        <!-- The order panel opens via ?panel= over other drawers; a path change destroys the view anyway. -->
         <b-sidebar
             :title="title"
             :lazy="lazy"
             :no-close-on-backdrop="noCloseOnBackdrop"
             :no-close-on-esc="true"
+            no-close-on-route-change
             :sidebar-class="combinedSidebarClass"
             right backdrop shadow
             :visible="bSidebarVisible"

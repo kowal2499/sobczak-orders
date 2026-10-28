@@ -5,7 +5,6 @@ export const ACTION_DISABLE_BUSY_STATE = 'disableBusyState'
 // USER
 export const MUTATION_SET_BUSY_STATE = 'mutationSetBusyState'
 
-export const ACTION_USER_FETCH_GRANTS = 'fetchGrants'
 export const ACTION_USER_FETCH_USERS = 'fetchUsers'
 export const MUTATION_SET_USER_GRANTS = 'mutationSetUserGrants'
 export const MUTATION_USER_SET_USERS = 'mutationSetUsers'

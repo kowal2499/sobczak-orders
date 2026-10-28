@@ -14,49 +14,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AgreementsController extends AbstractController
 {
-    #[Route(path: '/orders/add', name: 'orders_view_new', options: ['expose' => true])]
-    public function viewNewAgreement(TranslatorInterface $t): Response
-    {
-        return $this->render('orders/order_single.html.twig', [
-            'title' => $t->trans('Nowe zamówienie', [], 'agreements'),
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @param $status
-     * @return Response
-     */
-    #[Route(path: '/orders/{status}', name: 'agreements_show', options: ['expose' => true], defaults: ['status' => 0], methods: ['GET'])]
-    public function index($status, TranslatorInterface $t): Response
-    {
-        return $this->render('orders/orders_show.html.twig', [
-            'title' => $t->trans('Lista zamówień', [], 'agreements'),
-            'taskStatuses' => AgreementLine::getStatuses(),
-            'status' => $status
-        ]);
-    }
-
-    /**
-     * @param Agreement $agreement
-     * @param TranslatorInterface $t
-     * @return Response
-     */
-    #[Route(path: '/orders/edit/{id}', name: 'orders_edit', options: ['expose' => true])]
-    #[IsGranted('ASSIGNED_CUSTOMER', subject: 'agreement')]
-    public function viewEditAgreement(Agreement $agreement, TranslatorInterface $t): Response
-    {
-            return $this->render('orders/order_single_edit.html.twig', [
-            'title' => $t->trans('Edycja zamówienia', [], 'agreements'),
-            'agreement' => $agreement
-        ]);
-    }
 
     /**
      * @param Agreement $agreement

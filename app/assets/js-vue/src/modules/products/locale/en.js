@@ -1,0 +1,27 @@
+export default {
+    title: 'Products',
+    titleNew: 'New product',
+    titleEdit: 'Edit product',
+    breadcrumb: {
+        home: 'Dashboard',
+        list: 'Products list',
+    },
+    searchPlaceholder: 'Name or description',
+    search: 'Search',
+    new: 'New',
+    edit: 'Edit',
+    back: 'Back',
+    save: 'Save',
+    empty: 'No products.',
+    emptySearch: 'There are no products matching given criteria.',
+    saved: 'Changes have been saved.',
+    created: 'New product was added.',
+    saveError: 'The product could not be saved.',
+    loadError: 'Products could not be loaded.',
+    field: {
+        name: 'Name',
+        description: 'Description',
+        factor: 'Factor',
+    },
+    factorHelp: 'Bonus factor. Value \'100\' means that factor is equal \'1\'. It is allowed to use values higher than 100.',
+}

@@ -1,0 +1,27 @@
+export default {
+    title: 'Produkty',
+    titleNew: 'Nowy produkt',
+    titleEdit: 'Edycja produktu',
+    breadcrumb: {
+        home: 'Pulpit',
+        list: 'Lista produktów',
+    },
+    searchPlaceholder: 'Nazwa lub opis',
+    search: 'Szukaj',
+    new: 'Nowy',
+    edit: 'Edytuj',
+    back: 'Wstecz',
+    save: 'Zapisz',
+    empty: 'Brak produktów.',
+    emptySearch: 'Brak produktów spełniających podane kryteria.',
+    saved: 'Zmiany zostały zapisane.',
+    created: 'Dodano nowy produkt.',
+    saveError: 'Nie udało się zapisać produktu.',
+    loadError: 'Nie udało się wczytać produktów.',
+    field: {
+        name: 'Nazwa',
+        description: 'Opis',
+        factor: 'Współczynnik',
+    },
+    factorHelp: 'Współczynnik dla premii. Wartość \'100\' oznacza współczynnik w wysokości \'1\'. Można podawać wartości wyższe niż 100.',
+}

@@ -28,6 +28,16 @@ class MetricSnapshotRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function countForDate(\DateTimeImmutable $day): int
+    {
+        return (int) $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->where('s.snapshotDate = :day')
+            ->setParameter('day', $day->format('Y-m-d'))
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function deleteForDate(\DateTimeImmutable $day): void
     {
         $this->createQueryBuilder('s')

@@ -2,9 +2,9 @@
     <div>
         <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
             <template v-if="userCanAddOrder()" #actions>
-                <a :href="newOrderLink" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
+                <router-link :to="{ name: 'order-new' }" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
                     <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
-                </a>
+                </router-link>
             </template>
         </SectionBlockTitle>
 
@@ -54,9 +54,9 @@
 <script>
     import qs from 'qs';
     import moment from 'moment';
+    import { currentPanelQuery } from '@/modules/agreement/orderPanel';
     import Filters from './Filters';
     import api from '../../../api/neworder';
-    import routing from  '../../../api/routing';
     import LineActions from '../../common/LineActions';
 
     import BaseListing from "@/components/base/BaseListing/index.vue";
@@ -114,12 +114,19 @@
 
                 agreementLines: [],
 
-                newOrderLink: routing.get('orders_view_new'),
 
                 loading: false,
 
                 listing: null,
             }
+        },
+
+        mounted() {
+            EventBus.$on('agreementLineSaved', this.fetchData);
+        },
+
+        beforeDestroy() {
+            EventBus.$off('agreementLineSaved', this.fetchData);
         },
 
         created() {
@@ -235,6 +242,7 @@
 
                 query.page = this.args.meta.page;
                 query.sort = this.args.meta.sort;
+                Object.assign(query, currentPanelQuery());
 
                 let qString = window.location.pathname.concat('?', qs.stringify(query));
                 history.pushState(null, '', qString);

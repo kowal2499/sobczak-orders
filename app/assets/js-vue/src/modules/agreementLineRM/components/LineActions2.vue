@@ -37,7 +37,7 @@
 
             <template v-if="false === isTrashed">
                 <!-- sekcja wspólna -->
-                <b-dropdown-item v-if="$user.can('production.panel')" @click="orderPanelState = !orderPanelState">
+                <b-dropdown-item v-if="$user.can('production.panel')" @click="openPanel">
                     <i class="fa fa-tasks"/> {{ $t('_agreement_line_panel') }}
                 </b-dropdown-item>
 
@@ -52,7 +52,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :href="__mixin_getRouting('orders_edit') + '/' + line.agreement.id">
+                <b-dropdown-item :to="{ name: 'order-edit', params: { id: line.agreement.id } }">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 
@@ -127,12 +127,6 @@
             </template>
         </Sidebar>
 
-        <OrderPanelDrawer
-            v-if="$user.can('production.panel')"
-            v-model="orderPanelState"
-            :line-id="line.agreementLineId"
-            @saved="$emit('lineChanged')"
-        />
     </div>
 </template>
 
@@ -150,7 +144,7 @@ import ConfirmableAction from "../../agreementLineList/Actions/ConfirmableAction
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
-import OrderPanelDrawer from '@/modules/agreement/components/OrderPanelDrawer.vue'
+import { openOrderPanel } from '@/modules/agreement/orderPanel'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -166,7 +160,6 @@ export default {
         StartProductionAction,
         Sidebar,
         FactorsView,
-        OrderPanelDrawer,
     },
     props: {
         line: {
@@ -224,10 +217,13 @@ export default {
 
     data: () => ({
         sidebarFactorsState: false,
-        orderPanelState: false,
     }),
 
     methods: {
+        openPanel() {
+            openOrderPanel(this.$router, this.line.agreementLineId)
+        },
+
         trashAction() {
             return this.updateAgreementStatus(AGREEMENT_LINE_STATUS_DELETED)
         },
