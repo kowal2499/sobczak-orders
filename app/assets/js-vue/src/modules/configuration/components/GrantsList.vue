@@ -33,8 +33,8 @@ export default {
         <div v-for="module in allModules" :key="module.id">
             <template v-if="grantsInModule[module.id].length">
                 <div class="module-header">
-                    <h6>{{ module.namespace }}</h6>
-                    <span class="text-sm">{{ module.description }}</span>
+                    <span class="module-header__title">{{ module.description }}</span>
+                    <span class="module-header__namespace">{{ module.namespace }}</span>
                 </div>
                 <div class="py-2 d-flex flex-column gap-2">
                     <div v-for="grant in grantsInModule[module.id]"
@@ -63,24 +63,27 @@ export default {
 </template>
 
 <style scoped lang="scss">
-//@import "~/css/helper/variables";
-@use "css/helper/variables" as *;
-
 .module-header {
-    width: 100%;
-    padding: 2rem 0;
-    background-color: $lightgray3;
-    border: 1px solid $lightgray;
-    text-align: center;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid var(--colorRule);
 
-    h6 {
-        font-weight: normal;
-        text-transform: uppercase;
-        margin: 0;
+    &__title {
+        font-weight: 600;
+        color: var(--colorPrimary);
+    }
+
+    &__namespace {
+        font-size: 0.8rem;
+        color: var(--colorInkMuted);
     }
 }
+
 .grant-item + .grant-item {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--colorRule);
 }
 
 </style>

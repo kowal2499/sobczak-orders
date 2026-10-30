@@ -40,6 +40,7 @@
                 <div class="d-flex align-items-center gap-2">
                     <modal-action
                         v-model="showDatePicker"
+                        :show-close="false"
                         :title="$t('agreement.product.selectDateTitle')"
                         :configuration="{ size: 'lg' }"
                         v-if="!isLocked"

@@ -49,11 +49,15 @@ export default {
                 this.form = getForm()
                 this.$refs.form.reset()
             })
-            .catch(() => EventBus.$emit('message', {
-                type: 'error',
-                content: data.response.data.errors.title
-            }))
+            .catch(error => this.reportError(error, 'config.production.saveError'))
             .finally(() => this.isBusy = false)
+        },
+
+        reportError(error, fallbackKey) {
+            EventBus.$emit('message', {
+                type: 'error',
+                content: error?.response?.data?.errors?.title || this.$t(fallbackKey)
+            })
         },
 
         fetchHistory() {
@@ -77,10 +81,7 @@ export default {
                     })
                     return this.fetchHistory()
                 })
-                .catch(() => EventBus.$emit('message', {
-                    type: 'error',
-                    content: data.response.data.errors.title
-                }))
+                .catch(error => this.reportError(error, 'config.production.deleteError'))
                 .finally(() => this.isBusy = false)
         }
     },
@@ -127,10 +128,9 @@ export default {
                     </b-form-group>
                 </ValidationProvider>
 
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary mb-3" @click="onSubmit" :disabled="isBusy">
-                        <font-awesome-icon :icon="['fas', 'spinner']" spin class="mr-1" v-if="isBusy" />
-                        <font-awesome-icon :icon="['fas', 'save']" class="mr-1" v-else />
+                <div class="form-actions mt-0">
+                    <button type="button" class="btn btn-primary" @click="onSubmit" :disabled="isBusy">
+                        <font-awesome-icon :icon="['fas', 'spinner']" spin v-if="isBusy" />
                         {{ $t('_save') }}
                     </button>
                 </div>

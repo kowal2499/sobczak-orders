@@ -1,22 +1,24 @@
 <template>
     <SectionBlock class="section-gap">
-        <div class="d-flex justify-content-end mb-3">
-            <b-button size="sm" variant="primary" :disabled="isBusy" @click="showModal({})">
-                {{ $t('tags.addNew') }}
-            </b-button>
-        </div>
-
-        <b-alert show variant="info" v-if="noResults">
+        <p v-if="noResults" class="text-muted mb-0">
             {{ $t('tags.nothingDefined') }}
-        </b-alert>
-        <b-table v-else responsive striped :fields="fields" :items="tags">
+        </p>
+        <b-table v-else responsive :fields="fields" :items="tags" class="mb-0">
+            <template #cell(name)="data">
+                <span class="tag-preview">
+                    <b-icon v-if="data.item.icon" :icon="data.item.icon" :style="{ color: data.item.color }" aria-hidden="true" />
+                </span>
+                {{ data.item.name }}
+            </template>
             <template #cell(actions)="data">
-                <b-button size="sm" variant="outline-primary" @click="showModal(data.item)">
-                    {{ $t('tags.edit') }}
-                </b-button>
-                <b-button size="sm" variant="outline-danger" @click="showConfirmModal(data.item.id)">
-                    {{ $t('tags.delete') }}
-                </b-button>
+                <div class="tag-actions">
+                    <b-button size="sm" variant="outline-primary" @click="showModal(data.item)">
+                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('tags.edit') }}
+                    </b-button>
+                    <b-button size="sm" variant="outline-danger" @click="showConfirmModal(data.item.id)">
+                        {{ $t('tags.delete') }}
+                    </b-button>
+                </div>
             </template>
         </b-table>
 
@@ -49,17 +51,12 @@ export default {
                 {
                     key: 'name',
                     label: this.$t('tags.name'),
-                    class: 'vertical-align-middle'
-                },
-                {
-                    key: 'module',
-                    label: this.$t('tags.module'),
-                    class: 'vertical-align-middle'
+                    class: 'align-middle'
                 },
                 {
                     key: 'actions',
-                    label: this.$t('tags.actions'),
-                    class: 'text-right'
+                    label: '',
+                    class: 'align-middle text-right'
                 }
             ]
         }
@@ -126,8 +123,21 @@ export default {
 }
 </script>
 
-<style>
-    div#content-wrapper table tbody td.vertical-align-middle {
-        vertical-align: middle;
-    }
+<style scoped>
+.tag-preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    border: 1px solid var(--colorRule);
+    border-radius: 0.25rem;
+    vertical-align: middle;
+}
+
+.tag-actions {
+    display: inline-flex;
+    gap: 0.35rem;
+}
 </style>

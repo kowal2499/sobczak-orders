@@ -37,6 +37,10 @@ export default {
         value(value) {
             this.term = value
         },
+        // lists filtered on the client react to every keystroke; server-side lists wait for submit
+        term(term) {
+            this.$emit('input', term)
+        },
     },
 }
 </script>

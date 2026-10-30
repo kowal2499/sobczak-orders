@@ -1,68 +1,58 @@
 <template>
     <div>
         <SectionBlockTitle block :title="pageTitle" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <div class="d-flex flex-wrap justify-content-end align-items-center gap-4">
-                    <input
-                        v-model="filterQuery"
-                        type="text"
-                        class="form-control form-control-sm"
-                        placeholder="Filtruj po imieniu i nazwisku..."
-                        style="width: 220px"
-                    />
-                    <b-form-checkbox v-model="showInactiveUsers" switch>
-                        <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
+            <template #actions>
+                <div class="d-flex flex-wrap align-items-center justify-content-end">
+                    <b-form-checkbox v-model="showInactiveUsers" switch class="mr-3">
+                        {{ $t('user.showInactiveUsers') }}
                     </b-form-checkbox>
-                    <router-link :to="{ name: 'user-new' }" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></router-link>
+                    <ListSearchBar
+                        v-model="filterQuery"
+                        :placeholder="$t('user.searchPlaceholder')"
+                        :search-label="$t('user.search')"
+                        :new-label="$t('user.new')"
+                        :new-to="{ name: 'user-new' }"
+                    />
                 </div>
             </template>
         </SectionBlockTitle>
 
         <SectionBlock class="section-gap">
-                <div class="table-responsive has-dropdown" v-if="!locked">
-                    <table class="table">
+                <div class="table-responsive" v-if="!locked">
+                    <table class="table mb-0">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Imię</th>
-                                <th>Nazwisko</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Role (nowy system)</th>
-                                <th>Aktywny</th>
-                                <th>Akcje</th>
+                                <th>{{ $t('user.column.firstName') }}</th>
+                                <th>{{ $t('user.column.lastName') }}</th>
+                                <th>{{ $t('user.column.email') }}</th>
+                                <th>{{ $t('user.column.roles') }}</th>
+                                <th>{{ $t('user.column.authRoles') }}</th>
+                                <th>{{ $t('user.column.active') }}</th>
+                                <th></th>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr v-for="user in filteredUsersList" :key="user.id">
-                                <td>{{ user.id }}</td>
-                                <td>{{ user.firstName }}</td>
-                                <td>{{ user.lastName }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>
-                                    <span v-for="role in user.roles" :key="role">
-                                        <span class="badge badge-info mr-1">{{ getRoleName(role) }}</span>
-                                    </span>
+                                <td class="align-middle">{{ user.id }}</td>
+                                <td class="align-middle">{{ user.firstName }}</td>
+                                <td class="align-middle">{{ user.lastName }}</td>
+                                <td class="align-middle">{{ user.email }}</td>
+                                <td class="align-middle">
+                                    <span v-for="role in user.roles" :key="role" class="badge role-badge mr-1">{{ getRoleName(role) }}</span>
                                 </td>
-                                <td>
-                                    <span v-for="name in (user.authRoles || [])" :key="name">
-                                        <span class="badge badge-secondary mr-1">{{ name }}</span>
-                                    </span>
+                                <td class="align-middle">
+                                    <span v-for="name in (user.authRoles || [])" :key="name" class="badge role-badge role-badge--auth mr-1">{{ name }}</span>
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                     <i v-if="user.active" class="fa fa-check text-success"></i>
                                     <i v-else class="fa fa-times text-danger"></i>
                                 </td>
-                                <td>
-                                    <b-dropdown no-caret right boundary="window" toggle-class="btn-sm btn-light icon-only">
-                                        <template #button-content>
-                                            <i class="fa fa-bars"></i>
-                                        </template>
-                                        <b-dropdown-item :to="{ name: 'user-edit', params: { id: user.id } }">
-                                            <i class="fa fa-pencil" aria-hidden="true"></i> Edycja
-                                        </b-dropdown-item>
-                                    </b-dropdown>
+                                <td class="align-middle text-right">
+                                    <router-link :to="{ name: 'user-edit', params: { id: user.id } }" class="btn btn-outline-primary btn-sm text-nowrap">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('user.edit') }}
+                                    </router-link>
                                 </td>
                             </tr>
                         </tbody>
@@ -77,9 +67,12 @@
     import store from "@/store";
     import * as TYPES from "@/store/types"
     import { mapGetters } from "vuex";
+    import ListSearchBar from '@/components/base/ListSearchBar.vue'
 
     export default {
         name: "UsersList",
+
+        components: { ListSearchBar },
 
         props: {
             pageTitle: {
@@ -135,5 +128,14 @@
 </script>
 
 <style scoped>
+.role-badge {
+    background-color: rgba(var(--colorPrimaryRgb), 0.12);
+    color: var(--colorPrimary);
+    font-weight: 500;
+}
 
+.role-badge--auth {
+    background-color: var(--colorRule);
+    color: var(--colorSecondary);
+}
 </style>

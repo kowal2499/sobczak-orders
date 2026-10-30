@@ -2,7 +2,6 @@
 import RolesNavigation from '../components/roles/RolesNavigation'
 import GrantsList from '../components/GrantsList'
 import GrantValue from '../components/GrantValue'
-import RoleModalForm from '../components/forms/RoleModalForm'
 import { mapGetters } from 'vuex'
 import { isEqual } from 'lodash'
 import { fetchGrantRoleValues } from '../repository/rolesRepository'
@@ -13,7 +12,6 @@ export default {
 
     components: {
         GrantValue,
-        RoleModalForm,
         RolesNavigation,
         GrantsList,
     },
@@ -89,7 +87,7 @@ export default {
                 .catch(() => {
                     EventBus.$emit('message', {
                         type: 'error',
-                        content: 'Błąd zapisu danych'
+                        content: this.$t('auth.grantSavingError')
                     });
                 })
         }
@@ -105,9 +103,6 @@ export default {
 <template>
     <SectionBlock class="section-gap">
         <RolesNavigation>
-            <template #actions>
-                <RoleModalForm @roleCreated="reset" />
-            </template>
             <template #default="{ roleId }">
                 <GrantsList #grantValue="{ grant }">
                     <GrantValue

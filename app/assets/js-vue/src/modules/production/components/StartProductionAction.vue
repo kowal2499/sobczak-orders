@@ -1,6 +1,7 @@
 <template>
     <ValidationObserver ref="form" #default="{ invalid }">
         <modal-action
+            :show-close="false"
             :title="$t('agreement_line_list.startProductionForm.modalTitle')"
             :configuration="{ hideFooter: false, size: 'xl' }"
             :value="value"

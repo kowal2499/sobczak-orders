@@ -9,7 +9,8 @@ div#content-wrapper {
     }
 
     width: 100%;
-    overflow-x: hidden;
+    // clip, not hidden: hidden makes this a scroll container and breaks position: sticky inside it
+    overflow-x: clip;
 
     font-size: $font-size-content;
     font-weight: 400;

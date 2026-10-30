@@ -28,6 +28,7 @@ export default defineComponent({
                 return
             }
 
+            this.saving = true
             createRole(this.form.name)
                 .then(() => {
                     EventBus.$emit('message', {
@@ -48,11 +49,15 @@ export default defineComponent({
                         content: message
                     });
                 })
+                .finally(() => {
+                    this.saving = false
+                })
         }
     },
 
     data: () => ({
-        form: {}
+        form: {},
+        saving: false,
     })
 })
 
@@ -67,20 +72,21 @@ function getForm() {
 
 <template>
     <ValidationObserver ref="form" #default="{ invalid }">
-        <ModalAction :title="$t('auth.newRole')" :configuration="{ size: 'lg', hideFooter: false }" @show="resetForm">
+        <ModalAction :title="$t('auth.newRole')" :configuration="{ size: 'md', hideFooter: false }" :show-close="false" @show="resetForm">
             <template #default>
                 <RoleForm v-model="form" />
             </template>
             <template #open-action="{ open }">
-                <b-button class="w-100 mb-1" size="sm" variant="outline-primary" @click="open">
+                <b-button size="sm" variant="primary" @click="open">
                     {{ $t('auth.addNew') }}
                 </b-button>
             </template>
 
             <template #modal-footer="{ close }">
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-primary ml-2" @click="onSubmit(close)">
+                <div class="form-actions w-100 mt-0">
+                    <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="close">{{ $t('cancel') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="saving" @click="onSubmit(close)">
+                        <i v-if="saving" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
                         {{ $t('add') }}
                     </button>
                 </div>
