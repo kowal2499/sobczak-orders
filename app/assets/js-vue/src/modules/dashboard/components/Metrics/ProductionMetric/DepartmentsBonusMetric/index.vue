@@ -38,12 +38,17 @@ export default defineComponent({
 
     methods: {
         beforeOpen() {
+            this.openings++
             this.q = null
         },
         onExportExcel() {
             return this.exportExcel(this.$t('dashboard.tasksCompleted'), fields, this.innerData)
         }
-    }
+    },
+
+    data: () => ({
+        openings: 0,
+    }),
 })
 </script>
 
@@ -82,21 +87,22 @@ export default defineComponent({
                     </table>
                 </template>
 
-                <template #sidebar-content="{ height }">
+                <template #sidebar-header-actions>
+                    <!-- Keyed per opening: the header outlives the lazy body, and beforeOpen clears the search. -->
+                    <SidebarNavbar
+                        :key="openings"
+                        @search="q = $event"
+                        @exportExcel="onExportExcel"
+                    />
+                </template>
+
+                <template #sidebar-content>
                     <SidebarLayout>
-                        <template #header>
-                            <SidebarNavbar
-                                @search="q = $event"
-                                @exportExcel="onExportExcel"
-                            />
-                        </template>
                         <template #content>
                             <Details
                                 :data="filteredInnerData"
-                                :height="height"
                                 :report-range="{ start: dateStart, end: dateEnd }"
                                 detailed-cells
-                                class="px-2 pb-2"
                             />
                         </template>
                     </SidebarLayout>

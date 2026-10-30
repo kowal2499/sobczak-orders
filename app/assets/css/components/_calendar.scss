@@ -1,8 +1,85 @@
+.fc {
+    --fc-border-color: #{$rule};
+    --fc-event-bg-color: #{$mainBlue};
+    --fc-event-border-color: #{$mainBlue};
+    --fc-today-bg-color: #{rgba($mainBlue, 0.05)};
+    --fc-neutral-bg-color: #{rgba($rule, 0.6)};
+    --fc-neutral-text-color: #{$ink-muted};
 
+    .fc-toolbar.fc-header-toolbar {
+        margin-bottom: 0.75rem;
+    }
 
+    .fc-toolbar-chunk {
+        display: flex;
+        align-items: center;
+    }
+
+    .fc-toolbar-title {
+        margin: 0 0.25rem;
+        min-width: 9rem;
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $ink-strong;
+        text-transform: capitalize;
+    }
+
+    .fc-col-header-cell-cushion {
+        color: $ink-muted;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .fc-daygrid-week-number {
+        color: $ink-muted;
+    }
+
+    // template buttons instead of the FullCalendar defaults
+    .fc-button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        box-shadow: none !important;
+    }
+
+    .fc-button-primary {
+        background-color: #fff;
+        border-color: $btnSecondaryBg;
+        color: $btnSecondaryBg;
+
+        &:not(:disabled):hover,
+        &:not(:disabled):active {
+            background-color: $btnSecondaryBg;
+            border-color: $btnSecondaryBg;
+            color: #fff;
+        }
+    }
+
+    .fc-today-button.fc-button-primary {
+        border-color: $mainBlue;
+        color: $mainBlue;
+
+        &:not(:disabled):hover,
+        &:not(:disabled):active {
+            background-color: $mainBlue;
+            border-color: $mainBlue;
+            color: #fff;
+        }
+
+        &:disabled {
+            background-color: #fff;
+            border-color: $mainBlue;
+            color: $mainBlue;
+            opacity: 0.5;
+        }
+    }
+}
+
+// holidays and weekends: the same soft tint as the resource calendar
 .fc .fc-bg-event {
-    --fc-bg-event-color: #{$danger};
-    --fc-bg-event-opacity: 1;
+    --fc-bg-event-color: #e77883;
+    --fc-bg-event-opacity: 0.2;
 }
 
 .fc-day:hover .btn-day-cell-dropdown,

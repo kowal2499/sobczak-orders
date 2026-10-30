@@ -19,6 +19,11 @@ export default {
             type: Boolean,
             default: false
         },
+        // false when the owner puts SidebarNavbar in the drawer header itself
+        searchable: {
+            type: Boolean,
+            default: true
+        },
         // [{ label, value, hint? }] - wartości podsumowujące całą listę, nad wyszukiwarką
         summary: {
             type: Array,
@@ -30,7 +35,7 @@ export default {
 
 <template>
     <SidebarLayout>
-        <template #header>
+        <template v-if="summary.length || searchable" #header>
             <div class="showcase-list-header">
                 <dl v-if="summary.length" class="showcase-summary">
                     <div v-for="(item, index) in summary" :key="index" class="showcase-summary-item">
@@ -42,6 +47,7 @@ export default {
                     </div>
                 </dl>
                 <SidebarNavbar
+                    v-if="searchable"
                     class="ml-auto"
                     :show-excel-export-btn="exportable"
                     @search="$emit('search', $event)"
@@ -71,9 +77,7 @@ export default {
     align-items: flex-end;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    margin: 0 1rem;
-    padding: 0.25rem 1rem 0.75rem;
-    border-bottom: 1px solid $showcase-rule;
+    padding-top: 0.25rem;
 }
 
 .showcase-summary {

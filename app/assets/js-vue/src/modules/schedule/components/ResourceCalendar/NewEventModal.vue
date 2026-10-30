@@ -4,6 +4,8 @@
     title="Nowe zlecenie"
     ok-title="Zapisz"
     cancel-title="Anuluj"
+    cancel-variant="outline-secondary"
+    hide-header-close
     @ok.prevent="onSave"
     @cancel="$emit('cancel')"
     @hidden="$emit('cancel')"

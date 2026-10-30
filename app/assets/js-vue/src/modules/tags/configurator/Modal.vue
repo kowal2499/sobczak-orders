@@ -2,13 +2,11 @@
     <b-modal
         v-model="visibleProxy"
         :title="modalTitle"
-        @ok="onOk"
-        @cancel="onCancel"
+        hide-header-close
         @show="reset"
-        :cancel-disabled="isSaving"
-        :ok-disabled="isSaving"
     >
-        <b-form ref="form" @submit="onSubmit">
+
+        <b-form ref="form" @submit.prevent="onSubmit">
             <b-form-group
                 :label="$t('tags.name')"
                 :state="validation.name"
@@ -23,52 +21,40 @@
                 />
             </b-form-group>
 
-            <b-form-group
-                :label="$t('tags.module')"
-                :state="validation.module"
-                :invalid-feedback="$t('tags.moduleInvalid')"
-                :disabled="isSaving"
-            >
-                <b-form-select v-model="form.module" required :disabled="true">
-                    <b-form-select-option :value="null">
-                        {{ $t('tags.modulePlaceholder') }}
-                    </b-form-select-option>
-
-                    <b-form-select-option v-for="module in modules" :key="module" :value="module">
-                        {{ module }}
-                    </b-form-select-option>
-                </b-form-select>
-            </b-form-group>
-
             <b-form-row>
                 <b-col lg="5">
-                    <b-form-group :label="$t('tags.icon')" :disabled="isSaving">
-                        <b-dropdown>
+                    <b-form-group :label="$t('tags.icon')" :disabled="isSaving" class="mb-0">
+                        <b-dropdown variant="outline-secondary" class="icon-picker">
                             <template #button-content>
                                 <span v-if="!form.icon">{{ $t('tags.iconPlaceholder') }}</span>
-                                <b-icon :icon="form.icon" aria-hidden="true"></b-icon>
+                                <b-icon v-else :icon="form.icon" :style="{ color: form.color }" aria-hidden="true"></b-icon>
                             </template>
 
                             <b-dropdown-item v-for="icon in icons" :key="icon" @click="form.icon = icon">
-                                <b-icon :icon="icon" aria-hidden="true"></b-icon>
+                                <b-icon :icon="icon" :style="{ color: form.color }" aria-hidden="true"></b-icon>
                             </b-dropdown-item>
                         </b-dropdown>
                     </b-form-group>
                 </b-col>
 
                 <b-col lg="7">
-                    <b-form-group :label="$t('tags.color')" :disabled="isSaving">
+                    <b-form-group :label="$t('tags.color')" :disabled="isSaving" class="mb-0">
                         <b-form-input v-model="form.color" type="color"/>
                     </b-form-group>
                 </b-col>
             </b-form-row>
         </b-form>
 
-        <template #modal-ok>
-            <b-icon icon="three-dots" animation="cylon" v-if="isSaving"></b-icon> {{ $t('tags.ok') }}
-        </template>
-        <template #modal-cancel>
-            {{ $t('tags.cancel') }}
+        <template #modal-footer="{ cancel }">
+            <div class="form-actions w-100 mt-0">
+                <b-button variant="outline-secondary" :disabled="isSaving" @click="cancel()">
+                    {{ $t('tags.cancel') }}
+                </b-button>
+                <b-button variant="primary" :disabled="isSaving" @click="onSubmit">
+                    <i v-if="isSaving" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                    {{ $t('tags.save') }}
+                </b-button>
+            </div>
         </template>
     </b-modal>
 </template>
@@ -99,9 +85,6 @@ export default {
         }
     },
     computed: {
-        modules() {
-            return ['agreement-line', 'order', 'customer'];
-        },
         icons() {
             return ['award', 'bag', 'basket2', 'bookmark', 'brightnessHigh',
             'bug', 'building', 'calendar2Check', 'fileEarmarkText']
@@ -118,13 +101,6 @@ export default {
                 module: !!this.form.module
             }
             return valid
-        },
-        onOk(bvModalEvt) {
-            bvModalEvt.preventDefault();
-            this.onSubmit();
-        },
-        onCancel() {
-
         },
         onSubmit() {
             if (!this.checkFormValidity()) {
@@ -146,6 +122,7 @@ export default {
                 .finally(() => this.isSaving = false)
         },
         reset() {
+            // the only module tags are used in; no longer editable, but the API still expects it
             this.form = {
                 name: this.definitionData.name || '',
                 module: 'agreement-line',
@@ -172,5 +149,7 @@ export default {
 </script>
 
 <style scoped>
-
+.icon-picker ::v-deep .dropdown-menu {
+    min-width: auto;
+}
 </style>

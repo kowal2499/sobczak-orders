@@ -1,13 +1,13 @@
 <script>
 import cellMixin from "@/components/base/BaseListing/components/cells/cellMixin"
-import Tooltip from "@/components/base/Tooltip"
+import DescriptionInfo from "@/components/base/DescriptionInfo.vue"
 
 export default {
     name: "ProductCell",
 
     mixins: [cellMixin],
 
-    components: { Tooltip },
+    components: { DescriptionInfo },
 
     computed: {
         productName() {
@@ -20,9 +20,6 @@ export default {
 <template>
     <div>
         {{ productName }}
-        <tooltip v-if="record.description">
-            <i slot="visible-content" class="fa fa-info-circle hasTooltip" />
-            <div slot="tooltip-content" class="text-left" v-html="__mixin_convertNewlinesToHtml(record.description)" />
-        </tooltip>
+        <DescriptionInfo v-if="record.description" :description="record.description" />
     </div>
 </template>

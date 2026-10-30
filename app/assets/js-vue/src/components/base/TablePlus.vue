@@ -151,10 +151,10 @@ export default {
     }
 
     table.table {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
 
         th {
-            border-bottom: 1px solid #e3e6f0;
+            border-bottom: 1px solid var(--colorRule);
             vertical-align: middle;
 
             .header-item {
@@ -162,12 +162,12 @@ export default {
                 font-size: 0.85rem;
 
                 a {
-                    color: #666;
+                    color: var(--colorInkMuted);
                 }
 
                 a:hover {
                     text-decoration: none !important;
-                    color: #4E73DF;
+                    color: var(--colorPrimary);
                 }
 
                 &--sortable {
@@ -175,10 +175,10 @@ export default {
                 }
 
                 &--selected {
-                    color: #4E73DF;
+                    color: var(--colorPrimary);
 
                     a {
-                        color: #4E73DF;
+                        color: var(--colorPrimary);
                     }
 
                     i.sort-direction {

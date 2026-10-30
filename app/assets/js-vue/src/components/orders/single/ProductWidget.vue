@@ -15,7 +15,7 @@
                 <div>{{ product.description }}</div>
             </div>
         </div>
-        <router-link :to="{ name: 'product-edit', params: { id: product.id } }" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
+        <router-link :to="{ name: 'product-edit', params: { id: product.id } }" class="btn btn-sm btn-outline-primary ml-auto" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
         </router-link>
     </div>

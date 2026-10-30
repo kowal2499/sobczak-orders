@@ -4,6 +4,7 @@ import ProductionMetricMixin from '../ProductionMetricMixin'
 import DepartmentMetricMixin from '../DepartmentMetricMixin'
 import Sidebar from '@/components/base/Sidebar.vue'
 import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 import BaseMetric from '../../BaseMetric.js'
 import MetricLayout from '../../MetricLayout.vue'
@@ -23,6 +24,7 @@ export default defineComponent({
         Chart,
         Sidebar,
         AgreementLineShowcaseList,
+        SidebarNavbar,
     },
     props: {
         dateStart: { type: String, default: null },
@@ -160,6 +162,7 @@ export default defineComponent({
             this.showSidebar = true
         },
         beforeOpen() {
+            this.openings++
             this.q = null
         },
         onExportExcel() {
@@ -183,6 +186,7 @@ export default defineComponent({
     },
     data: () => ({
         showSidebar: false,
+        openings: 0,
         activeDepartmentSlug: null,
         showForecast: false,
         forecastBusy: false,
@@ -248,13 +252,20 @@ export default defineComponent({
             v-model="showSidebar"
             sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
+            <template #sidebar-header-actions>
+                <!-- Keyed per opening: the header outlives the lazy body, and beforeOpen clears the search. -->
+                <SidebarNavbar
+                    :key="openings"
+                    @search="q = $event"
+                    @exportExcel="onExportExcel"
+                />
+            </template>
+
             <template #sidebar-content>
                 <AgreementLineShowcaseList
                     :lines="perDptShowcaseLines"
                     :departments="[activeDepartmentSlug]"
-                    exportable
-                    @search="q = $event"
-                    @exportExcel="onExportExcel"
+                    :searchable="false"
                 />
             </template>
         </Sidebar>

@@ -12,7 +12,7 @@
         </div>
 
         <div class="submenu collapse-inner new-order-wrapper" v-if="userCanAddOrder">
-            <router-link :to="{ name: 'order-new' }" class="new-order btn btn-success btn-sm">
+            <router-link :to="{ name: 'order-new' }" class="new-order btn btn-primary btn-sm">
                 <i class="fa fa-plus mr-2" aria-hidden="true"></i>{{ $t('newOrder') }}
             </router-link>
         </div>

@@ -69,7 +69,7 @@ export default {
 </script>
 
 <template>
-    <div class="details showcase-item m-3" :class="{ 'ghost-order': isGhostOrder }">
+    <div class="showcase-item" :class="{ 'ghost-order': isGhostOrder }">
         <div v-if="isGhostOrder" class="ghost-banner mb-2">
             <i class="fa fa-clock-o mr-1" aria-hidden="true"></i>
             {{ $t('dashboard.ghostOrderBanner') }}
@@ -146,12 +146,20 @@ $rule: $showcase-rule;
 $production-columns: minmax(6rem, 1.1fr) minmax(11rem, 1.6fr) minmax(5.5rem, 0.8fr) 7.5rem;
 
 .showcase-item {
-    font-size: 0.85rem;
+    flex: 0 0 auto;
+    padding: 1rem;
+    border-radius: var(--surfaceRadius);
+    background-color: var(--colorSurface);
+    font-size: var(--fontSizeContent);
     color: $ink;
+
+    svg {
+        width: 20px;
+    }
 }
 
 .ghost-order {
-    background-color: rgba(179, 157, 219, 0.06);
+    background-color: #faf8fd;
 }
 
 .showcase-header {

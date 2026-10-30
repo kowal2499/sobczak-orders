@@ -1,8 +1,22 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="title" :breadcrumbs="breadcrumbs" />
+        <SectionBlockTitle block :title="title" :breadcrumbs="breadcrumbs">
+            <template #actions>
+                <!-- the form is long, so saving is also reachable without scrolling to its end -->
+                <button
+                    v-if="formState"
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    :disabled="!formState.canSubmit"
+                    @click="$refs.form.save()"
+                >
+                    <i v-if="formState.busy" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                    {{ formState.label }}
+                </button>
+            </template>
+        </SectionBlockTitle>
         <AuthConfigurationWrapper>
-            <UserSingle :user-id="userId" />
+            <UserSingle ref="form" :user-id="userId" @state="formState = $event" />
         </AuthConfigurationWrapper>
     </div>
 </template>
@@ -17,6 +31,9 @@ export default {
     props: {
         userId: { type: Number, default: 0 },
     },
+    data: () => ({
+        formState: null,
+    }),
     computed: {
         title() {
             return this.$t(this.userId ? 'app.title.userEdit' : 'app.title.userNew')

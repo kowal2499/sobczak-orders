@@ -9,39 +9,83 @@ div#content-wrapper {
     }
 
     width: 100%;
-    overflow-x: hidden;
+    // clip, not hidden: hidden makes this a scroll container and breaks position: sticky inside it
+    overflow-x: clip;
 
-    font-size: 0.95rem;
+    font-size: $font-size-content;
     font-weight: 400;
+    color: $ink;
 
-    background-color: #f8f9fc;
+    background-color: $canvas;
 
     #content {
-        padding-top: 1.25rem;
+        padding: 1.25rem;
 
         @media (max-width: 767.98px) {
             padding-top: 3.5rem; // clear the fixed hamburger
         }
+
+        > .container-fluid {
+            padding: 0;
+        }
     }
 
     .text-primary {
-        color: #4e73df!important;
+        color: $mainBlue !important;
     }
 
     .font-weight-bold {
         font-weight: 500!important;
     }
 
+    // views set their own 2rem .section-gap; the page header needs less
+    .section-block-title--block + .section-gap {
+        margin-top: 1.25rem;
+    }
+
+    // a view whose body scrolls on its own and fills the rest of the window
+    .page-fill {
+        display: flex;
+        flex-direction: column;
+
+        @media (min-width: 768px) {
+            height: calc(100vh - 2.5rem);
+        }
+
+        > .page-fill__body {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    .card {
+        border: 1px solid $rule;
+        border-radius: $surface-radius;
+        box-shadow: none !important;
+    }
+
     .card-header {
         padding: .75rem 1.25rem;
         margin-bottom: 0;
-        background-color: #f8f9fc;
-        border-bottom: 1px solid #e3e6f0;
+        background-color: transparent;
+        border-bottom: 1px solid $rule;
+        color: $ink-strong;
+        font-weight: 600;
     }
 
     .table {
 
-        color: #666;
+        color: $ink;
+        font-size: $font-size-content;
+
+        thead th {
+            color: $ink-muted;
+            font-weight: 500;
+            border-top: 0;
+            border-bottom: 1px solid $rule;
+        }
 
         &.dataTable {
             clear: both;
@@ -53,7 +97,7 @@ div#content-wrapper {
         }
 
         &.table-bordered {
-            border: 1px solid #e3e6f0;
+            border: 1px solid $rule;
         }
 
         thead {
@@ -66,7 +110,7 @@ div#content-wrapper {
                 border-left-width: 0;
                 padding: .75rem;
                 vertical-align: top;
-                border-top: 1px solid #e3e6f0;
+                border-top: 1px solid $rule;
             }
 
 

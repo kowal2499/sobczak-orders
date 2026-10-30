@@ -5,6 +5,7 @@ export default {
     startProductionForm: {
         modalTitle: 'Daty produkcji dla działów',
         startProduction: 'Rozpocznij produkcję',
+        department: 'Dział',
         startDate: 'Data rozpoczęcia',
         endDate: 'Data zakończenia',
     },
@@ -14,6 +15,8 @@ export default {
         adjustmentRatioName: 'Wartość modyfikatora procentowego',
         adjustmentRatioDescription: 'Zakres 0-100%',
         factorPerDpt: 'Wartość współczynnika bazowego dla działu',
+        adjustmentRatioColumn: 'Modyfikator % (0-100)',
+        factorPerDptColumn: 'Współczynnik działu',
         adjustmentBonusSectionTitle: 'Bonusy i kary',
         adjustmentBonusValueDescription: 'Dla bonusów wartości dodatnie, dla kar wartości ujemne',
         bonusValue: 'Wartość',

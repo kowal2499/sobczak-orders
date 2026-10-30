@@ -43,12 +43,17 @@ export default defineComponent({
 
     methods: {
         beforeOpen() {
+            this.openings++
             this.q = null
         },
         onExportExcel() {
             return this.exportExcel(this.$t('dashboard.tasksCompletedOnTime'), fields, this.innerData)
         }
-    }
+    },
+
+    data: () => ({
+        openings: 0,
+    }),
 })
 </script>
 
@@ -91,27 +96,29 @@ export default defineComponent({
                     />
                 </template>
 
-                <template #sidebar-content="{ height }">
-                    <SidebarLayout>
-                        <template #header>
-                            <SidebarNavbar
-                                @search="q = $event"
-                                @exportExcel="onExportExcel"
-                            >
-                                <template #controls>
-                                    <OnTimeToleranceInput
-                                        :value="tolerance"
-                                        @change="onToleranceChange"
-                                    />
-                                </template>
-                            </SidebarNavbar>
+                <template #sidebar-header-actions>
+                    <!-- Keyed per opening: the header outlives the lazy body, and beforeOpen clears the search. -->
+                    <SidebarNavbar
+                        :key="openings"
+                        @search="q = $event"
+                        @exportExcel="onExportExcel"
+                    >
+                        <template #controls>
+                            <OnTimeToleranceInput
+                                class="tolerance-row--toolbar"
+                                :value="tolerance"
+                                @change="onToleranceChange"
+                            />
                         </template>
+                    </SidebarNavbar>
+                </template>
+
+                <template #sidebar-content>
+                    <SidebarLayout>
                         <template #content>
                             <OnTimeDetails
                                 :data="filteredInnerData"
-                                :height="height"
                                 :report-range="{ start: dateStart, end: dateEnd }"
-                                class="px-2 pb-2"
                                 @saved="onRefresh()"
                             />
                         </template>

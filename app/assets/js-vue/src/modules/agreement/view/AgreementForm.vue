@@ -14,7 +14,7 @@
                     <div class="section-header">
                         <h6 class="section-title">{{ $t('agreement.form.sectionProducts') }}</h6>
                         <button
-                            class="btn btn-sm btn-success"
+                            class="btn btn-sm btn-outline-primary"
                             @click="addProduct"
                             type="button"
                             :disabled="!!agreementId && !$user.can('order.manage:edit')"
@@ -74,16 +74,17 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="action-bar">
+                <div class="form-actions">
+                    <router-link :to="{ name: 'orders' }" class="btn btn-outline-secondary">
+                        {{ $t('_cancel') }}
+                    </router-link>
                     <button
-                        class="btn btn-primary btn-lg"
+                        class="btn btn-primary"
                         @click="save"
                         :disabled="!canSave || isSaving"
                         type="button"
                     >
-                        <i class="fa fa-check-square-o"></i>
-                        {{ agreementId ? $t('agreement.form.saveEdit') : $t('agreement.form.saveNew') }}
+                        <font-awesome-icon v-if="isSaving" icon="spinner" spin />{{ agreementId ? $t('agreement.form.saveEdit') : $t('agreement.form.saveNew') }}
                     </button>
                 </div>
             </div>
@@ -441,39 +442,28 @@ export default {
 
 <style lang="scss" scoped>
 
-.agreement-form {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0;
-}
-
 .section-container {
-    background: var(--colorGrayLight3);
-    border-radius: 8px;
-    border: 1px solid var(--colorGrayLight80);
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.2s;
-
-    &:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+    background: var(--colorSurface);
+    border-radius: var(--surfaceRadius);
+    padding: 1rem;
 }
 
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .section-title {
-    margin: 0;
-    font-size: 0.95rem;
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--colorPrimary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+}
+
+.section-header .section-title {
+    margin-bottom: 0;
 }
 
 .empty-message {
@@ -494,28 +484,4 @@ export default {
     color: #495057;
 }
 
-.action-bar {
-    display: flex;
-    justify-content: flex-end;
-    padding: 1rem 0;
-
-    .btn {
-        min-width: 200px;
-    }
-}
-
-// Responsywność
-@media (max-width: 768px) {
-    .agreement-form {
-        padding: 1rem 0;
-    }
-
-    .section-container {
-        padding: 1rem;
-    }
-
-    .action-bar .btn {
-        width: 100%;
-    }
-}
 </style>

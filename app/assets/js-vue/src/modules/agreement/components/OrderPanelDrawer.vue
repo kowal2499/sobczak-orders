@@ -7,8 +7,19 @@
         :before-close="beforeClose"
         @closed="onClosed"
     >
+        <template v-if="canEdit" #sidebar-header-actions>
+            <button
+                type="button"
+                class="btn btn-primary btn-sm d-none d-sm-inline-block"
+                :disabled="busy"
+                @click="save"
+            >
+                <font-awesome-icon v-if="saving" icon="spinner" spin class="mr-1" />{{ $t('orders.saveChanges') }}
+            </button>
+        </template>
+
         <template #sidebar-content>
-            <div class="p-3">
+            <div class="order-panel">
                 <single-order
                     ref="singleOrder"
                     :key="lineId"
@@ -17,6 +28,8 @@
                     :active-department="activeDepartment"
                     @saved="onSaved"
                     @dirty-change="onDirtyChange"
+                    @busy-change="busy = $event"
+                    @saving-change="saving = $event"
                 />
             </div>
         </template>
@@ -50,9 +63,14 @@ export default {
     data: () => ({
         internalOpen: false,
         isDirty: false,
+        busy: true,
+        saving: false,
     }),
 
     computed: {
+        canEdit() {
+            return this.$user.can(this.$privilages.CAN_PRODUCTION)
+        },
         taskStatuses() {
             return Object.fromEntries(
                 Object.entries(agreementStatusesMap).map(([code, s]) => [code, s.name])
@@ -94,6 +112,10 @@ export default {
             this.$emit('closed')
         },
 
+        save() {
+            this.$refs.singleOrder?.save()
+        },
+
         onDirtyChange(val) {
             this.isDirty = val
         },
@@ -118,3 +140,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.order-panel {
+    padding: 0 1.25rem 1.25rem;
+}
+</style>

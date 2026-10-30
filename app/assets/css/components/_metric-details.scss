@@ -1,0 +1,53 @@
+// Detail tables of the dashboard metrics (Details.vue, OnTimeDetails.vue)
+
+.details-block {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    // fills the block instead of b-table's fixed 300px; the block is what scrolls
+    > .b-table-sticky-header {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none !important;
+        margin-bottom: 0;
+    }
+}
+
+.metric-details-table {
+    font-size: var(--fontSizeContent);
+    font-weight: normal;
+    padding-top: 0 !important;
+
+    thead th {
+        background-color: var(--colorSurface) !important;
+        color: var(--colorInkMuted);
+        font-size: var(--fontSizeContent);
+        font-weight: 500;
+        vertical-align: bottom;
+        border-top: 0;
+        border-bottom: 1px solid var(--colorRule);
+    }
+
+    td {
+        border-top: 1px solid var(--colorRule);
+    }
+
+    td .cell-value {
+        font-size: var(--fontSizeContent);
+    }
+
+    .column-total {
+        display: block;
+        margin-top: 0.15rem;
+        color: var(--colorInkStrong);
+        font-weight: 600;
+    }
+
+    th.data-cell,
+    td.data-cell {
+        text-align: center;
+        width: 100px;
+    }
+}

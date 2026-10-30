@@ -1,15 +1,5 @@
 <template>
     <div>
-        <button
-            @click.prevent="save"
-            :disabled="locked || isSaving"
-            href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mb-3"
-            v-if="canEditLine()"
-        >
-            <i :class="isSaving ? 'fa fa-spinner fa-spin': 'fa fa-floppy-o'"/>
-            <span class="pl-1">{{ $t('orders.saveChanges') }}</span>
-        </button>
-
         <div class="row">
             <div class="col-12 col-lg-8">
                 <collapsible-card :title="$t('orders.production')" :locked="locked" v-if="orderData.productions.tasks && orderData.productions.tasks.length !== 0">
@@ -182,12 +172,8 @@
                     }
                 } finally {
                     this.locked = false;
-                    this.isSaving = true;
+                    this.isSaving = false;
                 }
-            },
-
-            canEditLine() {
-                return this.$user.can(this.$privilages.CAN_PRODUCTION);
             },
 
             snapshot() {
@@ -212,6 +198,15 @@
         watch: {
             isDirty(val) {
                 this.$emit('dirty-change', val);
+            },
+            busy: {
+                handler(val) {
+                    this.$emit('busy-change', val);
+                },
+                immediate: true
+            },
+            isSaving(val) {
+                this.$emit('saving-change', val);
             }
         },
 
@@ -257,6 +252,9 @@
         },
 
         computed: {
+            busy() {
+                return this.locked || this.isSaving;
+            },
             isDirty() {
                 if (!this.savedSnapshot) {
                     return false;

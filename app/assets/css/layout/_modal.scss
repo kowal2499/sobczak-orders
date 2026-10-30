@@ -2,14 +2,38 @@
 
     background-color: rgba(0, 0, 0, .5);
 
+    .modal-content {
+        border: 0;
+        border-radius: $surface-radius;
+    }
+
+    // Header without a bar, like the drawer header
     .modal-header {
-        background-color: #f8f9fc;
+        align-items: center;
+        padding: 1.25rem 1.25rem 0.5rem;
+        background-color: transparent;
+        border-bottom: 0;
 
         h5 {
-            color: #4e73df!important;
-            font-size: 1rem;
+            margin: 0;
+            color: $mainBlue !important;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
         }
-        
     }
-    
+
+    .modal-body {
+        padding: 1rem 1.25rem 1.25rem;
+    }
+
+    // same rule as .form-actions: cancel on the left, the confirming action on the right
+    .modal-footer {
+        padding: 0 1.25rem 1.25rem;
+        border-top: 0;
+
+        > .btn-outline-secondary {
+            margin-right: auto;
+        }
+    }
 }

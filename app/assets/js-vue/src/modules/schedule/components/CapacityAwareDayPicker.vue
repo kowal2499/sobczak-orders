@@ -1,17 +1,21 @@
 <template>
     <div>
         <div class="calendar-header">
-            <span class="calendar-title">{{ monthName }} {{ year }}</span>
-            <button  class="btn btn-outline-primary"
-                     @click="prevMonth" :disabled="!canPrev">
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    :aria-label="$t('_previousMonth')" @click="prevMonth" :disabled="!canPrev">
                 <font-awesome-icon icon="chevron-left" />
             </button>
-            <button class="btn btn-outline-primary" @click="nextMonth">
+            <span class="calendar-title">{{ monthName }} {{ year }}</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm"
+                    :aria-label="$t('_nextMonth')" @click="nextMonth">
                 <font-awesome-icon icon="chevron-right" />
             </button>
         </div>
         <b-overlay :show="isBusy" rounded="sm">
             <div class="calendar">
+                <div class="calendar-row" aria-hidden="true">
+                    <div v-for="weekday in weekdays" :key="weekday" class="calendar-weekday">{{ weekday }}</div>
+                </div>
                 <div class="calendar-row" v-for="(week, weekIdx) in monthDays" :key="weekIdx">
                     <div
                         class="calendar-day"
@@ -148,6 +152,10 @@ export default {
         },
         monthName() {
             return this.$t(MONTH_KEYS[this.month - 1]);
+        },
+        // Calendar(1) starts weeks on Monday
+        weekdays() {
+            return this.$t('_weekdaysShort').split(',');
         },
         range() {
             const start = getLocalDate(new Date(this.year, this.month - 1, 1))
@@ -317,14 +325,20 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 1rem;
 }
 .calendar-title {
     color: var(--colorPrimary);
-    font-weight: bold;
-    font-size: 18px;
-    min-width: 120px;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: 10rem;
     text-align: center;
+}
+.calendar-weekday {
+    width: 100px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--colorInkMuted);
 }
 .calendar-arrow {
     background: none;

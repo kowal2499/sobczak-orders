@@ -40,6 +40,7 @@ export default {
         'confirmCapacity': 'Potwierdzam zapoznanie się z komunikatem:',
         'capacityExceededWarning': 'Zdolności produkcyjne w dniu {date} są niewystarczające, aby zrealizować zamówienie. Można wybrać tę datę, jednak faktyczny termin realizacji zostanie potwierdzony w osobnym komunikacie.',
         'cancel': 'Anuluj',
+        'accept': 'Akceptuj',
         'factorIncreasedInfo': 'Po zwiększeniu współczynnika, wybierz ponownie datę realizacji',
     },
     'attachment': {

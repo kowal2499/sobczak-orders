@@ -29,19 +29,54 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="d-flex flex-row justify-content-end align-items-center gap-2 mx-2 my-1">
+    <div class="sidebar-navbar">
         <slot name="controls" />
-        <div>
-            <input type="text" class="form-control form-control-sm" placeholder="Szukaj..." v-model="q" />
+        <div class="sidebar-navbar__search" role="search">
+            <input
+                v-model="q"
+                type="search"
+                class="form-control form-control-sm"
+                placeholder="Szukaj..."
+                aria-label="Szukaj"
+            />
+            <i class="fa fa-search" aria-hidden="true"></i>
         </div>
-        <div>
-            <button v-if="showExcelExportBtn" class="btn btn-outline-primary btn-sm" @click.prevent="$emit('exportExcel')">
-                <font-awesome-icon icon="download" /> Excel
-            </button>
-        </div>
+        <button v-if="showExcelExportBtn" type="button" class="btn btn-outline-primary btn-sm" @click.prevent="$emit('exportExcel')">
+            <font-awesome-icon icon="download" class="mr-1" />Excel
+        </button>
     </div>
 </template>
 
 <style scoped lang="scss">
+.sidebar-navbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
 
+.sidebar-navbar__search {
+    position: relative;
+    width: 16rem;
+    max-width: 100%;
+
+    // same box as the neighbouring .btn-sm (_forms.scss): 0.85rem text, 0.25rem vertical padding
+    .form-control {
+        height: calc(1.5em + 0.5rem + 2px);
+        padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        background-color: var(--colorSurface);
+    }
+
+    .fa-search {
+        position: absolute;
+        top: 50%;
+        right: 0.6rem;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+        color: var(--colorSecondary);
+        pointer-events: none;
+    }
+}
 </style>

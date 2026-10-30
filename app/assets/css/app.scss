@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap&subset=latin-ext');
-@import '~bootstrap/scss/bootstrap';
 @import './helper/variables';
+@import '~bootstrap/scss/bootstrap';
 
 @import "~vue-select/src/scss/vue-select.scss";
 @import '~bootstrap-vue/src/index.scss';
@@ -12,6 +12,7 @@
 @import './components/order-spec-list';
 @import './components/calendar';
 @import './components/banner';
+@import './components/metric-details';
 
 @import './layout/forms';
 @import './layout/skeleton';

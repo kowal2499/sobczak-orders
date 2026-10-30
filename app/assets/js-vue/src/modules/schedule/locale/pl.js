@@ -3,8 +3,6 @@ export default {
     'generalTitle': 'Kalendarz ogólny',
     'breadcrumb': {
         'home': 'Pulpit',
-        'calendar': 'Kalendarz',
-        'calendarV2': 'Kalendarz v2',
     },
     'orders': {
         'title': 'Kalendarz zamówień',
@@ -29,6 +27,8 @@ export default {
         'department': 'Dział',
         'status': 'Status',
         'agreementLine': 'Zamówienie',
+        'customer': 'Klient',
+        'ghost': 'Z prognozą',
     },
     'showGhost': 'Pokaż prognozę',
     'status': {
