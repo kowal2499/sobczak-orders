@@ -1,7 +1,7 @@
 <template>
     <div>
         <SectionBlockTitle block :title="$t('customers.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
+            <template #actions>
                 <ListSearchBar
                     :value="query.q"
                     :placeholder="$t('customers.searchPlaceholder')"

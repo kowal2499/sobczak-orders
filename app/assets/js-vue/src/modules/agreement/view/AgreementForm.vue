@@ -14,7 +14,7 @@
                     <div class="section-header">
                         <h6 class="section-title">{{ $t('agreement.form.sectionProducts') }}</h6>
                         <button
-                            class="btn btn-sm btn-success"
+                            class="btn btn-sm btn-primary"
                             @click="addProduct"
                             type="button"
                             :disabled="!!agreementId && !$user.can('order.manage:edit')"

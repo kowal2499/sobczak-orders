@@ -198,6 +198,8 @@ export default defineComponent({
             no-close-on-route-change
             :sidebar-class="combinedSidebarClass"
             right backdrop shadow
+            bg-variant=""
+            text-variant=""
             :visible="bSidebarVisible"
             @input="onBSidebarInput"
             @shown="onShown"
@@ -205,10 +207,19 @@ export default defineComponent({
             @keydown.native.esc="closeSidebar"
         >
             <template #header>
-                <div class="d-flex gap-2 w-100">
-                    <h5 class="m-0 text-primary font-weight-bold">{{ title }}</h5>
-                    <button type="button" class="close ml-auto mr-0" @click="closeSidebar">
-                        &times;
+                <div class="sidebar-header">
+                    <h5 class="sidebar-header__title">{{ title }}</h5>
+                    <div v-if="$scopedSlots['sidebar-header-actions']" class="sidebar-header__actions">
+                        <slot name="sidebar-header-actions" :close="closeSidebar" />
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm sidebar-header__close"
+                        :aria-label="$t('_close')"
+                        :title="$t('_close')"
+                        @click="closeSidebar"
+                    >
+                        <i class="fa fa-times" aria-hidden="true"></i>
                     </button>
                 </div>
             </template>
@@ -243,7 +254,46 @@ export default defineComponent({
     // Bootstrap 4 nie ma progu xxl; 50% szerokości poniżej 1400px jest za wąskie na listy kart
     $sidebar-breakpoints: map-merge($grid-breakpoints, (xxl: 1400px));
 
-    > .b-sidebar-body { font-size: 0.95rem; }
+    background-color: var(--colorCanvas);
+    color: var(--colorInk);
+
+    > .b-sidebar-header {
+        padding: 1.25rem 1.25rem 0.75rem;
+    }
+
+    > .b-sidebar-body { font-size: var(--fontSizeContent); }
+
+    > .b-sidebar-footer:empty { display: none; }
+
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .sidebar-header__title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--colorPrimary);
+    }
+
+    .sidebar-header__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .sidebar-header__close {
+        margin-left: auto;
+    }
+
+    .sidebar-header__actions + .sidebar-header__close {
+        margin-left: 0.5rem;
+    }
 
     @each $s in $sizes {
         &.size-#{$s} {

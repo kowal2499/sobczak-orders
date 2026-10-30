@@ -1,5 +1,5 @@
 <template>
-    <div class="card shadow">
+    <div class="card">
         <div
             class="card-body"
             :class="[pinnedTitle ? 'card-body--pinned' : 'card-body--scroll', isBusy && 'card-body--busy']"

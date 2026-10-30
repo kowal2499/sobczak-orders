@@ -21,7 +21,7 @@
             <template #modal-footer="{ close }">
                 <div class="d-flex justify-content-end">
                     <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-success ml-2" @click="startProduction(close)">
+                    <button class="btn btn-primary ml-2" @click="startProduction(close)">
                         <i class="fa fa-play mr-2" aria-hidden="true" /> {{ $t('agreement_line_list.startProductionForm.startProduction') }}
                     </button>
                 </div>

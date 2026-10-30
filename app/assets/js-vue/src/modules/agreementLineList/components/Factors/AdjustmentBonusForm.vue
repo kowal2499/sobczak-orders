@@ -1,13 +1,6 @@
 <template>
-    <b-form-group
-        :label="$t('agreement_line_list.factorsForm.adjustmentBonusSectionTitle')"
-        label-cols-md="3"
-        label-class="pt-0"
-    >
-        <div class="d-flex justify-content-start mb-3">
-            <button class="btn btn-primary btn-sm" @click="addRow">{{ $t('_add') }}</button>
-        </div>
-        <b-row v-for="(record, idx) in proxyData">
+    <div>
+        <b-row v-for="(record, idx) in proxyData" :key="idx" class="bonus-row">
 
             <b-col cols="6" md="3">
                 <FormLayout rules="required|excluded:0"
@@ -51,11 +44,10 @@
                 </FormLayout>
             </b-col>
             <b-col cols="12" md="2" class="text-right">
-                <button class="btn btn-danger btn-sm" @click="onDeleteRow(idx)">Usuń</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" @click="onDeleteRow(idx)">Usuń</button>
             </b-col>
         </b-row>
-
-    </b-form-group>
+    </div>
 </template>
 
 <script>
@@ -91,5 +83,11 @@ export default {
 </script>
 
 <style scoped>
+.bonus-row {
+    padding-top: 0.75rem;
+}
 
+.bonus-row + .bonus-row {
+    border-top: 1px solid var(--colorRule);
+}
 </style>

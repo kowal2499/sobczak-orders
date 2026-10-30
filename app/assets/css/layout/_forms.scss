@@ -6,7 +6,7 @@ label.required:before {
 
 #app {
 
-    .card, .section-block {
+    .card, .section-block, .collapsible-section {
         .card-header {
             .fa {
                 padding: 5px;
@@ -50,5 +50,23 @@ label.required:before {
 
     .btn-i {
         padding-right: 4px;
+    }
+
+    // Form buttons: back / cancel (always outline-secondary) on the left, the other actions on the right
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+
+        > .btn-outline-secondary {
+            margin-right: auto;
+        }
+
+        .btn > .fa,
+        .btn > svg {
+            margin-right: 0.35rem;
+        }
     }
 }

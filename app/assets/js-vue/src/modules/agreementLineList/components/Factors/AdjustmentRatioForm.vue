@@ -31,53 +31,68 @@ export default {
 </script>
 
 <template>
-    <b-form-group
-        :label="$t('agreement_line_list.factorsForm.adjustmentRatioSectionTitle')"
-        label-cols-md="3"
-        label-class="pt-0"
-    >
-        <b-row v-for="itemKey in Object.keys(proxyData)" :key="itemKey" align-v="start">
-            <b-col cols="2">
-                <div class="text-nowrap font-weight-bold">{{ getDepartment(itemKey).name }}</div>
-                <b-form-checkbox
-                    :name="getDepartment(itemKey).name"
-                    :unchecked-value="false"
-                    switch
-                    v-model="proxyData[itemKey].active"
-                    @change="onActiveChange(itemKey, $event)"
+    <div class="ratio-table">
+        <div class="ratio-row ratio-row--head" aria-hidden="true">
+            <div>{{ $t('_department') }}</div>
+            <div>{{ $t('agreement_line_list.factorsForm.adjustmentRatioColumn') }}</div>
+            <div class="text-right">{{ $t('agreement_line_list.factorsForm.factorPerDptColumn') }}</div>
+        </div>
+
+        <div v-for="itemKey in Object.keys(proxyData)" :key="itemKey" class="ratio-row">
+            <b-form-checkbox
+                :name="getDepartment(itemKey).name"
+                :unchecked-value="false"
+                switch
+                v-model="proxyData[itemKey].active"
+                @change="onActiveChange(itemKey, $event)"
+            >
+                {{ getDepartment(itemKey).name }}
+            </b-form-checkbox>
+
+            <FormLayout
+                :label="$t('agreement_line_list.factorsForm.adjustmentRatioName')"
+                :rules="proxyData[itemKey].active && 'required|numeric|min_value:0|max_value:100' || null"
+                :form-group-config="{ class: 'mb-0' }"
+                no-label
+                #default="{ state }"
+            >
+                <b-form-input type="number"
+                    :disabled="!proxyData[itemKey].active"
+                    :min="0" :max="100"
+                    v-model="proxyData[itemKey].value"
+                    :state="state"
+                    :aria-label="`${getDepartment(itemKey).name}: ${$t('agreement_line_list.factorsForm.adjustmentRatioName')}`"
                 />
-            </b-col>
+            </FormLayout>
 
-            <b-col cols="12" md="5">
-                <FormLayout
-                    :label="$t('agreement_line_list.factorsForm.adjustmentRatioName')"
-                    :rules="proxyData[itemKey].active && 'required|numeric|min_value:0|max_value:100' || null"
-                    :form-group-config="{
-                        description: $t('agreement_line_list.factorsForm.adjustmentRatioDescription')
-                    }"
-                    #default="{ state }"
-                >
-                    <b-form-input type="number"
-                        :disabled="!proxyData[itemKey].active"
-                        :min="0" :max="100"
-                        v-model="proxyData[itemKey].value"
-                        :state="state"
-                    />
-                </FormLayout>
-            </b-col>
-
-            <b-col cols="12" md="5" align-h="end" class="ml-auto">
-                <b-form-group :label="$t('agreement_line_list.factorsForm.factorPerDpt')" label-class="text-right">
-                    <div class="text-primary font-weight-bold text-right" style="font-size: 1.1rem">
-                        {{ computeDepartmentFactor(itemKey) }}
-                    </div>
-<!--                    <b-form-input disabled :value="computeDepartmentFactor(itemKey)" />-->
-                </b-form-group>
-            </b-col>
-        </b-row>
-    </b-form-group>
+            <div class="ratio-row__result">
+                {{ computeDepartmentFactor(itemKey) }}
+            </div>
+        </div>
+    </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+.ratio-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 12rem) minmax(5rem, 1fr);
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--colorRule);
 
+    &--head {
+        padding-top: 0;
+        border-top: 0;
+        font-size: 0.8rem;
+        color: var(--colorInkMuted);
+    }
+}
+
+.ratio-row__result {
+    text-align: right;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--colorPrimary);
+}
 </style>

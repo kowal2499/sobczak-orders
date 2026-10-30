@@ -13,7 +13,7 @@
                     <b-form-checkbox v-model="showInactiveUsers" switch>
                         <span class="text-sm">{{ $t('user.showInactiveUsers') }}</span>
                     </b-form-checkbox>
-                    <router-link :to="{ name: 'user-new' }" class="d-sm-inline-block btn btn-sm btn-success shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></router-link>
+                    <router-link :to="{ name: 'user-new' }" class="d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fa fa-plus"></i> <span class="pl-1">Nowy użytkownik</span></router-link>
                 </div>
             </template>
         </SectionBlockTitle>

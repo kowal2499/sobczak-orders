@@ -12,7 +12,9 @@
     </div>
 
     <!--
-        Desktop: the draggable/resizable grid.
+        Desktop: the draggable/resizable grid. vue-grid-layout puts the gutter on
+        the outer edges too; the negative margin cancels it, so the gap to the
+        container edge is the container's own padding.
         use-css-transforms MUST stay false: CSS transforms on the grid items
         create a containing block for position:fixed descendants, which traps
         any fixed overlay rendered inside a widget (e.g. a b-sidebar / modal)
@@ -28,6 +30,7 @@
         :vertical-compact="true"
         :use-css-transforms="false"
         :margin="[margin, margin]"
+        :style="{ margin: `-${margin}px` }"
         @layout-updated="onLayoutUpdated"
     >
         <grid-item

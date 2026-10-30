@@ -2,7 +2,7 @@
     <div>
         <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
             <template v-if="userCanAddOrder()" #actions>
-                <router-link :to="{ name: 'order-new' }" class="btn btn-success btn-sm d-inline-flex align-items-center orders-new-btn">
+                <router-link :to="{ name: 'order-new' }" class="btn btn-primary btn-sm d-inline-flex align-items-center orders-new-btn">
                     <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
                 </router-link>
             </template>

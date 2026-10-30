@@ -72,7 +72,7 @@ function getForm() {
                 <RoleForm v-model="form" />
             </template>
             <template #open-action="{ open }">
-                <b-button class="w-100 mb-1" size="sm" variant="outline-success" @click="open">
+                <b-button class="w-100 mb-1" size="sm" variant="outline-primary" @click="open">
                     {{ $t('auth.addNew') }}
                 </b-button>
             </template>
@@ -80,7 +80,7 @@ function getForm() {
             <template #modal-footer="{ close }">
                 <div class="d-flex justify-content-end">
                     <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-success ml-2" @click="onSubmit(close)">
+                    <button class="btn btn-primary ml-2" @click="onSubmit(close)">
                         {{ $t('add') }}
                     </button>
                 </div>

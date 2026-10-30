@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" :disabled="busy" class="btn btn-success" @click.prevent="$emit('answerYes')">{{ $t('yes') }}</button>
+                    <button type="button" :disabled="busy" class="btn btn-primary" @click.prevent="$emit('answerYes')">{{ $t('yes') }}</button>
                     <button type="button" :disabled="busy" class="btn btn-danger" @click.prevent="closeModal()">{{ $t('no') }}</button>
                 </div>
 

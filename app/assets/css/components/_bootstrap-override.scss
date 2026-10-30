@@ -2,6 +2,18 @@
     background-color: $mainBlue !important;
 }
 
+.btn-secondary {
+    @include button-variant(
+        $btnSecondaryBg, $btnSecondaryBg,
+        $btnSecondaryBgHover, $btnSecondaryBgHover,
+        $btnSecondaryBgHover, $btnSecondaryBgHover
+    );
+}
+
+.btn-outline-secondary {
+    @include button-outline-variant($btnSecondaryBg, #fff,$btnSecondaryBg, $btnSecondaryBg);
+}
+
 .custom-control.custom-switch {
     .custom-control-label:before,
     .custom-control-label:after {

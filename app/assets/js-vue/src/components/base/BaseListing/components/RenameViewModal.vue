@@ -75,7 +75,7 @@ export default {
             <template #modal-footer>
                 <div class="d-flex justify-content-end">
                     <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-success ml-2" @click="submit">{{ $t('_save') }}</button>
+                    <button class="btn btn-primary ml-2" @click="submit">{{ $t('_save') }}</button>
                 </div>
             </template>
         </ModalAction>

@@ -21,7 +21,7 @@
             </overlay>
 
             <template #modal-footer="{ cancel }">
-                <b-button size="sm" variant="success" @click="launchAction()" :disabled="busy">
+                <b-button size="sm" variant="primary" @click="launchAction()" :disabled="busy">
                     {{ $t('_yes') }}
                 </b-button>
                 <b-button size="sm" variant="outline-secondary" @click="cancel()" :disabled="busy">

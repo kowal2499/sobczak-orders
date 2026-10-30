@@ -1,26 +1,39 @@
 <template>
     <ValidationObserver ref="form" class="h-100 d-flex flex-column">
-        <div class="p-3 overflow-auto">
-            <AgreementLineFactorForm
-                v-if="form.agreementLine"
-                v-model="form.agreementLine.value"
-            />
-            <AdjustmentRatioForm
-                v-if="form.factorAdjustmentRatio"
-                v-model="form.factorAdjustmentRatio"
-                :factor="Number(form.agreementLine.value || 0)"
-            />
-            <AdjustmentBonusForm
-                v-if="form.factorAdjustmentBonus"
-                v-model="form.factorAdjustmentBonus"
-            />
+        <div class="factors-view__body overflow-auto">
+            <SectionBlock v-if="form.agreementLine" class="factors-view__section">
+                <SectionBlockTitle :title="$t('orders.factor')" class="mb-3" />
+                <AgreementLineFactorForm v-model="form.agreementLine.value" />
+            </SectionBlock>
+
+            <SectionBlock v-if="form.factorAdjustmentRatio" class="factors-view__section">
+                <SectionBlockTitle
+                    :title="$t('agreement_line_list.factorsForm.adjustmentRatioSectionTitle')"
+                    class="mb-3"
+                />
+                <AdjustmentRatioForm
+                    v-model="form.factorAdjustmentRatio"
+                    :factor="Number(form.agreementLine.value || 0)"
+                />
+            </SectionBlock>
+
+            <SectionBlock v-if="form.factorAdjustmentBonus" class="factors-view__section">
+                <SectionBlockTitle :title="$t('agreement_line_list.factorsForm.adjustmentBonusSectionTitle')">
+                    <template #actions>
+                        <button type="button" class="btn btn-outline-primary btn-sm" @click="$refs.bonusForm.addRow()">
+                            {{ $t('_add') }}
+                        </button>
+                    </template>
+                </SectionBlockTitle>
+                <AdjustmentBonusForm ref="bonusForm" v-model="form.factorAdjustmentBonus" />
+            </SectionBlock>
         </div>
-        <div class="m-3 mt-auto d-flex justify-content-between">
-            <button class="btn btn-secondary" @click="onClose">
+        <div class="form-actions mt-auto factors-view__footer">
+            <button type="button" class="btn btn-outline-secondary" @click="onClose">
                 Anuluj
             </button>
-            <button class="btn btn-success ml-2" @click.prevent="onSubmit">
-                <i class="fa fa-save mr-2" /> Zapisz
+            <button type="button" class="btn btn-primary" :disabled="isBusy" @click.prevent="onSubmit">
+                <font-awesome-icon v-if="isBusy" icon="spinner" spin />Zapisz
             </button>
         </div>
     </ValidationObserver>
@@ -153,5 +166,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.factors-view__body {
+    padding: 0 1.25rem;
+}
 
+.factors-view__section + .factors-view__section {
+    margin-top: 1rem;
+}
+
+.factors-view__footer {
+    padding: 1rem 1.25rem 1.25rem;
+}
 </style>

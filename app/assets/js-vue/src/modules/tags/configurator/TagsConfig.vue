@@ -1,7 +1,7 @@
 <template>
     <SectionBlock class="section-gap">
         <div class="d-flex justify-content-end mb-3">
-            <b-button size="sm" variant="success" :disabled="isBusy" @click="showModal({})">
+            <b-button size="sm" variant="primary" :disabled="isBusy" @click="showModal({})">
                 {{ $t('tags.addNew') }}
             </b-button>
         </div>

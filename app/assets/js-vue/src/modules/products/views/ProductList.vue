@@ -1,7 +1,7 @@
 <template>
     <div>
         <SectionBlockTitle block :title="$t('products.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
+            <template #actions>
                 <ListSearchBar
                     :value="query.q"
                     :placeholder="$t('products.searchPlaceholder')"
@@ -27,11 +27,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="product in items" :key="product.id">
-                                <td>{{ product.name }}</td>
-                                <td>{{ product.description }}</td>
-                                <td>{{ product.factor }}</td>
-                                <td>
-                                    <router-link :to="{ name: 'product-edit', params: { id: product.id } }" class="btn btn-light btn-sm">
+                                <td class="align-middle">{{ product.name }}</td>
+                                <td class="align-middle">{{ product.description }}</td>
+                                <td class="align-middle">{{ product.factor }}</td>
+                                <td class="align-middle text-right">
+                                    <router-link :to="{ name: 'product-edit', params: { id: product.id } }" class="btn btn-outline-primary btn-sm text-nowrap">
                                         <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('products.edit') }}
                                     </router-link>
                                 </td>

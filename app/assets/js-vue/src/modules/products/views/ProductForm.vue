@@ -28,14 +28,14 @@
                         </b-form-group>
                     </ValidationProvider>
 
-                    <router-link :to="{ name: 'products' }" class="btn btn-light mr-3">
-                        <i class="fa fa-arrow-left" aria-hidden="true"></i> {{ $t('products.back') }}
-                    </router-link>
-                    <button type="submit" class="btn btn-primary" :disabled="saving">
-                        <font-awesome-icon v-if="saving" icon="spinner" spin class="mr-1" />
-                        <i v-else class="fa fa-check-square-o" aria-hidden="true"></i>
-                        {{ $t('products.save') }}
-                    </button>
+                    <div class="form-actions">
+                        <router-link :to="{ name: 'products' }" class="btn btn-outline-secondary">
+                            {{ $t('products.back') }}
+                        </router-link>
+                        <button type="submit" class="btn btn-primary" :disabled="saving">
+                            <font-awesome-icon v-if="saving" icon="spinner" spin />{{ $t('products.save') }}
+                        </button>
+                    </div>
                 </ValidationObserver>
             </b-overlay>
         </SectionBlock>
