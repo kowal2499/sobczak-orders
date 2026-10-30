@@ -36,7 +36,7 @@ export default {
         <template #button-content>
             <font-awesome-icon icon="filter" />
             <span class="ml-1">{{ $t('listing.filters') }}</span>
-            <b-badge v-if="activeCount" variant="primary" pill class="ml-1">{{ activeCount }}</b-badge>
+            <b-badge v-if="activeCount" variant="primary" pill class="ml-1 filters-count">{{ activeCount }}</b-badge>
         </template>
 
         <b-dropdown-form class="listing-filters">
@@ -53,6 +53,18 @@ export default {
 </template>
 
 <style scoped lang="scss">
+
+.filters-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.35rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    vertical-align: middle;
+}
 
 .listing-filters {
     min-width: 320px;

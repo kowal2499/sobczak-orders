@@ -74,10 +74,10 @@
                                 </label>
                             </div>
 
-                            <div class="mt-3 d-flex justify-content-end gap-2">
+                            <div class="form-actions">
                                 <button
                                     type="button"
-                                    class="btn btn-secondary"
+                                    class="btn btn-outline-secondary"
                                     @click="cancelDateSelection"
                                 >
                                     {{ $t('agreement.product.cancel') }}
@@ -88,7 +88,7 @@
                                     @click="confirmDateSelection"
                                     :disabled="!tempRealizationDate || (isConfirmationRequired && !isCapacityExceededConfirmed)"
                                 >
-                                    OK
+                                    {{ $t('agreement.product.accept') }}
                                 </button>
                             </div>
                         </template>
@@ -105,7 +105,7 @@
 
             <div class="col-md-1">
                 <button
-                    class="btn btn-danger btn-sm w-100"
+                    class="btn btn-outline-danger btn-sm w-100"
                     @click="$emit('remove')"
                     type="button"
                     :disabled="disableRemove || isLocked"
@@ -317,16 +317,10 @@ export default {
 
 <style lang="scss" scoped>
 .product-row-item {
-    background-color: #ffffff;
+    background-color: var(--colorSurface);
     padding: 0.875rem;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-    transition: all 0.2s;
-
-    &:hover {
-        border-color: #ced4da;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
+    border-radius: 0.5rem;
+    border: 1px solid var(--colorRule);
 }
 
 .form-label {

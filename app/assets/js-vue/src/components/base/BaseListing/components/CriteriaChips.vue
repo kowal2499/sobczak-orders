@@ -57,7 +57,7 @@ export default {
         </span>
 
         <span class="ml-auto">
-            <b-button v-if="chips.length" size="sm" variant="outline-primary" @click="clearAll">
+            <b-button v-if="chips.length" size="sm" variant="outline-secondary" @click="clearAll">
                 {{ $t('listing.clearFilters') }}
             </b-button>
 

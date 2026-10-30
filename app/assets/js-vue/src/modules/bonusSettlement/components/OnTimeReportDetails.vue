@@ -26,10 +26,6 @@ export default defineComponent({
             type: Object,
             required: true,
         },
-        height: {
-            type: [String, Number],
-            default: null,
-        },
     },
     data: () => ({
         loading: false,
@@ -92,9 +88,7 @@ export default defineComponent({
             <OnTimeDetails
                 v-else
                 :data="filteredInnerData"
-                :height="height"
                 :report-range="range"
-                class="px-2 pb-2"
                 @saved="load"
             />
         </template>

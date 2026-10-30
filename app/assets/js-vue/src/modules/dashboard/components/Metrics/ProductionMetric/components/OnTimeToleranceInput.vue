@@ -66,4 +66,17 @@ export default defineComponent({
     padding: 0.1rem 0.3rem;
     font-size: 0.75rem;
 }
+
+// next to .btn-sm in a drawer header: same box as the button
+.tolerance-row--toolbar {
+    font-size: 0.85rem;
+    color: var(--colorInkMuted);
+
+    .tolerance-input {
+        height: calc(1.5em + 0.5rem + 2px);
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        background-color: var(--colorSurface);
+    }
+}
 </style>

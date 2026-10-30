@@ -214,7 +214,7 @@ export default defineComponent({
                     </div>
                     <button
                         type="button"
-                        class="btn btn-primary btn-sm sidebar-header__close"
+                        class="btn btn-danger btn-sm sidebar-header__close"
                         :aria-label="$t('_close')"
                         :title="$t('_close')"
                         @click="closeSidebar"
@@ -256,12 +256,25 @@ export default defineComponent({
 
     background-color: var(--colorCanvas);
     color: var(--colorInk);
+    // inherited by every scroll area in the drawer; the track is a shade darker than what it sits on
+    scrollbar-color: #b6bdcc #e2e6ef;
 
-    > .b-sidebar-header {
-        padding: 1.25rem 1.25rem 0.75rem;
+    .section-block,
+    .collapsible-section {
+        scrollbar-color: #b6bdcc var(--colorCanvas);
     }
 
-    > .b-sidebar-body { font-size: var(--fontSizeContent); }
+    // Both reserve the scrollbar's width, so header buttons end level with the scrolled content.
+    > .b-sidebar-header {
+        padding: 1.25rem 1.25rem 0.75rem;
+        overflow: hidden;
+        scrollbar-gutter: stable;
+    }
+
+    > .b-sidebar-body {
+        font-size: var(--fontSizeContent);
+        scrollbar-gutter: stable;
+    }
 
     > .b-sidebar-footer:empty { display: none; }
 

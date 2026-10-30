@@ -1,8 +1,13 @@
 <template>
     <div>
         <SectionBlockTitle block :title="$t('orders.list')" :breadcrumbs="breadcrumbs">
-            <template v-if="userCanAddOrder()" #actions>
-                <router-link :to="{ name: 'order-new' }" class="btn btn-primary btn-sm d-inline-flex align-items-center orders-new-btn">
+            <template #actions>
+                <ListingToolbar v-if="listing && !listing.fetchingData" :listing="listing">
+                    <template #filters>
+                        <filters :filters-collection="listing.criteriaValues" stacked />
+                    </template>
+                </ListingToolbar>
+                <router-link v-if="userCanAddOrder()" :to="{ name: 'order-new' }" class="btn btn-primary btn-sm d-inline-flex align-items-center orders-new-btn">
                     <i class="fa fa-plus" aria-hidden="true"/><span class="addNewOrder">{{ $t('newOrder') }}</span>
                 </router-link>
             </template>
@@ -10,20 +15,6 @@
 
         <SectionBlock class="section-gap">
             <BaseListing :listing-configuration="listing">
-                <template #filters>
-                    <filters :filters-collection="listing.criteriaValues" stacked />
-                </template>
-
-                <template #toolbar-end>
-                    <b-pagination
-                        v-if="args.meta.pages > 1"
-                        v-model="args.meta.page"
-                        :total-rows="args.meta.totalCount"
-                        :per-page="args.meta.pageSize"
-                        first-number last-number size="sm"
-                    />
-                </template>
-
                 <ListingTable
                     :listing="listing"
                     :items="agreementLines"
@@ -61,6 +52,7 @@
 
     import BaseListing from "@/components/base/BaseListing/index.vue";
     import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
+    import ListingToolbar from "@/components/base/BaseListing/components/ListingToolbar.vue";
     import Listing from "@/components/base/BaseListing/model/Listing.js";
     import { isPreset } from "@/services/dateRangePresets";
     import { TYPE_BOOLEAN } from "@/components/base/BaseListing/model/Criterion";
@@ -86,7 +78,7 @@
     export default {
         name: "OrdersList",
 
-        components: { Filters, LineActions, BaseListing, ListingTable },
+        components: { Filters, LineActions, BaseListing, ListingTable, ListingToolbar },
 
         props: {
             taskStatuses: {

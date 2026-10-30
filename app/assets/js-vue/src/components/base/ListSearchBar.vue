@@ -48,8 +48,11 @@ export default {
     max-width: 100%;
 }
 
+// same box as the neighbouring .btn-sm (_forms.scss): 0.85rem text, 0.25rem vertical padding
 .list-search__input {
-    padding-right: 2rem;
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+    font-size: 0.85rem;
     background-color: var(--colorSurface);
 }
 
@@ -58,10 +61,11 @@ export default {
     top: 0;
     right: 0;
     bottom: 0;
-    width: 2rem;
+    width: 1.75rem;
     padding: 0;
     border: 0;
     background: transparent;
+    font-size: 0.75rem;
     color: var(--colorSecondary);
     cursor: pointer;
 

@@ -20,6 +20,7 @@
                         <thead>
                             <tr>
                                 <th>{{ $t('customers.column.name') }}</th>
+                                <th>{{ $t('customers.column.contact') }}</th>
                                 <th>{{ $t('customers.column.address') }}</th>
                                 <th>{{ $t('customers.column.postalCode') }}</th>
                                 <th>{{ $t('customers.column.city') }}</th>
@@ -29,31 +30,27 @@
                         </thead>
                         <tbody>
                             <tr v-for="customer in items" :key="customer.id">
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div>{{ customer.name }}</div>
-                                            <small v-if="customer.firstName || customer.lastName">
-                                                {{ customer.firstName }} {{ customer.lastName }}
-                                            </small>
-                                        </div>
-                                        <div class="col">
-                                            <div v-if="customer.phone">
-                                                <i class="fa fa-phone-square" aria-hidden="true"></i> {{ customer.phone }}
-                                            </div>
-                                            <div v-if="customer.email">
-                                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                                                <a :href="`mailto:${customer.email}`" style="word-break: break-all">{{ customer.email }}</a>
-                                            </div>
-                                        </div>
+                                <td class="align-middle">
+                                    <div>{{ customer.name }}</div>
+                                    <small v-if="customer.firstName || customer.lastName" class="text-muted">
+                                        {{ customer.firstName }} {{ customer.lastName }}
+                                    </small>
+                                </td>
+                                <td class="align-middle">
+                                    <div v-if="customer.phone">
+                                        <i class="fa fa-phone-square contact-icon" aria-hidden="true"></i> {{ customer.phone }}
+                                    </div>
+                                    <div v-if="customer.email">
+                                        <i class="fa fa-paper-plane contact-icon" aria-hidden="true"></i>
+                                        <a :href="`mailto:${customer.email}`" style="word-break: break-all">{{ customer.email }}</a>
                                     </div>
                                 </td>
-                                <td>{{ [customer.street, customer.streetNumber, customer.apartmentNumber].filter(Boolean).join(' ') }}</td>
-                                <td style="width: 150px;">{{ customer.postalCode }}</td>
-                                <td>{{ customer.city }}</td>
-                                <td style="width: 150px;">{{ customer.country }}</td>
-                                <td>
-                                    <router-link :to="{ name: 'customer-edit', params: { id: customer.id } }" class="btn btn-light btn-sm">
+                                <td class="align-middle">{{ [customer.street, customer.streetNumber, customer.apartmentNumber].filter(Boolean).join(' ') }}</td>
+                                <td class="align-middle text-nowrap">{{ customer.postalCode }}</td>
+                                <td class="align-middle">{{ customer.city }}</td>
+                                <td class="align-middle">{{ customer.country }}</td>
+                                <td class="align-middle text-right">
+                                    <router-link :to="{ name: 'customer-edit', params: { id: customer.id } }" class="btn btn-outline-primary btn-sm text-nowrap">
                                         <i class="fa fa-pencil" aria-hidden="true"></i> {{ $t('customers.edit') }}
                                     </router-link>
                                 </td>
@@ -61,7 +58,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div v-else-if="!loading" class="alert alert-warning mb-0" role="alert">
+                <div v-else-if="!loading" class="text-muted py-3 text-center">
                     {{ query.q ? $t('customers.emptySearch') : $t('customers.empty') }}
                 </div>
             </b-overlay>
@@ -132,3 +129,10 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.contact-icon {
+    width: 1rem;
+    color: var(--colorSecondary);
+}
+</style>

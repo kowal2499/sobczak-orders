@@ -26,7 +26,6 @@ export default defineComponent({
             type: Array,
             default: () => []
         },
-        height: [String, Number],
         // { start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' } - zakres raportu dla popovera "poza zakresem dat"
         reportRange: {
             type: Object,
@@ -112,6 +111,7 @@ export default defineComponent({
                     active: this.$user.can('production.show.packing')
                 },
             ].filter(field => field.active)
+                .map(field => ({ ...field, tdClass: 'align-middle' }))
         },
     },
     data: () => ({})
@@ -119,126 +119,106 @@ export default defineComponent({
 </script>
 
 <template>
-    <b-table
-         responsive
-         :items="rows"
-         :fields="fields"
-         :sticky-header="`${height}px`"
-         small
-         hover
-         no-border-collapse
-         class="orders-count-table"
-    >
-        <template #cell(context)="{item}">
-            <AgreementLineHeading
-                v-if="item.context"
-                compact
-                :agreement-line-id="item.context.id"
-                :order-number="(item.context.orderNumber || '').trim()"
-                :customer-name="(item.context.customer || '').trim()"
-                :product-name="(item.context.product || '').trim()"
-                :status="item.context.status"
-            />
-        </template>
-
-        <template #cell(dpt01)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt01"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-        <template #cell(dpt02)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt02"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-        <template #cell(dpt03)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt03"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-        <template #cell(dpt04)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt04"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-        <template #cell(dpt05)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt05"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-        <template #cell(dpt06)="{item}">
-            <OnTimeCell
-                :factorData="item.dpt06"
-                :report-range="reportRange"
-                :agreement-line-id="item.context && item.context.id"
-                @saved="$emit('saved')"
-            />
-        </template>
-
-        <template #head(context)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ rows.length }}</b-badge>
-        </template>
-        <template #head(dpt01)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt01 | roundFloat }}</b-badge>
-        </template>
-        <template #head(dpt02)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt02 | roundFloat }}</b-badge>
-        </template>
-        <template #head(dpt03)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt03 | roundFloat }}</b-badge>
-        </template>
-        <template #head(dpt04)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt04 | roundFloat }}</b-badge>
-        </template>
-        <template #head(dpt05)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt05 | roundFloat }}</b-badge>
-        </template>
-        <template #head(dpt06)="data">
-            {{data.label}}
-            <br><b-badge pill variant="light">{{ footer.dpt06 | roundFloat }}</b-badge>
-        </template>
-    </b-table>
+    <SectionBlock class="details-block">
+        <b-table
+             responsive
+             :items="rows"
+             :fields="fields"
+             sticky-header
+             small
+             hover
+             no-border-collapse
+             class="metric-details-table mb-0"
+        >
+            <template #cell(context)="{item}">
+                <AgreementLineHeading
+                    v-if="item.context"
+                    compact
+                    :agreement-line-id="item.context.id"
+                    :order-number="(item.context.orderNumber || '').trim()"
+                    :customer-name="(item.context.customer || '').trim()"
+                    :product-name="(item.context.product || '').trim()"
+                    :status="item.context.status"
+                />
+            </template>
+    
+            <template #cell(dpt01)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt01"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+            <template #cell(dpt02)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt02"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+            <template #cell(dpt03)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt03"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+            <template #cell(dpt04)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt04"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+            <template #cell(dpt05)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt05"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+            <template #cell(dpt06)="{item}">
+                <OnTimeCell
+                    :factorData="item.dpt06"
+                    :report-range="reportRange"
+                    :agreement-line-id="item.context && item.context.id"
+                    @saved="$emit('saved')"
+                />
+            </template>
+    
+            <template #head(context)="data">
+                {{data.label}}
+                <span class="column-total">{{ rows.length }}</span>
+            </template>
+            <template #head(dpt01)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt01 | roundFloat }}</span>
+            </template>
+            <template #head(dpt02)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt02 | roundFloat }}</span>
+            </template>
+            <template #head(dpt03)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt03 | roundFloat }}</span>
+            </template>
+            <template #head(dpt04)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt04 | roundFloat }}</span>
+            </template>
+            <template #head(dpt05)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt05 | roundFloat }}</span>
+            </template>
+            <template #head(dpt06)="data">
+                {{data.label}}
+                <span class="column-total">{{ footer.dpt06 | roundFloat }}</span>
+            </template>
+        </b-table>
+    </SectionBlock>
 </template>
-
-<style lang="scss">
-.orders-count-table {
-    font-size: 0.75em;
-    font-weight: normal;
-    padding-top: 0 !important;
-
-    td {
-        vertical-align: middle
-    }
-
-    th {
-        color: #4e73df !important;
-    }
-
-    th.data-cell,
-    td.data-cell {
-        text-align: center;
-        width: 100px;
-    }
-}
-</style>

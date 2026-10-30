@@ -58,11 +58,11 @@
                     </div>
                 </div>
                 <button
-                    class="btn btn-sm btn-secondary"
+                    class="btn btn-sm btn-outline-secondary"
                     @click="clearSelection"
                     type="button"
                 >
-                    <font-awesome-icon icon="times" class="mr-2" /> {{ $t('agreement.customer.change') }}
+                    {{ $t('agreement.customer.change') }}
                 </button>
             </div>
         </div>
@@ -189,12 +189,10 @@ export default {
 <style lang="scss" scoped>
 
 .section-title {
-    margin: 0 0 1rem 0;
-    font-size: 0.95rem;
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--colorPrimary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .selected-customer {

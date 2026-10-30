@@ -414,8 +414,8 @@ export default defineComponent({
             :title="$t('dashboard.tasksCompletedOnTime')"
             sidebar-class="size-100 size-lg-75"
         >
-            <template #sidebar-content="{ height }">
-                <OnTimeReportDetails :key="period.id" :period="period" :height="height" />
+            <template #sidebar-content>
+                <OnTimeReportDetails :key="period.id" :period="period" />
             </template>
         </Sidebar>
 

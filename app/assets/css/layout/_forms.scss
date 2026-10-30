@@ -51,22 +51,23 @@ label.required:before {
     .btn-i {
         padding-right: 4px;
     }
+}
 
-    // Form buttons: back / cancel (always outline-secondary) on the left, the other actions on the right
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 1rem;
+// Form buttons: back / cancel (always outline-secondary) on the left, the other actions on the right.
+// Global, not under #app: modals are mounted on body.
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
 
-        > .btn-outline-secondary {
-            margin-right: auto;
-        }
+    > .btn-outline-secondary {
+        margin-right: auto;
+    }
 
-        .btn > .fa,
-        .btn > svg {
-            margin-right: 0.35rem;
-        }
+    .btn > .fa,
+    .btn > svg {
+        margin-right: 0.35rem;
     }
 }

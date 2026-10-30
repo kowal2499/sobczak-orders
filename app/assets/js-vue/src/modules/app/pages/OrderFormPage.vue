@@ -1,11 +1,8 @@
 <template>
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ title }}</h6>
-        </div>
-        <div class="card-body">
-            <AgreementForm :agreement-id="agreementId" />
-        </div>
+    <div>
+        <SectionBlockTitle block :title="title" :breadcrumbs="breadcrumbs" />
+
+        <AgreementForm :agreement-id="agreementId" class="section-gap" />
     </div>
 </template>
 
@@ -22,6 +19,19 @@ export default {
         title() {
             return this.$t(this.agreementId ? 'app.title.orderEdit' : 'app.title.orderNew')
         },
+        breadcrumbs() {
+            return [
+                { icon: 'home', href: '/', label: this.$t('dashboard.title') },
+                { href: '/orders', label: this.$t('orders.list') },
+                { label: this.title },
+            ]
+        },
     },
 }
 </script>
+
+<style scoped>
+.section-gap {
+    margin-top: 2rem;
+}
+</style>
