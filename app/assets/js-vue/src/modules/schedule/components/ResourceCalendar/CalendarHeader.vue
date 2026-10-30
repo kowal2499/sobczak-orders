@@ -1,8 +1,12 @@
 <template>
-  <div class="calendar-header d-flex align-items-center py-2 px-3 border-bottom bg-light">
-    <b-button variant="outline-secondary" size="sm" @click="$emit('prev')">&lsaquo;</b-button>
-    <span class="mx-3 h5 mb-0 text-capitalize">{{ label }}</span>
-    <b-button variant="outline-secondary" size="sm" @click="$emit('next')">&rsaquo;</b-button>
+  <div class="calendar-header d-flex align-items-center">
+    <b-button variant="outline-secondary" size="sm" :aria-label="$t('_previousMonth')" @click="$emit('prev')">
+      <font-awesome-icon icon="chevron-left" />
+    </b-button>
+    <span class="calendar-header__month">{{ label }}</span>
+    <b-button variant="outline-secondary" size="sm" :aria-label="$t('_nextMonth')" @click="$emit('next')">
+      <font-awesome-icon icon="chevron-right" />
+    </b-button>
     <b-button
       v-if="!isCurrentMonth"
       variant="outline-primary"
@@ -12,9 +16,30 @@
     >
       {{ $t('schedule.today') }}
     </b-button>
-    <span class="ml-auto text-muted small">{{ todayLabel }}</span>
+    <span class="calendar-header__today">{{ todayLabel }}</span>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.calendar-header {
+  margin-bottom: 0.75rem;
+
+  &__month {
+    margin: 0 1rem;
+    min-width: 9rem;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--colorInkStrong);
+    text-transform: capitalize;
+  }
+
+  &__today {
+    margin-left: auto;
+    color: var(--colorSecondary);
+  }
+}
+</style>
 
 <script>
 import moment from 'moment'

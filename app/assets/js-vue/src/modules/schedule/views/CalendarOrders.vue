@@ -4,7 +4,13 @@ import { openOrderPanel } from "@/modules/agreement/orderPanel";
 import VueSelect from 'vue-select'
 import moment from 'moment'
 import { fetchOrderResources, updateProductionDates, fetchHolidays } from "@/modules/schedule/repository/scheduleRepository";
+import { describeSelection } from "@/modules/schedule/filters/describeSelection";
+import FiltersDropdown from "@/components/base/FiltersDropdown.vue";
+import BaseListing from "@/components/base/BaseListing/index.vue";
+import Listing from "@/components/base/BaseListing/model/Listing.js";
+import Criterion, { TYPE_LIST } from "@/components/base/BaseListing/model/Criterion.js";
 
+const LISTING_ID = 'calendar-orders'
 // AgreementLine statuses (DELETED is filtered out server-side)
 const ORDER_STATUSES = [5, 10, 15, 20]
 const EDITABLE_STATUSES = ['awaits', 'started', 'in_progress']
@@ -17,19 +23,20 @@ export default {
     components: {
         ResourceCalendar,
         VueSelect,
+        FiltersDropdown,
+        BaseListing,
     },
 
     data() {
         return {
             currentMonth: moment().format('YYYY-MM'),
+            listing: null,
             loading: false,
             orders: [],
             holidays: [],
             expanded: {},
-            filters: {
-                statuses: [],
-                agreementLineIds: [],
-            },
+            // order numbers seen this session, so a chip still names an order outside the month
+            knownOrders: {},
         }
     },
 
@@ -62,6 +69,22 @@ export default {
                     orderNumber: o.orderNumber || '',
                 }))
                 .sort((a, b) => String(a.orderNumber).localeCompare(String(b.orderNumber)))
+        },
+
+        knownOrderOptions() {
+            return Object.keys(this.knownOrders).map(id => ({ value: Number(id), label: this.knownOrders[id] }))
+        },
+
+        filters() {
+            const values = (this.listing && this.listing.criteriaValues) || {}
+            return {
+                statuses: values.statuses || [],
+                agreementLineIds: values.agreementLineIds || [],
+            }
+        },
+
+        activeFilterCount() {
+            return this.listing ? this.listing.activeCriteria.length : 0
         },
 
         filteredOrders() {
@@ -142,6 +165,9 @@ export default {
     },
 
     created() {
+        this.listing = new Listing(LISTING_ID, this.$t('schedule.orders.title'), [], this.buildCriteria())
+        this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+        this.listing.fetchViews()
         this.loadMonth(this.currentMonth)
     },
 
@@ -154,6 +180,40 @@ export default {
     },
 
     methods: {
+        buildCriteria() {
+            const status = this.$t('schedule.filters.status')
+            const order = this.$t('schedule.filters.agreementLine')
+
+            return [
+                new Criterion({
+                    id: 'statuses',
+                    label: status,
+                    type: TYPE_LIST,
+                    defaultValue: [],
+                    formatter: ids => describeSelection(status, ids, this.statusOptions),
+                }),
+                new Criterion({
+                    id: 'agreementLineIds',
+                    label: order,
+                    type: TYPE_LIST,
+                    defaultValue: [],
+                    formatter: ids => describeSelection(order, ids, this.knownOrderOptions),
+                }),
+            ]
+        },
+
+        setFilter(id, value) {
+            this.listing.setCriterionValue(id, value)
+        },
+
+        rememberOrders(orders) {
+            for (const o of orders) {
+                if (o.orderNumber && !this.knownOrders[o.id]) {
+                    this.$set(this.knownOrders, o.id, o.orderNumber)
+                }
+            }
+        },
+
         labelSlot(id) {
             return 'resource-label-' + id
         },
@@ -188,6 +248,7 @@ export default {
             return fetchOrderResources(start, end)
                 .then(({ data }) => {
                     this.orders = data.orders || []
+                    this.rememberOrders(this.orders)
                 })
                 .catch(() => {
                     window.EventBus.$emit('message', {
@@ -285,35 +346,40 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="page-fill">
         <SectionBlockTitle block :title="$t('schedule.orders.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <div class="row align-items-end">
-                    <div class="col-md-4">
-                        <label class="form-label small mb-1">{{ $t('schedule.filters.status') }}</label>
-                        <vue-select
-                            v-model="filters.statuses"
-                            :options="statusOptions"
-                            :reduce="o => o.value"
-                            :placeholder="allLabel"
-                            multiple
-                        />
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label small mb-1">{{ $t('schedule.filters.agreementLine') }}</label>
-                        <vue-select
-                            v-model="filters.agreementLineIds"
-                            :options="agreementLineOptions"
-                            :reduce="o => o.value"
-                            :placeholder="allLabel"
-                            multiple
-                        />
-                    </div>
-                </div>
+            <template #actions>
+                <b-nav>
+                    <FiltersDropdown :count="activeFilterCount" @clear="listing.clearCriteria()">
+                        <div class="calendar-filter">
+                            <label class="form-label small mb-1">{{ $t('schedule.filters.status') }}</label>
+                            <vue-select
+                                :value="filters.statuses"
+                                @input="setFilter('statuses', $event)"
+                                :options="statusOptions"
+                                :reduce="o => o.value"
+                                :placeholder="allLabel"
+                                multiple
+                            />
+                        </div>
+                        <div class="calendar-filter">
+                            <label class="form-label small mb-1">{{ $t('schedule.filters.agreementLine') }}</label>
+                            <vue-select
+                                :value="filters.agreementLineIds"
+                                @input="setFilter('agreementLineIds', $event)"
+                                :options="agreementLineOptions"
+                                :reduce="o => o.value"
+                                :placeholder="allLabel"
+                                multiple
+                            />
+                        </div>
+                    </FiltersDropdown>
+                </b-nav>
             </template>
         </SectionBlockTitle>
 
-        <SectionBlock class="section-gap">
+        <SectionBlock class="section-gap page-fill__body">
+            <BaseListing class="calendar-listing" :listing-configuration="listing">
             <ResourceCalendar
                 :resources="resources"
                 :events="events"
@@ -355,12 +421,25 @@ export default {
                     <span class="event-label fw-semibold">{{ event.orderName }}</span>
                 </template>
             </ResourceCalendar>
+            </BaseListing>
         </SectionBlock>
 
     </div>
 </template>
 
 <style scoped lang="scss">
+.calendar-filter {
+    width: 360px;
+    margin-bottom: 0.75rem;
+}
+
+.calendar-listing {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .department-name {
     font-size: 13px;
     color: #6c757d;

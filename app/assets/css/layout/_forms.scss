@@ -71,3 +71,8 @@ label.required:before {
         margin-right: 0.35rem;
     }
 }
+
+// vue-select is transparent by default, so on the canvas it would take the page colour
+.v-select:not(.vs--disabled) .vs__dropdown-toggle {
+    background-color: #fff;
+}

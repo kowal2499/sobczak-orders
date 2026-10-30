@@ -5,6 +5,7 @@ export default {
     startProductionForm: {
         modalTitle: 'Production dates per department',
         startProduction: 'Start production',
+        department: 'Department',
         startDate: 'Start date',
         endDate: 'End date',
     },

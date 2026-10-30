@@ -1,5 +1,5 @@
 export default {
-    title: 'Variance Report',
+    title: 'Variance report',
     no_data: 'No data for the selected period.',
     breadcrumb: {
         home: 'Dashboard',

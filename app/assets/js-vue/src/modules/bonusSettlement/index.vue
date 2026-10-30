@@ -5,6 +5,7 @@ import TablePlus from '@/components/base/TablePlus.vue'
 import ConfirmationModal from '@/components/base/ConfirmationModal.vue'
 import ActivityLogList from '@/modules/agreement/components/ActivityLogList.vue'
 import Sidebar from '@/components/base/Sidebar.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import ExcelExport from '@/services/ExcelExport/ExcelExport'
 import AdjustmentCell from './components/AdjustmentCell.vue'
 import OnTimeReportDetails from './components/OnTimeReportDetails.vue'
@@ -29,6 +30,7 @@ export default defineComponent({
         ConfirmationModal,
         OnTimeReportDetails,
         Sidebar,
+        SidebarNavbar,
         TablePlus,
     },
     computed: {
@@ -149,6 +151,8 @@ export default defineComponent({
         },
         // Skąd wzięły się te liczby - raport źródłowy za miesiąc rozliczenia.
         openDetails() {
+            this.detailsOpenings++
+            this.detailsSearch = null
             this.detailsVisible = true
         },
         ask(action) {
@@ -252,6 +256,8 @@ export default defineComponent({
             busy: false,
             logsRefresh: 0,
             detailsVisible: false,
+            detailsOpenings: 0,
+            detailsSearch: null,
             createForm: { year: today.getFullYear(), month: today.getMonth() + 1 },
         }
     },
@@ -261,31 +267,31 @@ export default defineComponent({
 <template>
     <div>
         <SectionBlockTitle block :title="$t('bonus_settlement.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <b-form inline>
+            <template #actions>
+                <div class="period-picker">
+                    <b-spinner v-if="loading" small variant="secondary" />
                     <b-form-select
                         v-if="periods.length"
                         v-model="selectedId"
                         :options="periodOptions"
-                        class="mr-3"
+                        size="sm"
+                        class="period-picker__select"
                     />
-                    <b-spinner v-if="loading" small variant="secondary" />
-
                     <button
                         v-if="canManage"
                         type="button"
-                        class="btn btn-primary btn-sm ml-auto"
+                        class="btn btn-primary btn-sm"
                         @click="ask('create')"
                     >
                         {{ $t('bonus_settlement.action.create') }}
                     </button>
-                </b-form>
+                </div>
             </template>
         </SectionBlockTitle>
 
         <SectionBlock v-if="period" class="section-gap period-header">
             <div class="period-header__line">
-                <span class="badge" :class="period.status === 'OPEN' ? 'badge-success' : 'badge-secondary'">
+                <span class="badge period-status" :class="{ 'period-status--closed': isClosed }">
                     {{ $t(`bonus_settlement.status.${period.status}`) }}
                 </span>
                 <span class="text-muted">
@@ -324,7 +330,7 @@ export default defineComponent({
                 <!-- Eksport niczego nie zmienia, więc jest bez potwierdzenia i w każdym statusie. -->
                 <button
                     type="button"
-                    class="btn btn-outline-secondary btn-sm"
+                    class="btn btn-outline-primary btn-sm"
                     :disabled="!period.entries.length"
                     @click="exportExcel"
                 >
@@ -334,7 +340,7 @@ export default defineComponent({
                 <button
                     v-if="canEdit"
                     type="button"
-                    class="btn btn-outline-danger btn-sm ml-auto"
+                    class="btn btn-outline-secondary btn-sm ml-auto"
                     @click="ask('close')"
                 >
                     {{ $t('bonus_settlement.action.close') }}
@@ -414,8 +420,16 @@ export default defineComponent({
             :title="$t('dashboard.tasksCompletedOnTime')"
             sidebar-class="size-100 size-lg-75"
         >
+            <template #sidebar-header-actions>
+                <!-- the header outlives the lazy body, so a fresh key clears the search on every opening -->
+                <SidebarNavbar
+                    :key="detailsOpenings"
+                    @search="detailsSearch = $event"
+                    @exportExcel="$refs.details && $refs.details.onExportExcel()"
+                />
+            </template>
             <template #sidebar-content>
-                <OnTimeReportDetails :key="period.id" :period="period" />
+                <OnTimeReportDetails ref="details" :key="period.id" :period="period" :search="detailsSearch" />
             </template>
         </Sidebar>
 
@@ -440,6 +454,27 @@ export default defineComponent({
     margin-top: 2rem;
 }
 
+.period-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &__select {
+        width: auto;
+        height: calc(1.5em + 0.5rem + 2px);
+        font-size: 0.85rem;
+    }
+}
+
+.period-status {
+    background-color: var(--colorPrimary);
+    color: #fff;
+
+    &--closed {
+        background-color: var(--colorSecondary);
+    }
+}
+
 .period-header {
     &__line {
         display: flex;
@@ -447,7 +482,6 @@ export default defineComponent({
         justify-content: space-between;
         gap: 1rem;
         flex-wrap: wrap;
-        font-size: 0.875rem;
     }
 
     &__actions {
@@ -460,7 +494,7 @@ export default defineComponent({
 
 // Kreska tylko na styku grup - wewnątrz pracownika wiersze mają się czytać jako jeden blok.
 .group-start td {
-    border-top: 2px solid #dee2e6;
+    border-top: 2px solid var(--colorRule);
 }
 
 // Cyfry o równej szerokości bez zmiany kroju - kolumny mają się układać w słupek,

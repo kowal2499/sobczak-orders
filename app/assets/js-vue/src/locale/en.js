@@ -37,6 +37,7 @@ export default {
     '_delete': 'Delete',
     '_save': 'Save',
     '_cancel': 'Cancel',
+    '_confirm': 'Confirm',
     '_close': 'Close',
     '_search': 'Search',
     '_reset': 'Reset',

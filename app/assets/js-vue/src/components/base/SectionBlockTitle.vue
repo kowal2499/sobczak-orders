@@ -188,5 +188,9 @@ export default {
 .section-block-title__filters {
     width: 100%;
     margin-top: 1rem;
+
+    ::v-deep label:not(.custom-control-label) {
+        color: var(--colorPrimary);
+    }
 }
 </style>

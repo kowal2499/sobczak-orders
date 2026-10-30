@@ -5,7 +5,13 @@ import VueSelect from 'vue-select'
 import moment from 'moment'
 import { fetchProductionResources, updateProductionDates, fetchHolidays } from "@/modules/schedule/repository/scheduleRepository";
 import { STATUS_COLORS } from "@/modules/schedule/components/ResourceCalendar/utils/gridHelpers";
+import { describeSelection } from "@/modules/schedule/filters/describeSelection";
+import FiltersDropdown from "@/components/base/FiltersDropdown.vue";
+import BaseListing from "@/components/base/BaseListing/index.vue";
+import Listing from "@/components/base/BaseListing/model/Listing.js";
+import Criterion, { TYPE_BOOLEAN, TYPE_LIST } from "@/components/base/BaseListing/model/Criterion.js";
 
+const LISTING_ID = 'calendar-tasks'
 const STATUS_OPTIONS = ['awaits', 'started', 'in_progress', 'completed', 'not_applicable']
 const EDITABLE_STATUSES = ['awaits', 'started', 'in_progress']
 
@@ -15,21 +21,22 @@ export default {
     components: {
         ResourceCalendar,
         VueSelect,
+        FiltersDropdown,
+        BaseListing,
     },
 
     data() {
         return {
             currentMonth: moment().format('YYYY-MM'),
-            includeGhost: false,
+            listing: null,
+            ready: false,
+            loadedGhost: null,
             loading: false,
             rawResources: [],
             rawEvents: [],
             holidays: [],
-            filters: {
-                departments: [],
-                statuses: [],
-                agreementLineIds: [],
-            },
+            // order numbers seen this session, so a chip still names an order outside the month
+            knownOrders: {},
         }
     },
 
@@ -37,7 +44,7 @@ export default {
         breadcrumbs() {
             return [
                 { icon: 'home', href: '/', label: this.$t('schedule.breadcrumb.home') },
-                { label: this.$t('schedule.breadcrumb.calendarV2') },
+                { label: this.$t('schedule.title') },
             ]
         },
 
@@ -77,6 +84,27 @@ export default {
             )
         },
 
+        knownOrderOptions() {
+            return Object.keys(this.knownOrders).map(id => ({ value: Number(id), label: this.knownOrders[id] }))
+        },
+
+        filters() {
+            const values = (this.listing && this.listing.criteriaValues) || {}
+            return {
+                departments: values.departments || [],
+                statuses: values.statuses || [],
+                agreementLineIds: values.agreementLineIds || [],
+            }
+        },
+
+        includeGhost() {
+            return Boolean(this.listing && this.listing.criteriaValues.ghost)
+        },
+
+        activeFilterCount() {
+            return this.listing ? this.listing.activeCriteria.length : 0
+        },
+
         filteredEvents() {
             const { departments, statuses, agreementLineIds } = this.filters
             return this.rawEvents.filter(e => {
@@ -95,8 +123,21 @@ export default {
         },
     },
 
+    watch: {
+        includeGhost(value) {
+            if (this.ready && value !== this.loadedGhost) {
+                this.loadMonth(this.currentMonth)
+            }
+        },
+    },
+
     created() {
-        this.loadMonth(this.currentMonth)
+        this.listing = new Listing(LISTING_ID, this.$t('schedule.title'), [], this.buildCriteria())
+        this.listing.onPersistError(() => this.$flash.danger(this.$t('listing.saveError')))
+        this.listing.fetchViews().finally(() => {
+            this.ready = true
+            this.loadMonth(this.currentMonth)
+        })
     },
 
     mounted() {
@@ -122,11 +163,13 @@ export default {
             }
             const { start, end } = this.rangeFor(month)
             this.loading = true
+            this.loadedGhost = this.includeGhost
             this.loadHolidays(start, end)
             return fetchProductionResources(start, end, this.includeGhost)
                 .then(({ data }) => {
                     this.rawResources = data.resources || []
                     this.rawEvents = data.events || []
+                    this.rememberOrders(this.rawEvents)
                 })
                 .catch(() => {
                     window.EventBus.$emit('message', {
@@ -156,8 +199,53 @@ export default {
             this.loadMonth(month)
         },
 
-        onGhostToggle() {
-            this.loadMonth(this.currentMonth)
+        buildCriteria() {
+            const department = this.$t('schedule.filters.department')
+            const status = this.$t('schedule.filters.status')
+            const order = this.$t('schedule.filters.agreementLine')
+
+            return [
+                new Criterion({
+                    id: 'departments',
+                    label: department,
+                    type: TYPE_LIST,
+                    defaultValue: [],
+                    formatter: ids => describeSelection(department, ids, this.departmentOptions),
+                }),
+                new Criterion({
+                    id: 'statuses',
+                    label: status,
+                    type: TYPE_LIST,
+                    defaultValue: [],
+                    formatter: ids => describeSelection(status, ids, this.statusOptions),
+                }),
+                new Criterion({
+                    id: 'agreementLineIds',
+                    label: order,
+                    type: TYPE_LIST,
+                    defaultValue: [],
+                    formatter: ids => describeSelection(order, ids, this.knownOrderOptions),
+                }),
+                new Criterion({
+                    id: 'ghost',
+                    label: this.$t('schedule.filters.ghost'),
+                    type: TYPE_BOOLEAN,
+                    defaultValue: false,
+                }),
+            ]
+        },
+
+        setFilter(id, value) {
+            this.listing.setCriterionValue(id, value)
+        },
+
+        rememberOrders(events) {
+            for (const e of events) {
+                const orderNumber = e.meta && e.meta.orderNumber
+                if (orderNumber && !this.knownOrders[e.agreementLineId]) {
+                    this.$set(this.knownOrders, e.agreementLineId, orderNumber)
+                }
+            }
         },
 
         canEditEvent(event) {
@@ -221,64 +309,68 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="page-fill">
         <SectionBlockTitle block :title="$t('schedule.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <div class="row align-items-end">
-            <div class="col-md-3">
-                <label class="form-label small mb-1">{{ $t('schedule.filters.department') }}</label>
-                <vue-select
-                    v-model="filters.departments"
-                    :options="departmentOptions"
-                    :reduce="o => o.value"
-                    :placeholder="allLabel"
-                    multiple
-                />
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small mb-1">{{ $t('schedule.filters.status') }}</label>
-                <vue-select
-                    v-model="filters.statuses"
-                    :options="statusOptions"
-                    :reduce="o => o.value"
-                    :placeholder="allLabel"
-                    multiple
-                >
-                    <template #option="{ label, color, borderColor }">
-                        <span class="status-swatch" :style="{ background: color, borderColor }" />
-                        <span>{{ label }}</span>
-                    </template>
-                    <template #selected-option="{ label, color, borderColor }">
-                        <span class="status-swatch" :style="{ background: color, borderColor }" />
-                        <span>{{ label }}</span>
-                    </template>
-                </vue-select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label small mb-1">{{ $t('schedule.filters.agreementLine') }}</label>
-                <vue-select
-                    v-model="filters.agreementLineIds"
-                    :options="agreementLineOptions"
-                    :reduce="o => o.value"
-                    :placeholder="allLabel"
-                    multiple
-                />
-            </div>
-            <div class="col-md-2">
-                <b-form-checkbox
-                    :checked="includeGhost"
-                    switch
-                    size="sm"
-                    @change="val => { includeGhost = val; onGhostToggle() }"
-                >
-                    {{ $t('schedule.showGhost') }}
-                </b-form-checkbox>
-            </div>
-                </div>
+            <template #actions>
+                <b-nav>
+                    <FiltersDropdown :count="activeFilterCount" @clear="listing.clearCriteria()">
+                        <div class="calendar-filter">
+                            <label class="form-label small mb-1">{{ $t('schedule.filters.department') }}</label>
+                            <vue-select
+                                :value="filters.departments"
+                                @input="setFilter('departments', $event)"
+                                :options="departmentOptions"
+                                :reduce="o => o.value"
+                                :placeholder="allLabel"
+                                multiple
+                            />
+                        </div>
+                        <div class="calendar-filter">
+                            <label class="form-label small mb-1">{{ $t('schedule.filters.status') }}</label>
+                            <vue-select
+                                :value="filters.statuses"
+                                @input="setFilter('statuses', $event)"
+                                :options="statusOptions"
+                                :reduce="o => o.value"
+                                :placeholder="allLabel"
+                                multiple
+                            >
+                                <template #option="{ label, color, borderColor }">
+                                    <span class="status-swatch" :style="{ background: color, borderColor }" />
+                                    <span>{{ label }}</span>
+                                </template>
+                                <template #selected-option="{ label, color, borderColor }">
+                                    <span class="status-swatch" :style="{ background: color, borderColor }" />
+                                    <span>{{ label }}</span>
+                                </template>
+                            </vue-select>
+                        </div>
+                        <div class="calendar-filter">
+                            <label class="form-label small mb-1">{{ $t('schedule.filters.agreementLine') }}</label>
+                            <vue-select
+                                :value="filters.agreementLineIds"
+                                @input="setFilter('agreementLineIds', $event)"
+                                :options="agreementLineOptions"
+                                :reduce="o => o.value"
+                                :placeholder="allLabel"
+                                multiple
+                            />
+                        </div>
+                        <b-form-checkbox
+                            :checked="includeGhost"
+                            switch
+                            size="sm"
+                            @change="setFilter('ghost', $event)"
+                        >
+                            {{ $t('schedule.showGhost') }}
+                        </b-form-checkbox>
+                    </FiltersDropdown>
+                </b-nav>
             </template>
         </SectionBlockTitle>
 
-        <SectionBlock class="section-gap">
+        <SectionBlock class="section-gap page-fill__body">
+        <BaseListing class="calendar-listing" :listing-configuration="listing">
         <ResourceCalendar
             :resources="filteredResources"
             :events="filteredEvents"
@@ -298,12 +390,25 @@ export default {
                 </span>
             </template>
         </ResourceCalendar>
+        </BaseListing>
         </SectionBlock>
 
     </div>
 </template>
 
 <style scoped lang="scss">
+.calendar-filter {
+    width: 360px;
+    margin-bottom: 0.75rem;
+}
+
+.calendar-listing {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .status-swatch {
     display: inline-block;
     width: 12px;

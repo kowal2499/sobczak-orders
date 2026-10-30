@@ -9,6 +9,7 @@
             v-model="showModal"
             size="md"
             centered
+            hide-header-close
         >
             <template #modal-title>
                 <slot name="title">
@@ -21,11 +22,12 @@
             </overlay>
 
             <template #modal-footer="{ cancel }">
-                <b-button size="sm" variant="primary" @click="launchAction()" :disabled="busy">
-                    {{ $t('_yes') }}
+                <b-button variant="outline-secondary" @click="cancel()" :disabled="busy">
+                    {{ $t('_cancel') }}
                 </b-button>
-                <b-button size="sm" variant="outline-secondary" @click="cancel()" :disabled="busy">
-                    {{ $t('_no') }}
+                <b-button variant="primary" @click="launchAction()" :disabled="busy">
+                    <i v-if="busy" class="fa fa-spinner fa-spin mr-1" />
+                    {{ $t('_confirm') }}
                 </b-button>
             </template>
         </b-modal>

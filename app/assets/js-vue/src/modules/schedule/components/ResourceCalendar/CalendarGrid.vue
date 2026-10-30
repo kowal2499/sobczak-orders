@@ -226,13 +226,13 @@ $header-height: 48px;
 
 .calendar-wrapper {
   overflow-x: auto;
-  // Own vertical scroll so the sticky header sticks within it. `200px` is the
-  // assumed space above the calendar (title + filters); tweak if needed. On a
-  // taller filter bar the page may add a second scrollbar - acceptable.
+  // Own vertical scroll so the sticky header sticks within it. Inside a .page-fill
+  // view flex sizes it to the viewport; the max-height is the fallback elsewhere.
   overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: calc(100vh - 200px);
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+  border-top: 1px solid var(--colorRule);
   position: relative;
   background: #fff;
 }
@@ -248,7 +248,7 @@ $header-height: 48px;
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #0d6efd;
+  background: var(--colorPrimary);
   z-index: 25;
   pointer-events: none;
 
@@ -260,7 +260,7 @@ $header-height: 48px;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #0d6efd;
+    background: var(--colorPrimary);
   }
 }
 
@@ -269,8 +269,8 @@ $header-height: 48px;
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+  background: #fff;
+  border-bottom: 1px solid var(--colorRule);
   min-width: $resource-width + $day-width * 31;
 }
 
@@ -279,26 +279,27 @@ $header-height: 48px;
   min-width: $day-width;
   text-align: center;
   padding: 4px 2px;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--colorRule);
   flex-shrink: 0;
 
   .day-number {
     font-size: 13px;
     font-weight: 600;
     line-height: 1.2;
+    color: var(--colorInkStrong);
   }
 
   .day-name {
     font-size: 10px;
-    color: #6c757d;
+    color: var(--colorInkMuted);
     text-transform: uppercase;
     line-height: 1;
   }
 
   &.is-today {
-    background: #e3f2fd;
+    background: rgba(var(--colorPrimaryRgb), 0.12);
 
-    .day-number { color: #0d6efd; }
+    .day-number { color: var(--colorPrimary); }
   }
 
   &.is-holiday {
@@ -316,7 +317,7 @@ $header-height: 48px;
   width: $resource-width;
   min-width: $resource-width;
   background: #fff;
-  border-right: 2px solid #dee2e6;
+  border-right: 1px solid var(--colorRule);
   padding: 0 10px;
   display: flex;
   align-items: center;
@@ -324,21 +325,21 @@ $header-height: 48px;
 
   &.header-corner {
     z-index: 30;
-    background: #f8f9fa;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
-    color: #6c757d;
+    color: var(--colorInkMuted);
     height: $header-height;
   }
 
   &.resource-row-label {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--colorRule);
   }
 
   .resource-name {
     font-size: 13px;
     font-weight: 600;
+    color: var(--colorInkStrong);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -348,7 +349,7 @@ $header-height: 48px;
 .resource-row {
   display: flex;
   position: relative;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--colorRule);
   min-width: $resource-width + $day-width * 31;
 
   &:last-child {
@@ -365,16 +366,16 @@ $header-height: 48px;
   width: $day-width;
   min-width: $day-width;
   height: 100%;
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--colorRule);
   cursor: crosshair;
   flex-shrink: 0;
 
   &.is-selected {
-    background: rgba(13, 110, 253, 0.12);
+    background: rgba(var(--colorPrimaryRgb), 0.12);
   }
 
   &.is-today {
-    background: rgba(13, 110, 253, 0.05);
+    background: rgba(var(--colorPrimaryRgb), 0.05);
   }
 
   &.is-holiday {

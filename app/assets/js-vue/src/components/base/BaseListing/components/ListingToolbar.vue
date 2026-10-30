@@ -1,11 +1,11 @@
 <script>
 import Listing from "../model/Listing"
-import FiltersPanel from "./FiltersPanel"
+import FiltersDropdown from "@/components/base/FiltersDropdown.vue"
 
 export default {
     name: "ListingToolbar",
 
-    components: { FiltersPanel },
+    components: { FiltersDropdown },
 
     props: {
         listing: {
@@ -73,9 +73,13 @@ export default {
 
 <template>
     <b-nav class="listing-toolbar">
-        <FiltersPanel v-if="$scopedSlots.filters || $slots.filters" :listing="listing">
+        <FiltersDropdown
+            v-if="$scopedSlots.filters || $slots.filters"
+            :count="listing.activeCriteria.length"
+            @clear="listing.clearCriteria()"
+        >
             <slot name="filters" />
-        </FiltersPanel>
+        </FiltersDropdown>
 
         <b-nav-item-dropdown right>
             <template #button-content>

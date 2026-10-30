@@ -7,7 +7,6 @@ import ProductionMetricMixin from '@/modules/dashboard/components/Metrics/Produc
 import OnTimeDetails from '@/modules/dashboard/components/Metrics/ProductionMetric/components/OnTimeDetails.vue'
 import fields from '@/modules/dashboard/components/Metrics/ProductionMetric/fields'
 import SidebarLayout from '@/components/layout/SidebarLayout.vue'
-import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 
 /**
  * Szczegóły raportu "Ukończone zadania produkcyjne (w terminie)" za miesiąc rozliczenia -
@@ -20,11 +19,24 @@ import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 export default defineComponent({
     name: 'OnTimeReportDetails',
     mixins: [BaseMetric, ProductionMetricMixin],
-    components: { OnTimeDetails, SidebarLayout, SidebarNavbar },
+    components: { OnTimeDetails, SidebarLayout },
     props: {
         period: {
             type: Object,
             required: true,
+        },
+        // search lives in the drawer header, owned by the page
+        search: {
+            type: String,
+            default: null,
+        },
+    },
+    watch: {
+        search: {
+            handler(value) {
+                this.q = value
+            },
+            immediate: true,
         },
     },
     data: () => ({
@@ -78,9 +90,6 @@ export default defineComponent({
 
 <template>
     <SidebarLayout>
-        <template #header>
-            <SidebarNavbar @search="q = $event" @exportExcel="onExportExcel" />
-        </template>
         <template #content>
             <div v-if="loading" class="text-center text-muted my-4">
                 <i class="fa fa-spinner fa-spin fa-2x"></i>

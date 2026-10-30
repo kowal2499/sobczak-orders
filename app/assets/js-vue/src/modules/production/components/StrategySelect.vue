@@ -44,11 +44,9 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="row">
-        <div class="d-flex justify-content-end align-items-center col-12 col-lg-4 text-md-right">
-            {{ $t('production.selectStrategyLabel') }}
-        </div>
-        <div class="col-12 col-lg-8">
+    <div>
+        <label class="form-label">{{ $t('production.selectStrategyLabel') }}</label>
+        <div>
             <VueSelect
                 label="name"
                 :clearable="false"
