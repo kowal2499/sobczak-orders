@@ -53,7 +53,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :to="{ name: 'order-edit', params: { id: line.agreement.id } }">
+                <b-dropdown-item @click="openEdit">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 
@@ -145,7 +145,7 @@ import ConfirmableAction from "../../agreementLineList/Actions/ConfirmableAction
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
-import { openOrderPanel } from '@/modules/agreement/orderPanel'
+import { openOrderEdit, openOrderPanel } from '@/modules/agreement/orderPanel'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -223,6 +223,10 @@ export default {
     methods: {
         openPanel() {
             openOrderPanel(this.$router, this.line.agreementLineId)
+        },
+
+        openEdit() {
+            openOrderEdit(this.$router, this.line.agreement.id)
         },
 
         trashAction() {
