@@ -24,3 +24,6 @@ activity_log:
             adjusted_with_note: 'Korekta premii %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter% (%note%)'
     metric_snapshot:
         captured: 'Ręczne przeliczenie historii mierników za %date% (zapisanych wierszy: %rows%)'
+    user:
+        logged_in: 'Zalogowanie'
+        logged_out: 'Wylogowanie'

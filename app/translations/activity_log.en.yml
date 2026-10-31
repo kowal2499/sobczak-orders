@@ -24,6 +24,9 @@ activity_log:
             adjusted_with_note: 'Bonus adjusted %period%: %userLabel%, %departmentLabel% - %valueBefore% → %valueAfter% (%note%)'
     metric_snapshot:
         captured: 'Metric history recalculated manually for %date% (rows saved: %rows%)'
+    user:
+        logged_in: 'Signed in'
+        logged_out: 'Signed out'
 
 # Enum-derived values stored in content params. The key is the canonical Polish name (the value the log
 # holds); read-side translation localizes it. Polish needs no entries - the raw value is already correct.

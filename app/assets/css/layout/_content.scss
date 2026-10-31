@@ -11,6 +11,8 @@ div#content-wrapper {
     width: 100%;
     // clip, not hidden: hidden makes this a scroll container and breaks position: sticky inside it
     overflow-x: clip;
+    // clip, unlike hidden, keeps the flex item's min-width: auto, so a wide table would stretch the page
+    min-width: 0;
 
     font-size: $font-size-content;
     font-weight: 400;

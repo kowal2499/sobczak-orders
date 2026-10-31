@@ -28,6 +28,7 @@
         </div>
 
         <OrderPanelHost />
+        <OrderEditHost />
     </div>
 </template>
 
@@ -37,11 +38,12 @@ import AppSidebar from '../components/AppSidebar.vue'
 import ErrorPage from '../components/ErrorPage.vue'
 import Notifications from '@/components/base/Notifications'
 import OrderPanelHost from '@/modules/agreement/components/OrderPanelHost.vue'
+import OrderEditHost from '@/modules/agreement/components/OrderEditHost.vue'
 import { isAllowed } from '@/router'
 
 export default {
     name: 'AppLayout',
-    components: { App, AppSidebar, ErrorPage, Notifications, OrderPanelHost },
+    components: { App, AppSidebar, ErrorPage, Notifications, OrderPanelHost, OrderEditHost },
     computed: {
         allowed() {
             return isAllowed(this.$route, this.$user)

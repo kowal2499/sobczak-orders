@@ -75,7 +75,10 @@
                 </div>
 
                 <div class="form-actions">
-                    <router-link :to="{ name: 'orders' }" class="btn btn-outline-secondary">
+                    <button v-if="$listeners.cancel" type="button" class="btn btn-outline-secondary" @click="$emit('cancel')">
+                        {{ $t('_cancel') }}
+                    </button>
+                    <router-link v-else :to="{ name: 'orders' }" class="btn btn-outline-secondary">
                         {{ $t('_cancel') }}
                     </router-link>
                     <button
@@ -347,6 +350,11 @@ export default {
 
             if (!this.agreementId) {
                 this.$router.push({ name: 'orders' });
+                return;
+            }
+
+            if (this.$listeners.saved) {
+                this.$emit('saved');
                 return;
             }
 
