@@ -40,6 +40,7 @@ export default {
         'confirmCapacity': 'I confirm that I have read the message:',
         'capacityExceededWarning': 'Production capacity on {date} is insufficient to fulfill the order. This date can be selected, however the actual realization date will be confirmed in a separate message.',
         'cancel': 'Cancel',
+        'accept': 'Accept',
         'factorIncreasedInfo': 'After increasing the factor, please select the realization date again',
     },
     'attachment': {

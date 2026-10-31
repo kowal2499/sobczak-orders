@@ -16,9 +16,9 @@ export default {
 
 <template>
     <b-row>
-        <b-col cols="3" >
-            <b-nav pills card vertical class="p-2 background-light h-100">
-                <slot name="actions" />
+        <b-col cols="3" class="roles-nav">
+            <!-- stays in view while the long grant list scrolls, so roles can be switched anywhere -->
+            <b-nav pills vertical class="roles-nav__list">
                 <b-nav-item
                     v-for="role in allRoles"
                     :key="role.id"
@@ -32,16 +32,27 @@ export default {
         </b-col>
 
         <b-col>
-            <div class="p-3">
-                <slot :roleId="activeRoleId" v-if="activeRoleId" />
-                <div class="alert alert-info text-center" v-else>
-                    {{ $t('auth.selectRole') }}
-                </div>
-            </div>
+            <slot :roleId="activeRoleId" v-if="activeRoleId" />
+            <p class="roles-empty" v-else>
+                {{ $t('auth.selectRole') }}
+            </p>
         </b-col>
     </b-row>
 </template>
 
 <style scoped lang="scss">
+.roles-nav {
+    border-right: 1px solid var(--colorRule);
 
+    &__list {
+        position: sticky;
+        top: 1.25rem;
+    }
+}
+
+.roles-empty {
+    margin: 0;
+    padding: 0.5rem 0;
+    color: var(--colorInkMuted);
+}
 </style>

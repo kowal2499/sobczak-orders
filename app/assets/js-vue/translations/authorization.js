@@ -5,6 +5,10 @@ export default {
             addNew: 'Add new role',
             selectRole: 'Select role from the list',
             noGrantsInModule: 'Module "{name}" has no grants',
+            roleWasAdded: 'Role added',
+            roleSavingError: 'Error while saving the role',
+            grantSavingError: 'Error while saving the grant',
+            newRole: 'New role',
         }
     },
     'pl': {
@@ -14,7 +18,8 @@ export default {
             selectRole: 'Wybierz rolę z listy',
             noGrantsInModule: 'Moduł "{name}" nie posiada uprawnień',
             roleWasAdded: 'Rola została dodana',
-            roleSavingError: 'Bład podczas zapisywania roli',
+            roleSavingError: 'Błąd podczas zapisywania roli',
+            grantSavingError: 'Błąd zapisu uprawnienia',
             newRole: 'Nowa rola',
         }
     }

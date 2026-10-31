@@ -1,23 +1,17 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs" />
+        <SectionBlockTitle block :title="$t('orders.productionSchedule')" :breadcrumbs="breadcrumbs">
+            <template #actions>
+                <ListingToolbar v-if="listing && !listing.fetchingData" :listing="listing">
+                    <template #filters>
+                        <filters :filters-collection="listing.criteriaValues" stacked />
+                    </template>
+                </ListingToolbar>
+            </template>
+        </SectionBlockTitle>
 
         <SectionBlock class="section-gap">
             <BaseListing :listing-configuration="listing">
-                <template #filters>
-                    <filters :filters-collection="listing.criteriaValues" stacked />
-                </template>
-
-                <template #toolbar-end>
-                    <b-pagination
-                        v-if="args.meta.pages > 1"
-                        v-model="args.meta.page"
-                        :total-rows="args.meta.totalCount"
-                        :per-page="args.meta.pageSize"
-                        first-number last-number size="sm"
-                    />
-                </template>
-
                 <ListingTable
                     :listing="listing"
                     :items="rows"
@@ -66,6 +60,7 @@ import { updateTaskStatus } from '../../task/repository/taskRepository'
 
 import BaseListing from "@/components/base/BaseListing/index.vue";
 import ListingTable from "@/components/base/BaseListing/components/ListingTable.vue";
+import ListingToolbar from "@/components/base/BaseListing/components/ListingToolbar.vue";
 import Listing from "@/components/base/BaseListing/model/Listing.js";
 import {
     LISTING_PRODUCTION_ID,
@@ -94,7 +89,7 @@ const DATE_QUERY_KEYS = {
 export default {
     name: "AgreementLineListRM",
 
-    components: { Filters, LineActions, BaseListing, ListingTable },
+    components: { Filters, LineActions, BaseListing, ListingTable, ListingToolbar },
 
     props: {
         taskStatuses: {

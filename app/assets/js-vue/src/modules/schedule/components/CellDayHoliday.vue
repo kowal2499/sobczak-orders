@@ -36,8 +36,8 @@ export default {
     text-overflow: ellipsis;
     vertical-align: baseline;
     border-radius: 0.25rem;
-    background-color: transparent;
-    border: 1px solid white;
-    color: white;
+    background-color: #fff;
+    border: 1px solid #e77883;
+    color: #e77883;
 }
 </style>

@@ -1,7 +1,13 @@
 <template>
     <div>
-        <SectionBlockTitle block :title="$t('app.title.tags')" :breadcrumbs="breadcrumbs" />
-        <TagsConfig />
+        <SectionBlockTitle block :title="$t('app.title.tags')" :breadcrumbs="breadcrumbs">
+            <template #actions>
+                <b-button size="sm" variant="primary" @click="$refs.config.showModal({})">
+                    {{ $t('tags.addNew') }}
+                </b-button>
+            </template>
+        </SectionBlockTitle>
+        <TagsConfig ref="config" />
     </div>
 </template>
 

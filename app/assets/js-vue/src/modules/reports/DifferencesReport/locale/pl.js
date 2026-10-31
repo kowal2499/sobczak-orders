@@ -1,5 +1,5 @@
 export default {
-    title: 'Raport Rozbieżności od Planu',
+    title: 'Raport rozbieżności od planu',
     no_data: 'Brak danych dla wybranego okresu.',
     breadcrumb: {
         home: 'Pulpit',

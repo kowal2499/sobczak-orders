@@ -41,11 +41,60 @@ $grayLight90: color.mix(#fff, $gray, 90%);
 
 $text: #333;
 
+// Layout tokens: page chrome sits on $canvas, content sits on borderless $surface blocks
+$canvas: #eef1f7;
+$surface: #fff;
+$surface-radius: 0.75rem;
+$ink-strong: #2f3447;
+$ink: #4a5068;
+$ink-muted: #858796;
+$rule: #e6e9f0;
+$primaryDark: color.mix(#000, $mainBlue, 12%);
+
+// Secondary is a tonal variant of the primary, there is no second brand hue
+$secondaryBg: rgba($mainBlue, 0.1);
+$secondaryBgHover: rgba($mainBlue, 0.18);
+$secondaryText: $primaryDark;
+
+// Secondary buttons: a cool grey leaning towards the primary, so it does not read as Bootstrap's grey
+$btnSecondaryBg: #5f6d8c;
+$btnSecondaryBgHover: #4e5b78;
+
+$font-size-content: 0.9rem;
+
+// Bootstrap theme - this file is imported before Bootstrap, so these replace its defaults
+$secondary: $ink-muted;
+$info: $mainBlue;
+$body-color: $ink;
+$font-size-base: $font-size-content;
+$link-color: $mainBlue;
+$link-hover-color: $primaryDark;
+$border-color: $rule;
+$table-border-color: $rule;
+$input-border-color: #d5dae5;
+$border-radius: 0.4rem;
+$border-radius-sm: 0.35rem;
+$border-radius-lg: 0.5rem;
+
 :root {
     --colorText: #{$text};
 
     --colorPrimary: #{$mainBlue};
+    --colorPrimaryDark: #{$primaryDark};
     --colorPrimaryRgb: #{color.red($mainBlue)}, #{color.green($mainBlue)}, #{color.blue($mainBlue)};
+
+    --colorSecondary: #{$btnSecondaryBg};
+    --colorSecondaryBg: #{$secondaryBg};
+    --colorSecondaryText: #{$secondaryText};
+
+    --colorCanvas: #{$canvas};
+    --colorSurface: #{$surface};
+    --surfaceRadius: #{$surface-radius};
+    --colorInkStrong: #{$ink-strong};
+    --colorInk: #{$ink};
+    --colorInkMuted: #{$ink-muted};
+    --colorRule: #{$rule};
+    --fontSizeContent: #{$font-size-content};
 
     --colorWhite: #FFF;
     --colorWhite100: #FFF;

@@ -54,6 +54,7 @@ export default {
                 selectable: !this.isBusy,
                 editable: !this.isBusy,
                 unselectAuto: false,
+                headerToolbar: { left: 'prev title next today', center: '', right: '' },
                 events: this.events,
                 ...this.options,
             }

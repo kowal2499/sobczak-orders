@@ -1,103 +1,81 @@
 <template>
     <div>
-        <waiting :description="'Trwa pobieranie danych'" v-if="!dataFetched"></waiting>
+        <waiting :description="$t('user.form.loading')" v-if="!dataFetched"></waiting>
 
-        <SectionBlock v-if="dataFetched" class="section-gap">
+        <template v-if="dataFetched">
+            <SectionBlock class="section-gap user-section">
+                <h6 class="section-title">{{ $t('user.form.sectionDetails') }}</h6>
+
                 <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Imię
-                    </label>
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.firstName') }}</label>
                     <div class="col">
                         <input type="text" class="form-control" v-model="user.firstName">
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Nazwisko
-                    </label>
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.lastName') }}</label>
                     <div class="col">
                         <input type="text" class="form-control" v-model="user.lastName">
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Email
-                    </label>
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.email') }}</label>
                     <div class="col">
                         <input type="text" class="form-control" v-model="user.email">
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Uwierzytelnienie
-                    </label>
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body">
-                                <p class="text-muted" v-if="!isNew">Pozostaw te pola puste aby nie zmieniać hasła.</p>
-
-                                <div class="card-text">
-                                    <div class="form-group row">
-                                        <label class="col-3 col-form-label">
-                                            <span v-if="isNew">Hasło</span><span v-else>Nowe hasło</span>
-                                        </label>
-                                        <div class="col">
-                                            <input type="password" class="form-control" v-model="passwords.new">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label class="col-3 col-form-label">
-                                            <span v-if="isNew">Powtórz hasło</span><span v-else>Powtórz nowe hasło</span>
-                                        </label>
-                                        <div class="col">
-                                            <input type="password" class="form-control" v-model="passwords.check">
-                                        </div>
-                                    </div>
-
-                                    <div class="row" v-if="!passwords.passwordsMatch">
-                                        <div class="col">
-                                            <div class="alert alert-info" v-if="!isNew">
-                                                Wartości w polach 'Nowe hasło' i 'Powtórz nowe hasło' muszą być takie same.
-                                            </div>
-                                            <div class="alert alert-info" v-if="isNew">
-                                                Wartości w polach 'Hasło' i 'Powtórz hasło' muszą być takie same.
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group row" v-if="!isNew">
-                    <label class="col-3 col-form-label">
-                        Aktywny
-                    </label>
-                    <div class="col">
+                <div class="form-group row mb-0" v-if="!isNew">
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.active') }}</label>
+                    <div class="col d-flex align-items-center">
                         <b-form-checkbox v-model="user.active" switch />
                     </div>
                 </div>
+            </SectionBlock>
+
+            <SectionBlock class="user-section">
+                <h6 class="section-title">{{ $t('user.form.sectionPassword') }}</h6>
+                <p v-if="!isNew" class="section-hint">{{ $t('user.form.passwordKeepHint') }}</p>
 
                 <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Role (stary system)
+                    <label class="col-lg-3 col-form-label">
+                        {{ isNew ? $t('user.form.password') : $t('user.form.newPassword') }}
                     </label>
+                    <div class="col">
+                        <input type="password" class="form-control" v-model="passwords.new">
+                    </div>
+                </div>
+
+                <div class="form-group row mb-0">
+                    <label class="col-lg-3 col-form-label">
+                        {{ isNew ? $t('user.form.passwordRepeat') : $t('user.form.newPasswordRepeat') }}
+                    </label>
+                    <div class="col">
+                        <input
+                            type="password"
+                            class="form-control"
+                            :class="{ 'is-invalid': !passwords.passwordsMatch }"
+                            v-model="passwords.check"
+                        >
+                        <div class="invalid-feedback">{{ $t('user.form.passwordMismatch') }}</div>
+                    </div>
+                </div>
+            </SectionBlock>
+
+            <SectionBlock class="user-section">
+                <h6 class="section-title">{{ $t('user.form.sectionRoles') }}</h6>
+
+                <div class="form-group row">
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.legacyRoles') }}</label>
                     <div class="col">
                         <role-picker v-model="user" />
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Role (nowy system)
-                    </label>
+                <div class="form-group row mb-0">
+                    <label class="col-lg-3 col-form-label">{{ $t('user.form.authRoles') }}</label>
                     <div class="col">
                         <role-select
                             :userId="userId"
@@ -105,43 +83,34 @@
                         />
                     </div>
                 </div>
+            </SectionBlock>
 
-                <div class="form-group row">
-                    <label class="col-3 col-form-label">
-                        Uprawnienia
-                    </label>
-                    <div class="col">
-                        <user-grants
-                            :userId="userId"
-                            :grants-per-role="grantsPerRole"
-                            v-model="grants"
-                        />
-                    </div>
-                </div>
+            <SectionBlock class="user-section">
+                <h6 class="section-title">{{ $t('user.form.sectionGrants') }}</h6>
+                <user-grants
+                    :userId="userId"
+                    :grants-per-role="grantsPerRole"
+                    v-model="grants"
+                />
 
-                <div class="row">
-                    <div class="col">
-                        <button-plus
-                            :button-class="'btn-primary float-right'"
-                            :icon-class="'fa fa-floppy-o'"
-                            :inner-text="isNew ? 'Dodaj użytkownika' : 'Zapisz zmiany'"
-                            :is-disabled="!passwords.passwordsMatch || user.roles.length===0"
-                            :is-busy="locked"
-                            @clicked="save"
-                        >
-                        </button-plus>
-                    </div>
+                <div class="form-actions">
+                    <router-link :to="{ name: 'users' }" class="btn btn-outline-secondary">
+                        {{ $t('_cancel') }}
+                    </router-link>
+                    <button type="button" class="btn btn-primary" :disabled="!canSubmit" @click="save">
+                        <i v-if="locked" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        {{ submitLabel }}
+                    </button>
                 </div>
-        </SectionBlock>
+            </SectionBlock>
+        </template>
     </div>
 </template>
 
 <script>
     import users from "../repository/users";
     import UserGrants from "../components/UserGrants"
-    import helpers from "@/helpers";
     import Waiting from "@/components/base/Waiting";
-    import ButtonPlus from "@/components/base/ButtonPlus";
     import RolePicker from "@/components/users/RolePicker";
     import RoleSelect from '@/modules/configuration/components/roles/RoleSelect'
     import { assignRoles, mergeRoles } from '@/modules/configuration/repository/rolesRepository'
@@ -152,7 +121,7 @@
     export default {
         name: "UserSingle",
 
-        components: {UserGrants, RoleSelect, Waiting, ButtonPlus, RolePicker },
+        components: {UserGrants, RoleSelect, Waiting, RolePicker },
 
         props: {
             userId: {
@@ -171,8 +140,6 @@
                     this.fetchUserData(),
                     this.fetchUserGrants()
                 ])
-            } else {
-                 this.title = "Nowy użytkownik";
             }
             this.dataFetched = true;
             this.locked = false;
@@ -181,10 +148,30 @@
         computed: {
             isNew() {
                 return this.userId === 0
+            },
+
+            canSubmit() {
+                return this.dataFetched && !this.locked && this.passwords.passwordsMatch && this.user.roles.length > 0
+            },
+
+            submitLabel() {
+                return this.isNew ? this.$t('user.form.add') : this.$t('user.form.saveChanges')
+            },
+
+            // the page header has its own save button, so it needs to know when saving is allowed
+            formState() {
+                return { canSubmit: this.canSubmit, busy: this.locked, label: this.submitLabel }
             }
         },
 
         watch: {
+            formState: {
+                handler(state) {
+                    this.$emit('state', state)
+                },
+                immediate: true,
+            },
+
             passwords: {
                 handler() {
                     this.passwords.passwordsMatch = this.passwords.new === this.passwords.check;
@@ -211,7 +198,6 @@
                             customer: item.customer.id
                         }))
                         this.user = data;
-                        this.title = helpers.userName(this.user);
                     })
             },
 
@@ -258,7 +244,7 @@
                         } else {
                             EventBus.$emit('message', {
                                 type: 'success',
-                                content: 'Zapisano zmiany.'
+                                content: this.$t('user.form.saved')
                             });
                             this.locked = false;
                         }
@@ -290,7 +276,6 @@
                 },
                 locked: false,
                 dataFetched: false,
-                title: '',
                 passwords: {
                     new: '',
                     check: '',
@@ -306,5 +291,19 @@
 </script>
 
 <style scoped>
+.user-section + .user-section {
+    margin-top: 1rem;
+}
 
+.section-title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--colorPrimary);
+}
+
+.section-hint {
+    margin: -0.25rem 0 0.75rem;
+    color: var(--colorInkMuted);
+}
 </style>

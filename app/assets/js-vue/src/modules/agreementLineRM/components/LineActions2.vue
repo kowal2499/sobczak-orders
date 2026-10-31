@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b-dropdown size="sm" variant="outline-primary" no-caret boundary="window">
+        <!-- fixed positioning lets the menu escape the table's scroll container instead of being clipped -->
+        <b-dropdown size="sm" variant="outline-primary" no-caret boundary="window" :popper-opts="{ positionFixed: true }">
             <template #button-content>
                 <i class="fa fa-bars" aria-hidden="true" />
             </template>
@@ -28,7 +29,7 @@
                     :label="$t('restoreOrder')"
                     icon-class="fa fa-undo"
                 >
-                    <p class="text-info">{{ $t('areYouSureToRestoreOrder') }} {{ displayNumber }}'?</p>
+                    <p>{{ $t('areYouSureToRestoreOrder') }} {{ displayNumber }}'?</p>
                     <ul class="list-unstyled">
                         <li>{{ line.product.name }}</li>
                     </ul>
@@ -52,7 +53,7 @@
                 <!-- 1. sekcja zamówienie -->
 
                 <!-- 1.1 edit order -->
-                <b-dropdown-item :to="{ name: 'order-edit', params: { id: line.agreement.id } }">
+                <b-dropdown-item @click="openEdit">
                     <i class="fa fa-pencil" aria-hidden="true"/> {{ $t('editOrder') }}
                 </b-dropdown-item>
 
@@ -63,7 +64,7 @@
                     icon-class="fa fa-archive"
                     v-if="canWarehouse"
                 >
-                    <p class="text-info">{{ $t('setAsWarehoused') }}</p>
+                    <p>{{ $t('setAsWarehoused') }}</p>
                     <ul class="list-unstyled">
                         <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.product.name }}</li>
@@ -78,7 +79,7 @@
                     icon-class="fa fa-archive"
                     v-if="canArchive"
                 >
-                    <p class="text-info">{{ $t('agreement_line_list.setAsArchived') }}</p>
+                    <p>{{ $t('agreement_line_list.setAsArchived') }}</p>
                     <ul class="list-unstyled">
                         <li>{{ $t('id') }}: {{ displayNumber }}</li>
                         <li>{{ $t('product') }}: {{ line.product.name }}</li>
@@ -93,7 +94,7 @@
                     icon-class="fa fa-trash text-danger"
                     anchor-class="text-danger"
                 >
-                    <p class="text-info">
+                    <p>
                         {{ $t('agreement_line_list.trashConfirmQuestion', {num: displayNumber}) }}</p>
                     <ul class="list-unstyled">
                         <li>{{ line.product.name }}</li>
@@ -144,7 +145,7 @@ import ConfirmableAction from "../../agreementLineList/Actions/ConfirmableAction
 import StartProductionAction from "@/modules/production/components/StartProductionAction.vue";
 import Sidebar from '@/components/base/Sidebar.vue'
 import FactorsView from '@/modules/agreementLineList/view/FactorsView'
-import { openOrderPanel } from '@/modules/agreement/orderPanel'
+import { openOrderEdit, openOrderPanel } from '@/modules/agreement/orderPanel'
 /**
  *  todo:
  *      -   usuwanie zamówienia powinno informować o usuwaniu wszystkich podpiętych produków i zleceń produkcyjnych.
@@ -222,6 +223,10 @@ export default {
     methods: {
         openPanel() {
             openOrderPanel(this.$router, this.line.agreementLineId)
+        },
+
+        openEdit() {
+            openOrderEdit(this.$router, this.line.agreement.id)
         },
 
         trashAction() {

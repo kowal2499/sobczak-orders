@@ -57,6 +57,7 @@ export default {
             :value="value"
             :title="$t('listing.renameView')"
             :configuration="{ hideFooter: false }"
+            :show-close="false"
             @input="$emit('input', $event)"
         >
             <template #default>
@@ -73,9 +74,9 @@ export default {
             </template>
 
             <template #modal-footer>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-success ml-2" @click="submit">{{ $t('_save') }}</button>
+                <div class="form-actions w-100 mt-0">
+                    <button type="button" class="btn btn-outline-secondary" @click="close">{{ $t('cancel') }}</button>
+                    <button type="button" class="btn btn-primary" @click="submit">{{ $t('_save') }}</button>
                 </div>
             </template>
         </ModalAction>

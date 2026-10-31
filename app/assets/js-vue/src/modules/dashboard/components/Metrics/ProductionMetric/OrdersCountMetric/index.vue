@@ -56,6 +56,7 @@ export default defineComponent({
 
     methods: {
         fetchDetails(callback) {
+            this.openings++
             this.q = null
             this.innerData = []
             this.isFetchingDetails = true
@@ -90,6 +91,7 @@ export default defineComponent({
     data: () => ({
         isFetchingDetails: false,
         innerData: [],
+        openings: 0,
     })
 })
 </script>
@@ -115,16 +117,19 @@ export default defineComponent({
                     </a>
                 </template>
 
-                <template #sidebar-content="{ height }">
+                <template #sidebar-header-actions>
+                    <!-- Keyed per opening: the header outlives the lazy body, and fetchDetails clears the search. -->
+                    <SidebarNavbar
+                        :key="openings"
+                        @search="q = $event"
+                        @exportExcel="onExportExcel"
+                    />
+                </template>
+
+                <template #sidebar-content>
                     <SidebarLayout>
-                        <template #header>
-                            <SidebarNavbar
-                                @search="q = $event"
-                                @exportExcel="onExportExcel"
-                            />
-                        </template>
                         <template #content>
-                            <Details :data="filteredInnerData" :height="height" class="p-2" />
+                            <Details :data="filteredInnerData" />
                         </template>
                     </SidebarLayout>
                 </template>

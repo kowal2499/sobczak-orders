@@ -4,25 +4,21 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLiveLabel">{{ $t('_confirmation') }}</h5>
-                    <button type="button" class="close" @click.prevent="closeModal()">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                    <h5 class="modal-title">{{ $t('_confirmation') }}</h5>
                 </div>
 
                 <div class="modal-body">
-
                     <slot></slot>
-
-                    <div class="text-center" v-if="busy">
-                        {{ $t('processing') }} <i class="fa fa-spinner fa-spin"></i>
-                    </div>
-
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" :disabled="busy" class="btn btn-success" @click.prevent="$emit('answerYes')">{{ $t('yes') }}</button>
-                    <button type="button" :disabled="busy" class="btn btn-danger" @click.prevent="closeModal()">{{ $t('no') }}</button>
+                    <button type="button" :disabled="busy" class="btn btn-outline-secondary" @click.prevent="closeModal()">
+                        {{ $t('_cancel') }}
+                    </button>
+                    <button type="button" :disabled="busy" class="btn btn-primary" @click.prevent="$emit('answerYes')">
+                        <i v-if="busy" class="fa fa-spinner fa-spin mr-1"></i>
+                        {{ $t('_confirm') }}
+                    </button>
                 </div>
 
             </div>
@@ -70,6 +66,5 @@
 <style scoped>
     .modal-body {
         text-align: left;
-        font-size: 1.2em;
     }
 </style>

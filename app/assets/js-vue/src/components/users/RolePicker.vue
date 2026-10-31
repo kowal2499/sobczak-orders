@@ -1,20 +1,19 @@
 <template>
     <div>
-        <div class="form-group" v-for="role in getRoles()">
-            <label><input type="checkbox" :value="role.value" v-model="subject.roles" class="pl-4"><span class="pl-3">{{ role.name }}</span></label>
+        <div class="role-options">
+            <b-form-checkbox
+                v-for="role in getRoles()"
+                :key="role.value"
+                v-model="subject.roles"
+                :value="role.value"
+            >
+                {{ role.name }}
+            </b-form-checkbox>
         </div>
 
-        <div v-if="subject && Array.isArray(subject.roles) && subject.roles.indexOf('ROLE_CUSTOMER') !== -1">
-
-            <div class="card">
-                <div class="card-header">
-                    Klienci do których użytkownik będzie miał dostęp
-                </div>
-
-                <div class="card-body">
-                    <customer-select v-model="subject.customers2Users" />
-                </div>
-            </div>
+        <div v-if="subject && Array.isArray(subject.roles) && subject.roles.indexOf('ROLE_CUSTOMER') !== -1" class="mt-3">
+            <label class="form-label">{{ $t('user.form.customers') }}</label>
+            <customer-select v-model="subject.customers2Users" />
         </div>
     </div>
 </template>
@@ -46,5 +45,11 @@
 </script>
 
 <style scoped>
-
+.role-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    min-height: calc(1.5em + 0.75rem + 2px);
+    align-items: center;
+}
 </style>

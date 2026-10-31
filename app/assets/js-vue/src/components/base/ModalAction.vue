@@ -6,11 +6,13 @@
                     <h5 class="modal-title">{{ title }}</h5>
                     <div class="d-flex" v-if="showClose">
                         <b-button
-                            class="text-secondary btn-sm"
+                            size="sm"
+                            variant="danger"
+                            :aria-label="$t('_close')"
+                            :title="$t('_close')"
                             @click="close"
-                            variant="link"
                         >
-                            <i class="fa fa-times" />
+                            <i class="fa fa-times" aria-hidden="true" />
                         </b-button>
                     </div>
                 </slot>

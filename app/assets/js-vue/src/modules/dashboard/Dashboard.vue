@@ -1,9 +1,7 @@
 <template>
     <div>
-        <SectionBlock class="d-flex align-items-center justify-content-between flex-wrap">
-            <SectionBlockTitle :title="$t('dashboard.title')" />
-
-            <div class="d-flex align-items-center">
+        <SectionBlockTitle block :title="$t('dashboard.title')">
+            <template #actions>
                 <b-form inline class="mb-0 mr-3">
                     <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
                     <b-form-select v-model="filters.month" :options="monthsOptions" />
@@ -11,7 +9,7 @@
 
                 <button
                     v-if="editMode"
-                    class="btn btn-outline-secondary btn-sm mr-2 d-none d-md-inline-block"
+                    class="btn btn-secondary btn-sm mr-2 d-none d-md-inline-block"
                     type="button"
                     @click="resetLayout"
                 >
@@ -19,16 +17,15 @@
                     {{ $t('dashboard.layout.reset') }}
                 </button>
                 <button
-                    class="btn btn-sm d-none d-md-inline-block"
-                    :class="editMode ? 'btn-primary' : 'btn-outline-primary'"
+                    class="btn btn-sm btn-primary d-none d-md-inline-block"
                     type="button"
                     @click="editMode = !editMode"
                 >
                     <font-awesome-icon icon="arrows-alt" />
                     {{ editMode ? $t('dashboard.layout.done') : $t('dashboard.layout.edit') }}
                 </button>
-            </div>
-        </SectionBlock>
+            </template>
+        </SectionBlockTitle>
 
         <SectionBlock v-if="gridLayout.length" class="section-gap">
             <EditableGridLayout
@@ -337,6 +334,12 @@ export default {
         top: 4px;
         right: 4px;
         z-index: 10;
+        color: var(--colorSecondary);
+
+        &:hover,
+        &:focus {
+            color: var(--colorSecondary);
+        }
     }
 }
 </style>

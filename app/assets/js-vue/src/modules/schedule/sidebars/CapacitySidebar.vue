@@ -15,7 +15,12 @@ export default {
         weekData: {
             type: Object,
             default: null,
-        }
+        },
+        // set by an owner that searches from the drawer header; null = the list's own search box
+        search: {
+            type: String,
+            default: null,
+        },
     },
 
     components: {
@@ -66,11 +71,12 @@ export default {
             let data = this.capacityData?.agreementLines || []
             const lines = Object.values(data)
 
-            if (!this.q) {
+            const term = this.search !== null ? this.search : this.q
+            if (!term) {
                 return lines
             }
 
-            const searchTerm = deburr(this.q).toLowerCase()
+            const searchTerm = deburr(term).toLowerCase()
 
             return lines.filter(item => {
                 const haystack = [
@@ -87,5 +93,10 @@ export default {
 </script>
 
 <template>
-    <AgreementLineShowcaseList :lines="filteredSelectedData" :summary="summary" @search="q = $event" />
+    <AgreementLineShowcaseList
+        :lines="filteredSelectedData"
+        :summary="summary"
+        :searchable="search === null"
+        @search="q = $event"
+    />
 </template>

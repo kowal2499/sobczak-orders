@@ -175,11 +175,12 @@ export default {
                 <CellDayHoliday :arg="arg" :events="events" />
             </template>
             <template #day-cell-dropdown="{ arg, events }">
-                <b-dropdown-item-button @click="onDateSelected({ arg, events })">Rodzaj dnia</b-dropdown-item-button>
+                <b-dropdown-item-button @click="onDateSelected({ arg, events })">{{ $t('config.production.dayTypeAction') }}</b-dropdown-item-button>
             </template>
         </Calendar>
 
         <ModalAction
+            :show-close="false"
             :value="showModal"
             @close="onCloseModal"
             :title="modalTitle"
@@ -195,10 +196,11 @@ export default {
             </template>
 
             <template #modal-footer="{ close }">
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-primary ml-2" @click="onSave(close)">
-                        <font-awesome-icon icon="save" class="mr-2" /> {{ $t('_save') }}
+                <div class="form-actions w-100 mt-0">
+                    <button type="button" class="btn btn-outline-secondary" :disabled="isBusy" @click="close">{{ $t('cancel') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="isBusy" @click="onSave(close)">
+                        <i v-if="isBusy" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                        {{ $t('_save') }}
                     </button>
                 </div>
             </template>

@@ -3,8 +3,6 @@ export default {
     'generalTitle': 'General calendar',
     'breadcrumb': {
         'home': 'Dashboard',
-        'calendar': 'Calendar',
-        'calendarV2': 'Calendar v2',
     },
     'orders': {
         'title': 'Orders calendar',
@@ -29,6 +27,8 @@ export default {
         'department': 'Department',
         'status': 'Status',
         'agreementLine': 'Order',
+        'customer': 'Customer',
+        'ghost': 'With forecast',
     },
     'showGhost': 'Show forecast',
     'status': {

@@ -20,6 +20,7 @@ export default {
     loadError: 'Nie udało się wczytać klientów.',
     column: {
         name: 'Nazwa',
+        contact: 'Kontakt',
         address: 'Adres',
         postalCode: 'Kod pocztowy',
         city: 'Miasto',

@@ -18,8 +18,8 @@ export default {
 
 <template>
     <b-row>
-        <b-col md="3">
-            <b-nav pills card vertical class="p-2 background-light h-100">
+        <b-col md="3" class="production-nav">
+            <b-nav pills vertical>
                 <b-nav-item
                     v-for="item in items"
                     :key="item.id"
@@ -32,16 +32,14 @@ export default {
             </b-nav>
         </b-col>
         <b-col md="9">
-            <div class="p-3">
-                <slot :name="activeItemId" />
-            </div>
-            <div class="p-3">
-                <slot name="footer" />
-            </div>
+            <slot :name="activeItemId" />
+            <slot name="footer" />
         </b-col>
     </b-row>
 </template>
 
 <style scoped lang="scss">
-
+.production-nav {
+    border-right: 1px solid var(--colorRule);
+}
 </style>

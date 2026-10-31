@@ -19,7 +19,7 @@
                 <i class="fa fa-phone-square mr-1"></i><a :href="`tel:${customer.phone}`">{{ customer.phone }}</a>
             </div>
         </div>
-        <router-link :to="{ name: 'customer-edit', params: { id: customer.id } }" class="btn btn-sm btn-secondary shadow-sm ml-auto" v-if="userCan()">
+        <router-link :to="{ name: 'customer-edit', params: { id: customer.id } }" class="btn btn-sm btn-outline-primary ml-auto" v-if="userCan()">
             <i class="fa fa-pencil" aria-hidden="true"></i>
         </router-link>
     </div>

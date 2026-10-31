@@ -41,12 +41,9 @@
             </div>
         </div>
 
-        <template v-if="hasFilters">
-            <hr class="section-block-title__divider">
-            <div class="section-block-title__filters">
-                <slot name="filters" />
-            </div>
-        </template>
+        <div v-if="hasFilters" class="section-block-title__filters">
+            <slot name="filters" />
+        </div>
     </div>
 </template>
 
@@ -60,10 +57,9 @@
  * the active (non-linked) crumb. An `icon` (FontAwesome name) renders in
  * place of the label, keeping `label` as its aria-label.
  *
- * Set `block` to render the component as a standalone SectionBlock-style
- * panel (instead of an inline cluster nested in a SectionBlock). In that
- * mode the optional `#filters` slot is rendered full width below the
- * title, separated by a horizontal divider.
+ * Set `block` to render it as the page header placed directly on the canvas
+ * (instead of an inline cluster nested in a SectionBlock): a large title with
+ * the breadcrumb beneath it, and the optional `#filters` slot full width below.
  *
  * The optional `#actions` slot (e.g. a "create" button) sits on the right;
  * the breadcrumb then moves beneath the title to make room for it.
@@ -114,15 +110,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Standalone panel - mirrors SectionBlock so the header can be its own block.
-.section-block-title--block {
-    background-color: #fff;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: 1px solid #ddd;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-}
-
 .section-block-title__head {
     display: flex;
     align-items: center;
@@ -139,7 +126,8 @@ export default {
     gap: 1rem;
 }
 
-.section-block-title--with-actions .section-block-title__heading {
+.section-block-title--with-actions .section-block-title__heading,
+.section-block-title--block .section-block-title__heading {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
@@ -159,6 +147,13 @@ export default {
     color: var(--colorPrimary);
 }
 
+.section-block-title--block .section-block-title__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
 .section-block-title__breadcrumb {
     .breadcrumb {
         margin-bottom: 0;
@@ -173,7 +168,11 @@ export default {
     .breadcrumb-item + .breadcrumb-item::before,
     .breadcrumb-item a,
     .breadcrumb-item span {
-        color: #b0b6bd;
+        color: var(--colorSecondary);
+    }
+
+    .breadcrumb-item a {
+        cursor: pointer;
     }
 
     .breadcrumb-item a:hover {
@@ -186,13 +185,12 @@ export default {
     }
 }
 
-.section-block-title__divider {
-    margin: 0.85rem 0;
-    border: 0;
-    border-top: 1px solid #e9ecef;
-}
-
 .section-block-title__filters {
     width: 100%;
+    margin-top: 1rem;
+
+    ::v-deep label:not(.custom-control-label) {
+        color: var(--colorPrimary);
+    }
 }
 </style>

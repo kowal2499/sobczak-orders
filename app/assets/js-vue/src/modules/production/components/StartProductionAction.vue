@@ -1,6 +1,7 @@
 <template>
     <ValidationObserver ref="form" #default="{ invalid }">
         <modal-action
+            :show-close="false"
             :title="$t('agreement_line_list.startProductionForm.modalTitle')"
             :configuration="{ hideFooter: false, size: 'xl' }"
             :value="value"
@@ -19,10 +20,11 @@
             </template>
 
             <template #modal-footer="{ close }">
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary" @click="close">{{ $t('cancel') }}</button>
-                    <button class="btn btn-success ml-2" @click="startProduction(close)">
-                        <i class="fa fa-play mr-2" aria-hidden="true" /> {{ $t('agreement_line_list.startProductionForm.startProduction') }}
+                <div class="form-actions w-100 mt-0">
+                    <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="close">{{ $t('cancel') }}</button>
+                    <button type="button" class="btn btn-primary" :disabled="saving" @click="startProduction(close)">
+                        <i v-if="saving" class="fa fa-spinner fa-spin" aria-hidden="true" />
+                        {{ $t('agreement_line_list.startProductionForm.startProduction') }}
                     </button>
                 </div>
             </template>
@@ -32,7 +34,6 @@
                     <div class="col-lg-8">
                         <div class="d-flex flex-column gap-3">
                             <StrategySelect @strategySelected="onStrategySelected" />
-                            <hr />
                             <StartProductionForm
                                 v-model="form"
                                 :confirmedDate="confirmedDate"
@@ -40,7 +41,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-4 context-column">
                         <collapsible-card :title="$t('orders.orderProcessing')">
                             <agreement-line-widget :agreement-line="agreementLine" disable-edit />
                         </collapsible-card>
@@ -126,6 +127,7 @@ export default {
                 return
             }
 
+            this.saving = true
             return ApiNewOrder.startProduction(this.agreementLineId, { schedule: this.payload })
                 .then(() => {
                     EventBus.$emit('message', {
@@ -137,6 +139,9 @@ export default {
                     if (closeCallback) {
                         closeCallback()
                     }
+                })
+                .finally(() => {
+                    this.saving = false
                 })
         },
 
@@ -172,7 +177,8 @@ export default {
     },
 
     data: () => ({
-        form: getForm()
+        form: getForm(),
+        saving: false,
     })
 }
 
@@ -197,5 +203,9 @@ function getForm(productions = []) {
 </script>
 
 <style scoped lang="scss">
-
+@media (min-width: 992px) {
+    .context-column {
+        border-left: 1px solid var(--colorRule);
+    }
+}
 </style>

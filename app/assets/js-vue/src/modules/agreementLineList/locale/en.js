@@ -5,6 +5,7 @@ export default {
     startProductionForm: {
         modalTitle: 'Production dates per department',
         startProduction: 'Start production',
+        department: 'Department',
         startDate: 'Start date',
         endDate: 'End date',
     },
@@ -14,6 +15,8 @@ export default {
         adjustmentRatioName: 'Adjustment ratio value',
         adjustmentRatioDescription: 'Range 0-100%',
         factorPerDpt: 'Factor value per department',
+        adjustmentRatioColumn: 'Modifier % (0-100)',
+        factorPerDptColumn: 'Department factor',
         adjustmentBonusSectionTitle: 'Bonuses & Penalties',
         adjustmentBonusValueDescription: 'For bonuses use positive values, for penalties use negative values',
         bonusValue: 'Value',

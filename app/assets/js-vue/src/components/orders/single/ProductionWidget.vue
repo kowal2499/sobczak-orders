@@ -135,6 +135,15 @@
     .production-tab-panel {
         width: 25%;
         min-width: 200px;
+
+        > .nav.card-header {
+            padding: 0.5rem;
+            background-color: transparent;
+            border: 1px solid var(--colorRule);
+            // b-tabs adds rounded-0 and border-bottom-0, both !important
+            border-bottom: 1px solid var(--colorRule) !important;
+            border-radius: 0.5rem !important;
+        }
     }
 
     .statusNotify {

@@ -7,6 +7,10 @@ export default {
 				capacityTitle: 'Daily capacity',
 				dateFrom: 'Date from',
 				capacityHistoryEmpty: 'No capacity history',
+				capacityHistoryTitle: 'Change history',
+				dayTypeAction: 'Day type',
+				saveError: 'Saving failed',
+				deleteError: 'Deleting failed',
 				scheduleFormTitle: 'Day properties',
 				scheduleFormTitleRange: 'Days properties',
 				form: {
@@ -28,6 +32,10 @@ export default {
 				capacityTitle: 'Wydajność dzienna',
 				dateFrom: 'Data od',
 				capacityHistoryEmpty: 'Brak historii zmian wydajności',
+				capacityHistoryTitle: 'Historia zmian',
+				dayTypeAction: 'Rodzaj dnia',
+				saveError: 'Nie udało się zapisać',
+				deleteError: 'Nie udało się usunąć',
 				scheduleFormTitle: 'Właściwości dnia',
 				scheduleFormTitleRange: 'Właściwości dni',
 				form: {

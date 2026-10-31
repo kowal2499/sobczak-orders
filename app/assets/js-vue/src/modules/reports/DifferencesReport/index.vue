@@ -5,6 +5,7 @@ import { MONTHS, dateToString, firstDay, lastDay } from '@/services/datesService
 import { getDepartmentsCapacity, getProductionTasksCompletionSummary } from '@/modules/dashboard/repository'
 import { deburr } from 'lodash'
 import Sidebar from '@/components/base/Sidebar.vue'
+import SidebarNavbar from '@/components/layout/SidebarNavbar.vue'
 import AgreementLineShowcaseList from '@/components/base/Showcase/AgreementLineShowcaseList.vue'
 import { departmentRecordToShowcaseLine } from '@/components/base/Showcase/departmentRecordToShowcaseLine'
 
@@ -16,7 +17,7 @@ function r2(val) {
 
 export default defineComponent({
     name: 'DifferencesReport',
-    components: { Sidebar, AgreementLineShowcaseList },
+    components: { Sidebar, SidebarNavbar, AgreementLineShowcaseList },
     computed: {
         breadcrumbs() {
             return [
@@ -183,6 +184,7 @@ export default defineComponent({
         },
         openSidebar(row, recordsKey, groupLabel) {
             this.sidebarSource = { slug: row.slug, recordsKey }
+            this.sidebarOpenings++
             this.q = null
             this.sidebarTitle = `${row.name} - ${groupLabel}`
             this.sidebarVisible = true
@@ -249,6 +251,7 @@ export default defineComponent({
         sidebarVisible: false,
         sidebarTitle: '',
         sidebarSource: null,
+        sidebarOpenings: 0,
         q: null,
     }),
 })
@@ -257,19 +260,19 @@ export default defineComponent({
 <template>
     <div>
         <SectionBlockTitle block :title="$t('differences_report.title')" :breadcrumbs="breadcrumbs">
-            <template #filters>
-                <b-form inline>
-                    <b-form-select v-model="filters.year" :options="yearsOptions" class="mr-3" />
-                    <b-form-select v-model="filters.month" :options="monthsOptions" class="mr-3" />
+            <template #actions>
+                <div class="range-picker">
                     <b-spinner v-if="busy" small variant="secondary" />
-                </b-form>
+                    <b-form-select v-model="filters.year" :options="yearsOptions" size="sm" class="range-picker__select" />
+                    <b-form-select v-model="filters.month" :options="monthsOptions" size="sm" class="range-picker__select" />
+                </div>
             </template>
         </SectionBlockTitle>
 
-        <SectionBlock v-if="!busy && rows.length" class="section-gap" style="padding: 2rem">
+        <SectionBlock v-if="!busy && rows.length" class="section-gap">
             <div class="table-responsive">
                 <table class="table table-sm table-hover diff-table mb-0">
-                    <thead class="thead-light">
+                    <thead>
                         <tr>
                             <th rowspan="2" class="align-middle">{{ $t('differences_report.col.department') }}</th>
                             <th class="text-center border-right-bold" colspan="3">{{ $t('differences_report.col.totals') }}</th>
@@ -356,31 +359,39 @@ export default defineComponent({
                     </tbody>
                 </table>
             </div>
+
+            <div class="legend">
+                <div>
+                    <strong>{{ $t('differences_report.col.odp') }}</strong> - {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
+                    <strong>{{ $t('differences_report.col.uzp') }}</strong> - {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
+                    <strong>{{ $t('differences_report.col.delta') }}</strong> - {{ $t('differences_report.legend.delta') }}
+                </div>
+                <div class="mt-1">
+                    <strong>{{ $t('differences_report.legend.formula') }}</strong>
+                    {{ $t('differences_report.legend.verify_hint') }}
+                </div>
+            </div>
         </SectionBlock>
 
         <SectionBlock v-else-if="!busy && odp !== null && !rows.length" class="section-gap text-muted">
             {{ $t('differences_report.no_data') }}
         </SectionBlock>
 
-        <div v-if="!busy && rows.length" class="legend section-gap">
-            <div class="legend__row">
-                <strong>{{ $t('differences_report.col.odp') }}</strong> - {{ $t('differences_report.legend.odp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.uzp') }}</strong> - {{ $t('differences_report.legend.uzp') }} &nbsp;·&nbsp;
-                <strong>{{ $t('differences_report.col.delta') }}</strong> - {{ $t('differences_report.legend.delta') }}
-            </div>
-            <div class="legend__row mt-1">
-                <strong>{{ $t('differences_report.legend.formula') }}</strong>
-                {{ $t('differences_report.legend.verify_hint') }}
-            </div>
-        </div>
-
         <Sidebar
             :title="sidebarTitle"
             v-model="sidebarVisible"
             sidebar-class="size-100 size-lg-75 size-xxl-50"
         >
+            <template #sidebar-header-actions>
+                <!-- the header outlives the lazy body, so a fresh key clears the search on every opening -->
+                <SidebarNavbar
+                    :key="sidebarOpenings"
+                    :show-excel-export-btn="false"
+                    @search="q = $event"
+                />
+            </template>
             <template #sidebar-content>
-                <AgreementLineShowcaseList :lines="sidebarLines" @search="q = $event" />
+                <AgreementLineShowcaseList :lines="sidebarLines" :searchable="false" />
             </template>
         </Sidebar>
     </div>
@@ -391,21 +402,33 @@ export default defineComponent({
     margin-top: 2rem;
 }
 
-.legend {
-    background-color: #eef2f7;
-    border: 1px solid #cdd8e8;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-size: 0.83rem;
-    color: var(--colorPrimary);
+.range-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
-    &__row {
-        line-height: 1.5;
+    &__select {
+        width: auto;
+        height: calc(1.5em + 0.5rem + 2px);
+        font-size: 0.85rem;
+    }
+}
+
+.legend {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--colorRule);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--colorInkMuted);
+
+    strong {
+        color: var(--colorInk);
     }
 }
 
 .diff-table {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
 
     // Cyfry o równej szerokości bez zmiany kroju - kolumny mają się układać w słupek,
     // ale liczby zostają w foncie interfejsu.
@@ -418,12 +441,16 @@ export default defineComponent({
         vertical-align: middle;
     }
 
-    th {
-        color: var(--colorPrimary);
+    thead th {
+        background-color: #fff;
+        color: var(--colorInkMuted);
+        font-weight: 500;
+        border-top: 0;
+        border-bottom: 1px solid var(--colorRule);
     }
 
     .border-right-bold {
-        border-right: 2px solid #adb5bd !important;
+        border-right: 2px solid var(--colorRule) !important;
     }
 
     .group-link {

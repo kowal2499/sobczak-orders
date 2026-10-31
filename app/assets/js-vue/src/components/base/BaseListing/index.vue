@@ -1,13 +1,13 @@
 <script>
 import Listing from "./model/Listing"
 import RenameViewModal from "./components/RenameViewModal"
-import FiltersPanel from "./components/FiltersPanel"
 import CriteriaChips from "./components/CriteriaChips"
 
+// Filters and columns live in ListingToolbar, which the views put in the page header.
 export default {
     name: "AgreementLineList",
 
-    components: { RenameViewModal, FiltersPanel, CriteriaChips },
+    components: { RenameViewModal, CriteriaChips },
 
     props: {
         listingConfiguration: {
@@ -28,51 +28,11 @@ export default {
         activeView() {
             return this.listingConfiguration.activeView;
         },
-
-        /**
-         * Najpierw kolumny widoczne, w kolejności widoku, potem reszta do włączenia.
-         *
-         * @returns {Array<{column: Column, visible: boolean, position: number}>}
-         */
-        columnEntries() {
-            const visible = this.listingConfiguration.visibleColumns;
-            const hidden = this.listingConfiguration.supportedColumns
-                .filter(column => !visible.includes(column));
-
-            return [
-                ...visible.map((column, position) => ({ column, visible: true, position })),
-                ...hidden.map(column => ({ column, visible: false, position: -1 })),
-            ];
-        },
-
-        visibleColumnCount() {
-            return this.listingConfiguration.visibleColumns.length;
-        }
     },
 
     methods: {
         isActive(view) {
             return Boolean(this.activeView) && this.activeView.id === view.id;
-        },
-
-        toggleColumn(id) {
-            this.listingConfiguration.toggleColumn(id);
-        },
-
-        moveColumn(id, offset) {
-            this.listingConfiguration.moveColumn(id, offset);
-        },
-
-        isColumnPinned(id) {
-            return this.listingConfiguration.isColumnPinned(id);
-        },
-
-        canPinColumn(id) {
-            return this.listingConfiguration.canPinColumn(id);
-        },
-
-        togglePin(id) {
-            this.listingConfiguration.togglePinnedColumn(id);
         },
 
         createView() {
@@ -98,8 +58,9 @@ export default {
             this.$bvModal.msgBoxConfirm(this.$t('listing.removeViewConfirm', { title: view.title }), {
                 title: this.$t('listing.removeView'),
                 okVariant: 'danger',
-                okTitle: this.$t('_yes'),
-                cancelTitle: this.$t('_no'),
+                okTitle: this.$t('_delete'),
+                cancelVariant: 'outline-secondary',
+                cancelTitle: this.$t('_cancel'),
                 centered: true,
             }).then(confirmed => {
                 if (confirmed) {
@@ -121,75 +82,7 @@ export default {
     <div>
         <div v-if="fetchingData">{{ $t('listing.loading') }}</div>
         <template v-else>
-            <div class="listing-toolbar">
-                <b-nav class="listing-toolbar__controls">
-                    <FiltersPanel v-if="$scopedSlots.filters" :listing="listingConfiguration">
-                        <slot name="filters" />
-                    </FiltersPanel>
-
-                    <b-nav-item-dropdown>
-                        <template #button-content>
-                            <font-awesome-icon icon="cog" />
-                            <span class="ml-1">{{ $t('listing.columns') }}</span>
-                        </template>
-
-                        <b-dropdown-text>{{ $t('listing.columns') }}</b-dropdown-text>
-                        <b-dropdown-form v-if="activeView" class="listing-columns">
-                            <div
-                                v-for="entry in columnEntries"
-                                :key="entry.column.id"
-                                class="listing-columns__row"
-                            >
-                                <b-form-checkbox
-                                    :checked="entry.visible"
-                                    @change="toggleColumn(entry.column.id)"
-                                >
-                                    {{ entry.column.label }}
-                                </b-form-checkbox>
-
-                                <span class="listing-columns__actions" v-if="entry.visible">
-                                    <b-button
-                                        size="sm"
-                                        variant="link"
-                                        :class="isColumnPinned(entry.column.id) ? 'text-primary' : 'text-muted'"
-                                        :disabled="!canPinColumn(entry.column.id)"
-                                        :title="isColumnPinned(entry.column.id) ? $t('listing.unpinColumn') : $t('listing.pinColumn')"
-                                        @click="togglePin(entry.column.id)"
-                                    >
-                                        <font-awesome-icon icon="thumbtack" />
-                                    </b-button>
-                                    <b-button
-                                        size="sm"
-                                        variant="link"
-                                        :disabled="entry.position === 0"
-                                        :title="$t('listing.moveColumnUp')"
-                                        @click="moveColumn(entry.column.id, -1)"
-                                    >
-                                        <font-awesome-icon icon="chevron-up" />
-                                    </b-button>
-                                    <b-button
-                                        size="sm"
-                                        variant="link"
-                                        :disabled="entry.position === visibleColumnCount - 1"
-                                        :title="$t('listing.moveColumnDown')"
-                                        @click="moveColumn(entry.column.id, 1)"
-                                    >
-                                        <font-awesome-icon icon="chevron-down" />
-                                    </b-button>
-                                </span>
-                            </div>
-                        </b-dropdown-form>
-                        <b-dropdown-divider />
-                        <b-dropdown-item-btn @click="createView">{{ $t('listing.newView') }}</b-dropdown-item-btn>
-                    </b-nav-item-dropdown>
-                </b-nav>
-
-                <div v-if="$scopedSlots['toolbar-end'] || $slots['toolbar-end']" class="listing-toolbar__end">
-                    <slot name="toolbar-end" />
-                </div>
-            </div>
-
-            <b-nav tabs>
+            <b-nav tabs class="listing-tabs">
                 <template v-for="(view, index) in viewCollection">
                     <b-nav-item-dropdown
                         v-if="isActive(view)"
@@ -245,50 +138,18 @@ export default {
     </div>
 </template>
 
-<style scoped lang="scss">
-
-.listing-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem 1rem;
+<style scoped>
+.listing-tabs {
     margin-bottom: 0.75rem;
-
-    &__controls ::v-deep .nav-link {
-        padding-left: 0;
-        padding-right: 1.5rem;
-    }
-
-    &__end {
-        margin-left: auto;
-
-        ::v-deep .pagination {
-            margin-bottom: 0;
-        }
-    }
 }
 
-.listing-columns {
-    max-height: 60vh;
-    overflow-y: auto;
-
-    &__row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        white-space: nowrap;
-    }
-
-    &__actions {
-        display: flex;
-
-        .btn {
-            padding: 0 0.25rem;
-            line-height: 1;
-        }
-    }
+.listing-tabs ::v-deep .nav-link.active,
+.listing-tabs ::v-deep .nav-link.active:hover,
+.listing-tabs ::v-deep .nav-link.active:focus {
+    background-color: #fff;
+    border: 1px solid var(--colorPrimary);
+    border-bottom: 0;
+    padding-bottom: calc(0.5rem + 1px);
+    color: var(--colorPrimary);
 }
-
 </style>

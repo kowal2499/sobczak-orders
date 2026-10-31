@@ -20,6 +20,7 @@ export default {
     loadError: 'Customers could not be loaded.',
     column: {
         name: 'Name',
+        contact: 'Contact',
         address: 'Address',
         postalCode: 'Postal code',
         city: 'City',

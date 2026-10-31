@@ -2,6 +2,9 @@ import qs from 'qs'
 
 export const PANEL_PARAM = 'panel'
 export const DEPARTMENT_PARAM = 'panelDepartment'
+export const EDIT_PARAM = 'editOrder'
+
+const DRAWER_PARAMS = [PANEL_PARAM, DEPARTMENT_PARAM, EDIT_PARAM]
 
 /*
  * The order panel drawer lives in the query of whatever page opened it (?panel=4147), so back/forward,
@@ -14,19 +17,13 @@ function currentQuery() {
 
 export function withoutPanel(query) {
     const rest = { ...query }
-    delete rest[PANEL_PARAM]
-    delete rest[DEPARTMENT_PARAM]
+    DRAWER_PARAMS.forEach(param => delete rest[param])
     return rest
 }
 
 export function panelQuery(query) {
     const panel = {}
-    if (query[PANEL_PARAM]) {
-        panel[PANEL_PARAM] = query[PANEL_PARAM]
-    }
-    if (query[DEPARTMENT_PARAM]) {
-        panel[DEPARTMENT_PARAM] = query[DEPARTMENT_PARAM]
-    }
+    DRAWER_PARAMS.filter(param => query[param]).forEach(param => panel[param] = query[param])
     return panel
 }
 
@@ -53,4 +50,14 @@ export function openOrderPanel(router, lineId, department = null) {
 
 export function closeOrderPanel(router) {
     return router.replace({ query: withoutPanel(currentQuery()) }).catch(() => {})
+}
+
+export function orderEditOf(route) {
+    const agreementId = Number(route.query[EDIT_PARAM])
+    return agreementId > 0 ? agreementId : null
+}
+
+export function openOrderEdit(router, agreementId) {
+    const query = { ...withoutPanel(currentQuery()), [EDIT_PARAM]: String(agreementId) }
+    return router.push({ query }).catch(() => {})
 }
