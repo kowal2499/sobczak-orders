@@ -69,6 +69,7 @@ class ScheduleCapacityService
                         $weekCapacity,
                         $weekCapacityBurned,
                         $visibleAgreementLines,
+                        $weekRunner,
                     );
                 }
                 $dayRunner = $dayRunner->modify('+1 day');

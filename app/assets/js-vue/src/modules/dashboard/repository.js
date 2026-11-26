@@ -2,6 +2,7 @@ import axios from "axios";
 import { dateToString, parseYMD } from "../../services/datesService";
 import { fetchHistory } from "../metricHistory/repository/metricHistoryRepository";
 import { STATE_WINDOW_DAYS } from "./services/trends";
+import { withExpandedCapacityDays } from "../schedule/repository/capacityResponse";
 
 /**
  * @deprecated
@@ -61,7 +62,7 @@ export function getWeeklyCapacity(start, end, { includeGhost = false } = {}) {
     if (includeGhost) {
         params.includeGhost = 1;
     }
-    return axios.get(`/reports/schedule/capacity`, { params });
+    return withExpandedCapacityDays(axios.get(`/reports/schedule/capacity`, { params }));
 }
 
 export function getAttentionLists() {

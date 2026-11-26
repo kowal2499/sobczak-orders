@@ -5,7 +5,7 @@ namespace App\Module\Reports\Schedule\Controller;
 use App\Controller\BaseController;
 use App\Entity\AgreementLine;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
-use App\Module\Reports\Schedule\DTO\ScheduleCapacityDTO;
+use App\Module\Reports\Schedule\DTO\ScheduleAgreementLineView;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
 use App\Module\Reports\Schedule\Service\ScheduleOrderResourcesService;
 use App\Module\Reports\Schedule\Service\ScheduleProductionResourcesService;
@@ -15,6 +15,7 @@ use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
 use App\System\Http\ReleaseSessionLock;
 use App\Utilities\DateValidationTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -45,18 +46,24 @@ class ScheduleController extends BaseController
         ['start' => $start, 'end' => $end] = $result;
         $includeGhost = $request->query->getBoolean('includeGhost');
 
-        return $this->json(
-            array_map(
-                function (ScheduleCapacityDTO $capacityDTO) use ($canSeeLines) {
-                    if (!$canSeeLines) {
-                        $capacityDTO->agreementLines = [];
-                    }
-                    return $capacityDTO->toArray();
-                },
-                $service->calculateBurnout($start, $end, $includeGhost)
-            ),
-            Response::HTTP_OK
-        );
+        $days = [];
+        $linesByWeek = [];
+        foreach ($service->calculateBurnout($start, $end, $includeGhost) as $capacityDTO) {
+            $days[] = $capacityDTO->toArray();
+            $week = $capacityDTO->weekStart->format('Y-m-d');
+            if ($canSeeLines && !isset($linesByWeek[$week])) {
+                $linesByWeek[$week] = array_map(
+                    ScheduleAgreementLineView::fromReadModel(...),
+                    $capacityDTO->agreementLines
+                );
+            }
+        }
+
+        // JsonResponse, not $this->json(): the serializer would turn an empty week map into [] instead of {}
+        return new JsonResponse([
+            'days' => $days,
+            'agreementLinesByWeek' => (object) $linesByWeek,
+        ]);
     }
 
     #[Route(path: '/holidays', methods: ['GET'])]
