@@ -193,8 +193,10 @@ class MetricSnapshotCollector
     }
 
     /**
-     * Listy produkcyjne liczą produkcje per dział (wymiar "lista:dział"), żeby odczyt mógł
-     * odfiltrować działy bez grantu; listy zamówień liczą linie.
+     * Listy produkcyjne liczą produkcje per dział (wymiar "lista:dział") i osobno zamówienia
+     * (wymiar "lista@dział,dział" - działy jego produkcji na liście). Kafel pokazuje zamówienie,
+     * gdy oglądający widzi choć jeden z tych działów, więc tylko taki zapis da się odfiltrować
+     * do liczby z kafla. Listy zamówień liczą linie.
      */
     private function collectAttentionLists(): void
     {
@@ -211,6 +213,19 @@ class MetricSnapshotCollector
                     $this->add(SnapshotMetric::ATTENTION_LISTS, $list, MetricSnapshot::NO_PERIOD, $customerId, null, 1);
                     continue;
                 }
+                $departments = array_unique(array_map(
+                    fn ($production) => $production->departmentSlug,
+                    $line->productions
+                ));
+                sort($departments);
+                $this->add(
+                    SnapshotMetric::ATTENTION_LISTS,
+                    $list . '@' . implode(',', $departments),
+                    MetricSnapshot::NO_PERIOD,
+                    $customerId,
+                    null,
+                    1,
+                );
                 foreach ($line->productions as $production) {
                     $this->add(
                         SnapshotMetric::ATTENTION_LISTS,

@@ -1,5 +1,17 @@
 export default {
     'title': 'Dashboard',
+    'trend': {
+        'state': 'Last {days} days',
+        'change': 'Change: {value}',
+        'flow': 'Cumulative since the 1st of the month',
+        'unit': {
+            'factors': 'Sum of factors',
+            'orders': 'Number of orders',
+        },
+        'note': {
+            'defaultTolerance': 'History uses the tolerance that applies to settlements.',
+        },
+    },
     'month_placeholder': 'Please select month',
     'year_placeholder': 'Please select year',
     'orders_pending': 'Orders in production',

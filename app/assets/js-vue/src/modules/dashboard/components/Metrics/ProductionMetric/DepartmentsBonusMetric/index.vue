@@ -53,7 +53,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy" class="border-left-success">
+    <MetricLayout :is-busy="isBusy" :trend="trend" class="border-left-success">
         <template #title>
             {{ $t("dashboard.tasksCompleted") }}
         </template>

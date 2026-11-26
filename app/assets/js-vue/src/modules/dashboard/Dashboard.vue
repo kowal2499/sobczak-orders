@@ -64,7 +64,7 @@ import {
     getProductionTasksCompletionSummary,
     getProductionTasksOnTimeSummary,
     getOldSummary, getDepartmentsCapacity, getWeeklyCapacity,
-    getAttentionLists
+    getAttentionLists, getMetricHistory, getRecentMetricHistory
 } from "./repository";
 import PRIVILEGES from "../../definitions/userRoles";
 
@@ -87,6 +87,9 @@ const DATA_SOURCES = [
     },
     // stan na dziś, niezależny od wybranego miesiąca
     { id: 'src07', fetcher: getAttentionLists, grant: PRIVILEGES.CAN_PRODUCTION, active: true, dateIndependent: true },
+    // historia mierników do wykresików przy tytułach kafli
+    { id: 'src08', fetcher: getMetricHistory, grant: 'metric-snapshot.view', active: true },
+    { id: 'src09', fetcher: getRecentMetricHistory, grant: 'metric-snapshot.view', active: true, dateIndependent: true },
 ]
 
 export default {

@@ -51,13 +51,20 @@ class GetMetricHistoryQueryHandler
     }
 
     /**
-     * Wymiar to slug działu, "lista" albo "lista:dział" (listy uwagi per produkcja).
+     * Wymiar to slug działu, "lista", "lista:dział" (listy uwagi per produkcja) albo
+     * "lista@dział,dział" (listy uwagi per zamówienie - widoczne, gdy widać choć jeden dział).
      */
     private function isVisible(SnapshotMetric $metric, string $dimension, GetMetricHistoryQuery $query): bool
     {
         $parts = explode(':', $dimension, 2);
 
         if (SnapshotMetric::ATTENTION_LISTS === $metric) {
+            if (str_contains($dimension, '@')) {
+                [$list, $departments] = explode('@', $dimension, 2);
+
+                return in_array($list, $query->attentionLists, true)
+                    && [] !== array_intersect(explode(',', $departments), $query->departments);
+            }
             if (!in_array($parts[0], $query->attentionLists, true)) {
                 return false;
             }
