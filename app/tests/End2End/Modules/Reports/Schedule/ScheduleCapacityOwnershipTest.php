@@ -8,6 +8,8 @@ use App\Tests\Utilities\Factory\EntityFactory;
 
 class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 {
+    use CapacityResponseTrait;
+
     private EntityFactory $factory;
 
     protected function setUp(): void
@@ -49,7 +51,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 
         // Then
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = $this->capacityDays($response);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount(1, $content);
@@ -86,7 +88,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 
         // Then
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = $this->capacityDays($response);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount(1, $content);
@@ -121,7 +123,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 
         // Then
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = $this->capacityDays($response);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount(1, $content);
@@ -174,7 +176,7 @@ class ScheduleCapacityOwnershipTest extends BaseScheduleReportsTestCase
 
         // Then
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
+        $content = $this->capacityDays($response);
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertCount(1, $content);

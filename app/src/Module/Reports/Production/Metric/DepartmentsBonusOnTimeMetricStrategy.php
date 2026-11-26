@@ -3,6 +3,7 @@
 namespace App\Module\Reports\Production\Metric;
 
 use App\Entity\AgreementLine;
+use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
@@ -69,6 +70,11 @@ class DepartmentsBonusOnTimeMetricStrategy extends AbstractProductionRecordStrat
         return [
             'statusNot' => [AgreementLine::STATUS_DELETED],
             'hasProduction' => true,
+            'productionCompletedBetween' => [
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+                'departments' => TaskTypes::getDefaultSlugs(),
+            ],
         ];
     }
 

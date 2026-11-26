@@ -1,4 +1,5 @@
 import axios from "axios";
+import { withExpandedCapacityDays } from "./capacityResponse";
 
 export function fetchHolidays(startDate, endDate) {
     const params = new URLSearchParams()
@@ -11,7 +12,7 @@ export function fetchCapatity(startDate, endDate) {
     const params = new URLSearchParams()
     params.append('startDate', startDate)
     params.append('endDate', endDate)
-    return axios.get(`/reports/schedule/capacity?${params.toString()}`)
+    return withExpandedCapacityDays(axios.get(`/reports/schedule/capacity?${params.toString()}`))
 }
 
 export function fetchAgreementLines(startDate, endDate) {
