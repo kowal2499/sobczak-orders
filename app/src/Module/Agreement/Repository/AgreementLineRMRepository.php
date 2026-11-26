@@ -491,6 +491,8 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                 case 'productionCompletedBetween':
                     // Prefilter only: completion status and ghosts are still judged in PHP on the read model,
                     // this just keeps the whole order history from being hydrated for one month.
+                    // IN rather than EXISTS: MySQL 5.7 turns IN into a semi-join driven by the completed_at
+                    // index, while a correlated EXISTS scans every read model row.
                     if (
                         !isset($value['start'], $value['end'], $value['departments'])
                         || !is_array($value['departments'])
@@ -504,12 +506,11 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                         break;
                     }
                     $completed = $this->getEntityManager()->createQueryBuilder()
-                        ->select('1')
+                        ->select('IDENTITY(pCompleted.agreementLine)')
                         ->from(Production::class, 'pCompleted')
-                        ->where('IDENTITY(pCompleted.agreementLine) = l.agreementLineId')
-                        ->andWhere('pCompleted.departmentSlug IN (:completedDepartments)')
+                        ->where('pCompleted.departmentSlug IN (:completedDepartments)')
                         ->andWhere('pCompleted.completedAt BETWEEN :completedStart AND :completedEnd');
-                    $qb->andWhere($qb->expr()->exists($completed->getDQL()));
+                    $qb->andWhere($qb->expr()->in('l.agreementLineId', $completed->getDQL()));
                     $qb->setParameter('completedDepartments', array_values($value['departments']));
                     $qb->setParameter('completedStart', new \DateTime($value['start'] . ' 00:00:00'));
                     $qb->setParameter('completedEnd', new \DateTime($value['end'] . ' 23:59:59'));
