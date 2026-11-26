@@ -1,4 +1,7 @@
 import axios from "axios";
+import { dateToString, parseYMD } from "../../services/datesService";
+import { fetchHistory } from "../metricHistory/repository/metricHistoryRepository";
+import { STATE_WINDOW_DAYS } from "./services/trends";
 
 /**
  * @deprecated
@@ -63,4 +66,21 @@ export function getWeeklyCapacity(start, end, { includeGhost = false } = {}) {
 
 export function getAttentionLists() {
     return axios.get(`/reports/production/attention-lists`);
+}
+
+/**
+ * Historia mierników dla wykresików: wybrany miesiąc i poprzedni, bo okno stanowe (30 dni) sięga wstecz.
+ */
+export function getMetricHistory(start) {
+    const monthStart = parseYMD(start);
+    const from = new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1);
+    const to = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    return fetchHistory(dateToString(from), dateToString(to));
+}
+
+export function getRecentMetricHistory() {
+    const to = new Date();
+    const from = new Date(to);
+    from.setDate(to.getDate() - (STATE_WINDOW_DAYS - 1));
+    return fetchHistory(dateToString(from), dateToString(to));
 }

@@ -1,5 +1,17 @@
 export default {
     'title': 'Pulpit',
+    'trend': {
+        'state': 'Ostatnie {days} dni',
+        'change': 'Zmiana: {value}',
+        'flow': 'Narastająco od 1. dnia miesiąca',
+        'unit': {
+            'factors': 'Suma współczynników',
+            'orders': 'Liczba zamówień',
+        },
+        'note': {
+            'defaultTolerance': 'Historia liczona z widełkami obowiązującymi dla rozliczeń.',
+        },
+    },
     'month_placeholder': 'Wybierz miesiąc',
     'year_placeholder': 'Wybierz rok',
     'orders_pending': 'Zamówienia w realizacji',

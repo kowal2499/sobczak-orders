@@ -12,6 +12,7 @@ use App\Module\Reports\Schedule\Service\ScheduleProductionResourcesService;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use App\Module\WorkConfiguration\ValueObject\ScheduleDayType;
+use App\System\Http\ReleaseSessionLock;
 use App\Utilities\DateValidationTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ class ScheduleController extends BaseController
     use DateValidationTrait;
 
     #[Route(path: '/capacity', methods: ['GET'])]
+    #[ReleaseSessionLock]
     public function capacitySchedule(
         Request $request,
         ScheduleCapacityService $service

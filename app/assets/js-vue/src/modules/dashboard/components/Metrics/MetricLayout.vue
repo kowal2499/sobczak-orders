@@ -23,6 +23,8 @@
                 <slot />
             </div>
 
+            <MetricTrend v-if="trend" :trend="trend" class="card-body__trend" />
+
             <!-- domyślna granica to scrollParent, czyli przewijana karta - wysoki opis wystawał wtedy poza okno -->
             <b-popover :target=popoverTargetId triggers="hover" boundary="viewport">
                 <template #title><span class="text-primary"><slot name="title" /></span></template>
@@ -33,9 +35,17 @@
 </template>
 
 <script>
+import MetricTrend from "./MetricTrend.vue"
+
 export default {
     name: "BaseBadge",
+    components: { MetricTrend },
     props: {
+        // wykresik dynamiki z historii mierników (services/trends.js); null = kafel bez wykresu
+        trend: {
+            type: Object,
+            default: null
+        },
         isBusy: {
             type: Boolean,
             default: false
@@ -77,6 +87,11 @@ export default {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+}
+
+.card-body__trend {
+    flex: 0 0 auto;
+    margin-top: .5rem;
 }
 
 .card-body__content {

@@ -27,6 +27,17 @@ class AttentionListsTest extends BaseProductionReportsTestCase
         ], $this->lists($client));
     }
 
+    public function testSessionStaysValidAfterLockIsReleasedBeforeTheAction(): void
+    {
+        $client = $this->login($this->userWithAllLists());
+
+        $client->xmlHttpRequest('GET', self::URL);
+        $client->xmlHttpRequest('GET', self::URL);
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+        $this->assertCount(4, $this->lists($client));
+    }
+
     public function testReturnsOnlyListsCoveredByDashboardGrantOptions(): void
     {
         $client = $this->login($this->createUser(

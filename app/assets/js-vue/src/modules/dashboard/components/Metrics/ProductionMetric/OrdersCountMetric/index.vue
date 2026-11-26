@@ -97,7 +97,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy">
+    <MetricLayout :is-busy="isBusy" :trend="trend">
         <template #title>
             {{ $t(`dashboard.${status}`) }}
         </template>

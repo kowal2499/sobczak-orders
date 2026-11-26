@@ -8,8 +8,27 @@ import CapacityMetric from "./components/Metrics/ProductionMetric/CapacityMetric
 import WeeklyCapacityMetric from "./components/Metrics/WeeklyCapacityMetric/index.vue";
 import AttentionListMetric from "./components/Metrics/AttentionListMetric.vue";
 import PRIVILEGES from "../../definitions/userRoles";
+import { dateToString } from "../../services/datesService";
+import {
+    attentionTrend, departmentsBonusTrend, monthKeyOf, onTimeTrend, ordersFinishedTrend, ordersPendingTrend,
+} from "./services/trends";
 
 const GRID_COLUMNS = 12;
+
+/**
+ * Wykresik z historii mierników. Przepływy pokazują wybrany miesiąc, stany - ostatnie dni
+ * do dziś albo do końca wybranego miesiąca, jeśli jest miniony.
+ */
+function trend(ctx, build, sourceId = "src08") {
+    const series = ctx.sourcesState[sourceId]?.data?.series;
+    if (!series || !ctx.dateRangeStart) {
+        return null;
+    }
+    const today = dateToString(new Date());
+    const stateEnd = ctx.dateRangeEnd < today ? ctx.dateRangeEnd : today;
+
+    return build(series, { monthKey: monthKeyOf(ctx.dateRangeStart), stateEnd, today });
+}
 
 /**
  * Each widget's default reading-order position (replaces the old hardcoded
@@ -59,6 +78,7 @@ export const WIDGETS = [
             filters: { dateStart: ctx.dateRangeStart, dateEnd: ctx.dateRangeEnd },
             status: "orders_pending",
             class: "border-left-primary",
+            trend: trend(ctx, (series, { stateEnd }) => ordersPendingTrend(series, stateEnd)),
         }),
     },
     {
@@ -73,6 +93,7 @@ export const WIDGETS = [
             filters: { dateStart: ctx.dateRangeStart, dateEnd: ctx.dateRangeEnd },
             status: "orders_finished",
             class: "border-left-success",
+            trend: trend(ctx, (series, { monthKey }) => ordersFinishedTrend(series, monthKey)),
         }),
     },
     {
@@ -92,6 +113,7 @@ export const WIDGETS = [
         props: ctx => ({
             isBusy: ctx.sourcesState.src03.isBusy,
             data: ctx.sourcesState.src03.data,
+            trend: trend(ctx, (series, { monthKey }) => departmentsBonusTrend(series, monthKey)),
             dateStart: ctx.dateRangeStart,
             dateEnd: ctx.dateRangeEnd,
         }),
@@ -105,6 +127,7 @@ export const WIDGETS = [
         props: ctx => ({
             isBusy: ctx.sourcesState.src06.isBusy,
             data: ctx.sourcesState.src06.data,
+            trend: trend(ctx, (series, { monthKey }) => onTimeTrend(series, monthKey)),
             dateStart: ctx.dateRangeStart,
             dateEnd: ctx.dateRangeEnd,
             onRefresh: () => ctx.loadSources(['src06']),
@@ -140,6 +163,8 @@ export const WIDGETS = [
             isBusy: ctx.sourcesState.src07.isBusy,
             data: ctx.sourcesState.src07.data?.[kind] ?? null,
             kind,
+            // listy pokazują stan na dziś niezależnie od wybranego miesiąca, więc historia też kończy się dziś
+            trend: trend(ctx, (series, { today }) => attentionTrend(series, kind, today), "src09"),
         }),
     })),
 ];

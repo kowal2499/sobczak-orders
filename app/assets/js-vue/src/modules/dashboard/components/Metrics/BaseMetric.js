@@ -10,6 +10,10 @@ export default {
             type: Boolean,
             default: false
         },
+        trend: {
+            type: Object,
+            default: null
+        },
         filters: {
             type: Object,
             default: () => ({})

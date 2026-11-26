@@ -9,6 +9,7 @@ use App\Module\MetricSnapshot\Repository\MetricSnapshotRepository;
 use App\Module\MetricSnapshot\Service\MetricVisibility;
 use App\Module\MetricSnapshot\ValueObject\SnapshotSource;
 use App\System\CommandBus;
+use App\System\Http\ReleaseSessionLock;
 use App\System\QueryBus;
 use App\Utilities\DateValidationTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -34,6 +35,7 @@ class MetricSnapshotController extends BaseController
     }
 
     #[Route('/history', methods: ['GET'])]
+    #[ReleaseSessionLock]
     #[IsGranted('metric-snapshot.view')]
     public function history(Request $request, MetricVisibility $visibility): Response
     {

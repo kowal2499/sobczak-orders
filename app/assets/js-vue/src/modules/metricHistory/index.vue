@@ -122,15 +122,14 @@ export default defineComponent({
                 .filter(dataset => dataset.data.some(value => value !== null))
         },
         attentionDatasets() {
-            const visible = new Set(this.series
-                .filter(s => s.metric === 'attention_lists')
-                .map(s => s.dimension.split(':')[0]))
+            // wiersze "lista@działy" liczą zamówienia dla pulpitu; ten wykres liczy zadania per dział
+            const attention = this.series.filter(s => s.metric === 'attention_lists' && !s.dimension.includes('@'))
+            const visible = new Set(attention.map(s => s.dimension.split(':')[0]))
 
             return ATTENTION_LISTS
                 .filter(list => visible.has(list))
                 .flatMap((list, index) => {
-                    const seriesOf = () => this.series.filter(s => s.metric === 'attention_lists'
-                        && s.dimension.split(':')[0] === list
+                    const seriesOf = () => attention.filter(s => s.dimension.split(':')[0] === list
                         && (this.department === null || !s.dimension.includes(':') || s.dimension.endsWith(`:${this.department}`)))
 
                     return this.withPrevious(

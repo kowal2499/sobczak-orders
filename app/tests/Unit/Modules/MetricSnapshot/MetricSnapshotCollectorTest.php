@@ -152,7 +152,10 @@ class MetricSnapshotCollectorTest extends TestCase
         // Given
         $this->results['attention_lists'] = [
             'overdueOrders' => [$this->attentionLine(7), $this->attentionLine(7)],
-            'overdueProductions' => [$this->attentionLine(7, ['dpt02', 'dpt03'])],
+            'overdueProductions' => [
+                $this->attentionLine(7, ['dpt03', 'dpt02', 'dpt03']),
+                $this->attentionLine(7, ['dpt02', 'dpt03']),
+            ],
         ];
 
         // When
@@ -160,8 +163,9 @@ class MetricSnapshotCollectorTest extends TestCase
 
         // Then
         $this->assertSame(2, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueOrders', customerId: 7)->itemCount);
-        $this->assertSame(1, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueProductions:dpt02', customerId: 7)->itemCount);
-        $this->assertSame(1, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueProductions:dpt03', customerId: 7)->itemCount);
+        $this->assertSame(2, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueProductions:dpt02', customerId: 7)->itemCount);
+        $this->assertSame(3, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueProductions:dpt03', customerId: 7)->itemCount);
+        $this->assertSame(2, $this->find($values, SnapshotMetric::ATTENTION_LISTS, 'overdueProductions@dpt02,dpt03', customerId: 7)->itemCount);
     }
 
     public function testShouldSkipStateMetricsWithoutPresentState(): void
