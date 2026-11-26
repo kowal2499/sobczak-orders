@@ -488,6 +488,32 @@ class AgreementLineRMRepository extends ServiceEntityRepository implements Agree
                     $qb->setParameter('dptRangeStart', $rangeStart);
                     $qb->setParameter('dptRangeEnd', $rangeEnd);
                     break;
+                case 'productionCompletedBetween':
+                    // Prefilter only: completion status and ghosts are still judged in PHP on the read model,
+                    // this just keeps the whole order history from being hydrated for one month.
+                    if (
+                        !isset($value['start'], $value['end'], $value['departments'])
+                        || !is_array($value['departments'])
+                        || \DateTime::createFromFormat('Y-m-d', $value['start']) === false
+                        || \DateTime::createFromFormat('Y-m-d', $value['end']) === false
+                    ) {
+                        break;
+                    }
+                    if (empty($value['departments'])) {
+                        $qb->andWhere('1 = 0');
+                        break;
+                    }
+                    $completed = $this->getEntityManager()->createQueryBuilder()
+                        ->select('1')
+                        ->from(Production::class, 'pCompleted')
+                        ->where('IDENTITY(pCompleted.agreementLine) = l.agreementLineId')
+                        ->andWhere('pCompleted.departmentSlug IN (:completedDepartments)')
+                        ->andWhere('pCompleted.completedAt BETWEEN :completedStart AND :completedEnd');
+                    $qb->andWhere($qb->expr()->exists($completed->getDQL()));
+                    $qb->setParameter('completedDepartments', array_values($value['departments']));
+                    $qb->setParameter('completedStart', new \DateTime($value['start'] . ' 00:00:00'));
+                    $qb->setParameter('completedEnd', new \DateTime($value['end'] . ' 23:59:59'));
+                    break;
             }
         }
 

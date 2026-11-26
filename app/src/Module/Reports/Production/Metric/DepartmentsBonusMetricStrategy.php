@@ -3,6 +3,7 @@
 namespace App\Module\Reports\Production\Metric;
 
 use App\Entity\AgreementLine;
+use App\Entity\Definitions\TaskTypes;
 use App\Module\Agreement\ReadModel\ProductionRM;
 use App\Module\Production\Factor\DTO\AssembledFactorDTO;
 
@@ -11,8 +12,8 @@ use App\Module\Production\Factor\DTO\AssembledFactorDTO;
  * (isCompleted=1, completedAt w zakresie, nie-ghost). Współczynnik: factorBonus.
  * Dla ROLE_CUSTOMER rekordy zawężone do przypisanych klientów.
  *
- * Brak prefiltra dat w search() - kwalifikacja po completedAt (a nie po datach dpt),
- * dlatego pobieramy linie z produkcjami nie-ghost i filtrujemy completedAt w PHP.
+ * Kwalifikacja po completedAt (a nie po datach dpt). search() zawęża linie w SQL do tych z produkcją
+ * działu domyślnego ukończoną w zakresie; ostateczną regułę nadal stosuje qualifies().
  */
 class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
 {
@@ -26,6 +27,11 @@ class DepartmentsBonusMetricStrategy extends AbstractProductionRecordStrategy
         return [
             'statusNot' => [AgreementLine::STATUS_DELETED],
             'hasProduction' => true,
+            'productionCompletedBetween' => [
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+                'departments' => TaskTypes::getDefaultSlugs(),
+            ],
         ];
     }
 
