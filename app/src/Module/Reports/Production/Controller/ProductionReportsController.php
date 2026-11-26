@@ -4,12 +4,14 @@ namespace App\Module\Reports\Production\Controller;
 
 use App\Controller\BaseController;
 use App\Module\Reports\Production\Provider\DashboardMetricProvider;
+use App\System\Http\ReleaseSessionLock;
 use App\Utilities\DateValidationTrait;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[ReleaseSessionLock]
 class ProductionReportsController extends BaseController
 {
     use DateValidationTrait;

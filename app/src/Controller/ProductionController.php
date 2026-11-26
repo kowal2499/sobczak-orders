@@ -20,6 +20,7 @@ use App\Repository\StatusLogRepository;
 use App\Service\Production\ProductionTaskDatesResolver;
 use App\Module\WorkConfiguration\Service\WorkScheduleService;
 use App\System\EventBus;
+use App\System\Http\ReleaseSessionLock;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -221,6 +222,7 @@ class ProductionController extends BaseController
      * @return JsonResponse
      */
     #[Route(path: '/production/summary', name: 'production_summary', options: ['expose' => true], methods: ['POST'])]
+    #[ReleaseSessionLock]
     public function summary(
         Request                $request,
         WorkScheduleService    $workScheduleService,
