@@ -8,22 +8,64 @@
       :style="{ left: nowLineLeft + 'px' }"
     />
 
+    <div
+      v-for="marker in positionedMarkers"
+      :key="'marker-' + marker.date"
+      class="date-marker"
+      :style="{ left: marker.left + 'px' }"
+    />
+
+    <div class="calendar-sticky-head">
+    <div v-if="showMonths" class="calendar-month-row">
+      <div class="resource-label month-corner" />
+      <div
+        v-for="month in months"
+        :key="month.year + '-' + month.month"
+        class="month-header-cell"
+        :style="{ width: month.span * dayWidth + 'px' }"
+      >
+        {{ month.span >= 3 ? monthLabel(month) : '' }}
+      </div>
+    </div>
+
+    <div v-if="weekHeader" class="calendar-week-row">
+      <div class="resource-label week-corner" />
+      <div
+        v-for="week in weeks"
+        :key="week.weekStart"
+        class="week-header-cell"
+        :class="weekHeaderOf(week).variant ? 'week-header-cell--' + weekHeaderOf(week).variant : null"
+        :style="{ width: week.span * dayWidth + 'px' }"
+        :title="weekHeaderOf(week).title || null"
+      >
+        <div class="week-header-label">{{ week.span >= 3 ? weekHeaderOf(week).label : '' }}</div>
+        <div v-if="weekHeaderOf(week).percent !== null && weekHeaderOf(week).percent !== undefined" class="week-header-bar">
+          <div
+            :class="'bg-' + weekHeaderOf(week).variant"
+            :style="{ width: Math.min(weekHeaderOf(week).percent, 100) + '%' }"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Header row: corner + day numbers -->
     <div class="calendar-header-row">
       <div class="resource-label header-corner">Zasób</div>
       <div
         v-for="col in dayColumns"
-        :key="col.day"
+        :key="col.index"
         :title="col.isHoliday ? col.holidayName : null"
         class="day-header-cell"
         :class="{
           'is-today': col.isToday,
-          'is-holiday': col.isHoliday
+          'is-holiday': col.isHoliday,
+          'is-month-start': col.isMonthStart
         }"
       >
         <div class="day-number">{{ col.day }}</div>
         <div class="day-name">{{ col.dayName }}</div>
       </div>
+    </div>
     </div>
 
     <!-- Resource rows -->
@@ -36,7 +78,10 @@
       <!-- Sticky resource label -->
       <div class="resource-label resource-row-label">
         <slot :name="'resource-label-' + resource.id" :resource="resource">
-          <span class="resource-name">{{ resource.name }}</span>
+          <span class="resource-name">
+            {{ resource.name }}
+            <small v-if="resource.note" class="resource-note">{{ resource.note }}</small>
+          </span>
         </slot>
       </div>
 
@@ -44,19 +89,21 @@
       <div class="day-cells">
         <div
           v-for="col in dayColumns"
-          :key="col.day"
+          :key="col.index"
           class="day-cell"
+          :title="cellTitle ? cellTitle(resource.id, col.date) || null : null"
           :class="{
-            'is-selected': isCellSelected(resource.id, col.day),
+            'is-selected': isCellSelected(resource.id, col.index),
             'is-today': col.isToday,
             'is-holiday': col.isHoliday,
+            'is-month-start': col.isMonthStart,
             'is-readonly': !interactive
           }"
           :data-resource-id="resource.id"
-          :data-day="col.day"
-          @mousedown.prevent="$emit('cell-mousedown', resource.id, col.day, $event)"
-          @mouseenter="$emit('cell-mouseenter', resource.id, col.day)"
-          @mouseup="$emit('cell-mouseup', resource.id, col.day)"
+          :data-col="col.index"
+          @mousedown.prevent="$emit('cell-mousedown', resource.id, col.index, $event)"
+          @mouseenter="$emit('cell-mouseenter', resource.id, col.index)"
+          @mouseup="$emit('cell-mouseup', resource.id, col.index)"
         />
       </div>
 
@@ -77,6 +124,7 @@
         :interactive="isEventInteractive(event)"
         @mousedown.native.prevent="$emit('event-mousedown', event, $event)"
         @resize-mousedown="$emit('resize-mousedown', event, $event)"
+        @resize-start-mousedown="$emit('resize-start-mousedown', event, $event)"
         @click.native.stop="$emit('event-click', event)"
       >
         <template #default="slotProps">
@@ -102,7 +150,12 @@
 <script>
 import moment from 'moment'
 import CalendarEvent from './CalendarEvent.vue'
-import { isToday } from './utils/dateHelpers'
+import { columnOf, groupMonths, groupWeeks } from './utils/timeline'
+
+const MONTH_KEYS = [
+  '_january', '_february', '_march', '_april', '_may', '_june',
+  '_july', '_august', '_september', '_october', '_november', '_december'
+]
 import { DAY_WIDTH, RESOURCE_WIDTH, EVENT_HEIGHT } from './utils/gridHelpers'
 
 export default {
@@ -110,14 +163,17 @@ export default {
   components: { CalendarEvent },
   props: {
     resources: { type: Array, required: true },
-    daysInMonth: { type: Array, required: true },
+    columns: { type: Array, required: true },
     positionedEvents: { type: Object, required: true },
     selectionState: { type: Object, default: null },
     dragState: { type: Object, default: null },
-    currentMonthMoment: { type: Object, required: true },
     interactive: { type: Boolean, default: true },
     holidays: { type: Array, default: () => [] },
-    canEditEvent: { type: Function, default: null }
+    canEditEvent: { type: Function, default: null },
+    cellTitle: { type: Function, default: null },
+    weekHeader: { type: Function, default: null },
+    showMonths: { type: Boolean, default: false },
+    markers: { type: Array, default: () => [] }
   },
   data() {
     return {
@@ -126,9 +182,27 @@ export default {
     }
   },
   computed: {
+    dayWidth() {
+      return DAY_WIDTH
+    },
+    weeks() {
+      return groupWeeks(this.columns)
+    },
+    months() {
+      return groupMonths(this.columns)
+    },
+    // A marker sits on the right edge of its day: the day itself is still allowed
+    positionedMarkers() {
+      if (!this.columns.length) return []
+      return this.markers
+        .map(marker => ({ ...marker, col: columnOf(this.columns[0], marker.date) }))
+        .filter(marker => marker.col >= 0 && marker.col < this.columns.length)
+        .map(marker => ({ ...marker, left: RESOURCE_WIDTH + (marker.col + 1) * DAY_WIDTH - 2 }))
+    },
     nowLineLeft() {
-      if (!this.now.isSame(this.currentMonthMoment, 'month')) return null
-      const dayOffset = this.now.date() - 1
+      if (!this.columns.length) return null
+      const dayOffset = columnOf(this.columns[0], this.now)
+      if (dayOffset < 0 || dayOffset >= this.columns.length) return null
       const fractionOfDay = (this.now.hours() * 60 + this.now.minutes()) / (24 * 60)
       return RESOURCE_WIDTH + (dayOffset + fractionOfDay) * DAY_WIDTH
     },
@@ -138,16 +212,18 @@ export default {
       return map
     },
     dayColumns() {
-      const year = this.currentMonthMoment.year()
-      const month = this.currentMonthMoment.month()
-      return this.daysInMonth.map(day => {
-        const dateStr = moment([year, month, day]).format('YYYY-MM-DD')
+      const today = moment()
+      return this.columns.map((m, index) => {
+        const date = m.format('YYYY-MM-DD')
         return {
-          day,
-          isToday: isToday(year, month, day),
-          isHoliday: this.holidayMap.has(dateStr),
-          holidayName: this.holidayMap.get(dateStr) || '',
-          dayName: this.$t(`schedule.dayAbbr.${moment([year, month, day]).day()}`)
+          index,
+          date,
+          day: m.date(),
+          isToday: m.isSame(today, 'day'),
+          isMonthStart: index > 0 && m.date() === 1,
+          isHoliday: this.holidayMap.has(date),
+          holidayName: this.holidayMap.get(date) || '',
+          dayName: this.$t(`schedule.dayAbbr.${m.day()}`)
         }
       })
     }
@@ -172,6 +248,14 @@ export default {
       return Math.max(60, laneCount * EVENT_HEIGHT + 10)
     },
 
+    monthLabel(month) {
+      return `${this.$t(MONTH_KEYS[month.month])} ${month.year}`
+    },
+
+    weekHeaderOf(week) {
+      return this.weekHeader(week.weekStart) || {}
+    },
+
     normalEventsFor(resourceId) {
       const data = this.positionedEvents[resourceId]
       if (!data) return []
@@ -185,8 +269,8 @@ export default {
     },
 
     bgEventStyle(event) {
-      const left = RESOURCE_WIDTH + (event.clippedStart.date() - 1) * DAY_WIDTH
-      const width = (event.clippedEnd.date() - event.clippedStart.date() + 1) * DAY_WIDTH
+      const left = RESOURCE_WIDTH + event.startCol * DAY_WIDTH
+      const width = (event.endCol - event.startCol + 1) * DAY_WIDTH
       return {
         position: 'absolute',
         left: left + 'px',
@@ -199,12 +283,12 @@ export default {
       }
     },
 
-    isCellSelected(resourceId, day) {
+    isCellSelected(resourceId, col) {
       if (!this.selectionState || !this.selectionState.active) return false
       if (this.selectionState.resourceId !== resourceId) return false
-      const s = Math.min(this.selectionState.startDay, this.selectionState.endDay)
-      const e = Math.max(this.selectionState.startDay, this.selectionState.endDay)
-      return day >= s && day <= e
+      const s = Math.min(this.selectionState.startCol, this.selectionState.endCol)
+      const e = Math.max(this.selectionState.startCol, this.selectionState.endCol)
+      return col >= s && col <= e
     },
 
     isDraggingEvent(eventId) {
@@ -264,11 +348,61 @@ $header-height: 48px;
   }
 }
 
-.calendar-header-row {
-  display: flex;
+.calendar-sticky-head {
   position: sticky;
   top: 0;
   z-index: 20;
+  background: #fff;
+}
+
+.calendar-week-row {
+  display: flex;
+  min-width: $resource-width + $day-width * 31;
+  border-bottom: 1px solid var(--colorRule);
+}
+
+.week-corner {
+  height: 30px;
+}
+
+// Mirrors the weekly capacity metric on the dashboard: percentage plus a bar on the same scale
+.week-header-cell {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--colorInkStrong);
+  border-right: 2px solid var(--colorRule);
+  overflow: hidden;
+
+  // a lighter shade of the bar colour; info is the primary blue in this theme
+  &--success { background: rgba(var(--colorSuccessRgb), 0.15); }
+  &--info { background: rgba(var(--colorPrimaryRgb), 0.15); }
+  &--warning { background: rgba(var(--colorYellowRgb), 0.2); }
+  &--danger { background: rgba(var(--colorRedRgb), 0.15); }
+}
+
+.week-header-label {
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.week-header-bar {
+  height: 7px;
+  margin-top: 3px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+
+  > div {
+    height: 100%;
+    border-radius: 4px;
+  }
+}
+
+.calendar-header-row {
+  display: flex;
   background: #fff;
   border-bottom: 1px solid var(--colorRule);
   min-width: $resource-width + $day-width * 31;
@@ -336,6 +470,12 @@ $header-height: 48px;
     border-bottom: 1px solid var(--colorRule);
   }
 
+  .resource-note {
+    display: block;
+    font-weight: 400;
+    color: var(--colorInkMuted);
+  }
+
   .resource-name {
     font-size: 13px;
     font-weight: 600;
@@ -355,6 +495,45 @@ $header-height: 48px;
   &:last-child {
     border-bottom: none;
   }
+}
+
+.day-header-cell.is-month-start,
+.day-cell.is-month-start {
+  border-left: 2px solid var(--colorInkMuted);
+}
+
+.date-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  margin-left: -1px;
+  background: #dc3545;
+  z-index: 24;
+  pointer-events: none;
+}
+
+.calendar-month-row {
+  display: flex;
+  min-width: $resource-width + $day-width * 31;
+  border-bottom: 1px solid var(--colorRule);
+}
+
+.month-corner {
+  height: 24px;
+}
+
+.month-header-cell {
+  flex-shrink: 0;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorInkStrong);
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid var(--colorInkMuted);
 }
 
 .day-cells {
@@ -389,6 +568,5 @@ $header-height: 48px;
 
 .background-event {
   border-radius: 0;
-  opacity: 0.5;
 }
 </style>

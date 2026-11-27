@@ -1,4 +1,6 @@
 <script>
+import { capacityPercent, capacityVariant } from '../services/capacityScale'
+
 export default {
     name: "CapacityProgressBar",
     props: {
@@ -17,21 +19,16 @@ export default {
     },
     computed: {
         percent() {
-            if (!this.capacity || this.capacity <= 0) return 0
-            return Math.round((this.capacityBurned / this.capacity) * 100)
+            return capacityPercent(this.capacity, this.capacityBurned)
         },
         forecastPercent() {
-            if (!this.capacity || this.capacity <= 0) return 0
-            return Math.round((this.capacityBurnedForecast / this.capacity) * 100)
+            return capacityPercent(this.capacity, this.capacityBurnedForecast)
         },
         totalPercent() {
             return this.percent + this.forecastPercent
         },
         variant() {
-            if (this.totalPercent <= 25) return 'success'
-            if (this.totalPercent <= 50) return 'info'
-            if (this.totalPercent <= 75) return 'warning'
-            return 'danger'
+            return capacityVariant(this.totalPercent)
         }
     }
 }

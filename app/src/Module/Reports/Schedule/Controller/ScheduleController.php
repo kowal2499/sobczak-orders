@@ -7,6 +7,7 @@ use App\Entity\AgreementLine;
 use App\Module\Agreement\Repository\AgreementLineRMRepository;
 use App\Module\Reports\Schedule\DTO\ScheduleAgreementLineView;
 use App\Module\Reports\Schedule\Service\ScheduleCapacityService;
+use App\Module\Reports\Schedule\Service\ScheduleDepartmentLoadService;
 use App\Module\Reports\Schedule\Service\ScheduleOrderResourcesService;
 use App\Module\Reports\Schedule\Service\ScheduleProductionResourcesService;
 use App\Module\WorkConfiguration\Entity\WorkSchedule;
@@ -111,6 +112,28 @@ class ScheduleController extends BaseController
 
         return $this->json(
             $service->getCalendarData($start, $end, $includeGhost),
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route(path: '/department-load', methods: ['GET'])]
+    #[IsGranted('ROLE_PRODUCTION')]
+    public function departmentLoad(
+        Request $request,
+        ScheduleDepartmentLoadService $service
+    ): Response {
+        $result = $this->validateDateRange(
+            $request->query->get('startDate'),
+            $request->query->get('endDate')
+        );
+        if ($result instanceof Response) {
+            return $result;
+        }
+        ['start' => $start, 'end' => $end] = $result;
+        $exclude = $request->query->getInt('excludeAgreementLineId');
+
+        return $this->json(
+            $service->getLoad($start, $end, $exclude > 0 ? $exclude : null),
             Response::HTTP_OK
         );
     }

@@ -115,12 +115,5 @@
         .vs__search::placeholder {
             color: gray;
         }
-        .vs__dropdown-option--highlight {
-            background: #4E73DF;
-            color: #fff !important;
-        }
-        .vs__dropdown-option--highlight .text-secondary {
-            color: #d5d5d5 !important;
-        }
     }
 </style>

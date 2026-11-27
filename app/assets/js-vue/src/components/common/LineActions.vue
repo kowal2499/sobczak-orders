@@ -103,15 +103,20 @@
 
                 <template v-if="canStartProduction">
                     <b-dropdown-divider />
-                    <b-dropdown-item>
-                    <start-production-action
-                        :agreement-line="line"
-                        v-on="$listeners"
-                    />
+                    <b-dropdown-item @click="startProductionState = true">
+                        <i class="fa fa-play" aria-hidden="true"/>
+                        {{ $t('startProduction') }}
                     </b-dropdown-item>
                 </template>
             </template>
         </b-dropdown>
+
+        <start-production-action
+            v-if="$user.can($privilages.CAN_PRODUCTION)"
+            v-model="startProductionState"
+            :agreement-line="line"
+            v-on="$listeners"
+        />
 
         <Sidebar
             v-if="canManageFactors"
@@ -215,6 +220,7 @@ export default {
 
     data: () => ({
         sidebarFactorsState: false,
+        startProductionState: false,
     }),
 
     methods: {

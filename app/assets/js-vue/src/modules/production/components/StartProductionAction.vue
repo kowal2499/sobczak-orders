@@ -1,37 +1,14 @@
 <template>
-    <ValidationObserver ref="form" #default="{ invalid }">
-        <modal-action
-            :show-close="false"
-            :title="$t('agreement_line_list.startProductionForm.modalTitle')"
-            :configuration="{ hideFooter: false, size: 'xl' }"
-            :value="value"
-            v-on="$listeners"
-        >
-            <template #open-action="{ open }">
-                <slot name="open-action" :open="() => beforeOpen(open)">
-                    <a class="dropdown-item p-0"
-                       href="#"
-                       @click.prevent="beforeOpen(open)"
-                    >
-                        <i class="fa fa-play" aria-hidden="true"/>
-                        {{ $t('startProduction') }}
-                    </a>
-                </slot>
-            </template>
-
-            <template #modal-footer="{ close }">
-                <div class="form-actions w-100 mt-0">
-                    <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="close">{{ $t('cancel') }}</button>
-                    <button type="button" class="btn btn-primary" :disabled="saving" @click="startProduction(close)">
-                        <i v-if="saving" class="fa fa-spinner fa-spin" aria-hidden="true" />
-                        {{ $t('agreement_line_list.startProductionForm.startProduction') }}
-                    </button>
-                </div>
-            </template>
-
-            <template #default="{ close }">
+    <Sidebar
+        :value="value"
+        :title="$t('agreement_line_list.startProductionForm.modalTitle')"
+        sidebar-class="size-100 size-lg-80"
+        @input="$emit('input', $event)"
+    >
+        <template #sidebar-content>
+            <ValidationObserver ref="form" tag="div" class="start-production">
                 <div class="row">
-                    <div class="col-lg-8">
+                    <div class="col-xl-8">
                         <div class="d-flex flex-column gap-3">
                             <StrategySelect @strategySelected="onStrategySelected" />
                             <StartProductionForm
@@ -41,37 +18,44 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 context-column">
-                        <collapsible-card :title="$t('orders.orderProcessing')">
-                            <agreement-line-widget :agreement-line="agreementLine" disable-edit />
-                        </collapsible-card>
-
-                        <collapsible-card :title="$t('product')" v-if="agreementLine?.Product">
-                            <product-widget :product="agreementLine.Product" disable-edit />
-                        </collapsible-card>
-
-                        <collapsible-card :title="$t('orders.orderDetails')" v-if="agreementLine?.Agreement" collapsed-on-start>
-                            <agreement-widget :agreement="agreementLine.Agreement" :internal-number="agreementLine.internalNumber" disable-edit />
-                        </collapsible-card>
+                    <div class="col-xl-4 context-column">
+                        <StartProductionContext :agreement-line="agreementLine" />
                     </div>
                 </div>
-            </template>
-        </modal-action>
-    </ValidationObserver>
+
+                <ProductionPlanCalendar
+                    :value="form"
+                    @input="onCalendarInput"
+                    class="start-production__calendar"
+                    :confirmed-date="confirmedDateString"
+                    :agreement-line-id="agreementLineId"
+                />
+            </ValidationObserver>
+        </template>
+
+        <template #sidebar-footer="{ close }">
+            <div class="form-actions w-100 mt-0 p-3">
+                <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="close">{{ $t('cancel') }}</button>
+                <button type="button" class="btn btn-primary" :disabled="saving" @click="startProduction(close)">
+                    <i v-if="saving" class="fa fa-spinner fa-spin" aria-hidden="true" />
+                    {{ $t('agreement_line_list.startProductionForm.startProduction') }}
+                </button>
+            </div>
+        </template>
+    </Sidebar>
 </template>
 
 <script>
-import ModalAction from "../../../components/base/ModalAction.vue";
+import Sidebar from "@/components/base/Sidebar.vue";
+import ProductionPlanCalendar from "./ProductionPlanCalendar.vue";
 import StartProductionForm from "./StartProductionForm.vue";
 import StrategySelect from "./StrategySelect.vue";
 import ApiNewOrder from "../../../api/neworder";
 import helpers, { getLocalDate } from "../../../helpers";
 import { applyStrategy } from "../services/productionScheduler";
+import { changedSlugs } from "../services/productionPlanCalendar";
 import { dateToString, parseYMD } from "@/services/datesService";
-import CollapsibleCard from "@/components/base/CollapsibleCard.vue";
-import AgreementWidget from "@/components/orders/single/AgreementWidget.vue";
-import AgreementLineWidget from "@/components/orders/single/AgreementLineWidget.vue";
-import ProductWidget from "@/components/orders/single/ProductWidget.vue";
+import StartProductionContext from "./StartProductionContext.vue";
 
 export default {
     name: "StartProductionAction",
@@ -88,8 +72,9 @@ export default {
     },
 
     components: {
-        ProductWidget, CollapsibleCard, AgreementWidget, AgreementLineWidget,
-        ModalAction,
+        StartProductionContext,
+        Sidebar,
+        ProductionPlanCalendar,
         StartProductionForm,
         StrategySelect,
     },
@@ -104,6 +89,9 @@ export default {
                 .split(' ')[0];
             return parseYMD(date)
         },
+        confirmedDateString() {
+            return dateToString(this.confirmedDate)
+        },
         payload() {
             return (this.form || []).map(row => ({
                 department: row.slug,
@@ -113,11 +101,18 @@ export default {
         }
     },
 
+    watch: {
+        value: {
+            immediate: true,
+            handler(open) {
+                if (open) {
+                    this.form = getForm(this.agreementLine.productions);
+                }
+            }
+        }
+    },
+
     methods: {
-        beforeOpen(callback) {
-            this.form = getForm(this.agreementLine.productions);
-            callback && callback();
-        },
 
         async startProduction(closeCallback)
         {
@@ -145,6 +140,28 @@ export default {
                 })
         },
 
+        onCalendarInput(form) {
+            this.updateForm(form);
+        },
+
+        // Programmatic changes do not trigger vee-validate errors on their own, so the touched
+        // departments are validated explicitly; validating the whole observer would flag empty rows
+        updateForm(form) {
+            const slugs = changedSlugs(this.form || [], form);
+            this.form = form;
+            this.$nextTick(() => {
+                const providers = (this.$refs.form && this.$refs.form.refs) || {};
+                form
+                    .filter(row => slugs.includes(row.slug) && row.dateStart && row.dateEnd)
+                    .forEach(row => {
+                        ['dateStart', 'dateEnd'].forEach(field => {
+                            const provider = providers[`${row.slug}.${field}`];
+                            provider && provider.validate();
+                        });
+                    });
+            });
+        },
+
         onStrategySelected(strategy) {
             let resolvedStrategy = {};
             try {
@@ -157,22 +174,16 @@ export default {
                 return
             }
 
-            EventBus.$emit('message', {
-                type: 'success',
-                content: this.$t('production.datesUpdatedByStrategy', {name: this.$t(strategy.name)})
-            });
-
+            const form = (this.form || []).map(row => ({ ...row }));
             Object.keys(resolvedStrategy).forEach(key => {
                 const [slug, dateField] = key.split('.');
-                const idx = (this.form || []).findIndex(r => r.slug === slug);
-                if (idx !== -1) {
+                const row = form.find(r => r.slug === slug);
+                if (row) {
                     const value = resolvedStrategy[key].value;
-                    this.form[idx][dateField] = (value && value instanceof Date)
-                        ? dateToString(value)
-                        : null;
-
+                    row[dateField] = (value && value instanceof Date) ? dateToString(value) : null;
                 }
             })
+            this.updateForm(form);
         },
     },
 
@@ -203,9 +214,17 @@ function getForm(productions = []) {
 </script>
 
 <style scoped lang="scss">
-@media (min-width: 992px) {
+.start-production {
+    padding: 1rem;
+
+    &__calendar {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 1199.98px) {
     .context-column {
-        border-left: 1px solid var(--colorRule);
+        margin-top: 1rem;
     }
 }
 </style>

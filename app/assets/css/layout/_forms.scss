@@ -76,3 +76,16 @@ label.required:before {
 .v-select:not(.vs--disabled) .vs__dropdown-toggle {
     background-color: #fff;
 }
+
+// Highlighted option follows the primary button: primary background, white text,
+// including option templates that colour their own lines (.text-muted and friends)
+.vs__dropdown-option--highlight {
+    background: var(--colorPrimary);
+    color: #fff;
+
+    .text-body,
+    .text-muted,
+    .text-secondary {
+        color: #fff !important;
+    }
+}

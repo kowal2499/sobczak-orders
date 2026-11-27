@@ -1,6 +1,7 @@
 <template>
   <div class="resource-calendar">
     <CalendarHeader
+      v-if="showHeader && !range"
       :current-month="currentMonth"
       @prev="prevMonth"
       @next="nextMonth"
@@ -9,11 +10,14 @@
 
     <CalendarGrid
       :resources="resources"
-      :days-in-month="daysInMonth"
+      :columns="columns"
       :positioned-events="positionedEvents"
       :selection-state="selectionState"
       :drag-state="dragState"
-      :current-month-moment="currentMonthMoment"
+      :cell-title="cellTitle"
+      :week-header="weekHeader"
+      :show-months="!!range"
+      :markers="markers"
       :interactive="interactive"
       :holidays="holidays"
       :can-edit-event="canEditEvent"
@@ -22,7 +26,8 @@
       @cell-mouseenter="onCellMouseenter"
       @cell-mouseup="onCellMouseup"
       @event-mousedown="onEventMousedown"
-      @resize-mousedown="onResizeMousedown"
+      @resize-mousedown="onResizeEndMousedown"
+      @resize-start-mousedown="onResizeStartMousedown"
       @event-click="onEventClick"
     >
       <!-- Forward all slots from ResourceCalendar down to CalendarGrid -->
@@ -48,7 +53,8 @@ import moment from 'moment'
 import CalendarHeader from './CalendarHeader.vue'
 import CalendarGrid from './CalendarGrid.vue'
 import NewEventModal from './NewEventModal.vue'
-import { assignLanes, DAY_WIDTH, RESOURCE_WIDTH, EVENT_HEIGHT } from './utils/gridHelpers'
+import { assignLanes, DAY_WIDTH } from './utils/gridHelpers'
+import { buildColumns, clipToRange, clampResizeOffset, shiftDate } from './utils/timeline'
 
 export default {
   name: 'ResourceCalendar',
@@ -61,7 +67,12 @@ export default {
     interactive: { type: Boolean, default: true },
     allowCrossResource: { type: Boolean, default: false },
     allowCreate: { type: Boolean, default: true },
-    canEditEvent: { type: Function, default: null }
+    canEditEvent: { type: Function, default: null },
+    range: { type: Object, default: null },
+    showHeader: { type: Boolean, default: true },
+    cellTitle: { type: Function, default: null },
+    weekHeader: { type: Function, default: null },
+    markers: { type: Array, default: () => [] }
   },
   data() {
     return {
@@ -78,94 +89,45 @@ export default {
     currentMonthMoment() {
       return moment(this.currentMonth, 'YYYY-MM')
     },
-    daysInMonth() {
-      const count = this.currentMonthMoment.daysInMonth()
-      return Array.from({ length: count }, (_, i) => i + 1)
+    effectiveRange() {
+      if (this.range) return this.range
+      return {
+        start: this.currentMonthMoment.clone().startOf('month').format('YYYY-MM-DD'),
+        end: this.currentMonthMoment.clone().endOf('month').format('YYYY-MM-DD')
+      }
+    },
+    columns() {
+      return buildColumns(this.effectiveRange.start, this.effectiveRange.end)
     },
     visibleEvents() {
-      const monthStart = this.currentMonthMoment.clone().startOf('month')
-      const monthEnd = this.currentMonthMoment.clone().endOf('month')
-
       return this.localEvents
-        .filter(e => {
-          const eStart = moment(e.dateStart)
-          const eEnd = moment(e.dateEnd)
-          return eStart.isSameOrBefore(monthEnd, 'day') && eEnd.isSameOrAfter(monthStart, 'day')
-        })
-        .map(e => {
-          const eStart = moment(e.dateStart)
-          const eEnd = moment(e.dateEnd)
-          return {
-            ...e,
-            clippedStart: moment.max(eStart, monthStart),
-            clippedEnd: moment.min(eEnd, monthEnd)
-          }
-        })
+        .map(e => this.placeEvent(e, e.dateStart, e.dateEnd))
+        .filter(Boolean)
     },
     positionedEvents() {
       const result = {}
       this.resources.forEach(r => {
-        let rEvents = this.visibleEvents
-          .filter(e => e.resourceId === r.id)
-          .sort((a, b) => a.clippedStart.diff(b.clippedStart))
+        let rEvents = this.visibleEvents.filter(e => e.resourceId === r.id)
 
-        // Apply in-progress drag preview
         if (this.dragState) {
-          rEvents = rEvents.map(e => {
-            if (e.id !== this.dragState.eventId) return e
+          rEvents = rEvents
+            .map(e => (e.id === this.dragState.eventId ? this.dragPreview(e) : e))
+            .filter(Boolean)
 
-            if (this.dragState.type === 'move') {
-              const offset = this.dragState.currentDayOffset || 0
-              const newStart = moment(e.dateStart).add(offset, 'days')
-              const newEnd = moment(e.dateEnd).add(offset, 'days')
-              const monthStart = this.currentMonthMoment.clone().startOf('month')
-              const monthEnd = this.currentMonthMoment.clone().endOf('month')
-              return {
-                ...e,
-                clippedStart: moment.max(newStart, monthStart),
-                clippedEnd: moment.min(newEnd, monthEnd)
-              }
-            }
-
-            if (this.dragState.type === 'resize') {
-              const offset = this.dragState.currentEndDayOffset || 0
-              const newEnd = moment(e.dateEnd).add(offset, 'days')
-              const monthStart = this.currentMonthMoment.clone().startOf('month')
-              const monthEnd = this.currentMonthMoment.clone().endOf('month')
-              const minEnd = moment.max(moment(e.dateStart), monthStart)
-              return {
-                ...e,
-                clippedEnd: moment.max(moment.min(newEnd, monthEnd), minEnd)
-              }
-            }
-
-            return e
-          })
-
-          // For move drag: if the event belongs to a different resource now, filter it out or add it
           if (this.dragState.type === 'move' && this.dragState.currentResourceId !== r.id) {
             rEvents = rEvents.filter(e => e.id !== this.dragState.eventId)
           }
           if (this.dragState.type === 'move' && this.dragState.currentResourceId === r.id) {
-            const draggedEvent = this.visibleEvents.find(e => e.id === this.dragState.eventId)
-            if (draggedEvent && draggedEvent.resourceId !== r.id) {
-              const offset = this.dragState.currentDayOffset || 0
-              const newStart = moment(draggedEvent.dateStart).add(offset, 'days')
-              const newEnd = moment(draggedEvent.dateEnd).add(offset, 'days')
-              const monthStart = this.currentMonthMoment.clone().startOf('month')
-              const monthEnd = this.currentMonthMoment.clone().endOf('month')
-              rEvents.push({
-                ...draggedEvent,
-                clippedStart: moment.max(newStart, monthStart),
-                clippedEnd: moment.min(newEnd, monthEnd)
-              })
-              rEvents.sort((a, b) => a.clippedStart.diff(b.clippedStart))
+            const dragged = this.localEvents.find(e => e.id === this.dragState.eventId)
+            if (dragged && dragged.resourceId !== r.id) {
+              const preview = this.dragPreview(dragged)
+              if (preview) rEvents.push(preview)
             }
           }
         }
 
-        const withLanes = assignLanes(rEvents)
-        result[r.id] = { events: withLanes }
+        rEvents.sort((a, b) => a.startCol - b.startCol)
+        result[r.id] = { events: assignLanes(rEvents) }
       })
       return result
     },
@@ -191,6 +153,24 @@ export default {
     document.removeEventListener('mouseup', this.onGlobalMouseup)
   },
   methods: {
+    placeEvent(event, dateStart, dateEnd) {
+      const clip = clipToRange(dateStart, dateEnd, this.effectiveRange.start, this.effectiveRange.end)
+      return clip ? { ...event, ...clip } : null
+    },
+    dragPreview(event) {
+      const { type, currentDayOffset, currentStartDayOffset, currentEndDayOffset } = this.dragState
+      if (type === 'move') {
+        const offset = currentDayOffset || 0
+        return this.placeEvent(event, shiftDate(event.dateStart, offset), shiftDate(event.dateEnd, offset))
+      }
+      if (type === 'resize') {
+        return this.placeEvent(event, event.dateStart, shiftDate(event.dateEnd, currentEndDayOffset || 0))
+      }
+      if (type === 'resize-start') {
+        return this.placeEvent(event, shiftDate(event.dateStart, currentStartDayOffset || 0), event.dateEnd)
+      }
+      return this.placeEvent(event, event.dateStart, event.dateEnd)
+    },
     prevMonth() {
       this.currentMonth = moment(this.currentMonth, 'YYYY-MM').subtract(1, 'month').format('YYYY-MM')
       this.$emit('month-change', this.currentMonth)
@@ -224,14 +204,21 @@ export default {
         currentResourceId: event.resourceId
       }
     },
-    onResizeMousedown(event, nativeEvent) {
+    onResizeEndMousedown(event, nativeEvent) {
+      this.startResize('resize', event, nativeEvent)
+    },
+    onResizeStartMousedown(event, nativeEvent) {
+      this.startResize('resize-start', event, nativeEvent)
+    },
+    startResize(type, event, nativeEvent) {
       this.suppressClick = false
       if (!this.isEventEditable(event) || nativeEvent.button !== 0) return
       this.dragState = {
-        type: 'resize',
+        type,
         eventId: event.id,
         originalEvent: { ...event },
         startMouseX: nativeEvent.clientX,
+        currentStartDayOffset: 0,
         currentEndDayOffset: 0
       }
     },
@@ -251,19 +238,21 @@ export default {
         this.dragState = { ...this.dragState, ...update }
       }
 
-      if (this.dragState.type === 'resize') {
-        // Allow shortening: minimum offset keeps dateEnd >= dateStart (min 1-day span)
-        const minOffset = moment(this.dragState.originalEvent.dateStart)
-          .diff(moment(this.dragState.originalEvent.dateEnd), 'days')
+      if (this.dragState.type === 'resize' || this.dragState.type === 'resize-start') {
+        const { dateStart, dateEnd } = this.dragState.originalEvent
+        const isStart = this.dragState.type === 'resize-start'
+        const offset = clampResizeOffset(isStart ? 'start' : 'end', dateStart, dateEnd, Math.round(deltaX / DAY_WIDTH))
         this.dragState = {
           ...this.dragState,
-          currentEndDayOffset: Math.max(minOffset, Math.round(deltaX / DAY_WIDTH))
+          [isStart ? 'currentStartDayOffset' : 'currentEndDayOffset']: offset
         }
       }
     },
     onGlobalMouseup() {
       if (!this.dragState) return
-      const { type, eventId, originalEvent, currentDayOffset, currentResourceId, currentEndDayOffset } = this.dragState
+      const {
+        type, eventId, originalEvent, currentDayOffset, currentResourceId, currentStartDayOffset, currentEndDayOffset
+      } = this.dragState
       this.dragState = null
 
       const eventIndex = this.localEvents.findIndex(e => e.id === eventId)
@@ -275,8 +264,8 @@ export default {
         if (offset !== 0 || currentResourceId !== originalEvent.resourceId) {
           this.suppressClick = true
         }
-        ev.dateStart = moment(ev.dateStart).add(offset, 'days').format('YYYY-MM-DD')
-        ev.dateEnd = moment(ev.dateEnd).add(offset, 'days').format('YYYY-MM-DD')
+        ev.dateStart = shiftDate(ev.dateStart, offset)
+        ev.dateEnd = shiftDate(ev.dateEnd, offset)
         ev.resourceId = currentResourceId
         this.$set(this.localEvents, eventIndex, ev)
         this.$emit('event-moved', { previous: originalEvent, updated: ev })
@@ -286,7 +275,17 @@ export default {
         const offset = currentEndDayOffset || 0
         if (offset !== 0) {
           this.suppressClick = true
-          ev.dateEnd = moment(ev.dateEnd).add(offset, 'days').format('YYYY-MM-DD')
+          ev.dateEnd = shiftDate(ev.dateEnd, offset)
+          this.$set(this.localEvents, eventIndex, ev)
+          this.$emit('event-resized', { previous: originalEvent, updated: ev })
+        }
+      }
+
+      if (type === 'resize-start') {
+        const offset = currentStartDayOffset || 0
+        if (offset !== 0) {
+          this.suppressClick = true
+          ev.dateStart = shiftDate(ev.dateStart, offset)
           this.$set(this.localEvents, eventIndex, ev)
           this.$emit('event-resized', { previous: originalEvent, updated: ev })
         }
@@ -301,31 +300,27 @@ export default {
       this.$emit('event-click', event)
     },
 
-    onCellMousedown(resourceId, day) {
+    onCellMousedown(resourceId, col) {
       if (!this.interactive || !this.allowCreate) return
-      this.selectionState = { resourceId, startDay: day, endDay: day, active: true }
+      this.selectionState = { resourceId, startCol: col, endCol: col, active: true }
     },
-    onCellMouseenter(resourceId, day) {
+    onCellMouseenter(resourceId, col) {
       if (!this.selectionState || !this.selectionState.active) return
       if (this.selectionState.resourceId !== resourceId) return
-      this.selectionState = { ...this.selectionState, endDay: day }
+      this.selectionState = { ...this.selectionState, endCol: col }
     },
-    onCellMouseup(resourceId, day) {
+    onCellMouseup() {
       if (!this.selectionState) return
-      const { resourceId: rId, startDay, endDay } = this.selectionState
+      const { resourceId: rId, startCol, endCol } = this.selectionState
       this.selectionState = null
 
-      const year = this.currentMonthMoment.year()
-      const month = this.currentMonthMoment.month()
-      const s = Math.min(startDay, endDay)
-      const e = Math.max(startDay, endDay)
       const resource = this.resources.find(r => r.id === rId)
 
       this.pendingNewEvent = {
         resourceId: rId,
         resourceName: resource ? resource.name : '',
-        dateStart: moment([year, month, s]).format('YYYY-MM-DD'),
-        dateEnd: moment([year, month, e]).format('YYYY-MM-DD')
+        dateStart: this.columns[Math.min(startCol, endCol)].format('YYYY-MM-DD'),
+        dateEnd: this.columns[Math.max(startCol, endCol)].format('YYYY-MM-DD')
       }
       this.showNewEventModal = true
     },

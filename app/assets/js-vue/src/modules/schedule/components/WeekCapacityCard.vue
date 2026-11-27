@@ -3,6 +3,7 @@ import CapacityProgressBar from "./CapacityProgressBar.vue"
 import Sidebar from "@/components/base/Sidebar.vue"
 import CapacitySidebar from "@/modules/schedule/sidebars/CapacitySidebar.vue"
 import SidebarNavbar from "@/components/layout/SidebarNavbar.vue"
+import { weekNumberLabel } from "../services/capacityScale"
 
 export default {
     name: "WeekCapacityCard",
@@ -26,6 +27,8 @@ export default {
             this.q = ''
             this.sidebarOpen = true
         },
+        weekNumberLabel,
+
         formatDate(dateStr) {
             if (!dateStr) {
                 return ''
@@ -47,7 +50,7 @@ export default {
 <template>
     <div class="week-capacity-card border rounded mb-2 p-2">
         <div class="font-weight-bold text-sm mb-1">
-            {{ formatDate(weekData.dateStart) }} – {{ formatDate(weekData.dateEnd) }}
+            {{ weekNumberLabel(weekData.dateStart) }} · {{ formatDate(weekData.dateStart) }} – {{ formatDate(weekData.dateEnd) }}
         </div>
 
         <CapacityProgressBar
