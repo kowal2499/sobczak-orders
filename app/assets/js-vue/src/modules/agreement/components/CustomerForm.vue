@@ -175,14 +175,6 @@ export default {
     .vs__search::placeholder {
         color: gray;
     }
-    .vs__dropdown-option--highlight {
-        background: var(--colorPrimary);
-        color: #fff !important;
-
-        .text-muted {
-            color: #d5d5d5 !important;
-        }
-    }
 }
 </style>
 

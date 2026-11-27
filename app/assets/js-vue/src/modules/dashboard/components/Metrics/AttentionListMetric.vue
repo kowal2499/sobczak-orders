@@ -47,7 +47,7 @@ export default {
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy" :trend="trend" pinned-title class="border-left-warning">
+    <MetricLayout :is-busy="isBusy" :is-loading="isBusy && !data" :trend="trend" pinned-title class="border-left-warning">
         <template #title>
             {{ $t(`dashboard.attention.${kind}.title`) }}
             <span v-if="items.length" class="attention-count">{{ items.length }}</span>

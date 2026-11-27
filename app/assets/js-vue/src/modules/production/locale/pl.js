@@ -1,4 +1,20 @@
 export default {
+    startContext: {
+        deliveryDate: 'Termin dostawy',
+        receiveDate: 'Data otrzymania',
+        noData: 'Brak informacji',
+        showDescription: 'Pokaż opis',
+        hideDescription: 'Ukryj opis',
+    },
+    planCalendar: {
+        allDepartments: 'Wszystkie działy',
+        showHeatmap: 'Pokaż obciążenie działów',
+        capacityTitle: 'Obłożenie firmy w tygodniu (wg terminów dostaw): {burned} / {capacity}',
+        showExistingTasks: 'Pokaż istniejące zadania',
+        noAccess: 'brak dostępu',
+        loadTitle: 'Zadania w dziale: {count}',
+        loadError: 'Nie udało się pobrać obciążenia działów',
+    },
     productionScheduler: {
         strategyFast: {
             name: 'Strategia szybka 6-2-2-0-0-0-czwartek',

@@ -23,20 +23,14 @@ export default defineComponent({
 
 <template>
     <div class="py-3">
+        <button class="btn btn-primary" @click.prevent="show = true">
+            <i class="fa fa-play pr-2" aria-hidden="true"/>
+            {{ $t('startProduction') }}
+        </button>
         <StartProductionAction
             :agreement-line="agreementLine"
             v-model="show"
-        >
-            <template #open-action="{ open }">
-                <button class="btn btn-primary"
-                   @click.prevent="open"
-                >
-                    <i class="fa fa-play pr-2" aria-hidden="true"/>
-                    {{ $t('startProduction') }}
-                </button>
-            </template>
-
-        </StartProductionAction>
+        />
     </div>
 </template>
 

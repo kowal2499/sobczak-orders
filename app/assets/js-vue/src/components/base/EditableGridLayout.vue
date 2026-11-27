@@ -31,6 +31,8 @@
         :use-css-transforms="false"
         :margin="[margin, margin]"
         :style="{ margin: `-${margin}px` }"
+        :class="{ 'editable-grid--pending': !isReady, 'editable-grid--static': !editable }"
+        @layout-ready="isReady = true"
         @layout-updated="onLayoutUpdated"
     >
         <grid-item
@@ -101,6 +103,9 @@ export default {
         return {
             internalLayout: this.cloneLayout(this.layout),
             isStacked: false,
+            // until the grid has measured its width, items are laid out for a 100px container
+            // (narrow tiles that then jump into place) - so the grid stays invisible until then
+            isReady: false,
         };
     },
 
@@ -159,6 +164,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.editable-grid--pending {
+    visibility: hidden;
+}
+
+// the library animates every position change; only dragging in edit mode needs that
+.editable-grid--static,
+.editable-grid--static :deep(.vue-grid-item) {
+    transition: none;
+}
+
 .stacked-grid {
     display: flex;
     flex-direction: column;

@@ -5,6 +5,7 @@ namespace App\Module\Spa\Controller;
 use App\Controller\BaseController;
 use App\Entity\User;
 use App\Module\Spa\Query\GetCurrentUserQuery;
+use App\System\Http\ReleaseSessionLock;
 use App\System\QueryBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ class MeController extends BaseController
     }
 
     #[Route(path: '/me', name: 'spa_me', options: ['expose' => true], methods: ['GET'])]
+    #[ReleaseSessionLock]
     public function me(Request $request): JsonResponse
     {
         $user = $this->getUser();

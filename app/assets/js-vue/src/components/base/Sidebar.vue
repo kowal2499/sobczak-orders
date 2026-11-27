@@ -249,7 +249,7 @@ export default defineComponent({
 @import "~bootstrap/scss/mixins/_breakpoints";
 
 .b-sidebar {
-    $sizes: (25, 50, 75, 100);
+    $sizes: (25, 50, 75, 80, 100);
     $breakpoints: (md, lg, xl, xxl);
     // Bootstrap 4 nie ma progu xxl; 50% szerokości poniżej 1400px jest za wąskie na listy kart
     $sidebar-breakpoints: map-merge($grid-breakpoints, (xxl: 1400px));

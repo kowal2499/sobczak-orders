@@ -5,19 +5,18 @@ export const EVENT_HEIGHT = 28
 export function assignLanes(events) {
   const lanes = []
   return events.map(e => {
-    const startDay = e.clippedStart.date()
-    const endDay = e.clippedEnd.date()
-    let lane = lanes.findIndex(laneEnd => laneEnd < startDay)
-    if (lane === -1) { lane = lanes.length; lanes.push(0) }
-    lanes[lane] = endDay
+    if (e.eventType === 'background') return { ...e, lane: 0 }
+    let lane = lanes.findIndex(laneEnd => laneEnd < e.startCol)
+    if (lane === -1) { lane = lanes.length; lanes.push(-1) }
+    lanes[lane] = e.endCol
     return { ...e, lane }
   })
 }
 
 export function eventPositionStyle(event) {
   return {
-    left: RESOURCE_WIDTH + (event.clippedStart.date() - 1) * DAY_WIDTH + 'px',
-    width: Math.max(1, event.clippedEnd.date() - event.clippedStart.date() + 1) * DAY_WIDTH - 2 + 'px',
+    left: RESOURCE_WIDTH + event.startCol * DAY_WIDTH + 'px',
+    width: Math.max(1, event.endCol - event.startCol + 1) * DAY_WIDTH - 2 + 'px',
     top: event.lane * EVENT_HEIGHT + 2 + 'px'
   }
 }
@@ -30,7 +29,9 @@ export const STATUS_COLORS = {
   completed:      { bg: '#d1e7dd', border: '#198754', text: '#0a3622' },
   not_applicable: { bg: '#e2e3e5', border: '#6c757d', text: '#41464b' },
   // Order envelope bar (orders calendar) - uses the app primary colour, distinct from task statuses above
-  order_range:    { bg: 'var(--colorPrimary)', border: 'var(--colorPrimary)', text: '#ffffff' }
+  order_range:    { bg: 'var(--colorPrimary)', border: 'var(--colorPrimary)', text: '#ffffff' },
+  // Bar being planned in the start-production drawer, not saved yet
+  planned:        { bg: 'var(--colorPrimary)', border: 'var(--colorPrimary)', text: '#ffffff' }
 }
 
 export function eventColors(event) {

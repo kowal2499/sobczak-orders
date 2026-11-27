@@ -149,6 +149,7 @@ export default {
             isBusy: false,
             error: null,
             data: null,
+            requestId: 0,
         })).reduce((acc, item) => {
             acc[item.id] = item
             return acc
@@ -195,18 +196,33 @@ export default {
                 if (!source.active) {
                     return;
                 }
-                this.sourcesState[source.id].isBusy = true;
-                this.sourcesState[source.id].error = null;
+                const state = this.sourcesState[source.id];
+                const requestId = (state.requestId || 0) + 1;
+                state.requestId = requestId;
+                state.isBusy = true;
+                state.error = null;
+                // nowy okres: kręciołek zamiast przygaszonych danych poprzedniego miesiąca
+                if (periodChange) {
+                    state.data = null;
+                }
                 const extraArgs = source.extraArgs ? source.extraArgs(this) : [];
+                // odpowiedź spóźniona względem nowszego zapytania (np. szybka zmiana miesiąca) jest pomijana
+                const isCurrent = () => state.requestId === requestId;
                 source.fetcher(this.dateRangeStart, this.dateRangeEnd, ...extraArgs)
                     .then(({data}) => {
-                        this.sourcesState[source.id].data = data;
+                        if (isCurrent()) {
+                            state.data = data;
+                        }
                     })
                     .catch((error) => {
-                        this.sourcesState[source.id].error = error;
+                        if (isCurrent()) {
+                            state.error = error;
+                        }
                     })
                     .finally(() => {
-                        this.sourcesState[source.id].isBusy = false;
+                        if (isCurrent()) {
+                            state.isBusy = false;
+                        }
                     });
             })
         },

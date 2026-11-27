@@ -6,6 +6,7 @@ use App\Controller\BaseController;
 use App\Module\UserSetting\Command\SaveUserSettingCommand;
 use App\Module\UserSetting\Query\GetUserSettingQuery;
 use App\System\CommandBus;
+use App\System\Http\ReleaseSessionLock;
 use App\System\QueryBus;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,7 @@ class UserSettingController extends BaseController
     }
 
     #[Route('/{context}', methods: ['GET'])]
+    #[ReleaseSessionLock]
     public function get(string $context): JsonResponse
     {
         $user = $this->security->getUser();

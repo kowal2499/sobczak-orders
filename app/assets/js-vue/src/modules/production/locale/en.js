@@ -1,4 +1,20 @@
 export default {
+    startContext: {
+        deliveryDate: 'Delivery date',
+        receiveDate: 'Received',
+        noData: 'No information',
+        showDescription: 'Show description',
+        hideDescription: 'Hide description',
+    },
+    planCalendar: {
+        allDepartments: 'All departments',
+        showHeatmap: 'Show department load',
+        capacityTitle: 'Company load this week (by delivery dates): {burned} / {capacity}',
+        showExistingTasks: 'Show existing tasks',
+        noAccess: 'no access',
+        loadTitle: 'Tasks in department: {count}',
+        loadError: 'Could not load department workload',
+    },
     productionScheduler: {
         strategyFast: {
             name: 'Fast Strategy 6-2-2-0-0-0-thursday',

@@ -5,6 +5,11 @@
     :style="eventStyle"
     :title="event.orderName"
   >
+    <div
+      v-if="interactive"
+      class="resize-handle resize-handle--start"
+      @mousedown.stop.prevent="$emit('resize-start-mousedown', $event)"
+    />
     <div class="event-inner">
       <slot :event="event">
         <span class="event-label">{{ event.orderName }}</span>
@@ -38,6 +43,7 @@ export default {
         borderLeftColor: colors.borderColor,
         color: colors.color,
         opacity: this.isDragging ? 0.7 : 1,
+        paddingLeft: this.interactive ? '12px' : '6px',
         paddingRight: this.interactive ? '20px' : '6px'
       }
     }
@@ -106,6 +112,12 @@ export default {
 
     &:hover {
       background: rgba(0, 0, 0, 0.2);
+    }
+
+    &--start {
+      right: auto;
+      left: 0;
+      border-radius: 3px 0 0 3px;
     }
   }
 }

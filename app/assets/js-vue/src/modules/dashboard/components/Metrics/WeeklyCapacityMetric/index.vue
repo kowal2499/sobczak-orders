@@ -116,7 +116,7 @@ export default {
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy || forecastBusy" class="border-left-warning">
+    <MetricLayout :is-busy="isBusy || forecastBusy" :is-loading="isBusy && !data" class="border-left-warning">
         <template #title>
             <div class="d-flex align-items-center justify-content-between flex-wrap">
                 <span>{{ $t('dashboard.weeklyCapacityMetric') }}</span>

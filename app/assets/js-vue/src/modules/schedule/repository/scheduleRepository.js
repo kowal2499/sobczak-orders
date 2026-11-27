@@ -40,3 +40,13 @@ export function fetchOrderResources(startDate, endDate) {
 export function updateProductionDates(productionId, { dateStart, dateEnd }) {
     return axios.put(`/production/${productionId}/dates`, { dateStart, dateEnd })
 }
+
+export function fetchDepartmentLoad(startDate, endDate, excludeAgreementLineId = null) {
+    const params = new URLSearchParams()
+    params.append('startDate', startDate)
+    params.append('endDate', endDate)
+    if (excludeAgreementLineId) {
+        params.append('excludeAgreementLineId', excludeAgreementLineId)
+    }
+    return axios.get(`/reports/schedule/department-load?${params.toString()}`)
+}

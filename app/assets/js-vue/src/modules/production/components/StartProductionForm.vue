@@ -12,6 +12,7 @@
             <b-col :cols="6" :lg="4">
                 <ValidationProvider
                     :name="`${row.slug}.dateStart`"
+                    :vid="`${row.slug}.dateStart`"
                     #default="{ errors }"
                     :rules="{
                         required: true,
@@ -39,6 +40,7 @@
             <b-col :cols="6" :lg="4">
                 <ValidationProvider
                     :name="`${row.slug}.dateEnd`"
+                    :vid="`${row.slug}.dateEnd`"
                     #default="{ errors }"
                     :rules="{
                         required: true,
