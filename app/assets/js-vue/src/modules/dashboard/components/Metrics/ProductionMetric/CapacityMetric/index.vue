@@ -197,7 +197,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy || forecastBusy" class="border-left-success">
+    <MetricLayout :is-busy="isBusy || forecastBusy" :is-loading="isBusy && !data" class="border-left-success">
         <template #title>
             <div class="d-flex align-items-center justify-content-between flex-wrap">
                 <span>Obłożenie działów produkcji</span>

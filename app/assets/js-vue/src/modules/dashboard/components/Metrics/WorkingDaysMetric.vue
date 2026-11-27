@@ -12,7 +12,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <MetricLayout :is-busy="isBusy" class="border-left-primary">
+    <MetricLayout :is-busy="isBusy" :is-loading="isBusy && !data" class="border-left-primary">
         <template #title>
             {{ $t("dashboard.workingDays") }}
         </template>

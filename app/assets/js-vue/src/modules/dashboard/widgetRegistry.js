@@ -20,9 +20,11 @@ const GRID_COLUMNS = 12;
  * do dziś albo do końca wybranego miesiąca, jeśli jest miniony.
  */
 function trend(ctx, build, sourceId = "src08") {
-    const series = ctx.sourcesState[sourceId]?.data?.series;
+    const source = ctx.sourcesState[sourceId];
+    const series = source?.data?.series;
     if (!series || !ctx.dateRangeStart) {
-        return null;
+        // historia jeszcze się wczytuje: kafel trzyma miejsce na wykres zamiast go potem doklejać
+        return source?.isBusy ? { pending: true } : null;
     }
     const today = dateToString(new Date());
     const stateEnd = ctx.dateRangeEnd < today ? ctx.dateRangeEnd : today;

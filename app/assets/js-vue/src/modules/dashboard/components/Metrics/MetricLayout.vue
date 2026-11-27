@@ -2,28 +2,38 @@
     <div class="card">
         <div
             class="card-body"
-            :class="[pinnedTitle ? 'card-body--pinned' : 'card-body--scroll', isBusy && 'card-body--busy']"
+            :class="[
+                pinnedTitle ? 'card-body--pinned' : 'card-body--scroll',
+                isBusy && !isLoading && 'card-body--busy',
+                isLoading && 'card-body--loading',
+            ]"
         >
             <div class="d-flex justify-content-between">
                 <div class="text-title font-weight-bold text-primary text-uppercase mb-1">
                     <slot name="title" />
                 </div>
                 <div class="text-right">
-                    <font-awesome-icon v-if="isBusy" icon="spinner" spin />
+                    <font-awesome-icon v-if="isBusy && !isLoading" icon="spinner" spin />
                     <span v-show="!isBusy && $slots.description" :id="popoverTargetId">
                         <font-awesome-icon icon="info-circle" class="text-primary" />
                     </span>
                 </div>
             </div>
 
-            <div v-if="pinnedTitle" class="card-body__content">
-                <slot />
+            <div v-if="isLoading" class="metric-loading" aria-hidden="true">
+                <font-awesome-icon icon="spinner" spin />
             </div>
-            <div v-else class="h5 mb-0 font-weight-bold text-gray-800">
-                <slot />
-            </div>
+            <template v-else>
+                <div v-if="pinnedTitle" class="card-body__content">
+                    <slot />
+                </div>
+                <div v-else class="h5 mb-0 font-weight-bold text-gray-800">
+                    <slot />
+                </div>
 
-            <MetricTrend v-if="trend" :trend="trend" class="card-body__trend" />
+                <div v-if="trend && trend.pending" class="card-body__trend card-body__trend--pending" />
+                <MetricTrend v-else-if="trend" :trend="trend" class="card-body__trend" />
+            </template>
 
             <!-- domyślna granica to scrollParent, czyli przewijana karta - wysoki opis wystawał wtedy poza okno -->
             <b-popover :target=popoverTargetId triggers="hover" boundary="viewport">
@@ -47,6 +57,11 @@ export default {
             default: null
         },
         isBusy: {
+            type: Boolean,
+            default: false
+        },
+        // pierwsze ładowanie (brak danych): kręciołek zamiast treści; odświeżenie istniejących danych tylko je przygasza
+        isLoading: {
             type: Boolean,
             default: false
         },
@@ -78,6 +93,23 @@ export default {
     margin: 0;
 }
 
+.card-body--loading {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.metric-loading {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    font-size: 2.5rem;
+    color: var(--colorSecondary);
+    opacity: .6;
+}
+
 .card-body--scroll {
     overflow-y: auto;
 }
@@ -92,6 +124,11 @@ export default {
 .card-body__trend {
     flex: 0 0 auto;
     margin-top: .5rem;
+
+    // miejsce na wykres, który jeszcze się wczytuje
+    &--pending {
+        height: 36px;
+    }
 }
 
 .card-body__content {
